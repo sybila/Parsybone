@@ -6,7 +6,7 @@
 				<INTER source="3" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="00" t_value="-1" />
+				<REGUL mask="00" t_value="1" />
 				<REGUL mask="01" t_value="-1" />
 				<REGUL mask="10" t_value="-1" />
 				<REGUL mask="11" t_value="-1" />
@@ -17,7 +17,7 @@
 				<INTER source="0" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="-1" />
+				<REGUL mask="0" t_value="1" />
 				<REGUL mask="1" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>
@@ -28,7 +28,7 @@
 				<INTER source="5" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="000" t_value="-1" />
+				<REGUL mask="000" t_value="1" />
 				<REGUL mask="001" t_value="-1" />
 				<REGUL mask="010" t_value="-1" />
 				<REGUL mask="011" t_value="-1" />
@@ -43,7 +43,7 @@
 				<INTER source="2" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="-1" />
+				<REGUL mask="0" t_value="1" />
 				<REGUL mask="1" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>
@@ -52,7 +52,7 @@
 				<INTER source="4" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="-1" />
+				<REGUL mask="0" t_value="1" />
 				<REGUL mask="1" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>
@@ -61,7 +61,7 @@
 				<INTER source="2" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="-1" />
+				<REGUL mask="0" t_value="1" />
 				<REGUL mask="1" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>

@@ -19,6 +19,9 @@
     <Filter Include="RapidXML-v1.13">
       <UniqueIdentifier>{e364bf05-96f6-4c4b-9dfa-49fa3517f65e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="auxiliary">
+      <UniqueIdentifier>{2df9edf7-f84d-42ef-b332-bfae3fdd9843}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\results\results.hpp">
@@ -74,6 +77,12 @@
     </ClInclude>
     <ClInclude Include="..\rapidxml-1.13\rapidxml_print.hpp">
       <Filter>RapidXML-v1.13</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auxiliary\data_types.hpp">
+      <Filter>auxiliary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auxiliary\template.hpp">
+      <Filter>auxiliary</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

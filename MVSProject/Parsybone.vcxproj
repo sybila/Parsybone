@@ -70,6 +70,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\auxiliary\data_types.hpp" />
+    <ClInclude Include="..\auxiliary\template.hpp" />
     <ClInclude Include="..\coloring\model_checker.hpp" />
     <ClInclude Include="..\coloring\product_structure.hpp" />
     <ClInclude Include="..\parsing\model.hpp" />

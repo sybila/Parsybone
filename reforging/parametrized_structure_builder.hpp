@@ -165,7 +165,7 @@ class ParametrizedStructureBuilder {
 
 		// Check if there even is a transition
 		for (auto it = transitive_values.begin(); it != transitive_values.end(); it++) {
-			if (*it == false)
+			if (*it == true)
 				return true;
 		}
 		return false;
