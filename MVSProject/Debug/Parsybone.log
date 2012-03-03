@@ -1,12 +1,39 @@
-﻿Build started 3.3.2012 17:53:48.
+﻿Build started 3.3.2012 23:08:06.
      1>Project "D:\SYBILA\Parsybone\Work\MVSProject\Parsybone.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\Parsybone.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         All outputs are up-to-date.
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\main.cpp
+         main.cpp
+     1>d:\sybila\parsybone\work\parsing\model_parser.hpp(75): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\string.h(105) : see declaration of 'strcpy'
+     1>c:\program files (x86)\microsoft visual studio 10.0\vc\include\xutility(2227): warning C4996: 'std::_Copy_impl': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\xutility(2212) : see declaration of 'std::_Copy_impl'
+                 c:\program files (x86)\boost\boost_1_44\boost\algorithm\string\detail\classification.hpp(102) : see reference to function template instantiation '_OutIt std::copy<const char*,char*>(_InIt,_InIt,_OutIt)' being compiled
+                 with
+                 [
+                     _OutIt=char *,
+                     _InIt=const char *
+                 ]
+                 c:\program files (x86)\boost\boost_1_44\boost\algorithm\string\classification.hpp(206) : see reference to function template instantiation 'boost::algorithm::detail::is_any_ofF<CharT>::is_any_ofF<boost::iterator_range<IteratorT>>(const RangeT &)' being compiled
+                 with
+                 [
+                     CharT=char,
+                     IteratorT=const char *,
+                     RangeT=boost::iterator_range<const char *>
+                 ]
+                 d:\sybila\parsybone\work\reforging\automaton_builder.hpp(159) : see reference to function template instantiation 'boost::algorithm::detail::is_any_ofF<CharT> boost::algorithm::is_any_of<const char[2]>(RangeT (&))' being compiled
+                 with
+                 [
+                     CharT=char,
+                     RangeT=const char [2]
+                 ]
        Link:
-         All outputs are up-to-date.
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\SYBILA\Parsybone\Work\MVSProject\Debug\Parsybone.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\Parsybone.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\SYBILA\Parsybone\Work\MVSProject\Debug\Parsybone.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\SYBILA\Parsybone\Work\MVSProject\Debug\Parsybone.lib" /MACHINE:X86 Debug\main.obj
+         LINK : D:\SYBILA\Parsybone\Work\MVSProject\Debug\Parsybone.exe not found or not built by the last incremental link; performing full link
          Parsybone.vcxproj -> D:\SYBILA\Parsybone\Work\MVSProject\Debug\Parsybone.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"D:\SYBILA\Parsybone\Work\MVSProject\Debug\Parsybone.exe;#1" /manifest Debug\Parsybone.exe.intermediate.manifest
        FinalizeBuildStatus:
          Deleting file "Debug\Parsybone.unsuccessfulbuild".
          Touching "Debug\Parsybone.lastbuildstate".
@@ -14,4 +41,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.07
+Time Elapsed 00:00:04.87

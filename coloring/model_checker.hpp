@@ -66,7 +66,7 @@ class ModelChecker {
 #ifdef DEBUG_OUTPUT
 				std::cout << "  New BFS level.\n";
 #endif
-			if (product->updateParameters(updates.front().second, updates.front().first))
+			if (product->updateParameters(updates.front().second, updates.front().first, true))
 				transferUpdates(updates, updates.front());
 			updates.pop();
 		}
@@ -84,7 +84,7 @@ class ModelChecker {
 			// For each final state of the product store the coloring
 			for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
 				state_num = ks_state_num * automaton.getStatesCount() + ba_state_num;
-				final_states.push(std::make_pair(state_num, product->getParameters(state_num)));
+				final_states.push(std::make_pair(state_num, product->getParameters(state_num, true)));
 			}
 		}
 	}
@@ -164,7 +164,7 @@ class ModelChecker {
 #ifdef DEBUG_OUTPUT
 				std::cout << "  New BFS level.\n";
 #endif
-			if (product->updateParameters(updates.front().second, updates.front().first))
+			if (product->updateParameters(updates.front().second, updates.front().first, true))
 				transferUpdates(updates, updates.front());
 			updates.pop();
 		}
@@ -197,15 +197,15 @@ public:
 		while (!final_states.empty()) {
 			// Restart the coloring using coloring of the first final state
 			const Coloring & final_state = final_states.front();
-			product->reset();
+			product->resetParameters(true);
 #ifdef DEBUG_OUTPUT
 				std::cout << "Cycling from the state: " << final_state.first << " with parameters: " << final_state.second << ":\n";
 #endif
 			floodColoring(final_state);
 			// Store the result
 			const std::size_t state_num = final_state.first;
-			if (!product->getParameters(state_num).none())
-				results.addColoredState(Coloring(state_num, product->getParameters(state_num)));
+			if (!product->getParameters(state_num, true).none())
+				results.addColoredState(Coloring(state_num, product->getParameters(state_num, true)));
 			// Remove the state
 			final_states.pop();
 		}
