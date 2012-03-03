@@ -72,7 +72,6 @@
   <ItemGroup>
     <ClInclude Include="..\coloring\model_checker.hpp" />
     <ClInclude Include="..\coloring\product_structure.hpp" />
-    <ClInclude Include="..\data_types.hpp" />
     <ClInclude Include="..\parsing\model.hpp" />
     <ClInclude Include="..\parsing\model_parser.hpp" />
     <ClInclude Include="..\rapidxml-1.13\rapidxml.hpp" />
@@ -89,7 +88,6 @@
     <ClInclude Include="..\reforging\parametrized_structure_builder.hpp" />
     <ClInclude Include="..\results\output_manager.hpp" />
     <ClInclude Include="..\results\results.hpp" />
-    <ClInclude Include="..\template.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
@@ -101,6 +99,7 @@
     <None Include="..\MODELS\Template.dbm" />
     <None Include="..\MODELS\Template.xml" />
     <None Include="..\MODELS\Template2.dbm" />
+    <None Include="..\README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
