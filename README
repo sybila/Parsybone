@@ -1,0 +1,6 @@
+Parsybone project by Adam Streck 
+open-source 2012
+
+Requirements:
+	GCC v4.5.x or Microsoft Visual Studio 2010
+	Boost libraries v1.4.x

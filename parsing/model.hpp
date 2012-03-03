@@ -1,0 +1,200 @@
+/*
+ * Copyright (C) 2012 - Adam Streck
+ *
+ * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ *
+ * Poseidon is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Poseidon is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
+ *
+ * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno.
+ * See http://sybila.fi.muni.cz/ .
+ */
+
+#ifndef POSEIDON_MODEL_INCLUDED
+#define POSEIDON_MODEL_INCLUDED
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Model stores model data in the raw form, almost the same as in the model file itself.
+// Model data can be set only form the ModelParser object.
+// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <map>
+#include <algorithm>
+#include <vector>
+
+class ModelParser;
+
+class Model {
+	friend class ModelParser;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NEW TYPES AND DATA:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+public:
+	typedef std::pair<std::size_t, std::size_t> Interaction; // Interaction between species (Source ID, threshold)
+	typedef std::pair<std::vector<bool>, int> Regulation; // Regulatory context of the specie (bitmask of active incoming interactions, target value)
+	typedef std::pair<std::size_t, std::string> Egde; // Edge in Buchi Automaton (Target ID, edge label)
+
+private:
+	// Structure that holds data about a single specie.
+	// Most of the data is equal to that in the model file
+	struct ModelSpecie {
+	private:
+		// Data are accesible from within the model class but not from the Model objects
+		friend class Model;
+
+		ModelSpecie(std::string _name, size_t _ID, size_t _max_value, size_t _basal_value) 
+			: name(_name), ID(_ID), max_value(_max_value), basal_value(_basal_value) { }
+
+		std::vector<Interaction> interactions;
+
+		std::vector<Regulation> regulations;
+
+		std::string name; // Actuall name of the specie
+		std::size_t ID; // Numerical constant used to distinguish the specie. Starts from 0!
+		std::size_t basal_value;
+		std::size_t max_value;
+	};
+
+	// Structure that holds data about a single state.
+	struct BuchiAutomatonState {
+	private:
+		// Data are accesible from within the model class but not from the Model objects
+		friend class Model;
+
+		BuchiAutomatonState(std::size_t _ID, bool _final) : ID(_ID), final(_final) {	}
+
+		bool final;      // stores the information whether the state is final
+		std::size_t ID;  // Numerical constant used to distinguish the state. Starts from 0!
+
+		std::vector<Egde> edges; // edges in Buchi Automaton (Target ID, edge label)
+	};
+
+	// Actuall data holders.
+	std::vector<ModelSpecie>         species;
+	std::vector<BuchiAutomatonState> states;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FILLING FUNCTIONS (can be used only from ModelParser)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Create a new specie with the provided name, basal and maximal value
+	 *
+	 * @return	index of specie in the vector
+	 */
+	inline std::size_t addSpecie(std::string _name, size_t _max_value, size_t _basal_value) {
+		species.push_back(ModelSpecie(_name, species.size(), _max_value, _basal_value));
+		return species.size() - 1;
+	}
+
+	/**
+	 * Add a new interaction to the specie. Interaction is stored with the target, not the source.
+	 */
+	inline void addInteraction(size_t source_ID, size_t target_ID, size_t threshold) {
+		species[target_ID].interactions.push_back(std::move(Interaction(source_ID, threshold)));
+	}
+
+	/**
+	 * Add a new regulation to the specie.
+	 */
+	inline void addRegulation(size_t target_ID, std::vector<bool>&& subset_mask, int target_value) {
+		species[target_ID].regulations.push_back(Regulation(std::move(subset_mask), target_value));
+	}
+
+	/**
+	 * Add a new state to the automaton.
+	 *
+	 * @return	ID of state in the vector
+	 */
+	inline std::size_t addState(bool final) {
+		states.push_back(BuchiAutomatonState(states.size(), final));
+		return states.size() - 1;
+	}
+
+	/**
+	 * Add a new transition - transition is specified by the target state and label
+	 */
+	inline void addConditions(std::size_t state_ID, std::size_t target_ID, std::string && edge_label) {
+		states[state_ID].edges.push_back(Egde(target_ID, std::move(edge_label)));
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// OTHER FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	Model(const Model & other);            // Forbidden copy constructor.
+	Model& operator=(const Model & other); // Forbidden assignment operator.
+
+public:
+	Model() {} // Default empty constructor
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTANT GETTERS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * @return	number of the species
+	 */
+	inline const std::size_t getSpeciesCount() const {
+		return species.size();
+	}
+
+	/**
+	 * @return	number of the states
+	 */
+	inline const std::size_t getStatesCount() const {
+		return states.size();
+	}
+
+	/**
+	 * @return	ID of the specie with the specified name if there is such, otherwise -1
+	 */
+	const int findID(const std::string name) const {
+		int ID = -1;
+		std::for_each(species.begin(), species.end(), [&ID, &name](ModelSpecie spec) {
+			if (spec.name.compare(name) == 0)
+				ID = spec.ID;
+		});
+		return ID;
+	}
+
+	/**
+	 * @return	maximal value of the specie
+	 */
+	inline const std::size_t getMax(const std::size_t ID) const {
+		return species[ID].max_value;
+	}
+
+	/**
+	 * @return	interactions of the specie
+	 */
+	inline const std::vector<Interaction> & getInteractions(const std::size_t ID) const {
+		return species[ID].interactions;
+	}
+
+	/**
+	 * @return	regulations of the specie
+	 */
+	inline const std::vector<Regulation> & getRegulations(const std::size_t ID)  const {
+		return species[ID].regulations;
+	}
+
+	/**
+	 * @return	true if the state is final
+	 */
+	inline const bool isFinal(const std::size_t ID) const {
+		return states[ID].final;
+	}
+
+	/**
+	 * @return	edges of the state
+	 */
+	inline const std::vector<Egde> & getEdges(const std::size_t ID) const {
+		return states[ID].edges;
+	}
+};
+
+
+#endif

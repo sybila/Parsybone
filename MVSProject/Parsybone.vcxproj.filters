@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\RapidXML-v1.13">
+      <UniqueIdentifier>{e364bf05-96f6-4c4b-9dfa-49fa3517f65e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\reforging">
+      <UniqueIdentifier>{8868a00c-6eb3-402c-90f2-2a7195734b90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\coloring">
+      <UniqueIdentifier>{650b2010-0cc4-4960-ae44-01091e866b52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\parsing">
+      <UniqueIdentifier>{392ddcff-d7dd-4c0d-bae9-10b5dc5b5f8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MODELS">
+      <UniqueIdentifier>{c4004ea3-f063-4274-97ce-4ea4aeaac98a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\results">
+      <UniqueIdentifier>{258763af-fb7c-49f2-acb5-326e95b4399a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\coloring\model_checker.hpp">
+      <Filter>Header Files\coloring</Filter>
+    </ClInclude>
+    <ClInclude Include="..\coloring\product_structure.hpp">
+      <Filter>Header Files\coloring</Filter>
+    </ClInclude>
+    <ClInclude Include="..\parsing\model.hpp">
+      <Filter>Header Files\parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\parsing\model_parser.hpp">
+      <Filter>Header Files\parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rapidxml-1.13\rapidxml.hpp">
+      <Filter>Header Files\RapidXML-v1.13</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rapidxml-1.13\rapidxml_iterators.hpp">
+      <Filter>Header Files\RapidXML-v1.13</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rapidxml-1.13\rapidxml_print.hpp">
+      <Filter>Header Files\RapidXML-v1.13</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rapidxml-1.13\rapidxml_utils.hpp">
+      <Filter>Header Files\RapidXML-v1.13</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\automaton_builder.hpp">
+      <Filter>Header Files\reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\automaton_structure.hpp">
+      <Filter>Header Files\reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\basic_structure.hpp">
+      <Filter>Header Files\reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\basic_structure_builder.hpp">
+      <Filter>Header Files\reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\functions_builder.hpp">
+      <Filter>Header Files\reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\functions_structure.hpp">
+      <Filter>Header Files\reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\parametrized_structure.hpp">
+      <Filter>Header Files\reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\parametrized_structure_builder.hpp">
+      <Filter>Header Files\reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\data_types.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\template.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\results\output_manager.hpp">
+      <Filter>Header Files\results</Filter>
+    </ClInclude>
+    <ClInclude Include="..\results\results.hpp">
+      <Filter>Header Files\results</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\MODELS\GS_cell_cycle.dbm">
+      <Filter>MODELS</Filter>
+    </None>
+    <None Include="..\MODELS\IRMA.dbm">
+      <Filter>MODELS</Filter>
+    </None>
+    <None Include="..\MODELS\Simple.dbm">
+      <Filter>MODELS</Filter>
+    </None>
+    <None Include="..\MODELS\Template.dbm">
+      <Filter>MODELS</Filter>
+    </None>
+    <None Include="..\MODELS\Template.xml">
+      <Filter>MODELS</Filter>
+    </None>
+    <None Include="..\MODELS\Template2.dbm">
+      <Filter>MODELS</Filter>
+    </None>
+  </ItemGroup>
+</Project>
