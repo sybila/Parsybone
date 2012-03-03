@@ -42,4 +42,7 @@ typedef boost::dynamic_bitset<> Parameters;
 // State number and its coloring
 typedef std::pair<std::size_t, Parameters> Coloring;
 
+// Which type of parameter we use in the product
+enum ParameterType { state, update };
+
 #endif
