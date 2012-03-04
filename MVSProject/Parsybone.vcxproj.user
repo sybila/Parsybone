@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommandArguments>-f ../MODELS/IRMA.dbm -F IRMA.txt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-f ../MODELS/IRMA.dbm -F ../Computed/simple_IRMA.txt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

@@ -42,21 +42,6 @@ class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	/**
-	 * Color initial states (as for initial states of the BA)
-	 */
-	void basicColoring(std::unique_ptr<ProductStructure> & product) {
-
-		Parameters all_parameters(product->getParametersCount());
-		all_parameters = ~all_parameters;
-		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
-			// Starting Buchi state
-			if (state_num % automaton.getStatesCount() == 0) {
-				Coloring init_coloring(state_num, all_parameters);
-				colorProduct(init_coloring, product);
-			}
-		}
-	}
 
 	/**
 	 * Pick final states from basic coloring and store them with their parameters
@@ -140,10 +125,37 @@ class ModelChecker {
 	 *
 	 * For each final state that has at least one parameter assigned, start cycle detection.
 	 */
-	void colorProduct(const Coloring & init_coloring, std::unique_ptr<ProductStructure> & product) {
+	void detectCycle(const Coloring & init_coloring, std::unique_ptr<ProductStructure> & product) {
+		// Assure the product is empty
 		product->reset();
 		std::set<std::size_t> updates;
 		transferUpdates(product, updates, init_coloring.first, init_coloring.second);
+
+		// Continuosly update
+		while (!updates.empty()) {
+			std::size_t state_num = *updates.begin();
+			transferUpdates(product, updates, state_num, product->getParameters(state_num));
+			updates.erase(state_num);
+		}
+	}
+
+	/**
+	 * Color initial states (as for initial states of the BA)
+	 */
+	void colorProduct(std::unique_ptr<ProductStructure> & product) {
+		std::set<std::size_t> updates;
+
+		// Fill all the initial states with all parameters and schedule them to update
+		Parameters all_parameters(product->getParametersCount());
+		all_parameters = ~all_parameters;
+		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
+			if (state_num % automaton.getStatesCount() == 0) {
+					updates.insert(state_num);
+					product->updateParameters(all_parameters, state_num);
+			}
+		}
+		
+		// Continuosly update
 		while (!updates.empty()) {
 			std::size_t state_num = *updates.begin();
 			transferUpdates(product, updates, state_num, product->getParameters(state_num));
@@ -173,14 +185,14 @@ public:
 		// Create a new structure
 		std::unique_ptr<ProductStructure> product(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , structure.getParametersCount()));
 		// Basic coloring
-		basicColoring(product);
+		colorProduct(product);
 		// Store colored final vertices
 		std::queue<Coloring> final_states = std::move(storeFinalStates(product));
 
 		// Get the actuall results by cycle detection
 		while (!final_states.empty()) {
 			// Restart the coloring using coloring of the first final state
-			colorProduct(final_states.front(), product);
+			detectCycle(final_states.front(), product);
 
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
