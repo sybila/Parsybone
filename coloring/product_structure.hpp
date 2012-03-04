@@ -34,90 +34,57 @@ class ProductStructure {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// pointer used to access all the parameters
-	Parameters * states;
-	Parameters * updates;
+	Parameters * state_parameters;
 
 	// Information
 	const std::size_t states_count;
 	const std::size_t parameters_count;
-	bool are_states_built, are_updates_built;
+	bool is_product_built;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA HANDLING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
 	/**
 	 * Creates the array of parameters with no value
-	 *
-	 * @param use_state	true if states array is requested, false if updates array is requested
 	 */ 
-	void createEmptyArray(const ParameterType use_which) {
-		bool & is_array_built = (use_which == state) ? are_states_built : are_updates_built;
-		if (is_array_built)
-			throw std::runtime_error("Trying to build array of parameters that is already built.");
+	void createEmptyProduct () {
+		if (is_product_built)
+			throw std::runtime_error("trying to build product even thought it has been already built");
 		try {
-			// Create
-			if (use_which == state)
-				states = new Parameters [states_count];
-			else 
-				updates = new Parameters [states_count];
-			Parameters * array_pointer = (use_which == state) ? states : updates;
-
+			state_parameters = new Parameters [states_count];
 			// Fill and set all to zero
 			const std::size_t _parameters_count = parameters_count;
-			std::for_each(array_pointer, array_pointer + states_count, [_parameters_count](Parameters & parameters) {
+			std::for_each(state_parameters, state_parameters + states_count, [_parameters_count](Parameters & parameters) {
 				parameters.resize(_parameters_count, 0);
 			});
 		}
 		catch (std::exception & e) {
-			std::cerr << "Error while trying to create parameter states" << e.what();
-			throw std::runtime_error("new Parameters [states_count] failed");
+			std::cerr << "Error while trying to create product states: " << e.what();
+			throw std::runtime_error("new ProductStructure::Parameters [states_count] failed");
 		}
-		is_array_built = true;
+		is_product_built = true;
 	}
 
 	/**
 	 * Deletes the array
-	 *
-	 * @param use_state	true if states array is requested, false if updates array is requested
 	 */
-	void deleteArray(const ParameterType use_which) {
-		Parameters * array_pointer = (use_which == state) ? states : updates;
-		bool & is_array_built = (use_which == state) ? are_states_built : are_updates_built;
-		if (is_array_built) {
-			is_array_built = false;
-			delete [] array_pointer;
-			array_pointer = 0;
+	void deleteProduct() {
+		if (is_product_built) {
+			is_product_built = false;
+			delete [] state_parameters;
+			state_parameters = 0;
 		}
 		else 
-			throw std::runtime_error("deleteArray(const Parameters * array_pointer, bool & is_array_built) forbidden - trying to delete not built memory");
+			throw std::runtime_error("trying to deleteProduct(), but the product is not built");
 	}
 
 	/**
 	 * Sets all to zero
-	 *
-	 * @param use_state	true if states array is requested, false if updates array is requested
 	 */ 
-	void resetArray (const ParameterType use_which) {
-		Parameters * array_pointer = (use_which == state) ? states : updates;
-		std::for_each(array_pointer, array_pointer + states_count,[](Parameters & parameters) {
+	void resetProduct() {
+		std::for_each(state_parameters, state_parameters + states_count,[](Parameters & parameters) {
 			parameters.reset();
 		});
-	}
-
-	/**
-	 * gets safely pointer to parameters
-	 *
-	 * @param use_state	true if states array is requested, false if updates array is requested
-	 *
-	 * @return requested pointer
-	 */
-	Parameters * safeGetPointer(const ParameterType use_which) const {
-		if ((use_which == state) && !are_states_built) 
-			throw std::runtime_error("Trying to access array of states which is not created at the time.");
-		else if (!are_updates_built)
-			throw std::runtime_error("Trying to access array of updates which is not created at the time.");
-		return use_which ? states : updates;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,29 +94,19 @@ class ProductStructure {
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	/**
-	 * Constructor that builds requested namber of parameters for states and updates array.
-	 */
 	ProductStructure (const std::size_t _states_count, const std::size_t _parameters_count) // Passing data
-		: states_count(std::move(_states_count)), parameters_count(std::move(_parameters_count)) {
-		states = updates = 0;
-		are_states_built = are_updates_built = false;
-		createEmptyArray(state);
-		createEmptyArray(update);
+		: states_count(std::move(_states_count)), parameters_count(std::move(_parameters_count)), state_parameters(0), is_product_built(false) {
+		createEmptyProduct();
 	}
 
-	/**
-	 * Safely deletes given arrays.
-	 */
 	~ProductStructure() {
-		deleteArray(state);
-		deleteArray(update);
+		deleteProduct();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * @return	number of states of the product structure
 	 */
@@ -166,48 +123,40 @@ public:
 
 	/**
 	 * @param state_num	index of the state to ask
-	 * @param use_state	true if states array is requested, false if updates array is requested
 	 * 
 	 * @return true if the state has no parameters assigned to it
 	 */
-	inline const bool isEmpty(const std::size_t state_num, const ParameterType use_which) const {
-		Parameters * array_pointer = safeGetPointer(use_which);
-		return array_pointer[state_num].empty();
+	inline const bool isEmpty(const std::size_t state_num) const {
+		return state_parameters[state_num].empty();
 	}
 
 	/**
 	 * @param state_num	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
-	 * @param use_state	true if states array is requested, false if updates array is requested
 	 * 
 	 * @return true if there was an actuall update
 	 */
-	const bool updateParameters(const Parameters & parameters, const std::size_t state_num, const ParameterType use_which) {
-		Parameters * array_pointer = safeGetPointer(use_which);
-		if (parameters.is_subset_of(array_pointer[state_num]))
+	inline bool updateParameters(const Parameters & parameters, const std::size_t state_num) const {
+		if (parameters.is_subset_of(state_parameters[state_num]))
 			return false;
-		array_pointer[state_num] |= parameters;
+		state_parameters[state_num] |= parameters;
 		return true;
 	}
 
 	/**
 	 * @param state_num	index of the state to ask
-	 * @param use_state	true if states array is requested, false if updates array is requested
 	 * 
 	 * @return parameters assigned to the state
 	 */
-	inline const Parameters & getParameters(const std::size_t state_num, const ParameterType use_which) {
-		Parameters * array_pointer = safeGetPointer(use_which);
-		return array_pointer[state_num];
+	inline const Parameters & getParameters(const std::size_t state_num) {
+		return state_parameters[state_num];
 	}
 
 	/**
-	 * Outside call to reset all the parameters in the array to zero.
-	 *
-	 * @param use_state	true if states array is requested, false if updates array is requested
+	 * Outside call to reset the product.
 	 */
-	inline void resetParameters(const ParameterType use_which) {
-		resetArray(use_which);
+	inline void reset() {
+		resetProduct();
 	}
 };
 
