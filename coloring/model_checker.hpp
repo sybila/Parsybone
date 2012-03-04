@@ -34,12 +34,9 @@
 class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::queue<Coloring> final_states; // States colored in basic coloring
-	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
-	std::unique_ptr<ProductStructure> product; // Used for coloring
 	Results & results; // Filled with computed data
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,34 +45,24 @@ class ModelChecker {
 	/**
 	 * Color initial states (as for initial states of the BA)
 	 */
-	void colorStates() {
-		std::queue<Coloring> updates;
+	void basicColoring(std::unique_ptr<ProductStructure> & product) {
 
 		Parameters all_parameters(product->getParametersCount());
 		all_parameters = ~all_parameters;
 		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
 			// Starting Buchi state
 			if (state_num % automaton.getStatesCount() == 0) {
-
 				Coloring init_coloring(state_num, all_parameters);
-				updates.push(init_coloring);
+				colorProduct(init_coloring, product);
 			}
-		}
-
-		while (!updates.empty()) {
-#ifdef DEBUG_OUTPUT
-				std::cout << "  New BFS level.\n";
-#endif
-			if (product->updateParameters(updates.front().second, updates.front().first))
-				transferUpdates(updates, updates.front());
-			updates.pop();
 		}
 	}
 
 	/**
 	 * Pick final states from basic coloring and store them with their parameters
 	 */
-	void storeFinalStates() {
+	std::queue<Coloring> storeFinalStates(std::unique_ptr<ProductStructure> & product) {
+		std::queue<Coloring> final_states; // States colored in basic coloring
 		std::size_t state_num = 0;
 		// List throught product states that are final
 		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStatesCount(); ba_state_num++) {
@@ -86,10 +73,11 @@ class ModelChecker {
 				// Compute the product state position
 				state_num = ks_state_num * automaton.getStatesCount() + ba_state_num;
 				// If there is a coloring, store
-				if (product->isEmpty(state_num)) 
+				if (!product->isEmpty(state_num)) 
 					final_states.push(std::make_pair(state_num, product->getParameters(state_num)));
 			}
 		}
+		return final_states;
 	}
 
 	/**
@@ -114,40 +102,34 @@ class ModelChecker {
 	/**
 	 * Create a new update from the transition
 	 */
-	void pushUpdate(const Coloring & source, const std::size_t transition_index, const std::size_t KS_ID, const std::size_t BA_ID, std::queue<Coloring> & updates) {
-		Parameters passed = source.second;
-		passParameters(passed, structure.getStepSize(KS_ID, transition_index), structure.getTransitive(KS_ID, transition_index));
+	void pushUpdate(std::unique_ptr<ProductStructure> & product, std::set<std::size_t> & updates, const Parameters & parameters, const std::size_t KS_transition_num, const std::size_t source_KS_state, const std::size_t target_BA_state) {
+		Parameters passed = parameters;
+		passParameters(passed, structure.getStepSize(source_KS_state, KS_transition_num), structure.getTransitive(source_KS_state, KS_transition_num));
 		// If there is at least some update
 		if (!passed.none()) {
-			updates.push(Coloring(structure.getTargetID(KS_ID,transition_index) * automaton.getStatesCount() + BA_ID, passed));
-#ifdef DEBUG_OUTPUT
-			std::cout << "    UPDATE: State " << structure.getTargetID(KS_ID,transition_index) * automaton.getStatesCount() + BA_ID;
-			std::cout << ", parameters ";
-			for (std::size_t param = 0; param < passed.size(); param++) {
-				std::cout << passed[param];
-			}
-			std::cout << ".\n";
-#endif
+			std::size_t target_state = structure.getTargetID(source_KS_state,KS_transition_num) * automaton.getStatesCount() + target_BA_state;
+			if (product->updateParameters(passed, target_state))
+				updates.insert(target_state);
 		}
 	}
 
-	void transferUpdates(std::queue<Coloring> & updates, Coloring & source) {
+	void transferUpdates(std::unique_ptr<ProductStructure> & product, std::set<std::size_t> & updates, const std::size_t source_state, const Parameters & parameters) {
 		// Compute position in product
-		std::size_t automaton_state = source.first % automaton.getStatesCount();
-		std::size_t structure_state = source.first / automaton.getStatesCount();
+		std::size_t source_BA_state = source_state % automaton.getStatesCount();
+		std::size_t source_KS_state = source_state / automaton.getStatesCount();
 
-		// Get the feasible transitions numbers
+		// For each feasible transition of BA store its ID in the queue
 		std::queue<std::size_t> transitible_ba;
-		for (std::size_t transition_num = automaton.getBeginIndex(automaton_state); transition_num < automaton.getBeginIndex(automaton_state + 1); transition_num++) {
-			if (automaton.isTransitionFeasible(transition_num, structure.getStateLevels(structure_state)))
+		for (std::size_t transition_num = automaton.getBeginIndex(source_BA_state); transition_num < automaton.getBeginIndex(source_BA_state + 1); transition_num++) {
+			if (automaton.isTransitionFeasible(transition_num, structure.getStateLevels(source_KS_state)))
 				transitible_ba.push(automaton.getTarget(transition_num));
 		}
 
 		// Push updates for each BA transition times each KS transition
 		while (!transitible_ba.empty()) {
-			std::size_t ba_state_num = transitible_ba.front();
-			for (std::size_t transition_num = 0; transition_num < structure.getTransitionsCount(structure_state); transition_num++) {
-				pushUpdate(source, transition_num, structure_state, ba_state_num, updates);
+			std::size_t target_BA_state = transitible_ba.front();
+			for (std::size_t KS_transition_num = 0; KS_transition_num < structure.getTransitionsCount(source_KS_state); KS_transition_num++) {
+				pushUpdate(product, updates, parameters, KS_transition_num, source_KS_state, target_BA_state);
 			}
 			transitible_ba.pop();
 		}
@@ -158,18 +140,14 @@ class ModelChecker {
 	 *
 	 * For each final state that has at least one parameter assigned, start cycle detection.
 	 */
-	void floodColoring(const Coloring & init_coloring) {
-		std::queue<Coloring> updates;
-		updates.push(init_coloring);
-		transferUpdates(updates, updates.front());
-		updates.pop();
+	void colorProduct(const Coloring & init_coloring, std::unique_ptr<ProductStructure> & product) {
+		product->reset();
+		std::set<std::size_t> updates;
+		transferUpdates(product, updates, init_coloring.first, init_coloring.second);
 		while (!updates.empty()) {
-#ifdef DEBUG_OUTPUT
-				std::cout << "  New BFS level.\n";
-#endif
-			if (product->updateParameters(updates.front().second, updates.front().first))
-				transferUpdates(updates, updates.front());
-			updates.pop();
+			std::size_t state_num = *updates.begin();
+			transferUpdates(product, updates, state_num, product->getParameters(state_num));
+			updates.erase(state_num);
 		}
 	}
 
@@ -185,30 +163,30 @@ public:
 	 */
 	ModelChecker(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results) 
 		: structure(_structure), automaton(_automaton), results(_results) {
-		product.reset(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , structure.getParametersCount()));
+
 	}
 
 	/**
 	 * Entry point of the parameter synthesis
 	 */
 	void syntetizeParameters() {
+		// Create a new structure
+		std::unique_ptr<ProductStructure> product(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , structure.getParametersCount()));
 		// Basic coloring
-		colorStates();
+		basicColoring(product);
 		// Store colored final vertices
-		storeFinalStates();
+		std::queue<Coloring> final_states = std::move(storeFinalStates(product));
+
 		// Get the actuall results by cycle detection
 		while (!final_states.empty()) {
 			// Restart the coloring using coloring of the first final state
-			const Coloring & final_state = final_states.front();
-			product->reset();
-#ifdef DEBUG_OUTPUT
-				std::cout << "Cycling from the state: " << final_state.first << " with parameters: " << final_state.second << ":\n";
-#endif
-			floodColoring(final_state);
+			colorProduct(final_states.front(), product);
+
 			// Store the result
-			const std::size_t state_num = final_state.first;
+			const std::size_t state_num = final_states.front().first;
 			if (!product->getParameters(state_num).none())
 				results.addColoredState(Coloring(state_num, product->getParameters(state_num)));
+
 			// Remove the state
 			final_states.pop();
 		}
