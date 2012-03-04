@@ -30,6 +30,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 
 #include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>
