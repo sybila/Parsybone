@@ -36,6 +36,7 @@ class ModelChecker {
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	// Provided with constructor
+	const UserOptions & user_options;
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 
@@ -216,8 +217,8 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results) 
-		: structure(_structure), automaton(_automaton), results(_results) {	}
+	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results) 
+		: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {	}
 
 	/**
 	 * Entry point of the parameter synthesis. 

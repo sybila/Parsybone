@@ -35,6 +35,7 @@ class AutomatonBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	const UserOptions & user_options;
 	const Model & model;
 	AutomatonStructure & automaton;
 
@@ -176,8 +177,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	AutomatonBuilder(const Model & _model, AutomatonStructure & _automaton) : model(_model), automaton(_automaton) {
-	}
+	AutomatonBuilder(const UserOptions &_user_options, const Model & _model, AutomatonStructure & _automaton) 
+		: user_options(_user_options), model(_model), automaton(_automaton) { }
 
 	/**
 	 * Create the transitions from the model and fill the automaton with them

@@ -27,6 +27,8 @@ class OutputManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Provided with constructor
+	const UserOptions & user_options;
 	const Results & results;
 	const FunctionsStructure & functions_structure;
 	std::ostream & output_stream;
@@ -38,7 +40,8 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(std::ostream & _output_stream, const Results & _results, const FunctionsStructure & _functions_structure) : output_stream(_output_stream), results(_results), functions_structure(_functions_structure) {} // Default empty constructor
+	OutputManager(const UserOptions & _user_options, std::ostream & _output_stream, const Results & _results, const FunctionsStructure & _functions_structure) 
+		: user_options(_user_options), output_stream(_output_stream), results(_results), functions_structure(_functions_structure) {} // Default empty constructor
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS

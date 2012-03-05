@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
 
 		// Parse model file
 		*output_stream << "Parsing started.\n";
-		ModelParser model_parser(*input_stream, model);
+		ModelParser model_parser(user_options, *input_stream, model);
 		model_file_version = model_parser.parseInput();
 
 	} catch (std::exception & e) {
@@ -145,15 +145,15 @@ int main(int argc, char* argv[]) {
 		*output_stream << "Data building started.\n";
 
 		// Parametrized Structure building
-		BasicStructureBuilder basic_structure_builder(model, basic_structure);
+		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
 		basic_structure_builder.buildStructure();
-		FunctionsBuilder functions_builder(model, functions_structure);
+		FunctionsBuilder functions_builder(user_options, model, functions_structure);
 		functions_builder.buildFunctions();
-		ParametrizedStructureBuilder parametrized_structure_builder(basic_structure, functions_structure, parametrized_structure);
+		ParametrizedStructureBuilder parametrized_structure_builder(user_options, basic_structure, functions_structure, parametrized_structure);
 		parametrized_structure_builder.buildStructure();
 
 		// Automata Structure building
-		AutomatonBuilder automaton_builder(model, automaton);
+		AutomatonBuilder automaton_builder(user_options, model, automaton);
 		automaton_builder.buildAutomaton();
 	} catch (std::exception & e) {
 		std::cerr << "Error occured while building data structures: " << e.what() << ". \n";
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
 	try {
 		long long start_time = my_clock();
 		*output_stream << "Coloring started.\n";
-		ModelChecker model_checker(parametrized_structure, automaton, results);
+		ModelChecker model_checker(user_options, parametrized_structure, automaton, results);
 		model_checker.syntetizeParameters();
 		*output_stream << "Coloring ended after: " << (my_clock() - start_time) / 1000.0 << " seconds.\n";
 	} catch (std::exception & e) {
@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
 		*output_stream << "Output started.\n";
-		OutputManager output_manager(*output_stream, results, functions_structure);
+		OutputManager output_manager(user_options, *output_stream, results, functions_structure);
 		output_manager.basicOutput();
 	} catch (std::exception & e) {
 		std::cerr << "Error occured during output of the results: " << e.what() << ". \n";

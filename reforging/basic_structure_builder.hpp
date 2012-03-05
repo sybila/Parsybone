@@ -34,6 +34,7 @@ class BasicStructureBuilder {
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
+	const UserOptions & user_options;
 	const Model & model; // Model that holds the data
 	BasicStructure & structure; // KipkeStructure to fill
 
@@ -109,8 +110,8 @@ public:
 	/**
 	 * Constructor initializes basic information from the model
 	 */
-	BasicStructureBuilder(const Model & _model, BasicStructure & _structure) : model(_model), structure(_structure)  {
-		states_count = 1;
+	BasicStructureBuilder(const UserOptions &_user_options, const Model & _model, BasicStructure & _structure) 
+		: user_options(_user_options), model(_model), structure(_structure), states_count(1)  {
 		species_count = model.getSpeciesCount();
 		index_jumps.resize(species_count);
 		computeJumpDifferences();

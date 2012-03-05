@@ -33,6 +33,7 @@ class FunctionsBuilder {
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
+	const UserOptions & user_options;
 	const Model & model; // Model that holds the data
 	FunctionsStructure & functions_structure; // FunctionsStructure class to fill
 
@@ -147,7 +148,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	FunctionsBuilder(const Model & _model, FunctionsStructure & _functions_structure) : model(_model), functions_structure(_functions_structure)  {	}
+	FunctionsBuilder(const UserOptions & _user_options, const Model & _model, FunctionsStructure & _functions_structure) 
+		: user_options(_user_options), model(_model), functions_structure(_functions_structure)  {	}
 
 	/**
 	 * Create the functions from the model 

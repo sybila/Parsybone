@@ -36,6 +36,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "model.hpp"
+#include "../auxiliary/data_types.hpp"
 
 #include "../rapidxml-1.13/rapidxml.hpp"
 #include "../rapidxml-1.13/rapidxml_iterators.hpp"
@@ -52,6 +53,7 @@ class ModelParser {
 	// Provided with constructor
 	Model & model; // Model that will hold the data
 	std::istream & input_stream; // Input stream to read from
+	const UserOptions & user_options;
 
 	// Created with and for parsing
 	rapidxml::xml_document<>  model_xml; // Main parsing node
@@ -383,7 +385,7 @@ public:
 	/**
 	 * Constructor has to provide references to an input stream to read from and model object to store parsed information.
 	 */
-	ModelParser(std::istream & _input_stream, Model & _model) : input_stream(_input_stream), model( _model) {}
+	ModelParser(const UserOptions &_user_options, std::istream & _input_stream, Model & _model) : user_options(_user_options), input_stream(_input_stream), model( _model) {}
 
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.
