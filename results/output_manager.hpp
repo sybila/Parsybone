@@ -46,7 +46,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+private:
 	/**
 	 * @return vector of values for each function
 	 */
@@ -88,16 +88,17 @@ public:
 		}
 	}
 
+public:
 	void basicOutput() {
 		const Parameters result_parameters = results.getAllParameters();
 		output_stream << "Total number of parameters: "  << result_parameters.count() << " out of: " << functions_structure.getParametersCount() << ".\n";
-		// outputParameters(result_parameters);
-
-		for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
-			output_stream << "State: " << results.getColoring(coloring_num).first << " is colored with parameters: \n";
-			outputParameters(results.getColoring(coloring_num).second);
-		}
 		
+		for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
+			output_stream << "State: " << results.getColoring(coloring_num).first << " is colored with " << results.getColoring(coloring_num).second.count() << " parameters.\n";
+		}
+
+		output_stream << "All the parameters:\n";
+		outputParameters(result_parameters);
 		
 		/*for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
 			const Coloring & coloring = results.getColoring(coloring_num);

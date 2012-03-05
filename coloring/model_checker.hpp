@@ -235,8 +235,9 @@ public:
 
 		// Get the actuall results by cycle detection
 		while (!final_states.empty()) {
-			// Restart the coloring using coloring of the first final state
-			detectCycle(final_states.front(), product);
+			// If we do not check a guarantee property, restart the coloring using coloring of the first final state
+			if (!user_options.guarantee)
+				detectCycle(final_states.front(), product);
 
 			// Store the result
 			const std::size_t state_num = final_states.front().first;

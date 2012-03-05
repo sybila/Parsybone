@@ -49,7 +49,6 @@ class ModelParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	// Provided with constructor
 	Model & model; // Model that will hold the data
 	std::istream & input_stream; // Input stream to read from
@@ -60,32 +59,58 @@ class ModelParser {
 	std::unique_ptr<char []>  parsed_data; // Data obtained from the stream
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FUNCTIONS:
+// COMPUTATION FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	/**
-	 * Creates RapidXML document from the input stream.
+	 * @param mask_string	mask of the active interactions in given regulatory context in the form of a string
+	 *
+	 * @return Vector of boolean values that represents the input mask.
 	 */
-	void createDocument() {
-		// Copy input data from stream into a string line by line
-		std::string input_line, input_data;
-		for (int lineno = 1; std::getline(input_stream, input_line); ++lineno) {
-			input_data += input_line + "\n";
-		}
+	std::vector<bool> getMask(std::string mask_string) const {
+		std::vector<bool> mask;
+		std::for_each(mask_string.begin(), mask_string.end(),[&mask](char ch) {
+			if (ch != '0' && ch !='1') 
+				throw std::runtime_error("Error occured while parsing a regulation. It seems that you have entered value other than 0 or 1 in the mask.");
+			try {
+				mask.push_back(boost::lexical_cast<bool, char>(ch));
+			} catch (boost::bad_lexical_cast e) {
+				std::cerr << "Error occured while parsing a regulation. " << e.what() << "\n";
+				throw std::runtime_error("boost::lexical_cast<size_t, char>(temp_attr->value()) failed");
+			}
+		});
+		return mask;
+	}
 
-		// Copy data from String to newly created c-string
-		parsed_data.reset(new char[input_data.size() + 1]);
-		std::strcpy(parsed_data.get(), input_data.c_str());
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// READING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	rapidxml::xml_node<> * getNode(const rapidxml::xml_node<> const * current_node, const char* node_name) const {
+		rapidxml::xml_node<> * return_node = 0;
+		return_node = current_node->first_node(node_name);
+		if (return_node == 0)
+			throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
+		return return_node;
+	}
 
-		// Setup the parser with the c-string
-		try {
-			model_xml.parse<0>(parsed_data.get());
-		} catch (rapidxml::parse_error e) {
-			std::cerr << "Error occured while trying to reconstruct xml document from the stream: " << e.what() << ". \n";
-			throw std::runtime_error("rapidxml::xml_document<>.parse(char *) failed");
+	template <class returnType>
+	void getAttribute(returnType & requested_data, const rapidxml::xml_node<> const * current_node, const char* attribute_name) const {
+		rapidxml::xml_attribute<> *temp_attr;
+		if (current_node->first_attribute(attribute_name) == 0)
+			throw std::runtime_error(std::string("Parser did not found the mandatory attribute ").append(attribute_name));
+		else { 
+			temp_attr = current_node->first_attribute(attribute_name);
+			try {
+				requested_data = boost::lexical_cast<returnType, char*>(temp_attr->value());
+			} catch (boost::bad_lexical_cast e) {
+				std::cerr << "Error while parsing an attribute " << attribute_name << "." << e.what() << "\n";
+				throw std::runtime_error("boost::lexical_cast<decltype(requested_data), char*>(temp_attr->value()) failed");
+			}
 		}
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PARSING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Starting from the SPECIE node, the function parses all the INTER tags and reads the data from them.
 	 */
@@ -97,29 +122,15 @@ class ModelParser {
 		std::size_t source; std::size_t threshold;
 
 		// Step into INTERACTIONS tag
-		interaction = specie_node->first_node("INTERACTIONS");
-		if (interaction == 0)
-			throw std::runtime_error("Parser did not found the INTERACTIONS node in some SPECIE");
+		interaction = getNode(specie_node, "INTERACTIONS");
 
 		// Step into first INTER tag
-		interaction = interaction->first_node("INTER");
-		if (interaction == 0)
-			throw std::runtime_error("Parser did not found any INTER node between INTERACTIONS in some SPECIE");
+		interaction = getNode(interaction, "INTER");
 
 		while (true) { // End when the current node does not have next sibling (all INTER tags were parsed)
 
 			// Get source ID and conver to integer.
-			if (interaction->first_attribute("source") == 0)
-				throw std::runtime_error("Parser did not found the source attribute in some INTER node");
-			else { 
-				temp_attr = interaction->first_attribute("source");
-				try {
-					source = boost::lexical_cast<size_t, char*>(temp_attr->value());
-				} catch (boost::bad_lexical_cast e) {
-					std::cerr << "Error occured while parsing a interaction. It seems that you have entered non-numerical value as a source attribute. " << e.what() << "\n";
-					throw std::runtime_error("boost::lexical_cast<size_t, char*>(temp_attr->value()) failed");
-				}
-			}
+			getAttribute(source, interaction, "source");
 
 			// Get threshold and conver to integer.
 			if (interaction->first_attribute("threshold") == 0)
@@ -145,26 +156,6 @@ class ModelParser {
 	}
 
 	/**
-	 * @param mask_string	mask of the active interactions in given regulatory context in the form of a string
-	 *
-	 * @return Vector of boolean values that represents the input mask.
-	 */
-	std::vector<bool> getMask(std::string mask_string) const {
-		std::vector<bool> mask;
-		std::for_each(mask_string.begin(), mask_string.end(),[&mask](char ch) {
-			if (ch != '0' && ch !='1') 
-				throw std::runtime_error("Error occured while parsing a regulation. It seems that you have entered value other than 0 or 1 in the mask.");
-			try {
-				mask.push_back(boost::lexical_cast<bool, char>(ch));
-			} catch (boost::bad_lexical_cast e) {
-				std::cerr << "Error occured while parsing a regulation. " << e.what() << "\n";
-				throw std::runtime_error("boost::lexical_cast<size_t, char>(temp_attr->value()) failed");
-			}
-		});
-		return mask;
-	}
-
-	/**
 	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
 	 */
 	void parseRegulations(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
@@ -175,13 +166,9 @@ class ModelParser {
 		std::string mask_string; int target_value;
 
 		// Step into REGULATIONS tag
-		regulation = specie_node->first_node("REGULATIONS");
-		if (regulation == 0)
-			throw std::runtime_error("Parser did not found the REGULATIONS node in some SPECIE");
+		regulation = getNode(specie_node, "REGULATIONS");
 		// Step into first REGUL tag
-		regulation = regulation->first_node("REGUL");
-		if (regulation == 0)
-			throw std::runtime_error("Parser did not found any REGUL node between REGULATIONS in some SPECIE");
+		regulation = getNode(regulation, "REGUL");
 
 		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
 
@@ -227,9 +214,7 @@ class ModelParser {
 		std::string name; size_t max; size_t basal;
 
 		// Step into first SPECIE tag
-		if (structure_node->first_node("SPECIE") == 0)
-			throw std::runtime_error("Parser did not found the SPECIE node");
-		else specie = structure_node->first_node("SPECIE");
+		specie = getNode(structure_node, "SPECIE");
 
 		while (true) { // End when the current node does not have next sibling (all SPECIES tags were parsed)
 
@@ -294,13 +279,9 @@ class ModelParser {
 		std::string label_string; std::size_t target_ID;
 
 		// Step into REGULATIONS tag
-		transition = state_node->first_node("TRANSITIONS");
-		if (transition == 0)
-			throw std::runtime_error("Parser did not found the TRANSITIONS node in some STATE");
+		transition = getNode(state_node, "TRANSITIONS");
 		// Step into first REGUL tag
-		transition = transition->first_node("TRANS");
-		if (transition == 0)
-			throw std::runtime_error("Parser did not found any TRANS node between TRANSITIONS in some STATE");
+		transition = getNode(transition, "TRANS");
 
 		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
 
@@ -346,9 +327,7 @@ class ModelParser {
 		bool final;
 
 		// Step into first SPECIE tag
-		if (automaton_node->first_node("STATE") == 0)
-			throw std::runtime_error("Parser did not found the STATE node");
-		else state = automaton_node->first_node("STATE");
+		state = getNode(automaton_node, "STATE");
 
 		while (true) { // End when the current node does not have next sibling (all STATES tags were parsed)
 
@@ -378,6 +357,33 @@ class ModelParser {
 		} 
 	}
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTRUCTION FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Creates RapidXML document from the input stream.
+	 */
+	void createDocument() {
+		// Copy input data from stream into a string line by line
+		std::string input_line, input_data;
+		for (int lineno = 1; std::getline(input_stream, input_line); ++lineno) {
+			input_data += input_line + "\n";
+		}
+
+		// Copy data from String to newly created c-string
+		parsed_data.reset(new char[input_data.size() + 1]);
+		std::strcpy(parsed_data.get(), input_data.c_str());
+
+		// Setup the parser with the c-string
+		try {
+			model_xml.parse<0>(parsed_data.get());
+		} catch (rapidxml::parse_error e) {
+			std::cerr << "Error occured while trying to reconstruct xml document from the stream: " << e.what() << ". \n";
+			throw std::runtime_error("rapidxml::xml_document<>.parse(char *) failed");
+		}
+	}
+	
 	ModelParser(const ModelParser & other);            // Forbidden copy constructor.
 	ModelParser& operator=(const ModelParser & other); // Forbidden assignment operator.
 

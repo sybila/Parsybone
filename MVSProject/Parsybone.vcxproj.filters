@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="MODELS">
-      <UniqueIdentifier>{c4004ea3-f063-4274-97ce-4ea4aeaac98a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="coloring">
       <UniqueIdentifier>{650b2010-0cc4-4960-ae44-01091e866b52}</UniqueIdentifier>
     </Filter>
@@ -21,6 +18,9 @@
     </Filter>
     <Filter Include="auxiliary">
       <UniqueIdentifier>{2df9edf7-f84d-42ef-b332-bfae3fdd9843}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{c4004ea3-f063-4274-97ce-4ea4aeaac98a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -87,22 +87,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">
-      <Filter>MODELS</Filter>
+      <Filter>Models</Filter>
     </None>
     <None Include="..\MODELS\IRMA.dbm">
-      <Filter>MODELS</Filter>
+      <Filter>Models</Filter>
     </None>
     <None Include="..\MODELS\Simple.dbm">
-      <Filter>MODELS</Filter>
+      <Filter>Models</Filter>
     </None>
     <None Include="..\MODELS\Template.dbm">
-      <Filter>MODELS</Filter>
+      <Filter>Models</Filter>
     </None>
     <None Include="..\MODELS\Template.xml">
-      <Filter>MODELS</Filter>
+      <Filter>Models</Filter>
     </None>
     <None Include="..\MODELS\Template2.dbm">
-      <Filter>MODELS</Filter>
+      <Filter>Models</Filter>
     </None>
     <None Include="..\README" />
   </ItemGroup>
