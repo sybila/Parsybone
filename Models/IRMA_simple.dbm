@@ -17,7 +17,7 @@
 				<INTER source="0" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="1" />
+				<REGUL mask="0" t_value="-1" />
 				<REGUL mask="1" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>

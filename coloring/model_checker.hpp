@@ -164,7 +164,9 @@ class ModelChecker {
 	 */
 	void doColoring(std::set<std::size_t> & updates, std::unique_ptr<ProductStructure> & product, const Range & synthesis_range) {
 		while (!updates.empty()) {
-			std::size_t state_num = *updates.begin();
+			std::size_t state_num = *std::max_element(updates.begin(), updates.end(), [&product](std::size_t state_i, std::size_t state_j){ 
+				return product->getParameters(state_i).count() < product->getParameters(state_j).count();
+			});
 			transferUpdates(product, updates, state_num, product->getParameters(state_num), synthesis_range);
 			updates.erase(state_num);
 		}
