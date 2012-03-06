@@ -67,10 +67,14 @@ class ModelParser {
 	 * @return Vector of boolean values that represents the input mask.
 	 */
 	std::vector<bool> getMask(std::string mask_string) const {
+		// Vector that will hold the mask instead of the string
 		std::vector<bool> mask;
+		// For all characters in the mask
 		std::for_each(mask_string.begin(), mask_string.end(),[&mask](char ch) {
+			// Check correctness of the symbols
 			if (ch != '0' && ch !='1') 
 				throw std::runtime_error("Error occured while parsing a regulation. It seems that you have entered value other than 0 or 1 in the mask.");
+			// Push the value to the vector
 			try {
 				mask.push_back(boost::lexical_cast<bool, char>(ch));
 			} catch (boost::bad_lexical_cast e) {
@@ -84,21 +88,40 @@ class ModelParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // READING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	rapidxml::xml_node<> * getNode(const rapidxml::xml_node<> const * current_node, const char* node_name) const {
+	/**
+	 * Gets pointer to the descendant of the current node.
+	 *
+	 * @param current_node	pointer to the ancestor of requested node
+	 * @param node_name	string with the name of the decendant
+	 *
+	 * @return	pointer to the descendant
+	 */
+	rapidxml::xml_node<> * getChildNode(const rapidxml::xml_node<> * const current_node, const char* node_name) const {
 		rapidxml::xml_node<> * return_node = 0;
+		// try to get the node
 		return_node = current_node->first_node(node_name);
 		if (return_node == 0)
 			throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
 		return return_node;
 	}
 
+	/**
+	 * Gets value of the attribute in the correct data type.
+	 *
+	 * @param requested_data	variable that will be filled with requested value
+	 * @param current_node	pointer to the node holding requested attribute
+	 * @param attribute_name	string with the name of the attribute
+	 */
 	template <class returnType>
-	void getAttribute(returnType & requested_data, const rapidxml::xml_node<> const * current_node, const char* attribute_name) const {
-		rapidxml::xml_attribute<> *temp_attr;
-		if (current_node->first_attribute(attribute_name) == 0)
+	void getAttribute(returnType & requested_data, const rapidxml::xml_node<> * const current_node, const char* attribute_name) const {
+		rapidxml::xml_attribute<> *temp_attr = 0;
+		// Try to get the attribute
+		temp_attr = current_node->first_attribute(attribute_name);
+		// Check if the attribute has been required
+		if (temp_attr == 0)
 			throw std::runtime_error(std::string("Parser did not found the mandatory attribute ").append(attribute_name));
 		else { 
-			temp_attr = current_node->first_attribute(attribute_name);
+			// Try to convert attribute into requested data type
 			try {
 				requested_data = boost::lexical_cast<returnType, char*>(temp_attr->value());
 			} catch (boost::bad_lexical_cast e) {
@@ -115,35 +138,21 @@ class ModelParser {
 	 * Starting from the SPECIE node, the function parses all the INTER tags and reads the data from them.
 	 */
 	void parseInteractions(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		// Temporaries
 		rapidxml::xml_node<>      *interaction;
-		rapidxml::xml_attribute<> *temp_attr;
 		// Interaction data
 		std::size_t source; std::size_t threshold;
 
 		// Step into INTERACTIONS tag
-		interaction = getNode(specie_node, "INTERACTIONS");
+		interaction = getChildNode(specie_node, "INTERACTIONS");
 
 		// Step into first INTER tag
-		interaction = getNode(interaction, "INTER");
+		interaction = getChildNode(interaction, "INTER");
 
 		while (true) { // End when the current node does not have next sibling (all INTER tags were parsed)
-
 			// Get source ID and conver to integer.
 			getAttribute(source, interaction, "source");
-
 			// Get threshold and conver to integer.
-			if (interaction->first_attribute("threshold") == 0)
-				throw std::runtime_error("Parser did not found the threshold attribute in some INTER node");
-			else { 
-				temp_attr = interaction->first_attribute("threshold");
-				try {
-					threshold = boost::lexical_cast<size_t, char*>(temp_attr->value());
-				} catch (boost::bad_lexical_cast e) {
-					std::cerr << "Error occured while parsing an interaction. It seems that you have entered non-numerical value as a threshold attribute. " << e.what() << "\n";
-					throw std::runtime_error("boost::lexical_cast<size_t, char*>(temp_attr->value()) failed");
-				}
-			}
+			getAttribute(threshold, interaction, "threshold");
 
 			// Add a new interaction to the specified target
 			model.addInteraction(source, specie_ID, threshold);
@@ -159,39 +168,20 @@ class ModelParser {
 	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
 	 */
 	void parseRegulations(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		// Temporaries
 		rapidxml::xml_node<>      *regulation;
-		rapidxml::xml_attribute<> *temp_attr;
 		// Interaction data
 		std::string mask_string; int target_value;
 
 		// Step into REGULATIONS tag
-		regulation = getNode(specie_node, "REGULATIONS");
+		regulation = getChildNode(specie_node, "REGULATIONS");
 		// Step into first REGUL tag
-		regulation = getNode(regulation, "REGUL");
+		regulation = getChildNode(regulation, "REGUL");
 
 		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
-
 			// Get the mask string.
-			if (regulation->first_attribute("mask") == 0)
-				throw std::runtime_error("Parser did not found the mask attribute in some REGUL node");
-			else { 
-				temp_attr = regulation->first_attribute("mask"); 
-				mask_string = temp_attr->value();
-			}
-
+			getAttribute(mask_string, regulation, "mask");
 			// Get max value and conver to integer.
-			if (regulation->first_attribute("t_value") == 0)
-				throw std::runtime_error("Parser did not found the t_value attribute in some REGUL node");
-			else { 
-				temp_attr = regulation->first_attribute("t_value");
-				try {
-					target_value = boost::lexical_cast<int, char*>(temp_attr->value());
-				} catch (boost::bad_lexical_cast e) {
-					std::cerr << "Error occured while parsing a regulation. It seems that you have entered non-numerical value as a t_value attribute. " << e.what() << "\n";
-					throw std::runtime_error("boost::lexical_cast<int, char*>(temp_attr->value()) failed");
-				}
-			}
+			getAttribute(target_value, regulation, "t_value");
 
 			// Add a new regulation to the specified target
 			model.addRegulation(specie_ID, std::move(getMask(mask_string)),target_value);
@@ -207,57 +197,26 @@ class ModelParser {
 	 * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
 	 */
 	void parseSpecies(const rapidxml::xml_node<> * const structure_node) const {
-		// Temporaries
 		rapidxml::xml_node<>      *specie;
-		rapidxml::xml_attribute<> *temp_attr;
 		// Specie data
 		std::string name; size_t max; size_t basal;
 
 		// Step into first SPECIE tag
-		specie = getNode(structure_node, "SPECIE");
+		specie = getChildNode(structure_node, "SPECIE");
 
 		while (true) { // End when the current node does not have next sibling (all SPECIES tags were parsed)
-
 			// Get name of the specie.
-			if (specie->first_attribute("name") == 0)
-				throw std::runtime_error("Parser did not found the name attribute in some SPECIE node");
-			else { 
-				temp_attr = specie->first_attribute("name"); 
-				name = temp_attr->value();
-			}
-
+			getAttribute(name, specie, "name");
 			// Get max value and conver to integer.
-			if (specie->first_attribute("max") == 0)
-				throw std::runtime_error("Parser did not found the max attribute in some SPECIE node");
-			else { 
-				temp_attr = specie->first_attribute("max");
-				try {
-					max = boost::lexical_cast<size_t, char*>(temp_attr->value());
-				} catch (boost::bad_lexical_cast e) {
-					std::cerr << "Error occured while parsing a specie. It seems that you have entered non-numerical value as a max attribute. " << e.what() << "\n";
-					throw std::runtime_error("boost::lexical_cast<size_t, char*>(temp_attr->value()) failed");
-				}
-			}
-
+			getAttribute(max, specie, "max");
 			// Get basal value and conver to integer.
-			if (specie->first_attribute("basal") == 0)
-				throw std::runtime_error("Parser did not found the max attribute in some SPECIE node");
-			else { 
-				temp_attr = specie->first_attribute("basal");
-				try {
-					basal = boost::lexical_cast<size_t, char*>(temp_attr->value()); 
-				} catch (boost::bad_lexical_cast e) {
-					std::cerr << "Error occured while parsing a specie. It seems that you have entered non-numerical value as a basal attribute. " << e.what() << "\n";
-					throw std::runtime_error("boost::lexical_cast<size_t, char*>(temp_attr->value()) failed");
-				}
-			}
+			getAttribute(basal, specie, "basal");
 
 			// Create a new specie
 			size_t specie_ID = model.addSpecie(name, max, basal);
 
 			// Get all the interactions of the specie and store them to the model.
 			parseInteractions(specie, specie_ID);
-
 			// Get all the regulations of the specie and store them to the model.
 			parseRegulations(specie, specie_ID);
 
@@ -272,39 +231,20 @@ class ModelParser {
 	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
 	 */
 	void parseTransitions(const rapidxml::xml_node<> * const state_node, size_t state_ID) const {
-		// Temporaries
 		rapidxml::xml_node<>      *transition;
-		rapidxml::xml_attribute<> *temp_attr;
 		// Interaction data
 		std::string label_string; std::size_t target_ID;
 
 		// Step into REGULATIONS tag
-		transition = getNode(state_node, "TRANSITIONS");
+		transition = getChildNode(state_node, "TRANSITIONS");
 		// Step into first REGUL tag
-		transition = getNode(transition, "TRANS");
+		transition = getChildNode(transition, "TRANS");
 
 		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
-
 			// Get the mask string.
-			if (transition->first_attribute("label") == 0)
-				throw std::runtime_error("Parser did not found the label attribute in some TRANS node");
-			else { 
-				temp_attr = transition->first_attribute("label"); 
-				label_string = temp_attr->value();
-			}
-
+			getAttribute(label_string, transition, "label");
 			// Get max value and conver to integer.
-			if (transition->first_attribute("target") == 0)
-				throw std::runtime_error("Parser did not found the target attribute in some TRANS node");
-			else { 
-				temp_attr = transition->first_attribute("target");
-				try {
-					target_ID = boost::lexical_cast<size_t, char*>(temp_attr->value());
-				} catch (boost::bad_lexical_cast e) {
-					std::cerr << "Error occured while parsing a transition. It seems that you have entered non-numerical value as a target attribute. " << e.what() << "\n";
-					throw std::runtime_error("boost::lexical_cast<size_t, char*>(temp_attr->value()) failed");
-				}
-			}
+			getAttribute(target_ID, transition, "target");
 
 			// Add a new regulation to the specified target
 			model.addConditions(state_ID, target_ID, std::move(label_string));
@@ -320,29 +260,16 @@ class ModelParser {
 	 * Starting from the AUTOMATON node, the function parses all the STATE tags and all their TRANSITION tags and reads the data from them.
 	 */
 	void parseStates(const rapidxml::xml_node<> * const automaton_node) const {
-		// Temporaries
 		rapidxml::xml_node<>      *state;
-		rapidxml::xml_attribute<> *temp_attr;
 		// State data
 		bool final;
 
 		// Step into first SPECIE tag
-		state = getNode(automaton_node, "STATE");
+		state = getChildNode(automaton_node, "STATE");
 
 		while (true) { // End when the current node does not have next sibling (all STATES tags were parsed)
-
 			// Find out whether the state is final
-			if (state->first_attribute("final") == 0)
-				throw std::runtime_error("Parser did not found the final attribute in some STATE node");
-			else { 
-				temp_attr = state->first_attribute("final");
-				try {
-					final = boost::lexical_cast<bool, char*>(temp_attr->value()); 
-				} catch (boost::bad_lexical_cast e) {
-					std::cerr << "Error occured while parsing a state. It seems that you have entered non-boolean value as a final attribute. " << e.what() << "\n";
-					throw std::runtime_error("boost::lexical_cast<bool, char*>(temp_attr->value()) failed");
-				}
-			}
+			getAttribute(final, state, "final");
 
 			// Create a new state
 			size_t state_ID = model.addState(final);
@@ -399,34 +326,23 @@ public:
 	 * @return	version of the parsed file.
 	 */
 	float parseInput() {
-
-		createDocument();
+		// Temporaries
 		rapidxml::xml_node<> *current_node;
 		float file_version;
+
+		// Create the parser
+		createDocument();
 
 		// Step into first MODEL (main) tag
 		current_node = model_xml.first_node();
 		if (strcmp(current_node->name(), "MODEL") != 0)
-			throw std::runtime_error(std::string("Parsed found out that input does not start with the tag <MODEL> but with the <").append(current_node->name()).append("> instead").c_str());
-
+			throw std::runtime_error(std::string("Parsed found out that input does not start with the tag <MODEL> but with the <")
+			                         .append(current_node->name()).append("> instead").c_str());
 		// Find version number
-		if (current_node->first_attribute("ver") == 0)
-			throw std::runtime_error("Parser did not found the ver attribute in the MODEL node");
-		else {
-			try {
-				rapidxml::xml_attribute<> *temp_attr = current_node->first_attribute("ver");
-				file_version = boost::lexical_cast<float, char*>(temp_attr->value()); 
-			} catch (boost::bad_lexical_cast e) {
-				std::cerr << "Error occured while parsing the MODEL tag. It seems that you have entered non-float value as a ver attribute. " << e.what() << "\n";
-				throw std::runtime_error("boost::lexical_cast<float, char*>(temp_attr->value()) failed");
-			}
-		}
+		getAttribute(file_version, current_node, "ver");
 
 		// Step into STRUCTURE tag
-		if (current_node->first_node("STRUCTURE") == 0)
-			throw std::runtime_error("Parser did not found the STRUCTURE node");
-		else current_node = current_node->first_node("STRUCTURE");
-
+		current_node = getChildNode(current_node, "STRUCTURE");
 		// Parse the species of the structure
 		parseSpecies(current_node);
 
@@ -434,7 +350,6 @@ public:
 		if (current_node->next_sibling("AUTOMATON") == 0)
 			throw std::runtime_error("Parser did not found the AUTOMATON node");
 		else current_node = current_node->next_sibling("AUTOMATON");
-
 		// Parse the states of the automaton
 		parseStates(current_node);
 
@@ -443,9 +358,3 @@ public:
 };
 
 #endif
-
-/*
-	Ideas:
-There could be single template function to correct search for the tag and one to correctly read the attribute.
-
-*/
