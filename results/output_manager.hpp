@@ -94,7 +94,7 @@ public:
 		output_stream << "Total number of parameters: "  << result_parameters.count() << " out of: " << functions_structure.getParametersCount() << ".\n";
 		
 		for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
-			output_stream << "State: " << results.getColoring(coloring_num).first << " is colored with " << results.getColoring(coloring_num).second.count() << " parameters.\n";
+			output_stream << "State: " << results.getColoring(coloring_num).state_num << " is colored with " << results.getColoring(coloring_num).parameters.count() << " parameters.\n";
 		}
 
 		output_stream << "All the parameters:\n";

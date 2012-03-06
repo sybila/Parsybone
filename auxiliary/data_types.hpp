@@ -42,4 +42,7 @@ typedef boost::dynamic_bitset<> Parameters;
 // State number and its coloring
 typedef std::pair<std::size_t, Parameters> Coloring;
 
+// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
+typedef std::pair<std::size_t, std::size_t> Range;
+
 #endif

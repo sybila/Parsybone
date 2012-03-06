@@ -28,13 +28,22 @@ class Results {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	 std::vector<Coloring> coloring;
+	struct Result {
+		std::size_t state_num;
+		Parameters parameters;
+		Range parameter_range;
+
+		Result(const std::size_t _state_num, const Parameters & _parameters, const Range & _parameter_range) 
+			: state_num(_state_num), parameters(_parameters), parameter_range(_parameter_range) {}
+	};
+	
+	std::vector<Result> coloring;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from BasicStructureBuilder)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void addColoredState(const Coloring state) {
-		coloring.push_back(Coloring(state.first, state.second));
+	void addResult(const std::size_t state_num, const Parameters & parameters, const Range & parameter_range) {
+		coloring.push_back(Result(state_num, parameters, parameter_range));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,9 +63,9 @@ public:
 	 */
 	const std::size_t countParameters() const {
 		Parameters all;
-		all = coloring[0].second;
-		std::for_each(coloring.begin(), coloring.end(), [&all](const Coloring & coloring){
-			all |= coloring.second;
+		all = coloring[0].parameters;
+		std::for_each(coloring.begin(), coloring.end(), [&all](const Result & coloring){
+			all |= coloring.parameters;
 		});
 		return all.count();
 	}
@@ -68,9 +77,9 @@ public:
 		Parameters all;
 		if (coloring.empty())
 			return all;
-		all = coloring[0].second;
-		std::for_each(coloring.begin(), coloring.end(), [&all](const Coloring & coloring){
-			all |= coloring.second;
+		all = coloring[0].parameters;
+		std::for_each(coloring.begin(), coloring.end(), [&all](const Result & coloring){
+			all |= coloring.parameters;
 		});
 		return all;
 	}
@@ -87,7 +96,7 @@ public:
 	 *
 	 * @return	coloring with given index
 	 */
-	inline const Coloring & getColoring(const std::size_t coloring_index) const {
+	inline const Result & getColoring(const std::size_t coloring_index) const {
 		return coloring[coloring_index];
 	}
 };

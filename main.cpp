@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
 		long long start_time = my_clock();
 		*output_stream << "Coloring started.\n";
 		ModelChecker model_checker(user_options, parametrized_structure, automaton, results);
-		model_checker.syntetizeParameters();
+		model_checker.computeResults();
 		*output_stream << "Coloring ended after: " << (my_clock() - start_time) / 1000.0 << " seconds.\n";
 	} catch (std::exception & e) {
 		std::cerr << "Error occured while syntetizing the parameters: " << e.what() << ". \n";
