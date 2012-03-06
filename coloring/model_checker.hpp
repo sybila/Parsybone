@@ -25,6 +25,7 @@
 
 #include <stdexcept>
 #include <queue>
+#include <cmath>
 
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
@@ -42,6 +43,8 @@ class ModelChecker {
 
 	// Filled with computed data	
 	Results & results; 
+
+	static const std::size_t bites_per_round = 256;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
@@ -218,7 +221,7 @@ class ModelChecker {
 	 * In the first round, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
 	 * In the second round, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
-	void syntetizeParameters(const Range & synthesis_range) {
+	void syntetizeParameters(const Range & synthesis_range, const std::size_t round_num) {
 		// Create a new structure
 		std::unique_ptr<ProductStructure> product(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , synthesis_range.second - synthesis_range.first));
 		// Basic coloring
@@ -226,7 +229,6 @@ class ModelChecker {
 		// Store colored final vertices
 		std::queue<Coloring> final_states = std::move(storeFinalStates(product));
 		// Pass the number of final states (even though it may be already known)
-		results.setStatesCount(final_states.size());
 
 		// Get the actuall results by cycle detection
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
@@ -237,7 +239,7 @@ class ModelChecker {
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
 			if (!product->getParameters(state_num).none())
-				results.addResult(state_num, product->getParameters(state_num), state_index);
+				results.addResult(state_index, product->getParameters(state_num), round_num);
 
 			// Remove the state
 			final_states.pop();
@@ -255,19 +257,39 @@ public:
 	 * Constructor, passes the data
 	 */
 	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results) 
-		: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {	}
+	: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {
+		results.setAuxiliary(std::ceil(static_cast<double>(structure.getParametersCount()) / bites_per_round), bites_per_round, structure.getParametersCount() % bites_per_round);
+
+		std::size_t BA_state_index = 0, state_ID;
+		// List throught product states that are final
+		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStatesCount(); ba_state_num++) {
+			// Skip non-final states
+			if (!automaton.isFinal(ba_state_num)) 
+				continue;
+			
+			// For each final state of the product prepare arrays of results
+			for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
+				// Compute the product state position and store
+				state_ID = BA_state_index * structure.getStatesCount() + ks_state_num;
+				results.addState(state_ID, ks_state_num, ba_state_num);
+			}
+
+			BA_state_index++;
+		}
+	}
 
 	/**
 	 * Function that does all the coloring.
 	 */
 	void computeResults() {
 		std::size_t start_position = 0;
-		const std::size_t step_size = 64;
-		while (start_position + step_size < structure.getParametersCount()) {
-			syntetizeParameters(Range(start_position, start_position+step_size));
-			start_position += step_size;
+		std::size_t round_num = 0;
+		while (start_position + bites_per_round < structure.getParametersCount()) {
+			syntetizeParameters(Range(start_position, start_position + bites_per_round), round_num);
+			start_position += bites_per_round;
+			round_num++;
 		}
-		syntetizeParameters(Range(start_position , structure.getParametersCount()));
+		syntetizeParameters(Range(start_position , structure.getParametersCount()), round_num);
 	}
 };
 

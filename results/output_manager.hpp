@@ -61,7 +61,7 @@ private:
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void outputParameters(const Parameters & result_parameters) {
+	/*void outputParameters(const Parameters & result_parameters) {
 		std::vector<std::vector<std::size_t>> all_values = std::move(getValues());
 		std::vector<std::size_t> current_value(all_values.size(), 0);
 		for (std::size_t function_num = 0; function_num < current_value.size(); function_num++) {
@@ -86,19 +86,18 @@ private:
 				}
 			}
 		}
-	}
+	}*/
 
 public:
 	void basicOutput() {
-		const Parameters result_parameters = results.getAllParameters();
-		output_stream << "Total number of parameters: "  << result_parameters.count() << " out of: " << functions_structure.getParametersCount() << ".\n";
+		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << functions_structure.getParametersCount() << ".\n";
 		
-		for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
+		/*for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
 			output_stream << "State: " << results.getColoring(coloring_num).first << " is colored with " << results.getColoring(coloring_num).second.count() << " parameters.\n";
 		}
 
 		output_stream << "All the parameters:\n";
-		outputParameters(result_parameters);
+		outputParameters(result_parameters);*/
 		
 		/*for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
 			const Coloring & coloring = results.getColoring(coloring_num);
