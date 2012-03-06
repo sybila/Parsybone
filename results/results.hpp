@@ -21,33 +21,31 @@
 // Results are used by ModelChecker to store the important data from synthesis.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../coloring/model_checker.hpp"
+class ModelChecker;
 
 class Results {
 	friend class ModelChecker;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	struct Result {
-		std::size_t state_num;
-		Parameters parameters;
-		Range parameter_range;
-
-		Result(const std::size_t _state_num, const Parameters & _parameters, const Range & _parameter_range) 
-			: state_num(_state_num), parameters(_parameters), parameter_range(_parameter_range) {}
-	};
-	
-	std::vector<Result> coloring;
+	 std::vector<Coloring> coloring;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from BasicStructureBuilder)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void addResult(const std::size_t state_num, const Parameters & parameters, const Range & parameter_range) {
-		coloring.push_back(Result(state_num, parameters, parameter_range));
+	void addResult(const std::size_t state, const Parameters & parameters, const std::size_t state_index) {
+		coloring[state_index].first = state;
+		for (std::size_t param_pos = 0; param_pos < parameters.size(); param_pos++) {
+			coloring[state_index].second.push_back(parameters[param_pos]);
+		}
+	}
+
+	void setStatesCount(const std::size_t states_count) {
+		coloring.resize(states_count);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OTHER FUNCTIONS
+// CONSTRUCTING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	Results(const Results & other);            // Forbidden copy constructor.
 	Results& operator=(const Results & other); // Forbidden assignment operator.
@@ -63,9 +61,9 @@ public:
 	 */
 	const std::size_t countParameters() const {
 		Parameters all;
-		all = coloring[0].parameters;
-		std::for_each(coloring.begin(), coloring.end(), [&all](const Result & coloring){
-			all |= coloring.parameters;
+		all = coloring[0].second;
+		std::for_each(coloring.begin(), coloring.end(), [&all](const Coloring & coloring){
+			all |= coloring.second;
 		});
 		return all.count();
 	}
@@ -77,9 +75,9 @@ public:
 		Parameters all;
 		if (coloring.empty())
 			return all;
-		all = coloring[0].parameters;
-		std::for_each(coloring.begin(), coloring.end(), [&all](const Result & coloring){
-			all |= coloring.parameters;
+		all = coloring[0].second;
+		std::for_each(coloring.begin(), coloring.end(), [&all](const Coloring & coloring){
+			all |= coloring.second;
 		});
 		return all;
 	}
@@ -96,7 +94,7 @@ public:
 	 *
 	 * @return	coloring with given index
 	 */
-	inline const Result & getColoring(const std::size_t coloring_index) const {
+	inline const Coloring & getColoring(const std::size_t coloring_index) const {
 		return coloring[coloring_index];
 	}
 };

@@ -63,11 +63,9 @@ class ModelChecker {
 				continue;
 			// For each final state of the product store the coloring
 			for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
-				// Compute the product state position
+				// Compute the product state position and store
 				state_num = ks_state_num * automaton.getStatesCount() + ba_state_num;
-				// If there is a coloring, store
-				if (!product->isEmpty(state_num)) 
-					final_states.push(std::make_pair(state_num, product->getParameters(state_num)));
+				final_states.push(std::make_pair(state_num, product->getParameters(state_num)));
 			}
 		}
 		return final_states;
@@ -82,18 +80,24 @@ class ModelChecker {
 	 */
 	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values, const Range & synthesis_range) {
 		// List through all the paramters
-		for (std::size_t param_num = 0; param_num < target_param.size(); param_num) {
+		std::size_t param_num = synthesis_range.first;
+		while (param_num < synthesis_range.second) {
 			// List through ALL the target values
-			for (std::size_t value = 0; value < transitive_values.size(); value++) {
+			for (std::size_t value = (param_num / step_size) % transitive_values.size(); value < transitive_values.size(); value++) {
 				// Remove nont-transitive
 				if (transitive_values[value] != true) {
-					for (std::size_t substep = 0; substep < step_size; substep++) {
-						target_param[param_num++] = 0;
+					for (std::size_t substep = param_num % step_size; substep < step_size; substep++) {
+						if (param_num >= synthesis_range.second)
+							return;
+						target_param[param_num - synthesis_range.first] = 0;
+						param_num++;
 					}
 				}
 				// Others skip
 				else {
 					param_num += step_size;
+					if (param_num >= synthesis_range.second)
+						return;
 				}
 			}
 		}
@@ -198,7 +202,7 @@ class ModelChecker {
 
 		// Fill all the initial states with all parameters and schedule them to update
 		Parameters all_parameters(product->getParametersCount());
-		all_parameters = ~all_parameters; // Set all to one
+		all_parameters.set(); // Set all to one
 		// For each initial state, store all the parameters and schedule for the update
 		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
 			if (state_num % automaton.getStatesCount() == 0) {
@@ -216,22 +220,24 @@ class ModelChecker {
 	 */
 	void syntetizeParameters(const Range & synthesis_range) {
 		// Create a new structure
-		std::unique_ptr<ProductStructure> product(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , structure.getParametersCount()));
+		std::unique_ptr<ProductStructure> product(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , synthesis_range.second - synthesis_range.first));
 		// Basic coloring
 		colorProduct(product, synthesis_range);
 		// Store colored final vertices
 		std::queue<Coloring> final_states = std::move(storeFinalStates(product));
+		// Pass the number of final states (even though it may be already known)
+		results.setStatesCount(final_states.size());
 
 		// Get the actuall results by cycle detection
-		while (!final_states.empty()) {
+		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
 			// If we do not check a guarantee property, restart the coloring using coloring of the first final state
-			if (!user_options.guarantee)
+			if (!user_options.guarantee && !final_states.front().second.empty())
 				detectCycle(final_states.front(), product, synthesis_range);
 
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
 			if (!product->getParameters(state_num).none())
-				results.addResult(state_num, product->getParameters(state_num), synthesis_range);
+				results.addResult(state_num, product->getParameters(state_num), state_index);
 
 			// Remove the state
 			final_states.pop();
@@ -255,7 +261,13 @@ public:
 	 * Function that does all the coloring.
 	 */
 	void computeResults() {
-		syntetizeParameters(Range(0, structure.getParametersCount()));
+		std::size_t start_position = 0;
+		const std::size_t step_size = 64;
+		while (start_position + step_size < structure.getParametersCount()) {
+			syntetizeParameters(Range(start_position, start_position+step_size));
+			start_position += step_size;
+		}
+		syntetizeParameters(Range(start_position , structure.getParametersCount()));
 	}
 };
 

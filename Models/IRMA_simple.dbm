@@ -6,7 +6,7 @@
 				<INTER source="3" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="00" t_value="-1" />
+				<REGUL mask="00" t_value="1" />
 				<REGUL mask="01" t_value="-1" />
 				<REGUL mask="10" t_value="-1" />
 				<REGUL mask="11" t_value="-1" />
@@ -17,7 +17,7 @@
 				<INTER source="0" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="-1" />
+				<REGUL mask="0" t_value="1" />
 				<REGUL mask="1" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>
