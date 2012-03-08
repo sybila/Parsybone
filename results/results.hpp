@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2012 - Adam Streck
  *
- * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
  *
  * Poseidon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ class Results {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Storing a single final state - the parameters are paritioned accordingly to rounds of coloring
 	struct ColoredState {
 		std::size_t state_ID;
 		std::size_t KS_num;
@@ -49,23 +50,30 @@ class Results {
 	// Auxiliary data
 	std::size_t rounds_count;
 	std::size_t round_size;
-	std::size_t last_round_size;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from BasicStructureBuilder)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void addResult(const std::size_t state_ID, const Parameters & parameters, const std::size_t round_num) {
-		assert(round_num < states[state_ID].parameters_parts.size());
-		states[state_ID].parameters_parts[round_num] |= parameters;
+	/**
+	 * Strore a final state - states are stored at the beginning and later filled
+	 */
+	void addState(const std::size_t state_ID, const std::size_t KS_num, const std::size_t BA_num) {
+		states.push_back(ColoredState(state_ID, KS_num, BA_num, rounds_count, round_size));
 	}
 
+	/**
+	 * Data that have to be set before the results are stored - if they are not, exception will probably be caused
+	 */
 	void setAuxiliary(const std::size_t _rounds_count, const std::size_t _round_size) {
 		rounds_count = _rounds_count;
 		round_size = _round_size;
 	}
-
-	void addState(const std::size_t state_ID, const std::size_t KS_num, const std::size_t BA_num) {
-		states.push_back(ColoredState(state_ID, KS_num, BA_num, rounds_count, round_size));
+	 	/**
+	 * Fill results from current round only 
+	 */	
+	void addResult(const std::size_t state_ID, const Parameters & parameters, const std::size_t round_num) {
+		assert(round_num < states[state_ID].parameters_parts.size());
+		states[state_ID].parameters_parts[round_num] |= parameters;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,11 +94,15 @@ public:
 	const std::size_t countParameters() const {
 		Parameters all;
 		std::size_t parameter_count = 0;
+		// Go through each partition 
 		for (std::size_t round_num = 0; round_num < rounds_count; round_num++) {
+			// copy requested partition from the first final state
 			all = states[0].parameters_parts[round_num];
 			std::for_each(states.begin(), states.end(), [&all, round_num](const ColoredState & state){
+				// Add partition from each other final state
 				all |= state.parameters_parts[round_num];
 			});
+			// sum number of parameters from this partition with that from previous partitions
 			parameter_count += all.count();
 		}
 		return parameter_count;
@@ -113,18 +125,48 @@ public:
 	/**
 	 * @return	number of colorings in the result
 	 */
-	/*inline const std::size_t getColoringsCount() const {
-		return coloring.size();
-	}*/
+	inline const std::size_t getStatesCount() const {
+		return states.size();
+	}
 
 	/**
-	 * @param coloring_index	index in the vector of colorings
+	 * @param state_index	index in the vector of states
+	 *
+	 * @return	ID of state of the Kripke Structure this state is build from
+	 */
+	inline const std::size_t & getKSNum(const std::size_t state_index) const {
+		return states[state_index].KS_num;
+	}
+
+	/**
+	 * @param state_index	index in the vector of states
+	 *
+	 * @return	ID of state of the Buchi automaton this state is build from
+	 */
+	inline const std::size_t & getBANum(const std::size_t state_index) const {
+		return states[state_index].BA_num;
+	}
+
+	/**
+	 * Get parameters of the state - warning, this function is costy - has to copy all the bits
+	 *
+	 * @param state_index	index in the vector of states
 	 *
 	 * @return	coloring with given index
 	 */
-	/*inline const Coloring & getColoring(const std::size_t coloring_index) const {
-		return coloring[coloring_index];
-	}*/
+	const Parameters getStateParameters(const std::size_t state_index) const {
+		// Iterate through rounds
+		Parameters results(round_size * rounds_count);
+		for (std::size_t round_num = 0; round_num < rounds_count; round_num++){
+			// Store bits from this round
+			for (std::size_t bit_num = 0; bit_num < round_size; bit_num++){
+				results[0] = states[state_index].parameters_parts[round_num][bit_num];
+				results <<= 1;
+			}
+		}
+		return results;
+	}
+
 };
 
 #endif

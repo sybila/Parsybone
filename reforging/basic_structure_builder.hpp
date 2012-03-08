@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2012 - Adam Streck
  *
- * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
  *
  * Poseidon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

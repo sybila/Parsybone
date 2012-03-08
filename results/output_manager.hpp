@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2012 - Adam Streck
  *
- * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
  *
  * Poseidon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ private:
 	/**
 	 * @return vector of values for each function
 	 */
-	const std::vector<std::vector<std::size_t>> getValues() {
+	const std::vector<std::vector<std::size_t>> getValues() const {
 		std::vector<std::vector<std::size_t>> parameter_values;
 		for (std::size_t function_num = 0; function_num < functions_structure.getFunctionsCount(); function_num++) 
 			parameter_values.push_back(functions_structure.getPossibleValues(function_num));
@@ -61,14 +61,23 @@ private:
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/*void outputParameters(const Parameters & result_parameters) {
+	/**
+	 * display given parameters in the form [fun1, fun2, ...]
+	 *
+	 * @param result_parameters	parameters tou display
+	 */
+	void outputParameters(const Parameters & result_parameters) const {
+		// Get a vector of all values for all the functions
 		std::vector<std::vector<std::size_t>> all_values = std::move(getValues());
+		// Create a vector currently storing lowes value for each function
 		std::vector<std::size_t> current_value(all_values.size(), 0);
 		for (std::size_t function_num = 0; function_num < current_value.size(); function_num++) {
 			current_value[function_num] = all_values[function_num][0];
 		}
 		
+		// Cycle through parameters
 		for (std::size_t parameter_num = 0; parameter_num < result_parameters.size(); parameter_num++) {
+			// Output current values
 			if (result_parameters[parameter_num]) {
 				output_stream << "[";
 				for (auto it = current_value.begin(); it != current_value.end() - 1; it++) {
@@ -76,6 +85,7 @@ private:
 				}
 				output_stream << current_value.back() << "]\n";
 			}
+			// Iterate target values
 			for (std::size_t value_num = 0; value_num < current_value.size(); value_num++) {
 				if (current_value[value_num] < all_values[value_num].back()) {
 					current_value[value_num]++;
@@ -86,23 +96,25 @@ private:
 				}
 			}
 		}
-	}*/
+	}
 
 public:
-	void basicOutput() {
+	/**
+	 * main output function - displays number of parameters and parameters themselves if needed
+	 *
+	 * @param colors	if true, coloring of individuall final states will be shown
+	 */
+	void basicOutput(bool colors) const {
 		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << functions_structure.getParametersCount() << ".\n";
 		
-		/*for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
-			output_stream << "State: " << results.getColoring(coloring_num).first << " is colored with " << results.getColoring(coloring_num).second.count() << " parameters.\n";
+		// Display states and their colours
+		if (colors) {
+			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
+				Parameters current_params = std::move(results.getStateParameters(state_num));
+				output_stream << "State BA:" << results.getBANum(state_num) << ", KS:" << results.getKSNum(state_num) << " is colored with " << current_params.count() << " parameters:\n";
+				outputParameters(current_params);
+			}
 		}
-
-		output_stream << "All the parameters:\n";
-		outputParameters(result_parameters);*/
-		
-		/*for (std::size_t coloring_num = 0; coloring_num < results.getColoringsCount(); coloring_num++) {
-			const Coloring & coloring = results.getColoring(coloring_num);
-			output_stream << "Coloring of the state: " << coloring.first << " is: " << coloring.second << ".\n";
-		}*/
 	}
 };
 

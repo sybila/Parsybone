@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2012 - Adam Streck
  *
- * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
  *
  * Poseidon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 // ProductStructure stores product of BA and PKS
 // States are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
 // In other words, first iterate through BA then through KS
+// Product is pretty safe to use to create / delete dynamic memory.
 // ProductStructure data can be set only form the ProductStructureBuilder object.
 // Rest of the code can access the data only via constant getters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

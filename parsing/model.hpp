@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2012 - Adam Streck
  *
- * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
  *
  * Poseidon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@
 #include <map>
 #include <algorithm>
 #include <vector>
+
+#include "../auxiliary/data_types.hpp"
 
 class ModelParser;
 
@@ -75,7 +77,8 @@ private:
 	};
 
 	struct AdditionalInformation {
-		
+		UnspecifiedRegulations unspec;
+		float ver_number;
 	};
 
 	// Actuall data holders.
@@ -125,6 +128,17 @@ private:
 	 */
 	inline void addConditions(std::size_t state_ID, std::size_t target_ID, std::string && edge_label) {
 		states[state_ID].edges.push_back(Egde(target_ID, std::move(edge_label)));
+	}
+
+	/**
+	 * Fill additional information
+	 *
+	 * @param unspec	what to do with unspecified regulations
+	 * @param ver_number	float number with version of the model
+	 */
+	void addAdditionalInformation(UnspecifiedRegulations unspec, float ver_number) {
+		additional_information.unspec = unspec;
+		additional_information.ver_number = ver_number;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

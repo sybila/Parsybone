@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2012 - Adam Streck
  *
- * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
  *
  * Poseidon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,6 +83,22 @@ class ModelParser {
 			}
 		});
 		return mask;
+	}
+
+	/**
+	 * @param uspec_type	what to do with usnpecified regulations
+	 *
+	 * @return	enumeration item with given specification
+	 */
+	UnspecifiedRegulations getUnspecType(std::string unspec_type) {
+		if      (unspec_type.compare("error"))
+			return error;
+		else if (unspec_type.compare("basal"))
+			return basal;
+		else if (unspec_type.compare("param"))
+			return param;
+		else 
+			throw std::runtime_error("Wrong value given as an uspec attribute.");
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,10 +358,11 @@ public:
 	 *
 	 * @return	version of the parsed file.
 	 */
-	float parseInput() {
+	void parseInput() {
 		// Temporaries
 		rapidxml::xml_node<> *current_node;
 		float file_version;
+		std::string unspecified_regulations;
 
 		// Create the parser
 		createDocument();
@@ -358,17 +375,17 @@ public:
 		// Find version number
 		getAttribute(file_version, current_node, "ver");
 
-		// Step into STRUCTURE tag
+		// Parse Kripke Structure
 		current_node = getChildNode(current_node, "STRUCTURE");
-		// Parse the species of the structure
+		getAttribute(unspecified_regulations, current_node, "unspec");
 		parseSpecies(current_node);
 
-		// Step into AUTOMATON tag
+		// Parse Buchi Automaton
 		current_node = getSiblingNode(current_node, "AUTOMATON");
-		// Parse the states of the automaton
 		parseStates(current_node);
 
-		return file_version;
+		// Pass additional information
+		model.addAdditionalInformation(getUnspecType(unspecified_regulations), file_version);
 	};
 };
 

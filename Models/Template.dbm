@@ -1,5 +1,5 @@
 <MODEL ver="1.0">
-	<STRUCTURE>
+	<STRUCTURE unspec="error">
 		<SPECIE name="SampleOne" max="1" basal="1">
 			<INTERACTIONS>
 				<INTER source="1" threshold ="1" />

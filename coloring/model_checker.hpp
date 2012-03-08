@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2012 - Adam Streck
  *
- * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
  *
  * Poseidon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,11 +40,13 @@ class ModelChecker {
 	const UserOptions & user_options;
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
+	const std::size_t & bites_per_round;
+
+	// Used for computation
+	std::unique_ptr<ProductStructure> product;
 
 	// Filled with computed data	
 	Results & results; 
-
-	const std::size_t & bites_per_round;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA STORING FUNCTIONS:
@@ -73,11 +75,9 @@ class ModelChecker {
 	/**
 	 * Pick final states from basic coloring and store them with their parameters
 	 *
-	 * @param product	colored product
-	 *
 	 * @return queue with all colorings of final states
 	 */
-	std::queue<Coloring> storeFinalStates(std::unique_ptr<ProductStructure> & product) {
+	std::queue<Coloring> storeFinalStates() {
 		std::queue<Coloring> final_states; // States colored in basic coloring
 		std::size_t state_num = 0; // ID of the state in product
 		// List throught product states that are final
@@ -133,7 +133,6 @@ class ModelChecker {
 	/**
 	 * Update target of the transition with transitible parameters
 	 *
-	 * @param product	product to color
 	 * @param updates	set that will hold ID of newly updated state
 	 * @param parameters	parameters that will be distributed
 	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
@@ -142,7 +141,7 @@ class ModelChecker {
 	 * @param source_KS_state	this KS state - target_KS is obtained from the transition index
 	 * @param target_BA_state	target state of the BA
 	 */
-	void pushUpdate(std::unique_ptr<ProductStructure> & product, std::set<std::size_t> & updates, const Parameters & parameters, const std::size_t KS_transition_num, 
+	void pushUpdate(std::set<std::size_t> & updates, const Parameters & parameters, const std::size_t KS_transition_num, 
 		            const std::size_t source_KS_state, const std::size_t target_BA_state, const Range & synthesis_range) {
 		Parameters passed = parameters;
 		passParameters(passed, structure.getStepSize(source_KS_state, KS_transition_num), structure.getTransitive(source_KS_state, KS_transition_num), synthesis_range);
@@ -160,12 +159,10 @@ class ModelChecker {
 	 *
 	 * @param souce_state	ID of the source state in the producte
 	 * @param parameters	parameters that will be distributed
-	 * @param product	product to color
 	 * @param updates	set containing IDs of states that are scheduled for update
 	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 */
-	void transferUpdates(std::unique_ptr<ProductStructure> & product, std::set<std::size_t> & updates, const std::size_t source_state, 
-		                 const Parameters & parameters, const Range & synthesis_range) {
+	void transferUpdates(std::set<std::size_t> & updates, const std::size_t source_state, const Parameters & parameters, const Range & synthesis_range) {
 		// From ID of product state compute IDs of KS and BA states
 		std::size_t source_BA_state = source_state % automaton.getStatesCount();
 		std::size_t source_KS_state = source_state / automaton.getStatesCount();
@@ -182,7 +179,7 @@ class ModelChecker {
 			std::size_t target_BA_state = transitible_ba.front();
 			// Combine BA transition with all KS transitions and update those
 			for (std::size_t KS_transition_num = 0; KS_transition_num < structure.getTransitionsCount(source_KS_state); KS_transition_num++) {
-				pushUpdate(product, updates, parameters, KS_transition_num, source_KS_state, target_BA_state, synthesis_range);
+				pushUpdate(updates, parameters, KS_transition_num, source_KS_state, target_BA_state, synthesis_range);
 			}
 			transitible_ba.pop();
 		}
@@ -191,16 +188,16 @@ class ModelChecker {
 	/**
 	 * Distribute updates and store the new ones.
 	 *
-	 * @param product	product to color
 	 * @param updates	set containing IDs of states that are scheduled for update
 	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 */
-	void doColoring(std::set<std::size_t> & updates, std::unique_ptr<ProductStructure> & product, const Range & synthesis_range) {
+	void doColoring(std::set<std::size_t> & updates, const Range & synthesis_range) {
 		while (!updates.empty()) {
-			std::size_t state_num = *std::max_element(updates.begin(), updates.end(), [&product](std::size_t state_i, std::size_t state_j){ 
-				return product->getParameters(state_i).count() < product->getParameters(state_j).count();
+			ProductStructure * product_ptr = product.get();
+			std::size_t state_num = *std::max_element(updates.begin(), updates.end(), [product_ptr](std::size_t state_i, std::size_t state_j){ 
+				return product_ptr->getParameters(state_i).count() < product_ptr->getParameters(state_j).count();
 			});
-			transferUpdates(product, updates, state_num, product->getParameters(state_num), synthesis_range);
+			transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
 			updates.erase(state_num);
 		}
 	}
@@ -208,18 +205,17 @@ class ModelChecker {
 	/**
 	 * For each final state that has at least one parameter assigned, start cycle detection.
 	 *
-	 * @param product	product to color
 	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
 	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 */
-	void detectCycle(const Coloring & init_coloring, std::unique_ptr<ProductStructure> & product, const Range & synthesis_range) {
+	void detectCycle(const Coloring & init_coloring, const Range & synthesis_range) {
 		// Assure the product is empty
 		product->reset();
 		std::set<std::size_t> updates;
 		// Send updates from the initial state
-		transferUpdates(product, updates, init_coloring.first, init_coloring.second, synthesis_range);
+		transferUpdates(updates, init_coloring.first, init_coloring.second, synthesis_range);
 
-		doColoring(updates, product, synthesis_range);
+		doColoring(updates, synthesis_range);
 	}
 
 	/**
@@ -248,7 +244,7 @@ class ModelChecker {
 					product->updateParameters(all_parameters, state_num);
 			}
 		}
-		doColoring(updates, product, synthesis_range);
+		doColoring(updates, synthesis_range);
 	}
 
 	/**
@@ -259,19 +255,19 @@ class ModelChecker {
 	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 * @param round_num	how many parameter subspaces has already been colored
 	 */
-	void syntetizeParameters(std::unique_ptr<ProductStructure> & product, const Range & synthesis_range, const std::size_t round_num) {
+	void syntetizeParameters(const Range & synthesis_range, const std::size_t round_num) {
 		product->reset();
 		// Basic coloring
 		colorProduct(product, synthesis_range);
 		// Store colored final vertices
-		std::queue<Coloring> final_states = std::move(storeFinalStates(product));
+		std::queue<Coloring> final_states = std::move(storeFinalStates());
 		// Pass the number of final states (even though it may be already known)
 
 		// Get the actuall results by cycle detection
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
 			// If we do not check a guarantee property, restart the coloring using coloring of the first final state
 			if (!user_options.guarantee && !final_states.front().second.empty())
-				detectCycle(final_states.front(), product, synthesis_range);
+				detectCycle(final_states.front(), synthesis_range);
 
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
@@ -305,19 +301,19 @@ public:
 	 */
 	void computeResults() {
 		// Create a new structure
-		std::unique_ptr<ProductStructure> product(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , bites_per_round));
+		product.reset(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , bites_per_round));
 		// Data for computation arrangement
 		std::size_t start_position = 0;
 		std::size_t round_num = 0;
 		// Cycle while there are paremeters
 		while (start_position + bites_per_round < structure.getParametersCount()) {
 			// Do normal synthesis on arranged data space
-			syntetizeParameters(product, Range(start_position, start_position + bites_per_round), round_num);
+			syntetizeParameters( Range(start_position, start_position + bites_per_round), round_num);
 			start_position += bites_per_round;
 			round_num++;
 		}
 		// Do synthesis on the rest of the parameters
-		syntetizeParameters(product, Range(start_position , structure.getParametersCount()), round_num);
+		syntetizeParameters(Range(start_position , structure.getParametersCount()), round_num);
 	}
 };
 

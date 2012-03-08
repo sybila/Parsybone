@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2012 - Adam Streck
  *
- * This file is part of PoSeIDoN (Parameter Synthetizer for Discrete Networks) verification tool
+ * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
  *
  * Poseidon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 // porgram-related data
 const float program_version = 1.0;
 const std::size_t bites_per_round = 256;
-float model_file_version;
 
 // Clocks - dependendent on the achitecture. 
 #ifdef __GNUC__
@@ -120,7 +119,7 @@ int main(int argc, char* argv[]) {
 		// Parse model file
 		*output_stream << "Parsing started.\n";
 		ModelParser model_parser(user_options, *input_stream, model);
-		model_file_version = model_parser.parseInput();
+		model_parser.parseInput();
 
 	} catch (std::exception & e) {
 		std::cerr << "Error occured while parsing input: " << e.what() << ". \n";
@@ -185,7 +184,7 @@ int main(int argc, char* argv[]) {
 	try {
 		*output_stream << "Output started.\n";
 		OutputManager output_manager(user_options, *output_stream, results, functions_structure);
-		output_manager.basicOutput();
+		output_manager.basicOutput(true);
 	} catch (std::exception & e) {
 		std::cerr << "Error occured during output of the results: " << e.what() << ". \n";
 		return 5;
