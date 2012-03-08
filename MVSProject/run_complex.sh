@@ -1,0 +1,1 @@
+cp ./Release/Parsybone.exe Parsybone.exe; ./Parsybone.exe -g -f ../Models/Complex.dbm -F ../Computed/Complex.out

@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 			else if (arg == "-f") {
 				input_file.open(argv[++arg_n], std::ios::in);
 				if (input_file.fail())
-					throw (std::invalid_argument(std::string("Wrong input filename: ").append(arg).c_str()));
+					throw (std::invalid_argument(std::string("Wrong input filename: ").append(argv[arg_n]).c_str()));
 				input_stream = &input_file;
 			}
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 			else if (arg == "-F") {
 				output_file.open(argv[++arg_n], std::ios::out);
 				if (output_file.fail())
-					throw (std::invalid_argument(std::string("Wrong output filename: ").append(arg).c_str()));
+					throw (std::invalid_argument(std::string("Wrong output filename: ").append(argv[arg_n]).c_str()));
 				output_stream = &output_file;
 			}
 
