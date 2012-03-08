@@ -84,6 +84,9 @@
     <ClInclude Include="..\auxiliary\template.hpp">
       <Filter>auxiliary</Filter>
     </ClInclude>
+    <ClInclude Include="resource_manager.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">

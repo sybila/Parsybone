@@ -30,6 +30,9 @@ struct UserOptions {
 	unsigned char padding : 2;
 };
 
+// If a regulation is missing, what kind of value it should get?
+enum UspecifiedRegulations {error, basal, param};
+
 // To store the way a specie value has changed
 enum Direction {up, stay, down};
 

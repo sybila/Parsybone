@@ -36,12 +36,11 @@ class Results {
 		std::size_t BA_num;
 		std::vector<Parameters> parameters_parts;
 
-		ColoredState(const std::size_t _state_ID, const std::size_t _KS_num, const std::size_t _BA_num, const std::size_t rounds_count, const std::size_t round_size, const std::size_t last_round_size)
+		ColoredState(const std::size_t _state_ID, const std::size_t _KS_num, const std::size_t _BA_num, const std::size_t rounds_count, const std::size_t round_size)
 		: state_ID(_state_ID), KS_num(_KS_num), BA_num(_BA_num) {
-			for(std::size_t round_num = 0; round_num < rounds_count - 1; round_num++) {
+			for(std::size_t round_num = 0; round_num < rounds_count; round_num++) {
 				parameters_parts.push_back(Parameters(round_size));
 			}
-			parameters_parts.push_back(Parameters(last_round_size));
 		}
 	};
 
@@ -60,19 +59,18 @@ class Results {
 		states[state_ID].parameters_parts[round_num] |= parameters;
 	}
 
-	void setAuxiliary(const std::size_t _rounds_count, const std::size_t _round_size, const std::size_t _last_round_size) {
+	void setAuxiliary(const std::size_t _rounds_count, const std::size_t _round_size) {
 		rounds_count = _rounds_count;
 		round_size = _round_size;
-		last_round_size = _last_round_size;
 	}
 
 	void addState(const std::size_t state_ID, const std::size_t KS_num, const std::size_t BA_num) {
-		states.push_back(ColoredState(state_ID, KS_num, BA_num, rounds_count, round_size, last_round_size));
+		states.push_back(ColoredState(state_ID, KS_num, BA_num, rounds_count, round_size));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	Results(const Results & other);            // Forbidden copy constructor.
 	Results& operator=(const Results & other); // Forbidden assignment operator.
 

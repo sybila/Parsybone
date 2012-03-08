@@ -94,12 +94,29 @@ class ModelParser {
 	 * @param current_node	pointer to the ancestor of requested node
 	 * @param node_name	string with the name of the decendant
 	 *
-	 * @return	pointer to the descendant
+	 * @return	pointer to the descendant if sucessful
 	 */
 	rapidxml::xml_node<> * getChildNode(const rapidxml::xml_node<> * const current_node, const char* node_name) const {
 		rapidxml::xml_node<> * return_node = 0;
 		// try to get the node
 		return_node = current_node->first_node(node_name);
+		if (return_node == 0)
+			throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
+		return return_node;
+	}
+
+	/**
+	 * Gets pointer to the sibling of the current node.
+	 *
+	 * @param current_node	pointer to the ancestor of requested node
+	 * @param node_name	string with the name of the decendant
+	 *
+	 * @return	pointer to the sybling if sucessful
+	 */
+	rapidxml::xml_node<> * getSiblingNode(const rapidxml::xml_node<> * const current_node, const char* node_name) const {
+		rapidxml::xml_node<> * return_node = 0;
+		// try to get the node
+		return_node = current_node->next_sibling(node_name);
 		if (return_node == 0)
 			throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
 		return return_node;
@@ -347,9 +364,7 @@ public:
 		parseSpecies(current_node);
 
 		// Step into AUTOMATON tag
-		if (current_node->next_sibling("AUTOMATON") == 0)
-			throw std::runtime_error("Parser did not found the AUTOMATON node");
-		else current_node = current_node->next_sibling("AUTOMATON");
+		current_node = getSiblingNode(current_node, "AUTOMATON");
 		// Parse the states of the automaton
 		parseStates(current_node);
 

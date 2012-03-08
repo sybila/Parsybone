@@ -90,6 +90,7 @@
     <ClInclude Include="..\reforging\parametrized_structure_builder.hpp" />
     <ClInclude Include="..\results\output_manager.hpp" />
     <ClInclude Include="..\results\results.hpp" />
+    <ClInclude Include="resource_manager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />

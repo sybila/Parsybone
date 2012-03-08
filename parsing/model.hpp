@@ -74,9 +74,14 @@ private:
 		std::vector<Egde> edges; // edges in Buchi Automaton (Target ID, edge label)
 	};
 
+	struct AdditionalInformation {
+		
+	};
+
 	// Actuall data holders.
 	std::vector<ModelSpecie>         species;
 	std::vector<BuchiAutomatonState> states;
+	AdditionalInformation additional_information;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from ModelParser)

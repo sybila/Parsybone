@@ -44,7 +44,7 @@ class ModelChecker {
 	// Filled with computed data	
 	Results & results; 
 
-	static const std::size_t bites_per_round = 256;
+	const std::size_t & bites_per_round;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA STORING FUNCTIONS:
@@ -233,7 +233,14 @@ class ModelChecker {
 
 		// Fill all the initial states with all parameters and schedule them to update
 		Parameters all_parameters(product->getParametersCount());
-		all_parameters.set(); // Set all to one
+		if (synthesis_range.second - synthesis_range.first == bites_per_round)
+			all_parameters.set(); // Set all to one
+		// In the last round there might be less parameters than bits, set the rest to zero - they will not be used in coloring
+		else {
+			for (std::size_t param_num = 0; param_num < synthesis_range.second - synthesis_range.first; param_num++) {
+				all_parameters[param_num] = 1;
+			}
+		}
 		// For each initial state, store all the parameters and schedule for the update
 		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
 			if (state_num % automaton.getStatesCount() == 0) {
@@ -252,9 +259,8 @@ class ModelChecker {
 	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 * @param round_num	how many parameter subspaces has already been colored
 	 */
-	void syntetizeParameters(const Range & synthesis_range, const std::size_t round_num) {
-		// Create a new structure
-		std::unique_ptr<ProductStructure> product(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , synthesis_range.second - synthesis_range.first));
+	void syntetizeParameters(std::unique_ptr<ProductStructure> & product, const Range & synthesis_range, const std::size_t round_num) {
+		product->reset();
 		// Basic coloring
 		colorProduct(product, synthesis_range);
 		// Store colored final vertices
@@ -287,10 +293,10 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results) 
-	: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {
+	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results, const std::size_t & _bites_per_round) 
+	: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results), bites_per_round(_bites_per_round) {
 		// Compute and pass data for result arrangement
-		results.setAuxiliary(std::ceil(static_cast<double>(structure.getParametersCount()) / bites_per_round), bites_per_round, structure.getParametersCount() % bites_per_round);
+		results.setAuxiliary(static_cast<std::size_t>(std::ceil(static_cast<double>(structure.getParametersCount()) / bites_per_round)), bites_per_round);
 		passResultArrangement();
 	}
 
@@ -298,18 +304,20 @@ public:
 	 * Function that does all the coloring.
 	 */
 	void computeResults() {
+		// Create a new structure
+		std::unique_ptr<ProductStructure> product(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , bites_per_round));
 		// Data for computation arrangement
 		std::size_t start_position = 0;
 		std::size_t round_num = 0;
 		// Cycle while there are paremeters
 		while (start_position + bites_per_round < structure.getParametersCount()) {
 			// Do normal synthesis on arranged data space
-			syntetizeParameters(Range(start_position, start_position + bites_per_round), round_num);
+			syntetizeParameters(product, Range(start_position, start_position + bites_per_round), round_num);
 			start_position += bites_per_round;
 			round_num++;
 		}
 		// Do synthesis on the rest of the parameters
-		syntetizeParameters(Range(start_position , structure.getParametersCount()), round_num);
+		syntetizeParameters(product, Range(start_position , structure.getParametersCount()), round_num);
 	}
 };
 

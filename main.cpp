@@ -25,9 +25,11 @@
 #include "coloring/model_checker.hpp"
 #include "results/results.hpp"
 #include "results/output_manager.hpp"
+#include "results/resource_manager.hpp"
 
 // porgram-related data
 const float program_version = 1.0;
+const std::size_t bites_per_round = 256;
 float model_file_version;
 
 // Clocks - dependendent on the achitecture. 
@@ -55,6 +57,7 @@ long long my_clock() {
  * main 
  */
 int main(int argc, char* argv[]) {
+	ResourceManager resources;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
 // Parse input information.
@@ -167,7 +170,7 @@ int main(int argc, char* argv[]) {
 	try {
 		long long start_time = my_clock();
 		*output_stream << "Coloring started.\n";
-		ModelChecker model_checker(user_options, parametrized_structure, automaton, results);
+		ModelChecker model_checker(user_options, parametrized_structure, automaton, results, bites_per_round);
 		model_checker.computeResults();
 		*output_stream << "Coloring ended after: " << (my_clock() - start_time) / 1000.0 << " seconds.\n";
 	} catch (std::exception & e) {
