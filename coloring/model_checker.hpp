@@ -190,15 +190,33 @@ class ModelChecker {
 	 *
 	 * @param updates	set containing IDs of states that are scheduled for update
 	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
+	 * @param source	if there is a source of cycle detection, start with it to assure quick end
 	 */
-	void doColoring(std::set<std::size_t> & updates, const Range & synthesis_range) {
-		while (!updates.empty()) {
-			ProductStructure * product_ptr = product.get();
-			std::size_t state_num = *std::max_element(updates.begin(), updates.end(), [product_ptr](std::size_t state_i, std::size_t state_j){ 
-				return product_ptr->getParameters(state_i).count() < product_ptr->getParameters(state_j).count();
-			});
-			transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
-			updates.erase(state_num);
+	void doColoring(std::set<std::size_t> & updates, const Range & synthesis_range, const Parameters & starting_parameters = Parameters(), const std::size_t source = std::numeric_limits<std::size_t>::max()) {
+		if (source == std::numeric_limits<std::size_t>::max()) {
+			while (!updates.empty()) {
+				ProductStructure * product_ptr = product.get();
+				std::size_t state_num = *std::max_element(updates.begin(), updates.end(), [product_ptr](std::size_t state_i, std::size_t state_j){ 
+					return product_ptr->getParameters(state_i).count() < product_ptr->getParameters(state_j).count();
+				});
+				transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
+				updates.erase(state_num);
+			}
+		}
+		else {
+			while (!updates.empty()) {
+				ProductStructure * product_ptr = product.get();
+				std::size_t state_num = source;
+				if (updates.find(state_num) == updates.end()) {
+					state_num = *std::max_element(updates.begin(), updates.end(), [product_ptr](std::size_t state_i, std::size_t state_j){ 
+						return product_ptr->getParameters(state_i).count() < product_ptr->getParameters(state_j).count();
+					});
+				}
+				transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
+				updates.erase(state_num);
+				if (product->getParameters(state_num) == starting_parameters)
+					return;
+			}
 		}
 	}
 
@@ -215,7 +233,7 @@ class ModelChecker {
 		// Send updates from the initial state
 		transferUpdates(updates, init_coloring.first, init_coloring.second, synthesis_range);
 
-		doColoring(updates, synthesis_range);
+		doColoring(updates, synthesis_range, init_coloring.second, init_coloring.first);
 	}
 
 	/**

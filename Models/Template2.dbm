@@ -5,7 +5,7 @@
 				<INTER source="1" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="-1" />
+				<REGUL mask="0" t_value="2" />
 				<REGUL mask="1" t_value="0" />
 			</REGULATIONS>
 		</SPECIE>
@@ -23,18 +23,19 @@
 		<STATE final="0">
 			<TRANSITIONS>
 				<TRANS label="SampleOne<2" target="0" />
-				<TRANS label="SampleOne=2" target="1" />
+				<TRANS label="SampleOne=2&SampleTwo=1" target="1" />
 			</TRANSITIONS>
 		</STATE>
 		<STATE final="0">
 			<TRANSITIONS>
 				<TRANS label="SampleOne>0" target="1" />
-				<TRANS label="SampleOne=0" target="2" />
+				<TRANS label="SampleOne=0&SampleTwo=1" target="2" />
+				<TRANS label="SampleOne=0&SampleTwo=0" target="2" />
 			</TRANSITIONS>
 		</STATE>
 		<STATE final="1">
 			<TRANSITIONS>
-				<TRANS label="tt" target="2" />
+				<TRANS label="SampleOne=0&SampleTwo=0" target="2" />
 			</TRANSITIONS>
 		</STATE>
 	</AUTOMATON>
