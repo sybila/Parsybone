@@ -50,6 +50,7 @@ class Results {
 	// Auxiliary data
 	std::size_t rounds_count;
 	std::size_t round_size;
+	std::size_t last_round_size;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from BasicStructureBuilder)
@@ -64,9 +65,10 @@ class Results {
 	/**
 	 * Data that have to be set before the results are stored - if they are not, exception will probably be caused
 	 */
-	void setAuxiliary(const std::size_t _rounds_count, const std::size_t _round_size) {
+	void setAuxiliary(const std::size_t _rounds_count, const std::size_t _round_size, const std::size_t _last_round_size) {
 		rounds_count = _rounds_count;
 		round_size = _round_size;
+		last_round_size = _last_round_size;
 	}
 	 	/**
 	 * Fill results from current round only 
@@ -160,9 +162,13 @@ public:
 		for (std::size_t round_num = 0; round_num < rounds_count; round_num++){
 			// Store bits from this round
 			for (std::size_t bit_num = 0; bit_num < round_size; bit_num++){
-				results[0] = states[state_index].parameters_parts[round_num][bit_num];
 				results <<= 1;
+				results[0] = states[state_index].parameters_parts[round_num][bit_num];
 			}
+		}
+		for (std::size_t bit_num = 0; bit_num < last_round_size; bit_num++){
+			results <<= 1;
+			results[0] = states[state_index].parameters_parts[rounds_count-1][bit_num];
 		}
 		return results;
 	}

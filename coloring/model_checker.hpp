@@ -292,7 +292,7 @@ public:
 	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results, const std::size_t & _bites_per_round) 
 	: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results), bites_per_round(_bites_per_round) {
 		// Compute and pass data for result arrangement
-		results.setAuxiliary(static_cast<std::size_t>(std::ceil(static_cast<double>(structure.getParametersCount()) / bites_per_round)), bites_per_round);
+		results.setAuxiliary(static_cast<std::size_t>(std::ceil(static_cast<double>(structure.getParametersCount()) / bites_per_round)), bites_per_round, structure.getParametersCount() % bites_per_round);
 		passResultArrangement();
 	}
 
