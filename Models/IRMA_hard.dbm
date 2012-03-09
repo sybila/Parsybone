@@ -1,5 +1,5 @@
 <MODEL ver="1.0">
-	<STRUCTURE>
+	<STRUCTURE unspec="error">
 		<SPECIE name="CBF1" max="1" basal="0">
 			<INTERACTIONS>
 				<INTER source="2" threshold ="1" />

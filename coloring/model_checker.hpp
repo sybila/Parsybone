@@ -284,8 +284,7 @@ class ModelChecker {
 		// Get the actuall results by cycle detection
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
 			// If we do not check a guarantee property, restart the coloring using coloring of the first final state
-			if (!user_options.guarantee && !final_states.front().second.empty())
-				detectCycle(final_states.front(), synthesis_range);
+			detectCycle(final_states.front(), synthesis_range);
 
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
