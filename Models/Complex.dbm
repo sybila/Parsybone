@@ -15,7 +15,7 @@
 				<INTER source="1" threshold ="4" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="00" t_value="0" />
+				<REGUL mask="00" t_value="-1" />
 				<REGUL mask="01" t_value="-1" />
 				<REGUL mask="10" t_value="-1" />
 				<REGUL mask="11" t_value="-1" />
@@ -27,7 +27,7 @@
 				<INTER source="2" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="00" t_value="0" />
+				<REGUL mask="00" t_value="-1" />
 				<REGUL mask="01" t_value="-1" />
 				<REGUL mask="10" t_value="-1" />
 				<REGUL mask="11" t_value="-1" />
@@ -56,7 +56,7 @@
 				<INTER source="3" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="00" t_value="0" />
+				<REGUL mask="00" t_value="-1" />
 				<REGUL mask="01" t_value="-1" />
 				<REGUL mask="10" t_value="-1" />
 				<REGUL mask="11" t_value="-1" />
@@ -66,19 +66,25 @@
 	<AUTOMATON>
 		<STATE final="0">
 			<TRANSITIONS>
-				<TRANS label="0=0" target="1" />
-				<TRANS label="0>0" target="0" />
+				<TRANS label="1=2" target="1" />
+				<TRANS label="!1=2" target="0" />
 			</TRANSITIONS>
 		</STATE>
 		<STATE final="0">
 			<TRANSITIONS>
-				<TRANS label="0>2" target="2" />
-				<TRANS label="!0>2" target="1" />
+				<TRANS label="1=0" target="2" />
+				<TRANS label="!1=0" target="1" />
+			</TRANSITIONS>
+		</STATE>
+		<STATE final="0">
+			<TRANSITIONS>
+				<TRANS label="1=4" target="3" />
+				<TRANS label="!1=4" target="2" />
 			</TRANSITIONS>
 		</STATE>
 		<STATE final="1">
 			<TRANSITIONS>
-				<TRANS label="tt" target="0" />
+				<TRANS label="tt" target="3" />
 			</TRANSITIONS>
 		</STATE>
 	</AUTOMATON>

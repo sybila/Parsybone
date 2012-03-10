@@ -84,9 +84,6 @@ int main(int argc, char* argv[]) {
 			else if (arg == "-c")
 				user_options.show_counterexamples = true;
 
-			else if (arg == "-g")
-				user_options.guarantee = true;
-
 			else if (arg == "-v")
 				user_options.verbose = true;
 
