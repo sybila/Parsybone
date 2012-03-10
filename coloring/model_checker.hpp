@@ -32,6 +32,8 @@
 #include "product_structure.hpp"
 #include "../results/results.hpp"
 
+const std::size_t bites_per_round = 256;
+
 class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
@@ -40,7 +42,6 @@ class ModelChecker {
 	const UserOptions & user_options;
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
-	const std::size_t & bites_per_round;
 
 	// Used for computation
 	std::unique_ptr<ProductStructure> product;
@@ -214,7 +215,7 @@ class ModelChecker {
 				}
 				transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
 				updates.erase(state_num);
-				if (product->getParameters(state_num) == starting_parameters)
+				if (product->getParameters(source) == starting_parameters)
 					return;
 			}
 		}
@@ -306,8 +307,8 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results, const std::size_t & _bites_per_round) 
-	: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results), bites_per_round(_bites_per_round) {
+	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results) 
+	: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {
 		// Compute and pass data for result arrangement
 		results.setAuxiliary(static_cast<std::size_t>(std::ceil(static_cast<double>(structure.getParametersCount()) / bites_per_round)), bites_per_round, structure.getParametersCount() % bites_per_round);
 		passResultArrangement();

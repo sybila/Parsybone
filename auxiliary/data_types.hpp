@@ -25,8 +25,7 @@ struct UserOptions {
 	bool show_base_coloring : 1;
 	bool verbose : 1;
 	bool negative_check : 1;
-	bool control_semantics : 1;
-	unsigned char padding : 3;
+	unsigned char padding : 4;
 };
 
 // If a regulation is missing, what kind of value it should get?
