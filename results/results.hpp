@@ -51,6 +51,8 @@ class Results {
 	std::size_t rounds_count;
 	std::size_t round_size;
 	std::size_t last_round_size;
+	std::size_t start_position; // First parameter to compute
+	std::size_t end_position; // Position one behind the last computed parameter
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from BasicStructureBuilder)
@@ -65,12 +67,17 @@ class Results {
 	/**
 	 * Data that have to be set before the results are stored - if they are not, exception will probably be caused
 	 */
-	void setAuxiliary(const std::size_t _rounds_count, const std::size_t _round_size, const std::size_t _last_round_size) {
+	void setAuxiliary(const std::size_t _rounds_count, const std::size_t _round_size, const std::size_t _last_round_size, 
+                      const std::size_t _start_position, const std::size_t _end_position) {
 		rounds_count = _rounds_count;
 		round_size = _round_size;
 		last_round_size = _last_round_size;
+		start_position = _start_position;
+		end_position = _end_position;
 	}
-	 	/**
+	
+
+	/**
 	 * Fill results from current round only 
 	 */	
 	void addResult(const std::size_t state_ID, const Parameters & parameters, const std::size_t round_num) {
@@ -110,6 +117,10 @@ public:
 		return parameter_count;
 	}
 
+	inline const std::size_t getParametersCount() const {
+		return (rounds_count - 1) * round_size + last_round_size;
+	}
+
 	/**
 	 * @return	All feasible parameters from the paramter space
 	 */
@@ -123,6 +134,20 @@ public:
 		});
 		return all;
 	}*/
+
+	/**
+	 * @return	position of the first parameter
+	 */
+	inline const std::size_t getStartPosition() const {
+		return start_position;
+	}
+
+	/**
+	 * @return	position one behind the last parameter
+	 */
+	inline const std::size_t getEndPosition() const {
+		return end_position;
+	}
 
 	/**
 	 * @return	number of colorings in the result
@@ -158,17 +183,15 @@ public:
 	 */
 	const Parameters getStateParameters(const std::size_t state_index) const {
 		// Iterate through rounds
-		Parameters results(round_size * rounds_count);
-		for (std::size_t round_num = 0; round_num < rounds_count; round_num++){
+		Parameters results;
+		for (std::size_t round_num = 1; round_num < rounds_count; round_num++){
 			// Store bits from this round
 			for (std::size_t bit_num = 0; bit_num < round_size; bit_num++){
-				results <<= 1;
-				results[0] = states[state_index].parameters_parts[round_num][bit_num];
+				results.push_back(states[state_index].parameters_parts[round_num][bit_num]);
 			}
 		}
 		for (std::size_t bit_num = 0; bit_num < last_round_size; bit_num++){
-			results <<= 1;
-			results[0] = states[state_index].parameters_parts[rounds_count-1][bit_num];
+			results.push_back(states[state_index].parameters_parts[rounds_count-1][bit_num]);
 		}
 		return results;
 	}

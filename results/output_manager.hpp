@@ -76,14 +76,16 @@ private:
 		}
 		
 		// Cycle through parameters
-		for (std::size_t parameter_num = 0; parameter_num < result_parameters.size(); parameter_num++) {
+		for (std::size_t parameter_num = 0; parameter_num < functions_structure.getParametersCount(); parameter_num++) {
 			// Output current values
-			if (result_parameters[parameter_num]) {
-				output_stream << "[";
-				for (auto it = current_value.begin(); it != current_value.end() - 1; it++) {
-					output_stream << *it <<	",";
+			if (parameter_num >= results.getStartPosition() && parameter_num < results.getEndPosition()) {
+				if (result_parameters[parameter_num - results.getStartPosition()]) {
+					output_stream << "[";
+					for (auto it = current_value.begin(); it != current_value.end() - 1; it++) {
+						output_stream << *it <<	",";
+					}
+					output_stream << current_value.back() << "]\n";
 				}
-				output_stream << current_value.back() << "]\n";
 			}
 			// Iterate target values
 			for (std::size_t value_num = 0; value_num < current_value.size(); value_num++) {
@@ -105,7 +107,7 @@ public:
 	 * @param colors	if true, coloring of individuall final states will be shown
 	 */
 	void basicOutput(bool colors) const {
-		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << functions_structure.getParametersCount() << ".\n";
+		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << results.getParametersCount() << ".\n";
 		
 		// Display states and their colours
 		if (colors) {

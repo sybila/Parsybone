@@ -32,8 +32,6 @@
 #include "product_structure.hpp"
 #include "../results/results.hpp"
 
-const std::size_t bites_per_round = 256;
-
 class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
@@ -48,6 +46,12 @@ class ModelChecker {
 
 	// Filled with computed data	
 	Results & results; 
+
+	std::size_t round_count;
+	std::size_t bites_per_round;
+	std::size_t last_round_size;
+	std::size_t start_position; // First parameter to compute
+	std::size_t end_position; // Position one behind the last computed parameter
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA STORING FUNCTIONS:
@@ -300,6 +304,20 @@ class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	void getThisParameters() {
+		bites_per_round = 256;
+		std::size_t parameters_per_process = structure.getParametersCount() / user_options.total_count;
+		round_count = parameters_per_process / bites_per_round + 1;
+		start_position = parameters_per_process * (user_options.this_ID - 1);
+		if (user_options.this_ID == user_options.total_count) {
+			end_position = structure.getParametersCount();
+		}
+		else {
+			end_position = parameters_per_process * user_options.this_ID;
+		}
+		last_round_size = (end_position - start_position) % bites_per_round;
+	}
+	
 	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
 	ModelChecker& operator=(const ModelChecker & other); // Forbidden assignment operator.
 
@@ -310,7 +328,8 @@ public:
 	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results) 
 	: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {
 		// Compute and pass data for result arrangement
-		results.setAuxiliary(static_cast<std::size_t>(std::ceil(static_cast<double>(structure.getParametersCount()) / bites_per_round)), bites_per_round, structure.getParametersCount() % bites_per_round);
+		getThisParameters();
+		results.setAuxiliary(round_count, bites_per_round, last_round_size, start_position, end_position);
 		passResultArrangement();
 	}
 
@@ -321,17 +340,17 @@ public:
 		// Create a new structure
 		product.reset(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , bites_per_round));
 		// Data for computation arrangement
-		std::size_t start_position = 0;
+
 		std::size_t round_num = 0;
 		// Cycle while there are paremeters
-		while (start_position + bites_per_round < structure.getParametersCount()) {
+		while (start_position + bites_per_round < end_position) {
 			// Do normal synthesis on arranged data space
 			syntetizeParameters( Range(start_position, start_position + bites_per_round), round_num);
 			start_position += bites_per_round;
 			round_num++;
 		}
 		// Do synthesis on the rest of the parameters
-		syntetizeParameters(Range(start_position , structure.getParametersCount()), round_num);
+		syntetizeParameters(Range(start_position , end_position), round_num);
 	}
 };
 

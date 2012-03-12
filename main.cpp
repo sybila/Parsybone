@@ -68,10 +68,6 @@ int main(int argc, char* argv[]) {
 
 	// structure that holds user-specified options
 	UserOptions user_options = {0};
-	// Variables for distributed computation that determine partitioning of the parameter space
-	std::size_t this_ID = 1;
-	std::size_t total_count = 1;
-
 
 	// Model that will be obtained from the input
 	Model model;
@@ -108,13 +104,13 @@ int main(int argc, char* argv[]) {
 							if (switch_num + 1 < arg.size())
 								throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(arg.begin() + switch_num + 1, arg.end())));
 							try {
-								this_ID = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+1]);
-								total_count = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+2]);
+								user_options.this_ID = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+1]);
+								user_options.total_count = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+2]);
 							} catch (boost::bad_lexical_cast & e) {
 								std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(argv[arg_n+1]).append(" ").append(argv[arg_n+2]).append(". Should be -d this_ID number_of_parts."));
 								throw(std::runtime_error(std::string("Parameter parsing failed.").append(e.what())));
 							}
-							if (this_ID < total_count)
+							if (user_options.this_ID > user_options.total_count)
 								throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes."));
 							arg_n += 2;
 						break;
@@ -219,7 +215,7 @@ int main(int argc, char* argv[]) {
 	try {
 		*output_stream << "Output started.\n";
 		OutputManager output_manager(user_options, *output_stream, results, functions_structure);
-		output_manager.basicOutput(false);
+		output_manager.basicOutput(true);
 	} catch (std::exception & e) {
 		std::cerr << "Error occured during output of the results: " << e.what() << ". \n";
 		return 5;
