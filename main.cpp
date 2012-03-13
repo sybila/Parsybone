@@ -68,6 +68,8 @@ int main(int argc, char* argv[]) {
 
 	// structure that holds user-specified options
 	UserOptions user_options = {0};
+	user_options.this_ID = 1;
+	user_options.total_count = 1;
 
 	// Model that will be obtained from the input
 	Model model;
@@ -215,7 +217,7 @@ int main(int argc, char* argv[]) {
 	try {
 		*output_stream << "Output started.\n";
 		OutputManager output_manager(user_options, *output_stream, results, functions_structure);
-		output_manager.basicOutput(true);
+		output_manager.basicOutput(false);
 	} catch (std::exception & e) {
 		std::cerr << "Error occured during output of the results: " << e.what() << ". \n";
 		return 5;
