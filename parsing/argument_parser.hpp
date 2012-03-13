@@ -17,6 +17,10 @@
 #ifndef PARSYBONE_ARGUMENT_PARSER_INCLUDED
 #define PARSYBONE_ARGUMENT_PARSER_INCLUDED
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Argument parser sets user options according to the switches provided as arguments at the start of the program.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <fstream>
 
 #include <boost/lexical_cast.hpp>
@@ -26,18 +30,20 @@
 class ArgumentParser {
 public:
 	/**
-	 * @param _user_options	parsed data will be saved here
+	 * Parses arguments on the input and changes switches accordingly. If there is a file on the input, it is created.
+	 *
+	 * @param user_options	parsed data will be saved here
+	 * @param argc	same as at main
+	 * @param argv	same as at main
+	 * @param result_stream	pointer to the stream that will get the output
 	 */
-	void parseArguments (UserOptions & user_options, int argc, char* argv[], std::istream * input_stream, 
-		                 std::ifstream & _input_file, std::ostream * output_stream, std::ofstream & output_file) {
-					// Parse arguments
+	void parseArguments (UserOptions & user_options, int argc, char* argv[], std::ostream * result_stream) {
 		std::string switches;
-		std::ifstream * input_file = new std::ifstream;
 
 		for (int arg_n = 1; arg_n < argc; arg_n++) { 
 			std::string arg = argv[arg_n];
 			
-			// Control basic switches
+			// There can be multiple switches after "-" so go through them in the loop
 			if (arg[0] == '-') {
 				for (std::size_t switch_num = 1; switch_num < arg.size(); switch_num++) {
 					switch (arg[switch_num]) {
@@ -59,8 +65,10 @@ public:
 
 						// Get data for distributed computation
 						case 'd':
+							// After d there must be a white space (to distinct requsted numbers)
 							if (switch_num + 1 < arg.size())
 								throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(arg.begin() + switch_num + 1, arg.end())));
+							// Get numbers
 							try {
 								user_options.this_ID = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+1]);
 								user_options.total_count = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+2]);
@@ -68,29 +76,20 @@ public:
 								std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(argv[arg_n+1]).append(" ").append(argv[arg_n+2]).append(". Should be -d this_ID number_of_parts."));
 								throw(std::runtime_error(std::string("Parameter parsing failed.").append(e.what())));
 							}
+							// Assert that process ID is in the range
 							if (user_options.this_ID > user_options.total_count)
 								throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes."));
 							arg_n += 2;
 						break;
-						
-						// Redirecting input to a file by a parameter
+
+						// Redirecting results output to a file by a parameter
 						case 'f':
+							result_stream = new std::ofstream;
 							if (switch_num + 1 < arg.size())
 								throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-							input_file->open(argv[++arg_n], std::ios::in);
-							if (input_file->fail() || !input_file->is_open())
-								throw (std::invalid_argument(std::string("Wrong input filename: ").append(argv[arg_n]).c_str()));
-							input_stream = input_file;
-						break;
-
-						// Redirecting output to a file by a parameter
-						case 'F':
-							if (switch_num + 1 < arg.size())
-								throw(std::runtime_error(std::string("There are forbidden characters after F switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-							output_file.open(argv[++arg_n], std::ios::out);
-							if (output_file.fail())
-								throw (std::invalid_argument(std::string("Wrong output filename: ").append(argv[arg_n]).c_str()));
-							output_stream = &output_file;
+							dynamic_cast<std::ofstream*>(result_stream)->open(argv[++arg_n], std::ios::out);
+							if (dynamic_cast<std::ofstream*>(result_stream)->fail())
+								throw (std::invalid_argument(std::string("Wrong output filename: ").append(argv[arg_n]).append(" or other problem caused that the process can not open the file.").c_str()));
 						break;
 
 						// If the swich is not known.
@@ -100,9 +99,10 @@ public:
 					}
 				}
 			}
+			// If there is an argument that does not start with "-"
 			else 
 				throw (std::invalid_argument(std::string("Wrong argument: ").append(arg).c_str()));
-		}		
+		}	
 	}
 };
 

@@ -17,6 +17,8 @@
 #ifndef PARSYBONE_DATA_TYPES_INCLUDED
 #define PARSYBONE_DATA_TYPES_INCLUDED
 
+#include <iostream>
+
 #include <boost/dynamic_bitset.hpp>
 
 // Structure that stores parsed user options
@@ -47,5 +49,14 @@ typedef std::pair<std::size_t, Parameters> Coloring;
 
 // Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
 typedef std::pair<std::size_t, std::size_t> Range;
+
+// Stream from which the model is read
+std::istream * input_stream  = &std::cin;
+
+// Stream to which output (apart from results) is written
+std::ostream * output_stream = &std::cout;
+
+// Stream to which errors are posted
+std::ostream * error_stream  = &std::cerr;
 
 #endif

@@ -51,7 +51,6 @@ class ModelParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	Model & model; // Model that will hold the data
-	std::istream & input_stream; // Input stream to read from
 	const UserOptions & user_options;
 
 	// Created with and for parsing
@@ -327,7 +326,7 @@ class ModelParser {
 	void createDocument() {
 		// Copy input data from stream into a string line by line
 		std::string input_line, input_data;
-		for (int lineno = 1; std::getline(input_stream, input_line); ++lineno) {
+		for (int lineno = 1; std::getline(*input_stream, input_line); ++lineno) {
 			input_data += input_line + "\n";
 		}
 
@@ -351,7 +350,7 @@ public:
 	/**
 	 * Constructor has to provide references to an input stream to read from and model object to store parsed information.
 	 */
-	ModelParser(const UserOptions &_user_options, std::istream & _input_stream, Model & _model) : user_options(_user_options), input_stream(_input_stream), model( _model) {}
+	ModelParser(const UserOptions &_user_options, Model & _model) : user_options(_user_options), model( _model) {}
 
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.

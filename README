@@ -4,3 +4,15 @@ open-source 2012
 Requirements:
 	GCC v4.5.x or Microsoft Visual Studio 2010
 	Boost libraries v1.4.x
+	
+Building:
+	Apart from the boost libraries there are no additional dependencies, so you can build that using a simple Makefile in the GCCProject directory or compile it anywhere you want.
+
+Execution:
+	Parsybone reads the model in a XML format from the standard stream and displays results on the standard output.
+
+Arguments:
+	Parsybone [option] [-d process_ID number_of_processes] [-f results_file] 
+	-d Used for distributed computation - process will compute only part of the parameter space as given in the second number, first number determines which part it is
+	-f Name of the file that will store the results.
+	
