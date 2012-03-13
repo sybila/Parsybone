@@ -74,6 +74,7 @@
     <ClInclude Include="..\auxiliary\template.hpp" />
     <ClInclude Include="..\coloring\model_checker.hpp" />
     <ClInclude Include="..\coloring\product_structure.hpp" />
+    <ClInclude Include="..\parsing\argument_parser.hpp" />
     <ClInclude Include="..\parsing\model.hpp" />
     <ClInclude Include="..\parsing\model_parser.hpp" />
     <ClInclude Include="..\rapidxml-1.13\rapidxml.hpp" />
@@ -90,7 +91,6 @@
     <ClInclude Include="..\reforging\parametrized_structure_builder.hpp" />
     <ClInclude Include="..\results\output_manager.hpp" />
     <ClInclude Include="..\results\results.hpp" />
-    <ClInclude Include="resource_manager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
