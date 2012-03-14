@@ -18,6 +18,7 @@
 #define PARSYBONE_DATA_TYPES_INCLUDED
 
 #include <iostream>
+#include <bitset>
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -42,7 +43,7 @@ enum Direction {up, stay, down};
 typedef std::vector<std::size_t> Levels;
 
 // mask of parameters - each bit represents single combination of target values for each function
-typedef boost::dynamic_bitset<> Parameters;
+typedef std::bitset<1024> Parameters;
 
 // State number and its coloring
 typedef std::pair<std::size_t, Parameters> Coloring;

@@ -40,7 +40,7 @@ class Results {
 		ColoredState(const std::size_t _state_ID, const std::size_t _KS_num, const std::size_t _BA_num, const std::size_t rounds_count, const std::size_t round_size)
 		: state_ID(_state_ID), KS_num(_KS_num), BA_num(_BA_num) {
 			for(std::size_t round_num = 0; round_num < rounds_count; round_num++) {
-				parameters_parts.push_back(Parameters(round_size));
+				parameters_parts.push_back(Parameters());
 			}
 		}
 	};
@@ -181,7 +181,7 @@ public:
 	 *
 	 * @return	coloring with given index
 	 */
-	const Parameters getStateParameters(const std::size_t state_index) const {
+	/*const Parameters getStateParameters(const std::size_t state_index) const {
 		// Iterate through rounds
 		Parameters results;
 		for (std::size_t round_num = 1; round_num < rounds_count; round_num++){
@@ -194,7 +194,7 @@ public:
 			results.push_back(states[state_index].parameters_parts[rounds_count-1][bit_num]);
 		}
 		return results;
-	}
+	}*/
 
 };
 

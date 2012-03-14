@@ -100,7 +100,6 @@
     <None Include="..\MODELS\IRMA.dbm" />
     <None Include="..\MODELS\Simple.dbm" />
     <None Include="..\MODELS\Template.dbm" />
-    <None Include="..\MODELS\Template.xml" />
     <None Include="..\MODELS\Template2.dbm" />
     <None Include="..\README" />
   </ItemGroup>

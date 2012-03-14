@@ -251,7 +251,7 @@ class ModelChecker {
 		std::set<std::size_t> updates;
 
 		// Fill all the initial states with all parameters and schedule them to update
-		Parameters all_parameters(product->getParametersCount());
+		Parameters all_parameters;
 		if (synthesis_range.second - synthesis_range.first == bites_per_round)
 			all_parameters.set(); // Set all to one
 		// In the last round there might be less parameters than bits, set the rest to zero - they will not be used in coloring
@@ -305,7 +305,7 @@ class ModelChecker {
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	void getThisParameters() {
-		bites_per_round = 256;
+		bites_per_round = 1024;
 		std::size_t parameters_per_process = structure.getParametersCount() / user_options.total_count;
 		round_count = parameters_per_process / bites_per_round + 1;
 		start_position = parameters_per_process * (user_options.this_ID - 1);

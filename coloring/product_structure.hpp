@@ -57,7 +57,7 @@ class ProductStructure {
 			// Fill and set all to zero
 			const std::size_t _parameters_count = parameters_count;
 			std::for_each(state_parameters, state_parameters + states_count, [_parameters_count](Parameters & parameters) {
-				parameters.resize(_parameters_count, 0);
+				parameters.reset();
 			});
 		}
 		catch (std::exception & e) {
@@ -124,22 +124,13 @@ public:
 	}
 
 	/**
-	 * @param state_num	index of the state to ask
-	 * 
-	 * @return true if the state has no parameters assigned to it
-	 */
-	inline const bool isEmpty(const std::size_t state_num) const {
-		return state_parameters[state_num].empty();
-	}
-
-	/**
 	 * @param state_num	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
 	 * 
 	 * @return true if there was an actuall update
 	 */
 	inline bool updateParameters(const Parameters & parameters, const std::size_t state_num) const {
-		if (parameters.is_subset_of(state_parameters[state_num]))
+		if (state_parameters[state_num].count() == (parameters | state_parameters[state_num]).count())
 			return false;
 		state_parameters[state_num] |= parameters;
 		return true;

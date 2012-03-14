@@ -101,9 +101,6 @@
     <None Include="..\MODELS\Template.dbm">
       <Filter>Models</Filter>
     </None>
-    <None Include="..\MODELS\Template.xml">
-      <Filter>Models</Filter>
-    </None>
     <None Include="..\MODELS\Template2.dbm">
       <Filter>Models</Filter>
     </None>

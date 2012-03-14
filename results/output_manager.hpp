@@ -110,13 +110,13 @@ public:
 		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << results.getParametersCount() << ".\n";
 		
 		// Display states and their colours
-		if (colors) {
+		/*if (colors) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
 				Parameters current_params = std::move(results.getStateParameters(state_num));
 				output_stream << "State BA:" << results.getBANum(state_num) << ", KS:" << results.getKSNum(state_num) << " is colored with " << current_params.count() << " parameters:\n";
 				outputParameters(current_params);
 			}
-		}
+		}*/
 	}
 };
 
