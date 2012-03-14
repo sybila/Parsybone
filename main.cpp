@@ -17,6 +17,7 @@
 #include <memory>
 #include <iostream>
 
+#include "auxiliary/split_manager.hpp"
 #include "parsing/argument_parser.hpp"
 #include "parsing/model_parser.hpp"
 #include "reforging/basic_structure_builder.hpp"
@@ -61,14 +62,13 @@ int main(int argc, char* argv[]) {
 // Create long-live objects.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	ResourceManager resources;
-
-	// structure that holds user-specified options
-	UserOptions user_options = {0};
-	user_options.this_ID = 1;
-	user_options.total_count = 1;
-
 	// Model that will be obtained from the input
 	Model model;
+
+	// structure that holds user-specified options, set to default values
+	UserOptions user_options = {0};
+	user_options.process_number = 1;
+	user_options.processes_count = 1;
 
 	// Stream that will get the output
 	std::ostream * result_stream = &std::cout;
@@ -78,14 +78,12 @@ int main(int argc, char* argv[]) {
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	try {
-		ArgumentParser argument_parser;
-		argument_parser.parseArguments(user_options, argc, argv, result_stream);
+		parseArguments(user_options, argc, argv, result_stream);
 
 		// Parse model file
 		*output_stream << "Model parsing started.\n";
 		ModelParser model_parser(user_options, model);
 		model_parser.parseInput();
-
 	} catch (std::exception & e) {
 		std::cerr << "Error occured while parsing input: " << e.what() << ". \n";
 		return 1;
@@ -131,7 +129,9 @@ int main(int argc, char* argv[]) {
 // Model-check and synthetize parameters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	Results results;
+	SplitManager split_manager;
 	try {
+		split_manager.setupSplitting(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
 		long long start_time = my_clock();
 		*output_stream << "Coloring started.\n";
 		ModelChecker model_checker(user_options, parametrized_structure, automaton, results);

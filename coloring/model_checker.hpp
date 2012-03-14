@@ -306,14 +306,14 @@ class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	void getThisParameters() {
 		bites_per_round = sizeof(Parameters) * 8;
-		std::size_t parameters_per_process = structure.getParametersCount() / user_options.total_count;
+		std::size_t parameters_per_process = structure.getParametersCount() / user_options.processes_count;
 		round_count = parameters_per_process / bites_per_round + 1;
-		start_position = parameters_per_process * (user_options.this_ID - 1);
-		if (user_options.this_ID == user_options.total_count) {
+		start_position = parameters_per_process * (user_options.process_number - 1);
+		if (user_options.process_number == user_options.processes_count) {
 			end_position = structure.getParametersCount();
 		}
 		else {
-			end_position = parameters_per_process * user_options.this_ID;
+			end_position = parameters_per_process * user_options.process_number;
 		}
 		last_round_size = (end_position - start_position) % bites_per_round;
 	}

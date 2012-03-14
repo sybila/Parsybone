@@ -28,8 +28,8 @@ struct UserOptions {
 	bool show_base_coloring : 1;
 	bool verbose : 1;
 	bool negative_check : 1;
-	unsigned int this_ID : 8;
-	unsigned int total_count : 8;
+	unsigned int process_number : 8;
+	unsigned int processes_count : 8;
 	unsigned char padding : 4;
 };
 

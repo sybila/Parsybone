@@ -87,6 +87,9 @@
     <ClInclude Include="..\parsing\argument_parser.hpp">
       <Filter>parsing</Filter>
     </ClInclude>
+    <ClInclude Include="..\auxiliary\split_manager.hpp">
+      <Filter>auxiliary</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">
