@@ -43,7 +43,17 @@ enum Direction {up, stay, down};
 typedef std::vector<std::size_t> Levels;
 
 // mask of parameters - each bit represents single combination of target values for each function
-typedef std::bitset<1024> Parameters;
+typedef int Parameters;
+
+const std::size_t count(Parameters parameters) {
+	std::size_t result = 0;
+	for (int i = 0; i < sizeof(Parameters) * 8; i++) {
+		if (parameters % 2) 
+			result++;
+		parameters >>= 1;
+	}
+	return result;
+}
 
 // State number and its coloring
 typedef std::pair<std::size_t, Parameters> Coloring;

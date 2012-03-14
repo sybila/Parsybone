@@ -57,7 +57,7 @@ class ProductStructure {
 			// Fill and set all to zero
 			const std::size_t _parameters_count = parameters_count;
 			std::for_each(state_parameters, state_parameters + states_count, [_parameters_count](Parameters & parameters) {
-				parameters.reset();
+				parameters = 0;
 			});
 		}
 		catch (std::exception & e) {
@@ -85,7 +85,7 @@ class ProductStructure {
 	 */ 
 	void resetProduct() {
 		std::for_each(state_parameters, state_parameters + states_count,[](Parameters & parameters) {
-			parameters.reset();
+			parameters = 0;
 		});
 	}
 
@@ -130,7 +130,7 @@ public:
 	 * @return true if there was an actuall update
 	 */
 	inline bool updateParameters(const Parameters & parameters, const std::size_t state_num) const {
-		if (state_parameters[state_num].count() == (parameters | state_parameters[state_num]).count())
+		if (state_parameters[state_num] == (parameters | state_parameters[state_num]))
 			return false;
 		state_parameters[state_num] |= parameters;
 		return true;

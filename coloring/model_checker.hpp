@@ -114,24 +114,28 @@ class ModelChecker {
 	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values, const Range & synthesis_range) {
 		// List through all the paramters
 		std::size_t param_num = synthesis_range.first;
+		Parameters temporary = 0;
 		while (param_num < synthesis_range.second) {
 			// List through ALL the target values
 			for (std::size_t value = (param_num / step_size) % transitive_values.size(); value < transitive_values.size(); value++) {
 				// Remove nont-transitive
 				if (transitive_values[value] != true) {
 					for (std::size_t substep = param_num % step_size; substep < step_size && param_num < synthesis_range.second; substep++) {
-						target_param[param_num - synthesis_range.first] = 0;
+						temporary <<= 1;
 						param_num++;
 					}
 				}
 				// Others skip
 				else {
-					param_num += step_size;
-					if (param_num >= synthesis_range.second)
-						return;
+					for (std::size_t substep = param_num % step_size; substep < step_size && param_num < synthesis_range.second; substep++) {
+						temporary <<= 1;
+						temporary |= 1;
+						param_num++;
+					}
 				}
 			}
 		}
+		target_param &= temporary;
 	}
 
 
@@ -151,7 +155,7 @@ class ModelChecker {
 		Parameters passed = parameters;
 		passParameters(passed, structure.getStepSize(source_KS_state, KS_transition_num), structure.getTransitive(source_KS_state, KS_transition_num), synthesis_range);
 		// If there is at least some update
-		if (!passed.none()) {
+		if (passed != 0) {
 			// Compute and update target state
 			std::size_t target_state = structure.getTargetID(source_KS_state,KS_transition_num) * automaton.getStatesCount() + target_BA_state;
 			if (product->updateParameters(passed, target_state))
@@ -202,7 +206,7 @@ class ModelChecker {
 			while (!updates.empty()) {
 				ProductStructure * product_ptr = product.get();
 				std::size_t state_num = *std::max_element(updates.begin(), updates.end(), [product_ptr](std::size_t state_i, std::size_t state_j){ 
-					return product_ptr->getParameters(state_i).count() < product_ptr->getParameters(state_j).count();
+					return product_ptr->getParameters(state_i) < product_ptr->getParameters(state_j);
 				});
 				transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
 				updates.erase(state_num);
@@ -214,7 +218,7 @@ class ModelChecker {
 				std::size_t state_num = source;
 				if (updates.find(state_num) == updates.end()) {
 					state_num = *std::max_element(updates.begin(), updates.end(), [product_ptr](std::size_t state_i, std::size_t state_j){ 
-						return product_ptr->getParameters(state_i).count() < product_ptr->getParameters(state_j).count();
+						return product_ptr->getParameters(state_i) < product_ptr->getParameters(state_j);
 					});
 				}
 				transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
@@ -251,14 +255,10 @@ class ModelChecker {
 		std::set<std::size_t> updates;
 
 		// Fill all the initial states with all parameters and schedule them to update
-		Parameters all_parameters;
-		if (synthesis_range.second - synthesis_range.first == bites_per_round)
-			all_parameters.set(); // Set all to one
+		Parameters all_parameters = std::numeric_limits<Parameters>::max(); // Set all to one
 		// In the last round there might be less parameters than bits, set the rest to zero - they will not be used in coloring
-		else {
-			for (std::size_t param_num = 0; param_num < synthesis_range.second - synthesis_range.first; param_num++) {
-				all_parameters[param_num] = 1;
-			}
+		if (synthesis_range.second - synthesis_range.first != bites_per_round) {
+			all_parameters >>= sizeof(Parameters) * 8 - (synthesis_range.second - synthesis_range.first);
 		}
 		// For each initial state, store all the parameters and schedule for the update
 		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
@@ -293,7 +293,7 @@ class ModelChecker {
 
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
-			if (!product->getParameters(state_num).none())
+			if (!product->getParameters(state_num) == 0)
 				results.addResult(state_index, product->getParameters(state_num), round_num);
 
 			// Remove the state
@@ -305,7 +305,7 @@ class ModelChecker {
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	void getThisParameters() {
-		bites_per_round = 1024;
+		bites_per_round = sizeof(Parameters) * 8;
 		std::size_t parameters_per_process = structure.getParametersCount() / user_options.total_count;
 		round_count = parameters_per_process / bites_per_round + 1;
 		start_position = parameters_per_process * (user_options.this_ID - 1);

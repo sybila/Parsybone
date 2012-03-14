@@ -66,7 +66,7 @@ private:
 	 *
 	 * @param result_parameters	parameters tou display
 	 */
-	void outputParameters(const Parameters & result_parameters) const {
+	/*void outputParameters(const Parameters & result_parameters) const {
 		// Get a vector of all values for all the functions
 		std::vector<std::vector<std::size_t>> all_values = std::move(getValues());
 		// Create a vector currently storing lowes value for each function
@@ -98,7 +98,7 @@ private:
 				}
 			}
 		}
-	}
+	}*/
 
 public:
 	/**
@@ -108,7 +108,7 @@ public:
 	 */
 	void basicOutput(bool colors) const {
 		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << results.getParametersCount() << ".\n";
-		
+		output_stream << sizeof(Parameters) * 8 << " bits per parameters.\n";
 		// Display states and their colours
 		/*if (colors) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {

@@ -112,7 +112,7 @@ public:
 				all |= state.parameters_parts[round_num];
 			});
 			// sum number of parameters from this partition with that from previous partitions
-			parameter_count += all.count();
+			parameter_count += count(all);
 		}
 		return parameter_count;
 	}

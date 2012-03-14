@@ -31,7 +31,7 @@
 // porgram-related data
 const float program_version = 1.0;
 
-// Clocks - dependendent on the achitecture. 
+// Clock - dependendent on the achitecture. 
 #ifdef __GNUC__
 #include <sys/time.h>
 /**
