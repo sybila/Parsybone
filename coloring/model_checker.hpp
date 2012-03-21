@@ -49,12 +49,6 @@ class ModelChecker {
 	// Filled with computed data	
 	Results & results; 
 
-	std::size_t round_count;
-	std::size_t bites_per_round;
-	std::size_t last_round_size;
-	std::size_t start_position; // First parameter to compute
-	std::size_t end_position; // Position one behind the last computed parameter
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA STORING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
@@ -111,10 +105,10 @@ class ModelChecker {
 	 * @param target_param	paramters that are passed through the transition
 	 * @param step_size	how many parameters share the same value for given function
 	 * @param transitive_values	mask of all values from which those that have false are non-transitive
-	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 */
-	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values, const Range & synthesis_range) {
+	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values) {
 		// List through all the paramters
+		const Range & synthesis_range = split_manager.getRoundRange();
 		std::size_t param_num = synthesis_range.first;
 		Parameters temporary = 0;
 		while (param_num < synthesis_range.second) {
@@ -146,16 +140,15 @@ class ModelChecker {
 	 *
 	 * @param updates	set that will hold ID of newly updated state
 	 * @param parameters	parameters that will be distributed
-	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 * Positioning:
 	 * @param KS_transition_num		index of transition for this KS state
 	 * @param source_KS_state	this KS state - target_KS is obtained from the transition index
 	 * @param target_BA_state	target state of the BA
 	 */
 	void pushUpdate(std::set<std::size_t> & updates, const Parameters & parameters, const std::size_t KS_transition_num, 
-		            const std::size_t source_KS_state, const std::size_t target_BA_state, const Range & synthesis_range) {
+		            const std::size_t source_KS_state, const std::size_t target_BA_state) {
 		Parameters passed = parameters;
-		passParameters(passed, structure.getStepSize(source_KS_state, KS_transition_num), structure.getTransitive(source_KS_state, KS_transition_num), synthesis_range);
+		passParameters(passed, structure.getStepSize(source_KS_state, KS_transition_num), structure.getTransitive(source_KS_state, KS_transition_num));
 		// If there is at least some update
 		if (passed != 0) {
 			// Compute and update target state
@@ -171,9 +164,8 @@ class ModelChecker {
 	 * @param souce_state	ID of the source state in the producte
 	 * @param parameters	parameters that will be distributed
 	 * @param updates	set containing IDs of states that are scheduled for update
-	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 */
-	void transferUpdates(std::set<std::size_t> & updates, const std::size_t source_state, const Parameters & parameters, const Range & synthesis_range) {
+	void transferUpdates(std::set<std::size_t> & updates, const std::size_t source_state, const Parameters & parameters) {
 		// From ID of product state compute IDs of KS and BA states
 		std::size_t source_BA_state = source_state % automaton.getStatesCount();
 		std::size_t source_KS_state = source_state / automaton.getStatesCount();
@@ -190,7 +182,7 @@ class ModelChecker {
 			std::size_t target_BA_state = transitible_ba.front();
 			// Combine BA transition with all KS transitions and update those
 			for (std::size_t KS_transition_num = 0; KS_transition_num < structure.getTransitionsCount(source_KS_state); KS_transition_num++) {
-				pushUpdate(updates, parameters, KS_transition_num, source_KS_state, target_BA_state, synthesis_range);
+				pushUpdate(updates, parameters, KS_transition_num, source_KS_state, target_BA_state);
 			}
 			transitible_ba.pop();
 		}
@@ -200,17 +192,16 @@ class ModelChecker {
 	 * Distribute updates and store the new ones.
 	 *
 	 * @param updates	set containing IDs of states that are scheduled for update
-	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 * @param source	if there is a source of cycle detection, start with it to assure quick end
 	 */
-	void doColoring(std::set<std::size_t> & updates, const Range & synthesis_range, const Parameters & starting_parameters = Parameters(), const std::size_t source = std::numeric_limits<std::size_t>::max()) {
+	void doColoring(std::set<std::size_t> & updates, const Parameters & starting_parameters = Parameters(), const std::size_t source = std::numeric_limits<std::size_t>::max()) {
 		if (source == std::numeric_limits<std::size_t>::max()) {
 			while (!updates.empty()) {
 				ProductStructure * product_ptr = product.get();
 				std::size_t state_num = *std::max_element(updates.begin(), updates.end(), [product_ptr](std::size_t state_i, std::size_t state_j){ 
 					return product_ptr->getParameters(state_i) < product_ptr->getParameters(state_j);
 				});
-				transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
+				transferUpdates(updates, state_num, product->getParameters(state_num));
 				updates.erase(state_num);
 			}
 		}
@@ -223,7 +214,7 @@ class ModelChecker {
 						return product_ptr->getParameters(state_i) < product_ptr->getParameters(state_j);
 					});
 				}
-				transferUpdates(updates, state_num, product->getParameters(state_num), synthesis_range);
+				transferUpdates(updates, state_num, product->getParameters(state_num));
 				updates.erase(state_num);
 				if (product->getParameters(source) == starting_parameters)
 					return;
@@ -235,41 +226,33 @@ class ModelChecker {
 	 * For each final state that has at least one parameter assigned, start cycle detection.
 	 *
 	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
-	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 */
-	void detectCycle(const Coloring & init_coloring, const Range & synthesis_range) {
+	void detectCycle(const Coloring & init_coloring) {
 		// Assure the product is empty
 		product->reset();
 		std::set<std::size_t> updates;
 		// Send updates from the initial state
-		transferUpdates(updates, init_coloring.first, init_coloring.second, synthesis_range);
+		transferUpdates(updates, init_coloring.first, init_coloring.second);
 
-		doColoring(updates, synthesis_range, init_coloring.second, init_coloring.first);
+		doColoring(updates, init_coloring.second, init_coloring.first);
 	}
 
 	/**
 	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
 	 *
 	 * @param product	product to color
-	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 */
-	void colorProduct(std::unique_ptr<ProductStructure> & product, const Range & synthesis_range) {
+	void colorProduct(std::unique_ptr<ProductStructure> & product) {
 		std::set<std::size_t> updates;
 
-		// Fill all the initial states with all parameters and schedule them to update
-		Parameters all_parameters = std::numeric_limits<Parameters>::max(); // Set all to one
-		// In the last round there might be less parameters than bits, set the rest to zero - they will not be used in coloring
-		if (synthesis_range.second - synthesis_range.first != bites_per_round) {
-			all_parameters >>= sizeof(Parameters) * 8 - (synthesis_range.second - synthesis_range.first);
-		}
 		// For each initial state, store all the parameters and schedule for the update
 		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
 			if (state_num % automaton.getStatesCount() == 0) {
 					updates.insert(state_num);
-					product->updateParameters(all_parameters, state_num);
+					product->updateParameters(split_manager.createStartingParameters(), state_num);
 			}
 		}
-		doColoring(updates, synthesis_range);
+		doColoring(updates);
 	}
 
 	/**
@@ -277,13 +260,12 @@ class ModelChecker {
 	 * In the first round, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
 	 * In the second round, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 *
-	 * @param synthesis_range	position of first and befor the last parameter that will be used in coloring
 	 * @param round_num	how many parameter subspaces has already been colored
 	 */
-	void syntetizeParameters(const Range & synthesis_range, const std::size_t round_num) {
+	void syntetizeParameters() {
 		product->reset();
 		// Basic coloring
-		colorProduct(product, synthesis_range);
+		colorProduct(product);
 		// Store colored final vertices
 		std::queue<Coloring> final_states = std::move(storeFinalStates());
 		// Pass the number of final states (even though it may be already known)
@@ -291,12 +273,14 @@ class ModelChecker {
 		// Get the actuall results by cycle detection
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
 			// If we do not check a guarantee property, restart the coloring using coloring of the first final state
-			detectCycle(final_states.front(), synthesis_range);
+			detectCycle(final_states.front());
 
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
 			if (!product->getParameters(state_num) == 0)
 				results.addResult(state_index, product->getParameters(state_num));
+			else
+				results.addResult(state_index, 0);
 
 			// Remove the state
 			final_states.pop();
@@ -306,19 +290,6 @@ class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void getThisParameters() {
-		bites_per_round = sizeof(Parameters) * 8;
-		std::size_t parameters_per_process = structure.getParametersCount() / user_options.processes_count;
-		round_count = parameters_per_process / bites_per_round + 1;
-		start_position = parameters_per_process * (user_options.process_number - 1);
-		if (user_options.process_number == user_options.processes_count) {
-			end_position = structure.getParametersCount();
-		}
-		else {
-			end_position = parameters_per_process * user_options.process_number;
-		}
-		last_round_size = (end_position - start_position) % bites_per_round;
-	}
 	
 	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
 	ModelChecker& operator=(const ModelChecker & other); // Forbidden assignment operator.
@@ -331,7 +302,6 @@ public:
 		         const AutomatonStructure & _automaton, Results & _results) 
 	            : split_manager(_split_manager), user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {
 		// Compute and pass data for result arrangement
-		getThisParameters();
 		passResultArrangement();
 	}
 
@@ -340,19 +310,13 @@ public:
 	 */
 	void computeResults() {
 		// Create a new structure
-		product.reset(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , bites_per_round));
-		// Data for computation arrangement
+		product.reset(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , getParamsetSize()));
 
-		std::size_t round_num = 0;
-		// Cycle while there are paremeters
-		while (start_position + bites_per_round < end_position) {
+		while (split_manager.nextRound()) {
 			// Do normal synthesis on arranged data space
-			syntetizeParameters( Range(start_position, start_position + bites_per_round), round_num);
-			start_position += bites_per_round;
-			round_num++;
+			syntetizeParameters();
+			split_manager.increaseRound();
 		}
-		// Do synthesis on the rest of the parameters
-		syntetizeParameters(Range(start_position , end_position), round_num);
 	}
 };
 

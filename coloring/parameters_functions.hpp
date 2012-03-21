@@ -24,6 +24,15 @@
 
 #include "../auxiliary/data_types.hpp"
 
+#include <climits>
+
+/**
+ * @return number of parameters in a single round
+ */
+const std::size_t getParamsetSize() {
+	return sizeof(Parameters) * 8;
+}
+
 /**
  * Count number of true bits (active parameters in the parameter set). There is a copy on the input that gets destroyed in the process.
  *
@@ -33,12 +42,21 @@
  */
 const std::size_t count(Parameters parameters) {
 	std::size_t result = 0;
-	for (int i = 0; i < sizeof(Parameters) * 8; i++) {
+	for (int i = 0; i < getParamsetSize(); i++) {
 		if (parameters % 2) 
 			result++;
 		parameters >>= 1;
 	}
 	return result;
 }
+
+/**
+ * @return a parameter set with everything set to 1
+ */
+Parameters getAll() {
+	return std::numeric_limits<Parameters>::max();
+}
+
+
 
 #endif

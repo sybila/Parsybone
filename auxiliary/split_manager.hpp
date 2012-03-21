@@ -22,7 +22,10 @@
 // All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <climits>
+
 #include "../auxiliary/data_types.hpp"
+#include "../coloring/parameters_functions.hpp"
 
 class SplitManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +39,7 @@ class SplitManager {
 	std::size_t bits_per_round; // Nuber of bits per round
 	std::size_t last_round_bits; // Number of bits for the absolutelly last round of this process
 	std::size_t rounds_count; // Number of rounds totally
-	std::size_t round_number; // Number of this round (starting from 1)
+	std::size_t round_number; // Number of this round (starting from 0)
 	std::size_t round_begin; // Position to start a synthesis for this round (absolute position w.r.t. all the parameters)
 	std::size_t round_end; // Position one behind the last parameter for this round (absolute position w.r.t. all the parameters)
 
@@ -102,7 +105,7 @@ public:
 	void setStartPositions() {
 		round_begin = parameters_begin;
 		round_end = std::min(round_begin + bits_per_round, parameters_end);
-		round_number = 1;
+		round_number = 0;
 	}
 
 	/**
@@ -127,47 +130,64 @@ public:
 	inline const std::size_t getProcessesCount() const {
 		return processes_count;
 	}
+
 	/**
 	 * @return	index of this process starting from 1
 	 */ 
 	inline const std::size_t getProcessNumber() const {
 		return process_number;
 	}
+
 	/**
 	 * @return	total number of parameters for all the processes
 	 */ 
 	inline const std::size_t getAllParametersCount() const {
 		return all_parameters_count;
 	}
+
 	/**
 	 * @return	range with first and one before last parameter to compute this round
 	 */ 
 	inline const Range getRoundRange() const {
 		return Range(round_begin, round_end);
 	}
+
 	/**
 	 * @return	range with first and one before last parameter to compute for this process
 	 */ 
 	inline const Range getProcessRange() const {
 		return Range(parameters_begin, parameters_end);
 	}
+
 	/**
 	 * @return	true if this round is not the last
 	 */ 
 	inline const bool nextRound() const {
 		return round_number < rounds_count;
 	}
+
 	/**
 	 * @return	number of this round
 	 */ 
 	inline const std::size_t getRoundNum() const {
 		return round_number;
 	}
+
 	/**
 	 * @return	total number of rounds
 	 */ 
 	inline const std::size_t getRoundCount() const {
 		return rounds_count;
+	}
+
+	/**
+	 * @return All the parameters of the current round.
+	 */
+	inline Parameters createStartingParameters() {
+		if (!nextRound())
+			return getAll();
+		else
+			return getAll() >> (bits_per_round - last_round_bits);	
 	}
 };
 
