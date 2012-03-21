@@ -19,6 +19,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This class controls splitting of the parameter space both for independent rounds and for distributed synthesis.
+// All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/data_types.hpp"
@@ -30,24 +31,26 @@ class SplitManager {
 	std::size_t processes_count; // Number of the processes
 	std::size_t process_number; // Index of this process (starting from 1)
 	std::size_t all_parameters_count; // All the parameters
-	std::size_t parameters_count; // Parameters for this process
-	std::size_t parameters_begin; // Position to start a synthesis from in this round (absolute position w.r.t. all the parameters)
-	std::size_t parameters_end; // Position one behind the last parameter for this round (absolute position w.r.t. all the parameters)
+	std::size_t parameters_begin; // Position to start a synthesis for this process (absolute position w.r.t. all the parameters)
+	std::size_t parameters_end; // Position one behind the last parameter for this process (absolute position w.r.t. all the parameters)
 	std::size_t bits_per_round; // Nuber of bits per round
 	std::size_t last_round_bits; // Number of bits for the absolutelly last round of this process
 	std::size_t rounds_count; // Number of rounds totally
 	std::size_t round_number; // Number of this round (starting from 1)
+	std::size_t round_begin; // Position to start a synthesis for this round (absolute position w.r.t. all the parameters)
+	std::size_t round_end; // Position one behind the last parameter for this round (absolute position w.r.t. all the parameters)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * This function computes index of the first parameter, size of a single round, number of rounds and other auxiliary data members used for splitting.
 	 */
 	void computeSubspace() {
 		// Split parameter space rounded down, this number may not be precise
 		std::size_t parameters_per_process = all_parameters_count / processes_count;
-		// Compute start and end positions, last round can be little bit bigger due to rounding
+		// Compute start and end positions
 		parameters_begin = parameters_per_process * (process_number - 1);
 		if (process_number == processes_count) {
 			parameters_end = all_parameters_count;
@@ -55,8 +58,9 @@ class SplitManager {
 		else {
 			parameters_end = parameters_per_process * process_number;
 		}
-		// Real number of parameters for this process
-		parameters_count = (parameters_end - parameters_begin);
+		std::size_t parameters_count = parameters_end - parameters_begin;
+		// Set positions for the round
+		setStartPositions();
 		// Compute number of full rounds
 		rounds_count = parameters_per_process / bits_per_round;
 		// Compute size of the last round, if its not full-sized, add another round
@@ -72,12 +76,7 @@ class SplitManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SplitManager(const SplitManager & other);            // Forbidden copy constructor.
-	SplitManager& operator=(const SplitManager & other); // Forbidden assignment operator.
-
 public:
-	// Empty constructor
-	SplitManager() {}
 
 	/**
 	 * Computes splitting for both process (in case of a distributed computation) and its rounds that are of a size of the Parameters data type.
@@ -91,7 +90,6 @@ public:
 		processes_count = _processes_count;
 		process_number = _process_number;
 		all_parameters_count = _parameters_count;
-		round_number = 1;
 		// Set the main size of the loop
 		bits_per_round = sizeof(Parameters) * 8;
 		// Compute the rest
@@ -99,16 +97,25 @@ public:
 	}
 
 	/**
+	 * Set values for the first round of computation.
+	 */
+	void setStartPositions() {
+		round_begin = parameters_begin;
+		round_end = std::min(round_begin + bits_per_round, parameters_end);
+		round_number = 1;
+	}
+
+	/**
 	 * Increase parameter positions so a new round can be computed.
 	 */
-	void inreaseRound() {
+	void increaseRound() {
 		round_number++;
-		parameters_begin = parameters_end;
+		round_begin = round_end;
 		// For the last round we have to use a shorter range, if necessary, otherwise we use whole
 		if (!nextRound())
-			parameters_end += bits_per_round;
+			round_end += bits_per_round;
 		else
-			parameters_end += last_round_bits;
+			round_end += last_round_bits;
 	}
 		
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,22 +140,34 @@ public:
 		return all_parameters_count;
 	}
 	/**
-	 * @return	number of parameters this process computes
-	 */ 
-	inline const std::size_t getThisParametersCount() const {
-		return parameters_count;
-	}
-	/**
 	 * @return	range with first and one before last parameter to compute this round
 	 */ 
-	inline const Range getParametersRange() const {
+	inline const Range getRoundRange() const {
+		return Range(round_begin, round_end);
+	}
+	/**
+	 * @return	range with first and one before last parameter to compute for this process
+	 */ 
+	inline const Range getProcessRange() const {
 		return Range(parameters_begin, parameters_end);
 	}
 	/**
 	 * @return	true if this round is not the last
 	 */ 
-	inline bool nextRound() const {
+	inline const bool nextRound() const {
 		return round_number < rounds_count;
+	}
+	/**
+	 * @return	number of this round
+	 */ 
+	inline const std::size_t getRoundNum() const {
+		return round_number;
+	}
+	/**
+	 * @return	total number of rounds
+	 */ 
+	inline const std::size_t getRoundCount() const {
+		return rounds_count;
 	}
 };
 

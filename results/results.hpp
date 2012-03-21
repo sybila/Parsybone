@@ -23,6 +23,8 @@
 
 #include <assert.h>
 
+#include "../auxiliary/split_manager.hpp"
+
 class ModelChecker;
 
 class Results {
@@ -30,6 +32,8 @@ class Results {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	SplitManager split_manager; // Own copy of the split manager
+
 	// Storing a single final state - the parameters are paritioned accordingly to rounds of coloring
 	struct ColoredState {
 		std::size_t state_ID;
@@ -37,22 +41,11 @@ class Results {
 		std::size_t BA_num;
 		std::vector<Parameters> parameters_parts;
 
-		ColoredState(const std::size_t _state_ID, const std::size_t _KS_num, const std::size_t _BA_num, const std::size_t rounds_count, const std::size_t round_size)
-		: state_ID(_state_ID), KS_num(_KS_num), BA_num(_BA_num) {
-			for(std::size_t round_num = 0; round_num < rounds_count; round_num++) {
-				parameters_parts.push_back(Parameters());
-			}
-		}
+		ColoredState(const std::size_t _state_ID, const std::size_t _KS_num, const std::size_t _BA_num)
+		            : state_ID(_state_ID), KS_num(_KS_num), BA_num(_BA_num) { }
 	};
 
 	std::vector<ColoredState> states;
-
-	// Auxiliary data
-	std::size_t rounds_count;
-	std::size_t round_size;
-	std::size_t last_round_size;
-	std::size_t start_position; // First parameter to compute
-	std::size_t end_position; // Position one behind the last computed parameter
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from BasicStructureBuilder)
@@ -61,28 +54,14 @@ class Results {
 	 * Strore a final state - states are stored at the beginning and later filled
 	 */
 	void addState(const std::size_t state_ID, const std::size_t KS_num, const std::size_t BA_num) {
-		states.push_back(ColoredState(state_ID, KS_num, BA_num, rounds_count, round_size));
+		states.push_back(ColoredState(state_ID, KS_num, BA_num));
 	}
-
-	/**
-	 * Data that have to be set before the results are stored - if they are not, exception will probably be caused
-	 */
-	void setAuxiliary(const std::size_t _rounds_count, const std::size_t _round_size, const std::size_t _last_round_size, 
-                      const std::size_t _start_position, const std::size_t _end_position) {
-		rounds_count = _rounds_count;
-		round_size = _round_size;
-		last_round_size = _last_round_size;
-		start_position = _start_position;
-		end_position = _end_position;
-	}
-	
 
 	/**
 	 * Fill results from current round only 
 	 */	
-	void addResult(const std::size_t state_ID, const Parameters & parameters, const std::size_t round_num) {
-		assert(round_num < states[state_ID].parameters_parts.size());
-		states[state_ID].parameters_parts[round_num] |= parameters;
+	void addResult(const std::size_t state_ID, const Parameters parameters) {
+		states[state_ID].parameters_parts.push_back(parameters);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,6 +73,10 @@ class Results {
 public:
 	Results() {} // Default empty constructor, needed to create an empty object that will be filled
 
+	void setupResults(const SplitManager _split_manager) {
+		split_manager = _split_manager;
+	}
+	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +87,7 @@ public:
 		Parameters all;
 		std::size_t parameter_count = 0;
 		// Go through each partition 
-		for (std::size_t round_num = 0; round_num < rounds_count; round_num++) {
+		for(std::size_t round_num = 0; round_num < split_manager.getRoundCount(); round_num++) {
 			// copy requested partition from the first final state
 			all = states[0].parameters_parts[round_num];
 			std::for_each(states.begin(), states.end(), [&all, round_num](const ColoredState & state){
@@ -118,7 +101,7 @@ public:
 	}
 
 	inline const std::size_t getParametersCount() const {
-		return (rounds_count - 1) * round_size + last_round_size;
+		return (split_manager.getProcessRange().second - split_manager.getProcessRange().first);
 	}
 
 	/**
@@ -135,19 +118,6 @@ public:
 		return all;
 	}*/
 
-	/**
-	 * @return	position of the first parameter
-	 */
-	inline const std::size_t getStartPosition() const {
-		return start_position;
-	}
-
-	/**
-	 * @return	position one behind the last parameter
-	 */
-	inline const std::size_t getEndPosition() const {
-		return end_position;
-	}
 
 	/**
 	 * @return	number of colorings in the result

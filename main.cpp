@@ -132,9 +132,10 @@ int main(int argc, char* argv[]) {
 	SplitManager split_manager;
 	try {
 		split_manager.setupSplitting(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
+		results.setupResults(split_manager);
 		long long start_time = my_clock();
 		*output_stream << "Coloring started.\n";
-		ModelChecker model_checker(user_options, parametrized_structure, automaton, results);
+		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results);
 		model_checker.computeResults();
 		*output_stream << "Coloring ended after: " << (my_clock() - start_time) / 1000.0 << " seconds.\n";
 	} catch (std::exception & e) {

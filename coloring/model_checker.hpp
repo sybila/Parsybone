@@ -41,6 +41,7 @@ class ModelChecker {
 	const UserOptions & user_options;
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
+	SplitManager split_manager; // Copy of a split manager just for the checking
 
 	// Used for computation
 	std::unique_ptr<ProductStructure> product;
@@ -295,7 +296,7 @@ class ModelChecker {
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
 			if (!product->getParameters(state_num) == 0)
-				results.addResult(state_index, product->getParameters(state_num), round_num);
+				results.addResult(state_index, product->getParameters(state_num));
 
 			// Remove the state
 			final_states.pop();
@@ -326,11 +327,11 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Results & _results) 
-	: user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {
+	ModelChecker(const UserOptions & _user_options, const SplitManager _split_manager, const ParametrizedStructure & _structure, 
+		         const AutomatonStructure & _automaton, Results & _results) 
+	            : split_manager(_split_manager), user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) {
 		// Compute and pass data for result arrangement
 		getThisParameters();
-		results.setAuxiliary(round_count, bites_per_round, last_round_size, start_position, end_position);
 		passResultArrangement();
 	}
 
