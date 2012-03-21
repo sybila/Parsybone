@@ -30,6 +30,7 @@
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "product_structure.hpp"
+#include "parameters_functions.hpp"
 #include "../results/results.hpp"
 
 class ModelChecker {

@@ -14,8 +14,6 @@
  * See http://sybila.fi.muni.cz/ .
  */
 
-// TODO add exceptions specification
-
 #ifndef PARSYBONE_MODEL_PARSER_INCLUDED
 #define PARSYBONE_MODEL_PARSER_INCLUDED
 

@@ -90,6 +90,9 @@
     <ClInclude Include="..\auxiliary\split_manager.hpp">
       <Filter>auxiliary</Filter>
     </ClInclude>
+    <ClInclude Include="..\coloring\parameters_functions.hpp">
+      <Filter>coloring</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">

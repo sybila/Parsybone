@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
 		return 5;
 	}
 
-	// If file has been created, delete it.
+	// If file stream has been created, delete it.
 	if (result_stream != &std::cout)
 		delete result_stream;
 	return 0;

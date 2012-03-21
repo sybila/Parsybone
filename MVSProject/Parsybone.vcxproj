@@ -74,6 +74,7 @@
     <ClInclude Include="..\auxiliary\split_manager.hpp" />
     <ClInclude Include="..\auxiliary\template.hpp" />
     <ClInclude Include="..\coloring\model_checker.hpp" />
+    <ClInclude Include="..\coloring\parameters_functions.hpp" />
     <ClInclude Include="..\coloring\product_structure.hpp" />
     <ClInclude Include="..\parsing\argument_parser.hpp" />
     <ClInclude Include="..\parsing\model.hpp" />
