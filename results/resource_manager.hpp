@@ -17,7 +17,29 @@
 #ifndef POSEIDON_RESOURCE_MANAGER_INCLUDED
 #define POSEIDON_RESOURCE_MANAGER_INCLUDED
 
+// Clock - dependendent on the achitecture. 
+#ifdef __GNUC__
+#include <sys/time.h>
+/**
+	* @return	time in miliseconds
+	*/
+long long my_clock() {
+	timeval tv;
+	gettimeofday(&tv, 0);
+	return tv.tv_sec*1000 + tv.tv_usec/1000;
+}
+#else
+#include <windows.h>
+/**
+	* @return	time in miliseconds
+	*/
+long long my_clock() {
+	return GetTickCount();
+}
+#endif
+
 class ResourceManager {
+
 };
 
 #endif

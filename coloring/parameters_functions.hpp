@@ -42,7 +42,7 @@ const std::size_t getParamsetSize() {
  */
 const std::size_t count(Parameters parameters) {
 	std::size_t result = 0;
-	for (int i = 0; i < getParamsetSize(); i++) {
+	for (std::size_t paramu_pos = 0; paramu_pos < getParamsetSize(); paramu_pos++) {
 		if (parameters % 2) 
 			result++;
 		parameters >>= 1;
@@ -53,8 +53,15 @@ const std::size_t count(Parameters parameters) {
 /**
  * @return a parameter set with everything set to 1
  */
-Parameters getAll() {
+inline Parameters getAll() {
 	return std::numeric_limits<Parameters>::max();
+}
+
+/**
+ * @return true if none of the paremters is set
+ */
+inline const bool none(Parameters parameters) {
+	return parameters == 0;
 }
 
 

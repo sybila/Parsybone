@@ -24,6 +24,8 @@
 #include <assert.h>
 
 #include "../auxiliary/split_manager.hpp"
+#include "../reforging/parametrized_structure.hpp"
+#include "../reforging/automaton_structure.hpp"
 
 class ModelChecker;
 
@@ -32,7 +34,9 @@ class Results {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SplitManager split_manager; // Own copy of the split manager
+	const SplitManager & split_manager; // Own copy of the split manager
+	const ParametrizedStructure & structure;
+    const AutomatonStructure & automaton;
 
 	// Storing a single final state - the parameters are paritioned accordingly to rounds of coloring
 	struct ColoredState {
@@ -67,15 +71,38 @@ class Results {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	/**
+	 * Builds vector of empty colored states from final states of the product.
+	 */
+	void createStates() {
+		std::size_t BA_state_index = 0, state_ID = 0;
+		// List throught product states that are final
+		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStatesCount(); ba_state_num++) {
+			// Skip non-final states
+			if (!automaton.isFinal(ba_state_num)) 
+				continue;
+			
+			// For each final state of the product prepare arrays of results
+			for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
+				// Pass information that the state coloring will be stored later
+				state_ID = BA_state_index * structure.getStatesCount() + ks_state_num;
+				addState(state_ID, ks_state_num, ba_state_num);
+			}
+			BA_state_index++;
+		}
+	}
+	
 	Results(const Results & other);            // Forbidden copy constructor.
 	Results& operator=(const Results & other); // Forbidden assignment operator.
 
 public:
-	Results() {} // Default empty constructor, needed to create an empty object that will be filled
-
-	void setupResults(const SplitManager _split_manager) {
-		split_manager = _split_manager;
-	}
+	/**
+	 * Get reference data and create strorage for the results of the coloring.
+	 */
+	Results(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, const SplitManager & _split_manager) 
+		   : structure(_structure), automaton(_automaton), split_manager(_split_manager) {
+		createStates();	
+	} 
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 

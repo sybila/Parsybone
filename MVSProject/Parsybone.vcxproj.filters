@@ -93,6 +93,9 @@
     <ClInclude Include="..\coloring\parameters_functions.hpp">
       <Filter>coloring</Filter>
     </ClInclude>
+    <ClInclude Include="..\results\resource_manager.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">

@@ -45,7 +45,6 @@ class ProductStructure {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA HANDLING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// TODO CHANGE SIZE!
 	/**
 	 * Creates the array of parameters with no value
 	 */ 
@@ -129,7 +128,7 @@ public:
 	 * 
 	 * @return true if there was an actuall update
 	 */
-	inline bool updateParameters(const Parameters & parameters, const std::size_t state_num) const {
+	inline bool updateParameters(const Parameters parameters, const std::size_t state_num) const {
 		if (state_parameters[state_num] == (parameters | state_parameters[state_num]))
 			return false;
 		state_parameters[state_num] |= parameters;

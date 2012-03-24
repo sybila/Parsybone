@@ -32,29 +32,8 @@
 // porgram-related data
 const float program_version = 1.0;
 
-// Clock - dependendent on the achitecture. 
-#ifdef __GNUC__
-#include <sys/time.h>
 /**
- * @return	time in miliseconds
- */
-long long my_clock() {
-	timeval tv;
-	gettimeofday(&tv, 0);
-	return tv.tv_sec*1000 + tv.tv_usec/1000;
-}
-#else
-#include <windows.h>
-/**
- * @return	time in miliseconds
- */
-long long my_clock() {
-	return GetTickCount();
-}
-#endif
-
-/**
- * main 
+ * 
  */
 int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,11 +107,10 @@ int main(int argc, char* argv[]) {
 // STEP FOUR:
 // Model-check and synthetize parameters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	Results results;
 	SplitManager split_manager;
+	Results results(parametrized_structure, automaton, split_manager);
 	try {
 		split_manager.setupSplitting(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
-		results.setupResults(split_manager);
 		long long start_time = my_clock();
 		*output_stream << "Coloring started.\n";
 		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results);
