@@ -115,10 +115,10 @@ public:
 		round_number++;
 		round_begin = round_end;
 		// For the last round we have to use a shorter range, if necessary, otherwise we use whole
-		if (!nextRound())
-			round_end += bits_per_round;
-		else
+		if (lastRound())
 			round_end += last_round_bits;
+		else
+			round_end += bits_per_round;
 	}
 		
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,8 +162,8 @@ public:
 	/**
 	 * @return	true if this round is not the last
 	 */ 
-	inline const bool nextRound() const {
-		return round_number < rounds_count;
+	inline const bool lastRound() const {
+		return (round_number + 1) == rounds_count;
 	}
 
 	/**
@@ -184,7 +184,7 @@ public:
 	 * @return All the parameters of the current round.
 	 */
 	inline Parameters createStartingParameters() {
-		if (!nextRound())
+		if (!lastRound())
 			return getAll();
 		else
 			return getAll() >> (bits_per_round - last_round_bits);	

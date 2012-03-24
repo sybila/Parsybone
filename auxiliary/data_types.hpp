@@ -65,7 +65,7 @@ typedef std::vector<std::size_t> Levels;
 // COMPUTATION RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // mask of parameters - each bit represents single combination of target values for each function
-typedef int Parameters;
+typedef unsigned int Parameters;
 
 // State number and its coloring
 typedef std::pair<std::size_t, Parameters> Coloring;

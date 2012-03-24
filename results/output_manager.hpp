@@ -28,6 +28,7 @@ class OutputManager {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
+	const SplitManager & split_manager;
 	const UserOptions & user_options;
 	const Results & results;
 	const FunctionsStructure & functions_structure;
@@ -40,8 +41,10 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const UserOptions & _user_options, std::ostream & _output_stream, const Results & _results, const FunctionsStructure & _functions_structure) 
-		: user_options(_user_options), output_stream(_output_stream), results(_results), functions_structure(_functions_structure) {} // Default empty constructor
+	OutputManager(const UserOptions & _user_options, std::ostream & _output_stream, const Results & _results, 
+		          const FunctionsStructure & _functions_structure, const SplitManager & _split_manager) 
+		         : user_options(_user_options), output_stream(_output_stream), results(_results), 
+				   functions_structure(_functions_structure), split_manager(_split_manager) { } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS
@@ -66,7 +69,7 @@ private:
 	 *
 	 * @param result_parameters	parameters tou display
 	 */
-	/*void outputParameters(const Parameters & result_parameters) const {
+	void outputParameters(std::size_t state_num) const {
 		// Get a vector of all values for all the functions
 		std::vector<std::vector<std::size_t>> all_values = std::move(getValues());
 		// Create a vector currently storing lowes value for each function
@@ -75,18 +78,23 @@ private:
 			current_value[function_num] = all_values[function_num][0];
 		}
 		
+		Parameters result_parameters;
 		// Cycle through parameters
 		for (std::size_t parameter_num = 0; parameter_num < functions_structure.getParametersCount(); parameter_num++) {
+			if (parameter_num % getParamsetSize() == 0) 
+				result_parameters = results.getStateParameters(state_num, parameter_num / getParamsetSize());
+
+
 			// Output current values
-			if (parameter_num >= results.getStartPosition() && parameter_num < results.getEndPosition()) {
-				if (result_parameters[parameter_num - results.getStartPosition()]) {
-					output_stream << "[";
-					for (auto it = current_value.begin(); it != current_value.end() - 1; it++) {
-						output_stream << *it <<	",";
-					}
-					output_stream << current_value.back() << "]\n";
+			if (result_parameters % 2) {
+				output_stream << "[";
+				for (auto it = current_value.begin(); it != current_value.end() - 1; it++) {
+					output_stream << *it <<	",";
 				}
+				output_stream << current_value.back() << "]\n";
 			}
+			result_parameters >>= 1;
+
 			// Iterate target values
 			for (std::size_t value_num = 0; value_num < current_value.size(); value_num++) {
 				if (current_value[value_num] < all_values[value_num].back()) {
@@ -98,7 +106,7 @@ private:
 				}
 			}
 		}
-	}*/
+	}
 
 public:
 	/**
@@ -110,13 +118,12 @@ public:
 		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << results.getParametersCount() << ".\n";
 		output_stream << sizeof(Parameters) * 8 << " bits per parameters.\n";
 		// Display states and their colours
-		/*if (colors) {
+		if (colors) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
-				Parameters current_params = std::move(results.getStateParameters(state_num));
-				output_stream << "State BA:" << results.getBANum(state_num) << ", KS:" << results.getKSNum(state_num) << " is colored with " << current_params.count() << " parameters:\n";
-				outputParameters(current_params);
+				output_stream << "State BA:" << results.getBANum(state_num) << ", KS:" << results.getKSNum(state_num) << " is colored with parameters:\n";
+				outputParameters(state_num);
 			}
-		}*/
+		}
 	}
 };
 

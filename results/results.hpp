@@ -97,7 +97,7 @@ class Results {
 
 public:
 	/**
-	 * Get reference data and create strorage for the results of the coloring.
+	 * Get reference data and c
 	 */
 	Results(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, const SplitManager & _split_manager) 
 		   : structure(_structure), automaton(_automaton), split_manager(_split_manager) {
@@ -178,20 +178,9 @@ public:
 	 *
 	 * @return	coloring with given index
 	 */
-	/*const Parameters getStateParameters(const std::size_t state_index) const {
-		// Iterate through rounds
-		Parameters results;
-		for (std::size_t round_num = 1; round_num < rounds_count; round_num++){
-			// Store bits from this round
-			for (std::size_t bit_num = 0; bit_num < round_size; bit_num++){
-				results.push_back(states[state_index].parameters_parts[round_num][bit_num]);
-			}
-		}
-		for (std::size_t bit_num = 0; bit_num < last_round_size; bit_num++){
-			results.push_back(states[state_index].parameters_parts[rounds_count-1][bit_num]);
-		}
-		return results;
-	}*/
+	const Parameters getStateParameters(const std::size_t state_index, const std::size_t part) const {
+		return states[state_index].parameters_parts[part];
+	}
 
 };
 

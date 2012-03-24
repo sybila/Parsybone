@@ -58,23 +58,22 @@ class ModelChecker {
 	 * @return queue with all colorings of final states
 	 */
 	std::queue<Coloring> storeFinalStates() {
-		std::queue<Coloring> final_states; // States colored in basic coloring
-		std::size_t state_num = 0; // ID of the state in product
+		// States colored in basic coloring
+		std::queue<Coloring> final_states; 
 
 		// List throught product states that are final
 		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStatesCount(); ba_state_num++) {
-			// Skip non-final states
-			if (!automaton.isFinal(ba_state_num)) 
-				continue;
-
-			// For each final state of the product store the coloring
-			for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
-				// Compute the product state position and store
-				state_num = ks_state_num * automaton.getStatesCount() + ba_state_num;
-				final_states.push(std::make_pair(state_num, product->getParameters(state_num)));
+			if (automaton.isFinal(ba_state_num)) {
+				// For each final state of the product store the coloring
+				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
+					// Compute the product state position and store it with its parameters
+					std::size_t state_num = ks_state_num * automaton.getStatesCount() + ba_state_num;
+					final_states.push(std::make_pair(state_num, product->getParameters(state_num)));
+				}
 			}
 		}
 
+		// Return final vertices with their positions
 		return final_states;
 	}
 
@@ -89,30 +88,24 @@ class ModelChecker {
 	 * @param transitive_values	mask of all values from which those that have false are non-transitive
 	 */
 	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values) {
-		// List through all the paramters
-		const Range & synthesis_range = split_manager.getRoundRange();
-		std::size_t param_num = synthesis_range.first;
+		std::size_t param_num = split_manager.getRoundRange().first;
 		Parameters temporary = 0;
-		while (param_num < synthesis_range.second) {
+
+		// List through all the paramters
+		while (param_num < split_manager.getRoundRange().second) {
 			// List through ALL the target values
 			for (std::size_t value = (param_num / step_size) % transitive_values.size(); value < transitive_values.size(); value++) {
-				// Remove nont-transitive
-				if (transitive_values[value] != true) {
-					for (std::size_t substep = param_num % step_size; substep < step_size && param_num < synthesis_range.second; substep++) {
-						temporary <<= 1;
-						param_num++;
-					}
-				}
-				// Others skip
-				else {
-					for (std::size_t substep = param_num % step_size; substep < step_size && param_num < synthesis_range.second; substep++) {
-						temporary <<= 1;
+				// Add transitive, skip others
+				for (std::size_t substep = param_num % step_size; substep < step_size && param_num < split_manager.getRoundRange().second; substep++) {
+					temporary <<= 1;
+					if (transitive_values[value] == true) 
 						temporary |= 1;
-						param_num++;
-					}
+					param_num++;
 				}
 			}
 		}
+
+		// Create interection of source parameters and transition parameters
 		target_param &= temporary;
 	}
 
@@ -159,7 +152,7 @@ class ModelChecker {
 		}
 
 		// Push updates for each BA transition times each KS transition
-		for (std::size_t target_BA_state = transitible_ba.front(); !transitible_ba.empty(); transitible_ba.pop()) {
+		for (std::size_t target_BA_state = (transitible_ba.empty() ? 0 : transitible_ba.front()); !transitible_ba.empty(); transitible_ba.pop()) {
 			// Combine BA transition with all KS transitions and update those
 			for (std::size_t KS_transition_num = 0; KS_transition_num < structure.getTransitionsCount(source_KS_state); KS_transition_num++) {
 				updateTarget(updates, parameters, KS_transition_num, source_KS_state, target_BA_state);
@@ -212,7 +205,8 @@ class ModelChecker {
 		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
 			if (state_num % automaton.getStatesCount() == 0) {
 					updates.insert(state_num);
-					product->updateParameters(split_manager.createStartingParameters(), state_num);
+					Parameters starting = split_manager.createStartingParameters();
+					product->updateParameters(starting, state_num);
 			}
 		}
 		// Start coloring procedure
@@ -267,10 +261,12 @@ public:
 		product.reset(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , getParamsetSize()));
 
 		// Cycle through the rounds
-		while (split_manager.nextRound()) {
+		while (!split_manager.lastRound()) {
 			syntetizeParameters();
 			split_manager.increaseRound();
 		}
+		// Compute the last round
+		syntetizeParameters();
 	}
 };
 
