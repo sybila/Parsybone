@@ -229,8 +229,8 @@ class ModelChecker {
 		// Get the actuall results by cycle detection for each final vertex
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
 			// Restart the coloring using coloring of the first final state
-			/*if (!none(final_states.front().second))
-				detectCycle(final_states.front());*/
+			//if (!none(final_states.front().second))
+			//	detectCycle(final_states.front());
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
 			results.addResult(state_index, product->getParameters(state_num));
