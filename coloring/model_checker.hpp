@@ -45,6 +45,7 @@ class ModelChecker {
 
 	// Used for computation
 	std::unique_ptr<ProductStructure> product;
+	std::set<std::size_t> updates;
 
 	// Filled with computed data	
 	Results & results; 
@@ -88,24 +89,37 @@ class ModelChecker {
 	 * @param transitive_values	mask of all values from which those that have false are non-transitive
 	 */
 	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values) {
+		// Number of the first parameter
 		std::size_t param_num = split_manager.getRoundRange().first;
+		// First value might not bet 0 - get it from current parameter position
+		std::size_t value_num = (param_num / step_size) % transitive_values.size();
+		// As well current value step might not be the first one, it is also necessary to get it from current parameter position
+		std::size_t substep = param_num % step_size;
+		// Mask that will be created
 		Parameters temporary = 0;
 
 		// List through all the paramters
 		while (param_num < split_manager.getRoundRange().second) {
 			// List through ALL the target values
-			for (std::size_t value = (param_num / step_size) % transitive_values.size(); value < transitive_values.size(); value++) {
-				// Add transitive, skip others
-				for (std::size_t substep = param_num % step_size; substep < step_size; substep++) {
+			for (; value_num < transitive_values.size(); value_num++) {
+				// For the current value add 1s if its color is present and 0s if not within the size of the step
+				while (substep++ < step_size) {
+					// Move from previous round
 					temporary <<= 1;
-					if (transitive_values[value] == true) 
+					// Add 1 if transitive
+					if (transitive_values[value_num]) 
 						temporary |= 1;
+					// Check if there is necessity for another round
 					if(++param_num == split_manager.getRoundRange().second) {
 						target_param &= temporary;
 						return;
 					}
 				}
+				// Reset steps for the value
+				substep = 0;
 			}
+			// Reset the value
+			value_num = 0;
 		}
 
 		// Create interection of source parameters and transition parameters
@@ -122,8 +136,7 @@ class ModelChecker {
 	 * @param source_KS_state	this KS state - target_KS is obtained from the transition index
 	 * @param target_BA_state	target state of the BA
 	 */
-	void updateTarget(std::set<std::size_t> & updates, Parameters parameters, const std::size_t KS_transition_num, 
-		              const std::size_t source_KS_state, const std::size_t target_BA_state) {
+	void updateTarget(Parameters parameters, const std::size_t KS_transition_num,  const std::size_t source_KS_state, const std::size_t target_BA_state) {
 		// From an update strip all the parameters that can not pass through the transition
 		passParameters(parameters, structure.getStepSize(source_KS_state, KS_transition_num), structure.getTransitive(source_KS_state, KS_transition_num));
 		// If some parameters get passed
@@ -142,7 +155,7 @@ class ModelChecker {
 	 * @param souce_state	ID of the source state in the producte
 	 * @param parameters	parameters that will be distributed
 	 */
-	void transferUpdates(std::set<std::size_t> & updates, const std::size_t source_state, const Parameters parameters) {
+	void transferUpdates(const std::size_t source_state, const Parameters parameters) {
 		// From ID of product state compute IDs of KS and BA states
 		std::size_t source_BA_state = source_state % automaton.getStatesCount();
 		std::size_t source_KS_state = source_state / automaton.getStatesCount();
@@ -150,6 +163,7 @@ class ModelChecker {
 		// For each feasible transition of BA store its ID in the queue
 		std::queue<std::size_t> transitible_ba;
 		for (std::size_t transition_num = automaton.getBeginIndex(source_BA_state); transition_num < automaton.getBeginIndex(source_BA_state + 1); transition_num++) {
+			// Check the transitibility
 			if (automaton.isTransitionFeasible(transition_num, structure.getStateLevels(source_KS_state)))
 				transitible_ba.push(automaton.getTarget(transition_num));
 		}
@@ -158,7 +172,7 @@ class ModelChecker {
 		for (std::size_t target_BA_state = (transitible_ba.empty() ? 0 : transitible_ba.front()); !transitible_ba.empty(); transitible_ba.pop()) {
 			// Combine BA transition with all KS transitions and update those
 			for (std::size_t KS_transition_num = 0; KS_transition_num < structure.getTransitionsCount(source_KS_state); KS_transition_num++) {
-				updateTarget(updates, parameters, KS_transition_num, source_KS_state, target_BA_state);
+				updateTarget(parameters, KS_transition_num, source_KS_state, target_BA_state);
 			}
 		}
 	}
@@ -168,15 +182,20 @@ class ModelChecker {
 	 *
 	 * @param updates	set containing IDs of states that are scheduled for update
 	 */
-	void doColoring(std::set<std::size_t> & updates) {
+	void doColoring() {
 		// While there are updates, pass them to succesing vertices
 		while (!updates.empty()) {
-			// Pick an update with the highest value
-			std::size_t state_num = *std::max_element(updates.begin(), updates.end(), [this](std::size_t state_i, std::size_t state_j){ 
-				return product->getParameters(state_i) < product->getParameters(state_j);
-			});
+			// Heuristics for an update with approximatelly maximal number of bits set
+			
+			std::size_t state_num = 0; std::size_t current_par = 0;
+			for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
+				if (product->getParameters(*update_it) == (current_par | product->getParameters(*update_it))) {
+					state_num = *update_it;
+					current_par = product->getParameters(state_num);
+				} 
+			}
 			// Pass data from updated vertex to its succesors
-			transferUpdates(updates, state_num, product->getParameters(state_num));
+			transferUpdates(state_num, product->getParameters(state_num));
 			// Erase completed update from the set
 			updates.erase(state_num);
 		}
@@ -188,32 +207,34 @@ class ModelChecker {
 	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
 	 */
 	void detectCycle(const Coloring & init_coloring) {
-		// Assure the product is empty
+		// Assure emptyness
 		product->reset();
-		// Create new updates
-		std::set<std::size_t> updates;
+		updates.clear();
 		// Send updates from the initial state
-		transferUpdates(updates, init_coloring.first, init_coloring.second);
+		transferUpdates( init_coloring.first, init_coloring.second);
 		// Start coloring procedure
-		doColoring(updates);
+		doColoring();
 	}
 
 	/**
 	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
 	 */
 	void colorProduct() {
-		// Create new updates
-		std::set<std::size_t> updates;
+		// Assure emptyness
+		product->reset();
+		updates.clear();
 		// For each initial state, store all the parameters and schedule for the update
 		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
+			// Use only those states built from initial states of the BA
 			if (state_num % automaton.getStatesCount() == 0) {
-					updates.insert(state_num);
-					Parameters starting = split_manager.createStartingParameters();
-					product->updateParameters(starting, state_num);
+				// Schedule for an update
+				updates.insert(state_num);
+				// Get all the parameters for current round and pass them to structure
+				product->updateParameters(split_manager.createStartingParameters(), state_num);
 			}
 		}
 		// Start coloring procedure
-		doColoring(updates);
+		doColoring();
 	}
 
 	/**
@@ -222,8 +243,6 @@ class ModelChecker {
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
 	void syntetizeParameters() {
-		// Assure emptyness
-		product->reset();
 		// Basic coloring
 		colorProduct();
 		// Store colored final vertices
@@ -231,12 +250,11 @@ class ModelChecker {
 
 		// Get the actuall results by cycle detection for each final vertex
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
-			// Restart the coloring using coloring of the first final state
-			if (!none(final_states.front().second))
-				detectCycle(final_states.front());
+			// Restart the coloring using coloring of the first final state if there are at least some parameters
+			//if (!none(final_states.front().second))
+			//	detectCycle(final_states.front());
 			// Store the result
-			const std::size_t state_num = final_states.front().first;
-			results.addResult(state_index, product->getParameters(state_num));
+			results.addResult(state_index, product->getParameters(final_states.front().first));
 			// Remove the state
 			final_states.pop();
 		}
@@ -255,7 +273,8 @@ public:
 	 */
 	ModelChecker(const UserOptions & _user_options, const SplitManager _split_manager, const ParametrizedStructure & _structure, 
 		         const AutomatonStructure & _automaton, Results & _results) 
-	            : split_manager(_split_manager), user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) { }
+	            : split_manager(_split_manager), user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) { 
+	}
 
 	/**
 	 * Function that does all the coloring. This part only covers iterating through subparts.

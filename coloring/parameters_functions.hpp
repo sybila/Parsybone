@@ -38,20 +38,17 @@ const std::size_t getParamsetSize() {
 }
 
 /**
- * Count number of true bits (active parameters in the parameter set). There is a copy on the input that gets destroyed in the process.
- *
- * @param parameters	parameters to count
- *
- * @return	number of active parameters in the set
+ * Count bits
+ * From The Art of Computer Programming Vol IV, p 11 
  */
-const std::size_t count(Parameters parameters) {
-	std::size_t result = 0;
-	for (std::size_t paramu_pos = 0; paramu_pos < getParamsetSize(); paramu_pos++) {
-		if (parameters % 2) 
-			result++;
-		parameters >>= 1;
-	}
-	return result;
+#define MASK_01010101 (((unsigned int)(-1))/3)
+#define MASK_00110011 (((unsigned int)(-1))/5)
+#define MASK_00001111 (((unsigned int)(-1))/17)
+int count (Parameters n) {
+   n = (n & MASK_01010101) + ((n >> 1) & MASK_01010101) ;
+   n = (n & MASK_00110011) + ((n >> 2) & MASK_00110011) ;
+   n = (n & MASK_00001111) + ((n >> 4) & MASK_00001111) ;
+   return n % 255 ;
 }
 
 /**
@@ -65,7 +62,7 @@ inline Parameters getAll() {
  * @return true if none of the paremters is set
  */
 inline const bool none(Parameters parameters) {
-	return parameters == 0;
+	return (parameters == 0);
 }
 
 /**
