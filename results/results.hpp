@@ -18,7 +18,7 @@
 #define PARSYBONE_RESULTS_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Results are used by ModelChecker to store the important data from synthesis.
+// Results are used by ModelChecker to store the data computed during synthesis.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -85,10 +85,8 @@ class Results {
 			// For each final state of the product prepare arrays of results
 			for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
 				// Pass information that the state coloring will be stored later
-				state_ID = BA_state_index * structure.getStatesCount() + ks_state_num;
-				addState(state_ID, ks_state_num, ba_state_num);
+				addState(state_ID++, ks_state_num, ba_state_num);
 			}
-			BA_state_index++;
 		}
 	}
 	
@@ -97,7 +95,7 @@ class Results {
 
 public:
 	/**
-	 * Get reference data and c
+	 * Get reference data and create final states that will hold all the computed data
 	 */
 	Results(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, const SplitManager & _split_manager) 
 		   : structure(_structure), automaton(_automaton), split_manager(_split_manager) {
@@ -108,17 +106,18 @@ public:
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
+	 * Routine that counts how many unique bits (parameters) are set in all the final states together.
+	 *
 	 * @return	total number of parameters
 	 */
 	const std::size_t countParameters() const {
-		Parameters all;
+		// Resulting number
 		std::size_t parameter_count = 0;
 		// Go through each partition 
 		for(std::size_t round_num = 0; round_num < split_manager.getRoundCount(); round_num++) {
-			// copy requested partition from the first final state
-			all = states[0].parameters_parts[round_num];
+			Parameters all = 0;
+			// Add parameters from each other final state
 			std::for_each(states.begin(), states.end(), [&all, round_num](const ColoredState & state){
-				// Add partition from each other final state
 				all |= state.parameters_parts[round_num];
 			});
 			// sum number of parameters from this partition with that from previous partitions
@@ -127,24 +126,12 @@ public:
 		return parameter_count;
 	}
 
+	/**
+	 * @return total number of parameters for this process
+	 */
 	inline const std::size_t getParametersCount() const {
 		return (split_manager.getProcessRange().second - split_manager.getProcessRange().first);
 	}
-
-	/**
-	 * @return	All feasible parameters from the paramter space
-	 */
-	/*const Parameters getAllParameters() const {
-		Parameters all;
-		if (coloring.empty())
-			return all;
-		all = coloring[0].second;
-		std::for_each(coloring.begin(), coloring.end(), [&all](const Coloring & coloring){
-			all |= coloring.second;
-		});
-		return all;
-	}*/
-
 
 	/**
 	 * @return	number of colorings in the result

@@ -116,7 +116,6 @@ public:
 	 */
 	void basicOutput(bool colors) const {
 		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << results.getParametersCount() << ".\n";
-		output_stream << sizeof(Parameters) * 8 << " bits per parameters.\n";
 		// Display states and their colours
 		if (colors) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {

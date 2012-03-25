@@ -88,7 +88,7 @@ public:
 	 * @param _process_number	index of this process
 	 * @param _parameters_count	complete number of parameters that have to be tested by all the processes
 	 */
-	void setupSplitting(const std::size_t _processes_count, const std::size_t _process_number, const std::size_t _parameters_count) {
+	void setupSplitting(const std::size_t _process_number, const std::size_t _processes_count, const std::size_t _parameters_count) {
 		// Pass the numbers
 		processes_count = _processes_count;
 		process_number = _process_number;

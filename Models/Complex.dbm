@@ -29,8 +29,8 @@
 			<REGULATIONS>
 				<REGUL mask="00" t_value="-1" />
 				<REGUL mask="01" t_value="-1" />
-				<REGUL mask="10" t_value="1" />
-				<REGUL mask="11" t_value="1" />
+				<REGUL mask="10" t_value="-1" />
+				<REGUL mask="11" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>
 		<SPECIE name="3" max="1" basal="0">
@@ -41,13 +41,13 @@
 			</INTERACTIONS>
 			<REGULATIONS>
 				<REGUL mask="000" t_value="0" />
-				<REGUL mask="001" t_value="-1" />
-				<REGUL mask="010" t_value="-1" />
-				<REGUL mask="011" t_value="1" />
+				<REGUL mask="001" t_value="1" />
+				<REGUL mask="010" t_value="1" />
+				<REGUL mask="011" t_value="-1" />
 				<REGUL mask="100" t_value="1" />
-				<REGUL mask="101" t_value="1" />
-				<REGUL mask="110" t_value="1" />
-				<REGUL mask="111" t_value="1" />
+				<REGUL mask="101" t_value="-1" />
+				<REGUL mask="110" t_value="-1" />
+				<REGUL mask="111" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>
 		<SPECIE name="4" max="1" basal="0">
@@ -56,8 +56,8 @@
 				<INTER source="3" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="00" t_value="1" />
-				<REGUL mask="01" t_value="1" />
+				<REGUL mask="00" t_value="-1" />
+				<REGUL mask="01" t_value="-1" />
 				<REGUL mask="10" t_value="-1" />
 				<REGUL mask="11" t_value="-1" />
 			</REGULATIONS>
