@@ -96,17 +96,20 @@ class ModelChecker {
 			// List through ALL the target values
 			for (std::size_t value = (param_num / step_size) % transitive_values.size(); value < transitive_values.size(); value++) {
 				// Add transitive, skip others
-				for (std::size_t substep = param_num % step_size; substep < step_size && param_num < split_manager.getRoundRange().second; substep++) {
+				for (std::size_t substep = param_num % step_size; substep < step_size; substep++) {
 					temporary <<= 1;
 					if (transitive_values[value] == true) 
 						temporary |= 1;
-					param_num++;
+					if(++param_num == split_manager.getRoundRange().second) {
+						target_param &= temporary;
+						return;
+					}
 				}
 			}
 		}
 
 		// Create interection of source parameters and transition parameters
-		target_param &= temporary;
+
 	}
 
 	/**
@@ -229,8 +232,8 @@ class ModelChecker {
 		// Get the actuall results by cycle detection for each final vertex
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
 			// Restart the coloring using coloring of the first final state
-			//if (!none(final_states.front().second))
-			//	detectCycle(final_states.front());
+			if (!none(final_states.front().second))
+				detectCycle(final_states.front());
 			// Store the result
 			const std::size_t state_num = final_states.front().first;
 			results.addResult(state_index, product->getParameters(state_num));

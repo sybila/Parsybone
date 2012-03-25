@@ -5,8 +5,8 @@
 				<INTER source="1" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="2" />
-				<REGUL mask="1" t_value="0" />
+				<REGUL mask="0" t_value="-1" />
+				<REGUL mask="1" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>
 		<SPECIE name="SampleTwo" max="1" basal="0">
@@ -14,15 +14,15 @@
 				<INTER source="0" threshold ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
-				<REGUL mask="0" t_value="0" />
-				<REGUL mask="1" t_value="0" />
+				<REGUL mask="0" t_value="-1" />
+				<REGUL mask="1" t_value="-1" />
 			</REGULATIONS>
 		</SPECIE>
 	</STRUCTURE>
 	<AUTOMATON>
 		<STATE final="0">
 			<TRANSITIONS>
-				<TRANS label="SampleOne<2" target="0" />
+				<TRANS label="SampleOne<2" target="0" />				
 				<TRANS label="SampleOne=2&SampleTwo=1" target="1" />
 			</TRANSITIONS>
 		</STATE>

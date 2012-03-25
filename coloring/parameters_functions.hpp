@@ -17,6 +17,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Here are definitions of functions necessary for work with parameters.
 // These functions work only for parameters that are basic data types (namely integer).
+//
+// REMEMBER!
+// Parameters in an Paramset are ordered in an ascending order.
+// Last bit in an Paramset is its sizeof(Paramset)*8-th parameters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef PARSYBONE_PARAMETERS_FUNCTIONS_INCLUDED
@@ -54,7 +58,7 @@ const std::size_t count(Parameters parameters) {
  * @return a parameter set with everything set to 1
  */
 inline Parameters getAll() {
-	return std::numeric_limits<Parameters>::max();
+	return ~0;
 }
 
 /**
@@ -62,6 +66,31 @@ inline Parameters getAll() {
  */
 inline const bool none(Parameters parameters) {
 	return parameters == 0;
+}
+
+/**
+ * Flips every bit
+ *
+ * @return copy of input with swapped bits.
+ */
+inline Parameters flip(const Parameters parameters) {
+	return ~parameters;
+}
+
+/**
+ * Swaps parameters within a variable - last become first etc.
+ *
+ * @return copy of input with descending order of parameters
+ */
+inline Parameters swap(Parameters parameters) {
+	Parameters new_params = 0;
+	for (std::size_t param_num = 0; param_num < getParamsetSize(); param_num++) {
+		new_params <<= 1;
+		if (parameters % 2)
+			new_params |= 1;
+		parameters >>= 1;
+	}
+	return new_params;
 }
 
 

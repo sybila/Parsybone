@@ -111,11 +111,11 @@ int main(int argc, char* argv[]) {
 	Results results(parametrized_structure, automaton, split_manager);
 	try {
 		split_manager.setupSplitting(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
-		long long start_time = my_clock();
+		long long start_time = myClock();
 		*output_stream << "Coloring started.\n";
 		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results);
 		model_checker.computeResults();
-		*output_stream << "Coloring ended after: " << (my_clock() - start_time) / 1000.0 << " seconds.\n";
+		*output_stream << "Coloring ended after: " << (myClock() - start_time) / 1000.0 << " seconds.\n";
 	} catch (std::exception & e) {
 		std::cerr << "Error occured while syntetizing the parameters: " << e.what() << ". \n";
 		return 4;
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
 	try {
 		*output_stream << "Output started.\n";
 		OutputManager output_manager(user_options, *output_stream, results, functions_structure, split_manager);
-		output_manager.basicOutput(false);
+		output_manager.basicOutput(true);
 	} catch (std::exception & e) {
 		std::cerr << "Error occured during output of the results: " << e.what() << ". \n";
 		return 5;

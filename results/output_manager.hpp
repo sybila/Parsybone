@@ -82,7 +82,7 @@ private:
 		// Cycle through parameters
 		for (std::size_t parameter_num = 0; parameter_num < functions_structure.getParametersCount(); parameter_num++) {
 			if (parameter_num % getParamsetSize() == 0) 
-				result_parameters = results.getStateParameters(state_num, parameter_num / getParamsetSize());
+				result_parameters = swap(results.getStateParameters(state_num, parameter_num / getParamsetSize()));
 
 
 			// Output current values

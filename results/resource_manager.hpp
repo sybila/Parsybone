@@ -23,7 +23,7 @@
 /**
 	* @return	time in miliseconds
 	*/
-long long my_clock() {
+long long myClock() {
 	timeval tv;
 	gettimeofday(&tv, 0);
 	return tv.tv_sec*1000 + tv.tv_usec/1000;
@@ -33,7 +33,7 @@ long long my_clock() {
 /**
 	* @return	time in miliseconds
 	*/
-long long my_clock() {
+long long myClock() {
 	return GetTickCount();
 }
 #endif
