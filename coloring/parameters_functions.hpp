@@ -33,7 +33,7 @@
 /**
  * @return number of parameters in a single round
  */
-const std::size_t getParamsetSize() {
+inline const std::size_t getParamsetSize() {
 	return sizeof(Parameters) * 8;
 }
 

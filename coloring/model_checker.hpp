@@ -21,6 +21,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ModelChecker class does the parameter synthesis by at first reachability coloring and the cycle detection from all the vertices that got colored.
+// This class uses some global data that have to be handled safely, but it makes the computation faster.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <stdexcept>
@@ -99,21 +100,24 @@ class ModelChecker {
 		Parameters temporary = 0;
 
 		// List through all the paramters
-		while (param_num < split_manager.getRoundRange().second) {
+		while (true) {
 			// List through ALL the target values
 			for (; value_num < transitive_values.size(); value_num++) {
-				// For the current value add 1s if its color is present and 0s if not within the size of the step
-				while (substep++ < step_size) {
-					// Move from previous round
-					temporary <<= 1;
-					// Add 1 if transitive
-					if (transitive_values[value_num]) 
-						temporary |= 1;
-					// Check if there is necessity for another round
-					if(++param_num == split_manager.getRoundRange().second) {
-						target_param &= temporary;
-						return;
-					}
+				// Get size of the step for current value 
+				std::size_t bits_in_step = std::min(step_size, split_manager.getRoundRange().second - param_num);
+				// Move the mask so new value data can be add
+				temporary <<= bits_in_step;
+				// If transitive, add ones for the width of the step
+				if (transitive_values[value_num]) {
+					Parameters add = ~0;
+					add >>= (getParamsetSize() - bits_in_step);
+					temporary |= add;
+				}
+				// If we went throught the whole size, end
+				if ((param_num += bits_in_step) == split_manager.getRoundRange().second) {
+					// Create interection of source parameters and transition parameters
+					target_param &= temporary;
+					return;
 				}
 				// Reset steps for the value
 				substep = 0;
@@ -121,9 +125,6 @@ class ModelChecker {
 			// Reset the value
 			value_num = 0;
 		}
-
-		// Create interection of source parameters and transition parameters
-
 	}
 
 	/**
