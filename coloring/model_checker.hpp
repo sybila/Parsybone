@@ -178,7 +178,7 @@ class ModelChecker {
 	}
 
 	/**
-	 * Distribute updates and store the new ones.
+	 * Distribute updates and store the new ones. Used only for initial coloring.
 	 *
 	 * @param updates	set containing IDs of states that are scheduled for update
 	 */
@@ -186,16 +186,45 @@ class ModelChecker {
 		// While there are updates, pass them to succesing vertices
 		while (!updates.empty()) {
 			// Heuristics for an update with approximatelly maximal number of bits set
-			
 			std::size_t state_num = 0; std::size_t current_par = 0;
 			for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
 				if (product->getParameters(*update_it) == (current_par | product->getParameters(*update_it))) {
 					state_num = *update_it;
 					current_par = product->getParameters(state_num);
-				} 
+				}
 			}
 			// Pass data from updated vertex to its succesors
 			transferUpdates(state_num, product->getParameters(state_num));
+			// Erase completed update from the set
+			updates.erase(state_num);
+		}
+	}
+
+	/**
+	 * Distribute updates and store the new ones. Used only in cycle detection - prefers updates of the source vertex.
+	 *
+	 * @param updates	set containing IDs of states that are scheduled for update
+	 */
+	void doAcceptingColoring(const std::size_t source_state, const Parameters parameters) {
+		// While there are updates, pass them to succesing vertices
+		while (!updates.empty()) {
+			// Heuristics for an update with approximatelly maximal number of bits set
+			std::size_t state_num = 0; std::size_t current_par = 0;
+			for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
+				if (product->getParameters(*update_it) == (current_par | product->getParameters(*update_it))) {
+					state_num = *update_it;
+					current_par = product->getParameters(state_num);
+				}
+				if (source_state == *update_it) {
+					state_num = *update_it;
+					break;
+				}
+			}
+			// Pass data from updated vertex to its succesors
+			transferUpdates(state_num, product->getParameters(state_num));
+			if (source_state == state_num)
+				if (product->getParameters(state_num) == parameters)
+					return;
 			// Erase completed update from the set
 			updates.erase(state_num);
 		}
@@ -211,9 +240,9 @@ class ModelChecker {
 		product->reset();
 		updates.clear();
 		// Send updates from the initial state
-		transferUpdates( init_coloring.first, init_coloring.second);
+		transferUpdates(init_coloring.first, init_coloring.second);
 		// Start coloring procedure
-		doColoring();
+		doAcceptingColoring(init_coloring.first, init_coloring.second);
 	}
 
 	/**
@@ -251,8 +280,8 @@ class ModelChecker {
 		// Get the actuall results by cycle detection for each final vertex
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
-			//if (!none(final_states.front().second))
-			//	detectCycle(final_states.front());
+			if (!none(final_states.front().second))
+				detectCycle(final_states.front());
 			// Store the result
 			results.addResult(state_index, product->getParameters(final_states.front().first));
 			// Remove the state
