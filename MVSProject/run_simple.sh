@@ -1,0 +1,1 @@
+cp ./Release/Parsybone.exe Parsybone.exe; ./Parsybone.exe < ../Models/IRMA_simple.dbm > ../Computed/IRMA_simple_mvs.out
