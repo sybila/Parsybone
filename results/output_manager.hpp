@@ -79,10 +79,16 @@ private:
 		}
 		
 		Parameters result_parameters;
+		SplitManager splitting = split_manager;
 		// Cycle through parameters
 		for (std::size_t parameter_num = 0; parameter_num < functions_structure.getParametersCount(); parameter_num++) {
-			if (parameter_num % getParamsetSize() == 0) 
+			if (parameter_num % getParamsetSize() == 0) {
 				result_parameters = swap(results.getStateParameters(state_num, parameter_num / getParamsetSize()));
+				if (splitting.lastRound()) 
+					result_parameters >>= (getParamsetSize() - splitting.getRoundRange().second - splitting.getRoundRange().first);
+				else
+					splitting.increaseRound();
+			}
 
 
 			// Output current values
