@@ -31,7 +31,7 @@
 #include "coloring/model_checker.hpp"
 #include "results/results.hpp"
 #include "results/output_manager.hpp"
-#include "results/resource_manager.hpp"
+#include "results/time_manager.hpp"
 #include "results/output_streamer.hpp"
 
 // porgram-related data
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 // Create long-live objects.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	// Object controlling usage of the resources.
-	ResourceManager resources;
+	TimeManager time_manager;
 	// Model that will be obtained from the input
 	Model model;
 	// structure that holds user-specified options, set to default values

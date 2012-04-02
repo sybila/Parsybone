@@ -14,8 +14,8 @@
  * See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef POSEIDON_RESOURCE_MANAGER_INCLUDED
-#define POSEIDON_RESOURCE_MANAGER_INCLUDED
+#ifndef POSEIDON_TIME_MANAGER_INCLUDED
+#define POSEIDON_TIME_MANAGER_INCLUDED
 
 #include "../results/output_streamer.hpp"
 
@@ -40,7 +40,7 @@ long long myClock() {
 }
 #endif
 
-class ResourceManager {
+class TimeManager {
 
 };
 

@@ -160,14 +160,31 @@ public:
 	}
 
 	/**
-	 * Get parameters of the state - warning, this function is costy - has to copy all the bits
+	 * Get part of parameters of the state
 	 *
 	 * @param state_index	index in the vector of states
+	 * @param round_num	round to pick
 	 *
 	 * @return	coloring with given index
 	 */
-	const Parameters getStateParameters(const std::size_t state_index, const std::size_t part) const {
-		return states[state_index].parameters_parts[part];
+	const Parameters getStateParameters(const std::size_t state_index, const std::size_t round_num) const {
+		return states[state_index].parameters_parts[round_num];
+	}
+
+	/**
+	 * Get part of union of all the parameters
+	 *
+	 * @param round_num	round to pick
+	 *
+	 * @return	part of the coloring coloring with given index
+	 */
+	const Parameters getMergedParameters(const std::size_t round_num) const {
+		Parameters all = 0;
+		// Add parameters from each other final state
+		std::for_each(states.begin(), states.end(), [&all, round_num](const ColoredState & state){
+			all |= state.parameters_parts[round_num];
+		});
+		return all;
 	}
 
 };

@@ -63,10 +63,8 @@ private:
 
 	/**
 	 * display given parameters in the form [fun1, fun2, ...]
-	 *
-	 * @param result_parameters	parameters tou display
 	 */
-	void outputParameters(std::size_t state_num) const {
+	void outputColors() const {
 		// Get a vector of all values for all the functions
 		std::vector<std::vector<std::size_t>> all_values = std::move(getValues());
 		// Create a vector currently storing lowes value for each function
@@ -80,7 +78,7 @@ private:
 		// Cycle through parameters
 		for (std::size_t parameter_num = 0; parameter_num < functions_structure.getParametersCount(); parameter_num++) {
 			if (parameter_num % getParamsetSize() == 0) {
-				result_parameters = swap(results.getStateParameters(state_num, parameter_num / getParamsetSize()));
+				result_parameters = swap(results.getMergedParameters(parameter_num / getParamsetSize()));
 				if (splitting.lastRound()) 
 					result_parameters >>= (getParamsetSize() - splitting.getRoundRange().second - splitting.getRoundRange().first);
 				else
@@ -117,16 +115,19 @@ public:
 	 * @param colors	if true, coloring of individuall final states will be shown
 	 */
 	void basicOutput() const {
-		output_streamer.output(data, "Total number of parameters: ", OutputStreamer::no_newl).output(data, results.countParameters(), OutputStreamer::no_newl)
-			           .output(data, " out of: ", OutputStreamer::no_newl).output(data, results.getParametersCount());
-		// Display states and their colours
-		if (user_options.show_final_coloring) {
+		// Display amount of all colors
+		output_streamer.output(data, "Total number of parameters is ", OutputStreamer::no_newl).output(data, results.countParameters(), OutputStreamer::no_newl)
+			           .output(data, " out of ", OutputStreamer::no_newl).output(data, results.getParametersCount(), OutputStreamer::no_newl).output(data, "");
+		// Display amount of colors of states
+		/*if (user_options.verbose) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
-				output_streamer.output(data, "State BA:", OutputStreamer::no_newl).output(data, results.getBANum(state_num), OutputStreamer::no_newl).output(data, ", KS:", OutputStreamer::no_newl)
-					           .output(data, results.getKSNum(state_num), OutputStreamer::no_newl).output(data, " is colored with parameters:");
-				outputParameters(state_num);
+				output_streamer.output(data, "State BA", OutputStreamer::no_newl).output(data, results.getBANum(state_num), OutputStreamer::no_newl).output(data, ", KS", OutputStreamer::no_newl)
+					           .output(data, results.getKSNum(state_num), OutputStreamer::no_newl).output(data, " is colored with parameters");
 			}
-		}
+		}*/
+		// display the colors
+		if (user_options.show_final_coloring) 
+			outputColors();
 	}
 };
 

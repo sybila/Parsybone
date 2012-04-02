@@ -93,10 +93,10 @@
     <ClInclude Include="..\coloring\parameters_functions.hpp">
       <Filter>coloring</Filter>
     </ClInclude>
-    <ClInclude Include="..\results\resource_manager.hpp">
+    <ClInclude Include="..\results\output_streamer.hpp">
       <Filter>results</Filter>
     </ClInclude>
-    <ClInclude Include="..\results\output_streamer.hpp">
+    <ClInclude Include="..\results\time_manager.hpp">
       <Filter>results</Filter>
     </ClInclude>
   </ItemGroup>
