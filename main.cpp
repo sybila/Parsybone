@@ -14,6 +14,10 @@
  * See http://sybila.fi.muni.cz/ .
  */
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This is the entry point of the program and also only .cpp file used.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <memory>
 #include <iostream>
 
@@ -34,36 +38,35 @@
 const float program_version = 1.0;
 
 /**
- * 
+ * Linear execution of succesing parts of the parameter synthesis
  */
 int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ZERO:
 // Create long-live objects.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	// Object controlling usage of the resources.
 	ResourceManager resources;
+	
 	// Model that will be obtained from the input
 	Model model;
 
 	// structure that holds user-specified options, set to default values
-	UserOptions user_options = {0};
-	user_options.process_number = 1;
-	user_options.processes_count = 1;
-
-	// Stream that will get the output
-	std::ostream * result_stream = &std::cout;
+	UserOptions user_options = {0};	user_options.process_number = 1; user_options.processes_count = 1;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	try {
-		parseArguments(user_options, argc, argv, result_stream);
+		// Parse what is on the input
+		parseArguments(user_options, argc, argv);
 
-		// Parse model file
+		// Parse the model
 		output_streamer.output(verbose, "Model parsing started.\n");
 		ModelParser model_parser(user_options, model);
 		model_parser.parseInput();
+
 	} catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while parsing input: ").append(e.what()).append(". \n"));
 		return 1;
@@ -99,6 +102,7 @@ int main(int argc, char* argv[]) {
 		// Automata Structure building
 		AutomatonBuilder automaton_builder(user_options, model, automaton);
 		automaton_builder.buildAutomaton();
+
 	} catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while building data structures: ").append(e.what()).append(". \n"));
 		return 3;
@@ -108,15 +112,19 @@ int main(int argc, char* argv[]) {
 // STEP FOUR:
 // Model-check and synthetize parameters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Long-life data structures
 	SplitManager split_manager;
 	Results results(parametrized_structure, automaton, split_manager);
 	try {
+		// Create splitting
 		split_manager.setupSplitting(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
-		long long start_time = myClock();
-		output_streamer.output(verbose, "Coloring started.\n");
+		/*long long start_time = myClock();
+		output_streamer.output(verbose, "Coloring started.\n");*/
+		// Do the coloring
 		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results);
 		model_checker.computeResults();
-		output_streamer.output(verbose,"Coloring ended after: ", 1).output(verbose, (myClock() - start_time) / 1000.0, 1).output(verbose,  " seconds.\n");
+		// output_streamer.output(verbose,"Coloring ended after: ", 1).output(verbose, (myClock() - start_time) / 1000.0, 1).output(verbose,  " seconds.\n");
+	
 	} catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()).append(". \n"));
 		return 4;
@@ -127,16 +135,13 @@ int main(int argc, char* argv[]) {
 // Analyze results and provide the output.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
+		// Proivde the output
 		output_streamer.output(verbose, "Output started.\n");
 		OutputManager output_manager(user_options, results, functions_structure, split_manager);
-		output_manager.basicOutput(true);
+		output_manager.basicOutput();
+	
 	} catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured during output of the results: ").append(e.what()).append(". \n"));
 		return 5;
 	}
-
-	// If file stream has been created, delete it.
-	if (result_stream != &std::cout)
-		delete result_stream;
-	return 0;
 }

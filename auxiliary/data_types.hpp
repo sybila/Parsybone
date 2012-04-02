@@ -33,23 +33,19 @@
 struct UserOptions {
 	bool show_counterexamples : 1;
 	bool show_base_coloring : 1;
+	bool show_final_coloring : 1;
 	bool verbose : 1;
 	bool negative_check : 1;
 	unsigned int process_number : 8;
 	unsigned int processes_count : 8;
-	unsigned char padding : 4;
+	unsigned char padding : 11;
 };
 
+// What stream to use in all-streams functions
 enum StreamType {input, fail, verbose, data};
 
-// Stream from which the model is read
-std::istream * input_stream  = &std::cin;
-
-// Stream to which output (apart from results) is written
-std::ostream * output_stream = &std::cout;
-
-// Stream to which errors are posted
-std::ostream * error_stream  = &std::cerr;
+// Named pointer - just in case of necessity to use a file
+std::istream * const input_stream = &std::cin;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA RELATED TYPES

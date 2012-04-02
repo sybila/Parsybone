@@ -36,7 +36,7 @@
 	* @param argv	same as at main
 	* @param result_stream	pointer to the stream that will get the output
 	*/
-void parseArguments (UserOptions & user_options, int argc, char* argv[], std::ostream * result_stream) {
+void parseArguments (UserOptions & user_options, int argc, char* argv[]) {
 
 	std::string switches;
 
@@ -55,6 +55,10 @@ void parseArguments (UserOptions & user_options, int argc, char* argv[], std::os
 					user_options.show_counterexamples = true;
 					break;
 
+				case 'f'
+					user_options.show_final_coloring = true;
+					break;
+
 				case 'v':
 					output_streamer.useVerbose();
 					break;
@@ -64,7 +68,7 @@ void parseArguments (UserOptions & user_options, int argc, char* argv[], std::os
 					break;
 
 				// Get data for distributed computation
-				case 'd':
+				case 'D':
 					// After d there must be a white space (to distinct requsted numbers)
 					if (switch_num + 1 < arg.size())
 						throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(arg.begin() + switch_num + 1, arg.end())));
@@ -84,7 +88,7 @@ void parseArguments (UserOptions & user_options, int argc, char* argv[], std::os
 					break;
 
 				// Redirecting results output to a file by a parameter
-				case 'f':
+				case 'F':
 					// After f there must be a white space (to distinct file name)
 					if (switch_num + 1 < arg.size())
 						throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(arg.begin() + switch_num + 1, arg.end())));

@@ -117,11 +117,11 @@ public:
 	 *
 	 * @param colors	if true, coloring of individuall final states will be shown
 	 */
-	void basicOutput(bool colors) const {
+	void basicOutput() const {
 		output_streamer.output(data, "Total number of parameters: ", OutputStreamer::no_newl).output(data, results.countParameters(), OutputStreamer::no_newl)
 			           .output(data, " out of: ", OutputStreamer::no_newl).output(data, results.getParametersCount());
 		// Display states and their colours
-		if (colors) {
+		if (user_options.show_final_coloring) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
 				output_streamer.output(data, "State BA:", OutputStreamer::no_newl).output(data, results.getBANum(state_num), OutputStreamer::no_newl).output(data, ", KS:", OutputStreamer::no_newl)
 					           .output(data, results.getKSNum(state_num), OutputStreamer::no_newl).output(data, " is colored with parameters:\n");
