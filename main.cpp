@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
 		// Proivde the output
-		output_streamer.output(verbose, "Output started.", OutputStreamer::important);
+		output_streamer.output(verbose, "Output started", OutputStreamer::important);
 		OutputManager output_manager(user_options, results, functions_structure, split_manager);
 		output_manager.basicOutput();
 	} 

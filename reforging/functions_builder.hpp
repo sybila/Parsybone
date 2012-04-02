@@ -99,6 +99,10 @@ class FunctionsBuilder {
 			const std::vector<Model::Interaction> & interactions = model.getInteractions(specie_num);
 			const std::vector<Model::Regulation> & regulations = model.getRegulations(specie_num);
 
+			output_streamer.output(verbose, "Computing functions for specie: ", OutputStreamer::no_newl).output(verbose, specie_num, OutputStreamer::no_newl)
+				           .output(verbose, " with: ", OutputStreamer::no_newl).output(verbose, interactions.size(), OutputStreamer::no_newl)
+				           .output(verbose, " interactions and: ", OutputStreamer::no_newl).output(verbose, regulations.size(), OutputStreamer::no_newl)
+						   .output(verbose, " regulatory contexts.");
 			// Go through regulations of a specie - each represents a single function
 			for (auto it = regulations.begin(); it != regulations.end(); it++) {
 				// Get data from interactions
@@ -119,6 +123,7 @@ class FunctionsBuilder {
 	 * Computes iformation about where functions with common target starts and how big are steps in parameter set.
 	 */
 	void computeAuxiliaryData() {
+		output_streamer.output(verbose, "Computing auxiliary data for functions.");
 		// Aid variables
 		std::size_t last_target = 0;
 		std::size_t function_num = 0;

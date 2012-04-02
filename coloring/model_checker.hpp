@@ -277,6 +277,7 @@ class ModelChecker {
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
 	void syntetizeParameters() {
+		split_manager.outputRound();
 		// Basic coloring
 		colorProduct();
 		// Store colored final vertices
@@ -324,6 +325,7 @@ public:
 		}
 		// Compute the last round
 		syntetizeParameters();
+		output_streamer.output(verbose, "");
 	}
 };
 

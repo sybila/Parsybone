@@ -374,11 +374,13 @@ public:
 		getAttribute(file_version, current_node, "ver");
 
 		// Parse Kripke Structure
+		output_streamer.output(verbose, "Started reading of the Kripke structure.");
 		current_node = getChildNode(current_node, "STRUCTURE");
 		getAttribute(unspecified_regulations, current_node, "unspec");
 		parseSpecies(current_node);
 
 		// Parse Buchi Automaton
+		output_streamer.output(verbose, "Started reading of the Buchi automaton.");
 		current_node = getSiblingNode(current_node, "AUTOMATON");
 		parseStates(current_node);
 

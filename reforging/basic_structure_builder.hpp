@@ -126,6 +126,8 @@ public:
 		Levels maxes = std::move(getMaxes(state_levels)); 
 
 		// Create states 
+		output_streamer.output(verbose, "Computing Kripke structure states, total number of states: ", OutputStreamer::no_newl)
+			           .output(verbose, states_count, OutputStreamer::no_newl).output(verbose, ".");
 		for(std::size_t state_num = 0; state_num < states_count; state_num++) {
 			// Fill the structure with the state
 			structure.addState(state_num, state_levels);

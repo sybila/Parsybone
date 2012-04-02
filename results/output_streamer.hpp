@@ -156,14 +156,17 @@ public:
 private:
 	template <class outputType> 
 	void actualOutput(std::ostream & stream, const outputType & stream_data, const unsigned int trait_mask) const {
+		// Return to start of the line
+		if (testTrait(rewrite_ln, trait_mask))
+			stream << '\r';
 		// Add stars
 		if (testTrait(important, trait_mask))
-			stream << "** ";
+			stream << "*** ";
 		// Actuall data
 		stream << stream_data;
 		// Add stars
 		if (testTrait(important, trait_mask))
-			stream << " **";
+			stream << " ***";
 		// End of the line if not requested otherwise
 		if (!testTrait(no_newl, trait_mask))
 			stream << std::endl;
