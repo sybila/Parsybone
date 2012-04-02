@@ -90,12 +90,11 @@ private:
 
 			// Output current values
 			if (result_parameters % 2) {
-				unsigned int no_new = 1;
-				output_streamer.output(data, "[", no_new);
+				output_streamer.output(data, "[", OutputStreamer::no_newl);
 				for (auto it = current_value.begin(); it != current_value.end() - 1; it++) {
-					output_streamer.output(data, *it, no_new).output(data, ",", no_new);
+					output_streamer.output(data, *it, OutputStreamer::no_newl).output(data, ",", OutputStreamer::no_newl);
 				}
-				output_streamer.output(data, current_value.back(), no_new).output(data, "]");
+				output_streamer.output(data, current_value.back(), OutputStreamer::no_newl).output(data, "]");
 			}
 			result_parameters >>= 1;
 
@@ -119,14 +118,13 @@ public:
 	 * @param colors	if true, coloring of individuall final states will be shown
 	 */
 	void basicOutput(bool colors) const {
-		unsigned int trait = 1;
-		output_streamer.output(data, "Total number of parameters: ", trait).output(data, results.countParameters(), trait)
-			           .output(data, " out of: ", trait).output(data, results.getParametersCount());
+		output_streamer.output(data, "Total number of parameters: ", OutputStreamer::no_newl).output(data, results.countParameters(), OutputStreamer::no_newl)
+			           .output(data, " out of: ", OutputStreamer::no_newl).output(data, results.getParametersCount());
 		// Display states and their colours
 		if (colors) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
-				output_streamer.output(data, "State BA:", trait).output(data, results.getBANum(state_num), trait).output(data, ", KS:", trait)
-					           .output(data, results.getKSNum(state_num), trait).output(data, " is colored with parameters:\n");
+				output_streamer.output(data, "State BA:", OutputStreamer::no_newl).output(data, results.getBANum(state_num), OutputStreamer::no_newl).output(data, ", KS:", OutputStreamer::no_newl)
+					           .output(data, results.getKSNum(state_num), OutputStreamer::no_newl).output(data, " is colored with parameters:\n");
 				outputParameters(state_num);
 			}
 		}
