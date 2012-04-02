@@ -55,7 +55,7 @@ void parseArguments (UserOptions & user_options, int argc, char* argv[]) {
 					user_options.show_counterexamples = true;
 					break;
 
-				case 'f'
+				case 'f':
 					user_options.show_final_coloring = true;
 					break;
 

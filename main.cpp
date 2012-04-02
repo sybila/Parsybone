@@ -144,4 +144,6 @@ int main(int argc, char* argv[]) {
 		output_streamer.output(fail, std::string("Error occured during output of the results: ").append(e.what()).append(". \n"));
 		return 5;
 	}
+
+	return 0;
 }

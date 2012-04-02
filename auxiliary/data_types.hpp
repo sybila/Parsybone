@@ -38,7 +38,7 @@ struct UserOptions {
 	bool negative_check : 1;
 	unsigned int process_number : 8;
 	unsigned int processes_count : 8;
-	unsigned char padding : 11;
+	unsigned int padding : 11;
 };
 
 // What stream to use in all-streams functions

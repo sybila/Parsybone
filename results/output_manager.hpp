@@ -87,7 +87,6 @@ private:
 					splitting.increaseRound();
 			}
 
-
 			// Output current values
 			if (result_parameters % 2) {
 				output_streamer.output(data, "[", OutputStreamer::no_newl);
@@ -124,7 +123,7 @@ public:
 		if (user_options.show_final_coloring) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
 				output_streamer.output(data, "State BA:", OutputStreamer::no_newl).output(data, results.getBANum(state_num), OutputStreamer::no_newl).output(data, ", KS:", OutputStreamer::no_newl)
-					           .output(data, results.getKSNum(state_num), OutputStreamer::no_newl).output(data, " is colored with parameters:\n");
+					           .output(data, results.getKSNum(state_num), OutputStreamer::no_newl).output(data, " is colored with parameters:");
 				outputParameters(state_num);
 			}
 		}

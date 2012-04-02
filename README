@@ -11,7 +11,7 @@ Building:
 	Apart from the boost libraries there are no additional dependencies, so you can build that using a simple Makefile in the GCCProject directory or compile it anywhere you want.
 
 Execution:
-	Parsybone reads the model in a XML format from the standard stream, displays results on the standard output and errors on the standard error output
+	Parsybone reads the model in a XML format from the standard stream, displays results on the standard output and errors on the standard error output.
 
 Arguments:
 	Parsybone [-fv] [-D process_ID number_of_processes] [-F results_file]
