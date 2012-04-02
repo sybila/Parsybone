@@ -42,12 +42,27 @@ class OutputStreamer {
 	bool output_verbose;
 	// True if these streams are assigned a file
 	bool fail_file, verbose_file, result_file;
+
 public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT TRAITS DEFINITIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	static const unsigned int no_newl = 1;
+	static const unsigned int no_newl    = 1;
+	static const unsigned int important  = 2;
+	static const unsigned int rewrite_ln = 4;
+
+	/**
+	 * test if given trait is present
+	 *
+	 * @param tested	number of the tested trait
+	 * @param traits	traits given with the function
+	 * 
+	 * @return bool if the trait is present
+	 */
+	inline bool testTrait(const unsigned int tested, const unsigned int traits) const {
+		return ((traits | tested)== traits);
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -114,6 +129,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	/**
 	 * output on a specified stream
 	 *
@@ -121,24 +137,36 @@ public:
 	 * @param data	data to output - should be any possible ostream data
 	 */
 	template <class outputType> 
-    const OutputStreamer & output(StreamType stream_type, const outputType stream_data, const unsigned int trait_mask = 0) const {
+    const OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) const {
 		switch (stream_type) {
 		case fail:
-			*fail_stream << stream_data;
-			if (trait_mask != no_newl) *fail_stream << std::endl;
+			actualOutput(*fail_stream, stream_data, trait_mask);		
 			break;
 		case verbose:
-			if (output_verbose) {
-				*verbose_stream << "** " << stream_data;
-				if (trait_mask != no_newl) *verbose_stream << std::endl;					
-			}
+			if (output_verbose)
+				actualOutput(*verbose_stream, stream_data, trait_mask);				
 			break;
 		case data: 
-			*result_stream << stream_data;
-			if (trait_mask != no_newl) *result_stream << std::endl;
+			actualOutput(*result_stream, stream_data, trait_mask);		
 			break;
 		}
 		return *this;
+	}
+
+private:
+	template <class outputType> 
+	void actualOutput(std::ostream & stream, const outputType & stream_data, const unsigned int trait_mask) const {
+		// Add stars
+		if (testTrait(important, trait_mask))
+			stream << "** ";
+		// Actuall data
+		stream << stream_data;
+		// Add stars
+		if (testTrait(important, trait_mask))
+			stream << " **";
+		// End of the line if not requested otherwise
+		if (!testTrait(no_newl, trait_mask))
+			stream << std::endl;
 	}
 } output_streamer; // Single program-shared output file
 

@@ -17,6 +17,8 @@
 #ifndef POSEIDON_RESOURCE_MANAGER_INCLUDED
 #define POSEIDON_RESOURCE_MANAGER_INCLUDED
 
+#include "../results/output_streamer.hpp"
+
 // Clock - dependendent on the achitecture. 
 #ifdef __GNUC__
 #include <sys/time.h>

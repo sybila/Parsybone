@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "../auxiliary/data_types.hpp"
+#include "../results/output_streamer.hpp"
 
 class ModelParser;
 

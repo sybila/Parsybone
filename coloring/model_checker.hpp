@@ -33,6 +33,7 @@
 #include "product_structure.hpp"
 #include "parameters_functions.hpp"
 #include "../results/results.hpp"
+#include "../results/output_streamer.hpp"
 
 class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +98,7 @@ class ModelChecker {
 		// As well current value step might not be the first one, it is also necessary to get it from current parameter position
 		std::size_t substep = param_num % step_size;
 		// Mask that will be created
-		Parameters temporary = 0;
+		register Parameters temporary = 0;
 
 		// List through all the paramters
 		while (true) {

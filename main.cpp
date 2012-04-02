@@ -47,10 +47,8 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	// Object controlling usage of the resources.
 	ResourceManager resources;
-	
 	// Model that will be obtained from the input
 	Model model;
-
 	// structure that holds user-specified options, set to default values
 	UserOptions user_options = {0};	user_options.process_number = 1; user_options.processes_count = 1;
 
@@ -63,11 +61,11 @@ int main(int argc, char* argv[]) {
 		parseArguments(user_options, argc, argv);
 
 		// Parse the model
-		output_streamer.output(verbose, "Model parsing started.");
+		output_streamer.output(verbose, "Model parsing started.", OutputStreamer::important);
 		ModelParser model_parser(user_options, model);
 		model_parser.parseInput();
-
-	} catch (std::exception & e) {
+	} 
+	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while parsing input: ").append(e.what()));
 		return 1;
 	}
@@ -89,7 +87,7 @@ int main(int argc, char* argv[]) {
 
 	// Data creation
 	try {
-		output_streamer.output(verbose, "Data building started.");
+		output_streamer.output(verbose, "Data building started.", OutputStreamer::important);
 
 		// Parametrized Structure building
 		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
@@ -102,8 +100,8 @@ int main(int argc, char* argv[]) {
 		// Automata Structure building
 		AutomatonBuilder automaton_builder(user_options, model, automaton);
 		automaton_builder.buildAutomaton();
-
-	} catch (std::exception & e) {
+	} 
+	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while building data structures: ").append(e.what()));
 		return 3;
 	}
@@ -116,16 +114,16 @@ int main(int argc, char* argv[]) {
 	SplitManager split_manager;
 	Results results(parametrized_structure, automaton, split_manager);
 	try {
+		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
 		// Create splitting
 		split_manager.setupSplitting(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
-		/*long long start_time = myClock();
-		output_streamer.output(verbose, "Coloring started.\n");*/
+		// long long start_time = myClock();
 		// Do the coloring
 		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results);
 		model_checker.computeResults();
 		// output_streamer.output(verbose,"Coloring ended after: ", 1).output(verbose, (myClock() - start_time) / 1000.0, 1).output(verbose,  " seconds.\n");
-	
-	} catch (std::exception & e) {
+	} 
+	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
 		return 4;
 	}
@@ -136,11 +134,11 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
 		// Proivde the output
-		output_streamer.output(verbose, "Output started.");
+		output_streamer.output(verbose, "Output started.", OutputStreamer::important);
 		OutputManager output_manager(user_options, results, functions_structure, split_manager);
 		output_manager.basicOutput();
-	
-	} catch (std::exception & e) {
+	} 
+	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured during output of the results: ").append(e.what()));
 		return 5;
 	}

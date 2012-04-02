@@ -28,6 +28,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "basic_structure.hpp"
+#include "../results/output_streamer.hpp"
 
 class ParametrizedStructureBuilder;
 

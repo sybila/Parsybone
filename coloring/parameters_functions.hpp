@@ -26,9 +26,10 @@
 #ifndef PARSYBONE_PARAMETERS_FUNCTIONS_INCLUDED
 #define PARSYBONE_PARAMETERS_FUNCTIONS_INCLUDED
 
-#include "../auxiliary/data_types.hpp"
-
 #include <climits>
+
+#include "../auxiliary/data_types.hpp"
+#include "../results/output_streamer.hpp"
 
 /**
  * @return number of parameters in a single round

@@ -40,6 +40,7 @@
 #include "../rapidxml-1.13/rapidxml_iterators.hpp"
 #include "../rapidxml-1.13/rapidxml_print.hpp"
 #include "../rapidxml-1.13/rapidxml_utils.hpp"
+#include "../results/output_streamer.hpp"
 
 class Model;
 
