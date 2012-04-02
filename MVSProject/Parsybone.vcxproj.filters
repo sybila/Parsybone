@@ -96,6 +96,9 @@
     <ClInclude Include="..\results\resource_manager.hpp">
       <Filter>results</Filter>
     </ClInclude>
+    <ClInclude Include="..\results\output_streamer.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">

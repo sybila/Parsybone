@@ -40,6 +40,8 @@ struct UserOptions {
 	unsigned char padding : 4;
 };
 
+enum StreamType {input, fail, verbose, data};
+
 // Stream from which the model is read
 std::istream * input_stream  = &std::cin;
 
