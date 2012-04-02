@@ -37,8 +37,8 @@
 	<AUTOMATON>
 		<STATE final="0">
 			<TRANSITIONS>
+        <TRANS label="tt" target="0" />
 				<TRANS label="i=0&j=1&k=0" target="1" />
-				<TRANS label="tt" target="0" />
 			</TRANSITIONS>
 		</STATE>
 		<STATE final="0">

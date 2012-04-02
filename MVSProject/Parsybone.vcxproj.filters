@@ -114,6 +114,27 @@
       <Filter>Models</Filter>
     </None>
     <None Include="..\README" />
+    <None Include="..\Models\3node.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Complex.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Complex_short.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\IRMA_hard.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\IRMA_medium.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\IRMA_simple.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\K4.dbm">
+      <Filter>Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />

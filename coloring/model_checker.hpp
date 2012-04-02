@@ -170,7 +170,10 @@ class ModelChecker {
 		}
 
 		// Push updates for each BA transition times each KS transition
-		for (std::size_t target_BA_state = (transitible_ba.empty() ? 0 : transitible_ba.front()); !transitible_ba.empty(); transitible_ba.pop()) {
+		while (!transitible_ba.empty()) {
+			// Get index of target state of BA and remove it from the queue
+			std::size_t target_BA_state = transitible_ba.front();
+			transitible_ba.pop();
 			// Combine BA transition with all KS transitions and update those
 			for (std::size_t KS_transition_num = 0; KS_transition_num < structure.getTransitionsCount(source_KS_state); KS_transition_num++) {
 				updateTarget(parameters, KS_transition_num, source_KS_state, target_BA_state);
