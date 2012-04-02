@@ -26,6 +26,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../auxiliary/data_types.hpp"
+#include "../results/output_streamer.hpp"
 
 /**
 	* Parses arguments on the input and changes switches accordingly. If there is a file on the input, it is created.
@@ -46,54 +47,54 @@ void parseArguments (UserOptions & user_options, int argc, char* argv[], std::os
 		if (arg[0] == '-') {
 			for (std::size_t switch_num = 1; switch_num < arg.size(); switch_num++) {
 				switch (arg[switch_num]) {
-					case 'b':
-						user_options.show_base_coloring = true;
+				case 'b':
+					user_options.show_base_coloring = true;
 					break;
 
-					case 'c':
-						user_options.show_counterexamples = true;
+				case 'c':
+					user_options.show_counterexamples = true;
 					break;
 
-					case 'v':
-						user_options.verbose = true;
+				case 'v':
+					output_streamer.useVerbose();
 					break;
 
-					case 'n':
-						user_options.negative_check = true;
+				case 'n':
+					user_options.negative_check = true;
 					break;
 
-					// Get data for distributed computation
-					case 'd':
-						// After d there must be a white space (to distinct requsted numbers)
-						if (switch_num + 1 < arg.size())
-							throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-						// Get numbers
-						try {
-							user_options.process_number = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+1]);
-							user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+2]);
-						} catch (boost::bad_lexical_cast & e) {
-							std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(argv[arg_n+1]).append(" ").append(argv[arg_n+2]).append(". Should be -d this_ID number_of_parts."));
-							throw(std::runtime_error(std::string("Parameter parsing failed.").append(e.what())));
-						}
-						// Assert that process ID is in the range
-						if (user_options.process_number > user_options.processes_count)
-							throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes."));
-						arg_n += 2;
+				// Get data for distributed computation
+				case 'd':
+					// After d there must be a white space (to distinct requsted numbers)
+					if (switch_num + 1 < arg.size())
+						throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(arg.begin() + switch_num + 1, arg.end())));
+					// Get numbers
+					try {
+						user_options.process_number = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+1]);
+						user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+2]);
+					} catch (boost::bad_lexical_cast & e) {
+						std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(argv[arg_n+1]).append(" ").append(argv[arg_n+2]).append(". Should be -d this_ID number_of_parts."));
+						throw(std::runtime_error(std::string("Parameter parsing failed.").append(e.what())));
+					}
+					// Assert that process ID is in the range
+					if (user_options.process_number > user_options.processes_count)
+						throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes."));
+					// Skip arguments that are already read
+					arg_n += 2;
 					break;
 
-					// Redirecting results output to a file by a parameter
-					case 'f':
-						result_stream = new std::ofstream;
-						if (switch_num + 1 < arg.size())
-							throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-						dynamic_cast<std::ofstream*>(result_stream)->open(argv[++arg_n], std::ios::out);
-						if (dynamic_cast<std::ofstream*>(result_stream)->fail())
-							throw (std::invalid_argument(std::string("Wrong output filename: ").append(argv[arg_n]).append(" or other problem caused that the process can not open the file.").c_str()));
+				// Redirecting results output to a file by a parameter
+				case 'f':
+					// After f there must be a white space (to distinct file name)
+					if (switch_num + 1 < arg.size())
+						throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(arg.begin() + switch_num + 1, arg.end())));
+					// Create file for the result output and iterate argument pointer
+					output_streamer.createStreamFile(data, argv[++arg_n]);
 					break;
 
-					// If the swich is not known.
-					default:
-						throw (std::invalid_argument(std::string("Wrong argument: -").append(arg).c_str()));
+				// If the swich is not known.
+				default:
+					throw (std::invalid_argument(std::string("Wrong argument: -").append(arg).c_str()));
 					break;
 				}
 			}

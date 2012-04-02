@@ -116,19 +116,24 @@ public:
 	 * @param data	data to output - should be any possible ostream data
 	 */
 	template <class outputType> 
-	failOuput(StreamType stream_type, outputType data) {
+    const OutputStreamer & output(StreamType stream_type, const outputType stream_data, const unsigned int trait_mask = 0) const {
 		switch (stream_type) {
 		case fail:
-				fail_stream << data;
+			*fail_stream << stream_data;
+			if (!(trait_mask % 2)) *fail_stream << std::endl;
 			break;
 		case verbose:
-			if (output_verbose)
-				verbose_stream << data;
+			if (output_verbose) {
+				*verbose_stream << "** " << stream_data;
+				if (!(trait_mask % 2)) *verbose_stream << std::endl;					
+			}
 			break;
 		case data: 
-				result_stream << data;
+			*result_stream << stream_data;
+			if (!(trait_mask % 2)) *result_stream << std::endl;
 			break;
 		}
+		return *this;
 	}
 } output_streamer; // Single program-shared output file
 

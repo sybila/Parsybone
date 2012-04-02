@@ -28,6 +28,7 @@
 #include "results/results.hpp"
 #include "results/output_manager.hpp"
 #include "results/resource_manager.hpp"
+#include "results/output_streamer.hpp"
 
 // porgram-related data
 const float program_version = 1.0;
@@ -60,11 +61,11 @@ int main(int argc, char* argv[]) {
 		parseArguments(user_options, argc, argv, result_stream);
 
 		// Parse model file
-		*output_stream << "Model parsing started.\n";
+		output_streamer.output(verbose, "Model parsing started.\n");
 		ModelParser model_parser(user_options, model);
 		model_parser.parseInput();
 	} catch (std::exception & e) {
-		std::cerr << "Error occured while parsing input: " << e.what() << ". \n";
+		output_streamer.output(fail, std::string("Error occured while parsing input: ").append(e.what()).append(". \n"));
 		return 1;
 	}
 
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]) {
 
 	// Data creation
 	try {
-		*output_stream << "Data building started.\n";
+		output_streamer.output(verbose, "Data building started.\n");
 
 		// Parametrized Structure building
 		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]) {
 		AutomatonBuilder automaton_builder(user_options, model, automaton);
 		automaton_builder.buildAutomaton();
 	} catch (std::exception & e) {
-		std::cerr << "Error occured while building data structures: " << e.what() << ". \n";
+		output_streamer.output(fail, std::string("Error occured while building data structures: ").append(e.what()).append(". \n"));
 		return 3;
 	}
 
@@ -112,12 +113,12 @@ int main(int argc, char* argv[]) {
 	try {
 		split_manager.setupSplitting(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
 		long long start_time = myClock();
-		*output_stream << "Coloring started.\n";
+		output_streamer.output(verbose, "Coloring started.\n");
 		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results);
 		model_checker.computeResults();
-		*output_stream << "Coloring ended after: " << (myClock() - start_time) / 1000.0 << " seconds.\n";
+		output_streamer.output(verbose,"Coloring ended after: ", 1).output(verbose, (myClock() - start_time) / 1000.0, 1).output(verbose,  " seconds.\n");
 	} catch (std::exception & e) {
-		std::cerr << "Error occured while syntetizing the parameters: " << e.what() << ". \n";
+		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()).append(". \n"));
 		return 4;
 	}
 
@@ -126,11 +127,11 @@ int main(int argc, char* argv[]) {
 // Analyze results and provide the output.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		*output_stream << "Output started.\n";
-		OutputManager output_manager(user_options, *output_stream, results, functions_structure, split_manager);
-		output_manager.basicOutput(false);
+		output_streamer.output(verbose, "Output started.\n");
+		OutputManager output_manager(user_options, results, functions_structure, split_manager);
+		output_manager.basicOutput(true);
 	} catch (std::exception & e) {
-		std::cerr << "Error occured during output of the results: " << e.what() << ". \n";
+		output_streamer.output(fail, std::string("Error occured during output of the results: ").append(e.what()).append(". \n"));
 		return 5;
 	}
 

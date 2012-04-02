@@ -32,7 +32,6 @@ class OutputManager {
 	const UserOptions & user_options;
 	const Results & results;
 	const FunctionsStructure & functions_structure;
-	std::ostream & output_stream;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -41,10 +40,8 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const UserOptions & _user_options, std::ostream & _output_stream, const Results & _results, 
-		          const FunctionsStructure & _functions_structure, const SplitManager & _split_manager) 
-		         : user_options(_user_options), output_stream(_output_stream), results(_results), 
-				   functions_structure(_functions_structure), split_manager(_split_manager) { } 
+	OutputManager(const UserOptions & _user_options, const Results & _results, const FunctionsStructure & _functions_structure, const SplitManager & _split_manager) 
+		         : user_options(_user_options), results(_results), functions_structure(_functions_structure), split_manager(_split_manager) { } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS
@@ -93,11 +90,12 @@ private:
 
 			// Output current values
 			if (result_parameters % 2) {
-				output_stream << "[";
+				unsigned int no_new = 1;
+				output_streamer.output(data, "[", no_new);
 				for (auto it = current_value.begin(); it != current_value.end() - 1; it++) {
-					output_stream << *it <<	",";
+					output_streamer.output(data, *it, no_new).output(data, ",", no_new);
 				}
-				output_stream << current_value.back() << "]\n";
+				output_streamer.output(data, current_value.back(), no_new).output(data, "]");
 			}
 			result_parameters >>= 1;
 
@@ -121,11 +119,14 @@ public:
 	 * @param colors	if true, coloring of individuall final states will be shown
 	 */
 	void basicOutput(bool colors) const {
-		output_stream << "Total number of parameters: "  << results.countParameters() << " out of: " << results.getParametersCount() << ".\n";
+		unsigned int trait = 1;
+		output_streamer.output(data, "Total number of parameters: ", trait).output(data, results.countParameters(), trait)
+			           .output(data, " out of: ", trait).output(data, results.getParametersCount());
 		// Display states and their colours
 		if (colors) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
-				output_stream << "State BA:" << results.getBANum(state_num) << ", KS:" << results.getKSNum(state_num) << " is colored with parameters:\n";
+				output_streamer.output(data, "State BA:", trait).output(data, results.getBANum(state_num), trait).output(data, ", KS:", trait)
+					           .output(data, results.getKSNum(state_num), trait).output(data, " is colored with parameters:\n");
 				outputParameters(state_num);
 			}
 		}
