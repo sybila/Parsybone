@@ -36,8 +36,8 @@ struct UserOptions {
 	bool show_final_coloring : 1;
 	bool verbose : 1;
 	bool negative_check : 1;
-	unsigned int process_number : 8;
-	unsigned int processes_count : 8;
+	std::size_t process_number : 32;
+	std::size_t processes_count : 32;
 	unsigned int padding : 11;
 };
 

@@ -63,12 +63,12 @@ int main(int argc, char* argv[]) {
 		parseArguments(user_options, argc, argv);
 
 		// Parse the model
-		output_streamer.output(verbose, "Model parsing started.\n");
+		output_streamer.output(verbose, "Model parsing started.");
 		ModelParser model_parser(user_options, model);
 		model_parser.parseInput();
 
 	} catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while parsing input: ").append(e.what()).append(". \n"));
+		output_streamer.output(fail, std::string("Error occured while parsing input: ").append(e.what()));
 		return 1;
 	}
 
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
 	// Data creation
 	try {
-		output_streamer.output(verbose, "Data building started.\n");
+		output_streamer.output(verbose, "Data building started.");
 
 		// Parametrized Structure building
 		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
 		automaton_builder.buildAutomaton();
 
 	} catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while building data structures: ").append(e.what()).append(". \n"));
+		output_streamer.output(fail, std::string("Error occured while building data structures: ").append(e.what()));
 		return 3;
 	}
 
@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
 		// output_streamer.output(verbose,"Coloring ended after: ", 1).output(verbose, (myClock() - start_time) / 1000.0, 1).output(verbose,  " seconds.\n");
 	
 	} catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()).append(". \n"));
+		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
 		return 4;
 	}
 
@@ -136,12 +136,12 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
 		// Proivde the output
-		output_streamer.output(verbose, "Output started.\n");
+		output_streamer.output(verbose, "Output started.");
 		OutputManager output_manager(user_options, results, functions_structure, split_manager);
 		output_manager.basicOutput();
 	
 	} catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured during output of the results: ").append(e.what()).append(". \n"));
+		output_streamer.output(fail, std::string("Error occured during output of the results: ").append(e.what()));
 		return 5;
 	}
 
