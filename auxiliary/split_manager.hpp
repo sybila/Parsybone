@@ -126,8 +126,8 @@ public:
 // OTHER
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	void outputRound() {
-		output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln).output(verbose, round_number + 1, OutputStreamer::no_newl)
-			           .output(verbose, "/", OutputStreamer::no_newl).output(verbose, rounds_count, OutputStreamer::no_newl).output(verbose, "         ", OutputStreamer::no_newl);
+		output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln).output(round_number + 1, OutputStreamer::no_newl)
+			           .output("/", OutputStreamer::no_newl).output(rounds_count, OutputStreamer::no_newl).output("         ", OutputStreamer::no_newl);
 	}
 		
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

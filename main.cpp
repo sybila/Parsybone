@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
 		// Do the coloring
 		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results);
 		model_checker.computeResults();
-		// output_streamer.output(verbose,"Coloring ended after: ", 1).output(verbose, (myClock() - start_time) / 1000.0, 1).output(verbose,  " seconds.\n");
+		// output_streamer.output(verbose,"Coloring ended after: ", 1).output((myClock() - start_time) / 1000.0, 1).output( " seconds.\n");
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()));

@@ -89,9 +89,9 @@ private:
 			if (result_parameters % 2) {
 				output_streamer.output(data, "[", OutputStreamer::no_newl);
 				for (auto it = current_value.begin(); it != current_value.end() - 1; it++) {
-					output_streamer.output(data, *it, OutputStreamer::no_newl).output(data, ",", OutputStreamer::no_newl);
+					output_streamer.output(data, *it, OutputStreamer::no_newl).output(",", OutputStreamer::no_newl);
 				}
-				output_streamer.output(data, current_value.back(), OutputStreamer::no_newl).output(data, "]");
+				output_streamer.output(data, current_value.back(), OutputStreamer::no_newl).output("]");
 			}
 			result_parameters >>= 1;
 
@@ -116,13 +116,13 @@ public:
 	 */
 	void basicOutput() const {
 		// Display amount of all colors
-		output_streamer.output(data, "Total number of parameters is ", OutputStreamer::no_newl).output(data, results.countParameters(), OutputStreamer::no_newl)
-			           .output(data, " out of ", OutputStreamer::no_newl).output(data, results.getParametersCount(), OutputStreamer::no_newl).output(data, "");
+		output_streamer.output(data, "Total number of parameters is ", OutputStreamer::no_newl).output(results.countParameters(), OutputStreamer::no_newl)
+			           .output(" out of ", OutputStreamer::no_newl).output(results.getParametersCount(), OutputStreamer::no_newl).output("");
 		// Display amount of colors of states
 		/*if (user_options.verbose) {
 			for (std::size_t state_num = 0; state_num < results.getStatesCount(); state_num++) {
-				output_streamer.output(data, "State BA", OutputStreamer::no_newl).output(data, results.getBANum(state_num), OutputStreamer::no_newl).output(data, ", KS", OutputStreamer::no_newl)
-					           .output(data, results.getKSNum(state_num), OutputStreamer::no_newl).output(data, " is colored with parameters");
+				output_streamer.output(data, "State BA", OutputStreamer::no_newl).output(results.getBANum(state_num), OutputStreamer::no_newl).output(", KS", OutputStreamer::no_newl)
+					           .output(results.getKSNum(state_num), OutputStreamer::no_newl).output(" is colored with parameters");
 			}
 		}*/
 		// display the colors

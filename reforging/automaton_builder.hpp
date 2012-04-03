@@ -191,7 +191,7 @@ public:
 		std::size_t state_begin = 0;
 
 		output_streamer.output(verbose, "Buchi automaton structure states, total number of states: ", OutputStreamer::no_newl)
-			           .output(verbose, model.getStatesCount(), OutputStreamer::no_newl).output(verbose, ".");
+			           .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
 		// List throught all the automaton states
 		for (std::size_t state_num = 0; state_num < model.getStatesCount(); state_num++) {
 			// Auxiliary data - position of the first function with source being state[state_num]

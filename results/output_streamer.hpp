@@ -43,14 +43,18 @@ class OutputStreamer {
 	// True if these streams are assigned a file
 	bool fail_file, verbose_file, result_file;
 
+	// Used to ease usage of output
+	StreamType last_stream_type;
+
 public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT TRAITS DEFINITIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	static const unsigned int no_newl    = 1;
-	static const unsigned int important  = 2;
-	static const unsigned int rewrite_ln = 4;
+	typedef const unsigned int Trait;
+	static Trait no_newl    = 1;
+	static Trait important  = 2;
+	static Trait rewrite_ln = 4;
 
 	/**
 	 * test if given trait is present
@@ -79,6 +83,9 @@ public:
 		// Set control variables
 		output_verbose = false;
 		fail_file = verbose_file = result_file = false;
+
+		// Set stream type in the beggining to error stream
+		last_stream_type = fail;
 	}
 
 	/**
@@ -135,10 +142,35 @@ public:
 	 *
 	 * @param stream_type	enumeration type specifying the type of stream to output to
 	 * @param data	data to output - should be any possible ostream data
+	 * @param trait_mask	bitmask of traits for output 
 	 */
 	template <class outputType> 
-    const OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) const {
+    OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
+		last_stream_type = stream_type;
 		switch (stream_type) {
+		case fail:
+			actualOutput(*fail_stream, stream_data, trait_mask);		
+			break;
+		case verbose:
+			if (output_verbose)
+				actualOutput(*verbose_stream, stream_data, trait_mask);				
+			break;
+		case data: 
+			actualOutput(*result_stream, stream_data, trait_mask);		
+			break;
+		}
+		return *this;
+	}
+
+	/**
+	 * overloaded method that uses the same stream as the last ouput
+	 *
+	 * @param data	data to output - should be any possible ostream data
+	 * @param trait_mask	bitmask of traits for output 
+	 */
+	template <class outputType> 
+    const OutputStreamer & output(const outputType & stream_data, const unsigned int trait_mask = 0) const {
+		switch (last_stream_type) {
 		case fail:
 			actualOutput(*fail_stream, stream_data, trait_mask);		
 			break;
