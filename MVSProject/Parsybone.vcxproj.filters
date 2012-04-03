@@ -10,9 +10,6 @@
     <Filter Include="parsing">
       <UniqueIdentifier>{392ddcff-d7dd-4c0d-bae9-10b5dc5b5f8f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RapidXML-v1.13">
-      <UniqueIdentifier>{e364bf05-96f6-4c4b-9dfa-49fa3517f65e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="auxiliary">
       <UniqueIdentifier>{2df9edf7-f84d-42ef-b332-bfae3fdd9843}</UniqueIdentifier>
     </Filter>
@@ -21,6 +18,9 @@
     </Filter>
     <Filter Include="coloring">
       <UniqueIdentifier>{650b2010-0cc4-4960-ae44-01091e866b52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parsing\RapidXML-v1.13">
+      <UniqueIdentifier>{e364bf05-96f6-4c4b-9dfa-49fa3517f65e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -67,16 +67,16 @@
       <Filter>coloring</Filter>
     </ClInclude>
     <ClInclude Include="..\rapidxml-1.13\rapidxml.hpp">
-      <Filter>RapidXML-v1.13</Filter>
+      <Filter>parsing\RapidXML-v1.13</Filter>
     </ClInclude>
     <ClInclude Include="..\rapidxml-1.13\rapidxml_utils.hpp">
-      <Filter>RapidXML-v1.13</Filter>
+      <Filter>parsing\RapidXML-v1.13</Filter>
     </ClInclude>
     <ClInclude Include="..\rapidxml-1.13\rapidxml_iterators.hpp">
-      <Filter>RapidXML-v1.13</Filter>
+      <Filter>parsing\RapidXML-v1.13</Filter>
     </ClInclude>
     <ClInclude Include="..\rapidxml-1.13\rapidxml_print.hpp">
-      <Filter>RapidXML-v1.13</Filter>
+      <Filter>parsing\RapidXML-v1.13</Filter>
     </ClInclude>
     <ClInclude Include="..\auxiliary\data_types.hpp">
       <Filter>auxiliary</Filter>
@@ -93,11 +93,11 @@
     <ClInclude Include="..\coloring\parameters_functions.hpp">
       <Filter>coloring</Filter>
     </ClInclude>
-    <ClInclude Include="..\results\output_streamer.hpp">
-      <Filter>results</Filter>
-    </ClInclude>
     <ClInclude Include="..\results\time_manager.hpp">
       <Filter>results</Filter>
+    </ClInclude>
+    <ClInclude Include="..\results\output_streamer.hpp">
+      <Filter>auxiliary</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

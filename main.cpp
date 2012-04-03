@@ -31,8 +31,8 @@
 #include "coloring/model_checker.hpp"
 #include "results/results.hpp"
 #include "results/output_manager.hpp"
-#include "results/time_manager.hpp"
-#include "results/output_streamer.hpp"
+#include "auxiliary/time_manager.hpp"
+#include "auxiliary/output_streamer.hpp"
 
 // porgram-related data
 const float program_version = 1.0;

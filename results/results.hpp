@@ -26,7 +26,7 @@
 #include "../auxiliary/split_manager.hpp"
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
-#include "../results/output_streamer.hpp"
+#include "../auxiliary/output_streamer.hpp"
 
 class ModelChecker;
 

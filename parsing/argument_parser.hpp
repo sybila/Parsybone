@@ -26,7 +26,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../auxiliary/data_types.hpp"
-#include "../results/output_streamer.hpp"
+#include "../auxiliary/output_streamer.hpp"
 
 /**
 	* Parses arguments on the input and changes switches accordingly. If there is a file on the input, it is created.

@@ -29,7 +29,7 @@
 #include <climits>
 
 #include "../auxiliary/data_types.hpp"
-#include "../results/output_streamer.hpp"
+#include "../auxiliary/output_streamer.hpp"
 
 /**
  * @return number of parameters in a single round
