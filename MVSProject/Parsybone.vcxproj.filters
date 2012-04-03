@@ -93,10 +93,16 @@
     <ClInclude Include="..\coloring\parameters_functions.hpp">
       <Filter>coloring</Filter>
     </ClInclude>
-    <ClInclude Include="..\results\time_manager.hpp">
-      <Filter>results</Filter>
+    <ClInclude Include="..\auxiliary\output_streamer.hpp">
+      <Filter>auxiliary</Filter>
     </ClInclude>
-    <ClInclude Include="..\results\output_streamer.hpp">
+    <ClInclude Include="..\coloring\colors_storage.hpp">
+      <Filter>coloring</Filter>
+    </ClInclude>
+    <ClInclude Include="..\coloring\synthesis_manager.hpp">
+      <Filter>coloring</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auxiliary\time_manager.hpp">
       <Filter>auxiliary</Filter>
     </ClInclude>
   </ItemGroup>

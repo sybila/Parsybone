@@ -111,12 +111,13 @@ int main(int argc, char* argv[]) {
 // Model-check and synthetize parameters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Long-life data structures
-	SplitManager split_manager;
+	// Once built split manager that remains constant as a template for its copies within other classes
+	const SplitManager split_manager(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
+	// Holder of results
 	Results results(parametrized_structure, automaton, split_manager);
 	try {
 		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
 		// Create splitting
-		split_manager.setupSplitting(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
 		// long long start_time = myClock();
 		// Do the coloring
 		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results);

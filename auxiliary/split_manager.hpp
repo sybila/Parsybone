@@ -81,7 +81,6 @@ class SplitManager {
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-
 	/**
 	 * Computes splitting for both process (in case of a distributed computation) and its rounds that are of a size of the Parameters data type.
 	 * 
@@ -89,7 +88,7 @@ public:
 	 * @param _process_number	index of this process
 	 * @param _parameters_count	complete number of parameters that have to be tested by all the processes
 	 */
-	void setupSplitting(const std::size_t _process_number, const std::size_t _processes_count, const std::size_t _parameters_count) {
+	SplitManager(const std::size_t _process_number, const std::size_t _processes_count, const std::size_t _parameters_count) {
 		// Pass the numbers
 		processes_count = _processes_count;
 		process_number = _process_number;
@@ -125,7 +124,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Ouputs round during computation
 	void outputRound() {
+		// Erase the line with previous round, if present, and output number of this one
 		output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln).output(round_number + 1, OutputStreamer::no_newl)
 			           .output("/", OutputStreamer::no_newl).output(rounds_count, OutputStreamer::no_newl).output("         ", OutputStreamer::no_newl);
 	}
