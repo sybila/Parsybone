@@ -311,6 +311,8 @@ public:
 	            : split_manager(_split_manager), user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) { 
 	}
 
+	// ModelChecker(ProductStructure & product, Results & _results) { }
+
 	/**
 	 * Function that does all the coloring. This part only covers iterating through subparts.
 	 */

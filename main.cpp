@@ -29,6 +29,7 @@
 #include "reforging/parametrized_structure_builder.hpp"
 #include "reforging/automaton_builder.hpp"
 #include "coloring/model_checker.hpp"
+#include "coloring/synthesis_manager.hpp"
 #include "results/results.hpp"
 #include "results/output_manager.hpp"
 #include "auxiliary/time_manager.hpp"
@@ -116,6 +117,7 @@ int main(int argc, char* argv[]) {
 	// Holder of results
 	Results results(parametrized_structure, automaton, split_manager);
 	try {
+		SynthesisManager synthesis_manager(user_options, parametrized_structure, automaton);
 		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
 		// Create splitting
 		// long long start_time = myClock();
