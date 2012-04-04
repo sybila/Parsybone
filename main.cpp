@@ -109,6 +109,16 @@ int main(int argc, char* argv[]) {
 		return 3;
 	}
 
+	// Product creation 
+	Product product(user_options, parametrized_structure, automaton);
+	try {
+		ProductBuilder product_builder(user_options, parametrized_structure, automaton, product);
+		product_builder.buildProduct();
+	} catch (std::exception & e) {
+		output_streamer.output(fail, std::string("Error occured while building the product: ").append(e.what()));
+		return 3;
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP FOUR:
 // Model-check and synthetize parameters.

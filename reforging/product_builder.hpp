@@ -19,6 +19,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ProductBuilder creates the Product for coloring, based on automaton and PKS
+// States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
+// In other words, first iterate through BA then through KS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/data_types.hpp"
@@ -46,11 +48,33 @@ class ProductBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Creates the vector with all parameters set to zero
+	 *
+	 * @param states_count	how many states the product will have
 	 */ 
 	void createEmptyProduct (const std::size_t states_count) {
-		product.state_parameters.resize(states_count);
+		product.states.resize(states_count);
 		// Fill and set all to zero
 		product.resetProduct();
+	}
+
+	/**
+	 * Create position set of final states and initial states in the product
+	 */
+	void markStates() {
+		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStatesCount(); ba_state_num++) {
+			// Insert the state if it is an initial state
+			if (ba_state_num == 0) {
+				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
+					product.initial_states.insert(product.getProductIndex(ba_state_num, ks_state_num));
+				}
+			}
+			// Insert the state if it is a final state
+			if (automaton.isFinal(ba_state_num)) {
+				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++)  {
+					product.final_states.insert(product.getProductIndex(ba_state_num, ks_state_num));
+				}
+			}
+		}
 	}
 	
 	ProductBuilder(const ProductBuilder & other);            // Forbidden copy constructor.
@@ -63,9 +87,13 @@ public:
 	ProductBuilder(const UserOptions &_user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Product & _product) 
 		: user_options(_user_options), structure(_structure), automaton(_automaton), product(_product) { }
 
+	/**
+	 * Create the the product from BA and KS together.
+	 */
 	void buildProduct() {
 		const std::size_t states_count = structure.getStatesCount() * automaton.getStatesCount();
-		const std::size_t parameters_count = 1;
+		createEmptyProduct(states_count);
+		markStates();
 	}
 };
 

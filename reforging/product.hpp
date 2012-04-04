@@ -29,27 +29,45 @@
 #include <set>
 #include <vector>
 #include <stdexcept>
+#include <algorithm>
+#include <queue>
+#include <utility>
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/output_streamer.hpp"
+#include "../reforging/automaton_structure.hpp"
+#include "../reforging/parametrized_structure.hpp"
 
 class Product {
 	friend class ProductBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	typedef std::vector<std::size_t> Predecessors;
+	// typedef std::vector<std::size_t> Predecessors; // Where to store predecessors
+	
+	// References to data structures
+	const UserOptions & user_options; // Values provided as parameters
+	const ParametrizedStructure & structure; // Stores info about KS states
+	const AutomatonStructure & automaton; // Stores info about BA states
 	
 	// pointer used to access all the parameters
-	std::vector<Parameters> state_parameters;
-	std::vector<Predecessors> state_predecesors;
-
-	std::set<std::size_t> initial_vertices;
-	std::set<std::size_t> final_vertices;
+	std::vector<Parameters> states;
+	// std::vector<Predecessors> state_predecesors;
 
 	// Information
-	const std::size_t states_count;
-	WitnessUse witness_use;
+	std::set<std::size_t> initial_states;
+	std::set<std::size_t> final_states;
+	// WitnessUse witness_use;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CREATION FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	Product(const Product & other);            // Forbidden copy constructor.
+	Product& operator=(const Product & other); // Forbidden assignment operator.
+
+public:
+	Product(const UserOptions &_user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
+		: user_options(_user_options), structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA HANDLING FUNCTIONS
@@ -58,26 +76,9 @@ class Product {
 	 * Sets all to zero
 	 */ 
 	void resetProduct() {
-		std::for_each(state_parameters.begin(), state_parameters.end(),[](Parameters & parameters) {
+		std::for_each(states.begin(), states.end(),[](Parameters & parameters) {
 			parameters = 0;
 		});
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OTHER FUNCTIONS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	Product(const Product & other);            // Forbidden copy constructor.
-	Product& operator=(const Product & other); // Forbidden assignment operator.
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-public:
-	/**
-	 * @return	number of states of the product structure
-	 */
-	inline const std::size_t getStatesCount() const {
-		return states_count;
 	}
 
 	/**
@@ -87,10 +88,67 @@ public:
 	 * @return true if there was an actuall update
 	 */
 	inline bool updateParameters(const Parameters parameters, const std::size_t state_num) {
-		if (state_parameters[state_num] == (parameters | state_parameters[state_num]))
+		if (states[state_num] == (parameters | states[state_num]))
 			return false;
-		state_parameters[state_num] |= parameters;
+		states[state_num] |= parameters;
 		return true;
+	}
+
+	/**
+	 * Color initial states of the product with given color
+	 *
+	 * @param color	color to use for the initial coloring
+	 *
+	 * @return set of initial vertices
+	 */
+	const std::set<std::size_t> & colorInitials(const Parameters color) {
+		std::for_each(initial_states.begin(), initial_states.end(), [&](std::size_t state_index) {
+			states[state_index] = color;
+		});
+	}
+
+	/**
+	 * Pick final states from the product and store them with their parameters in the queue of colorings
+	 *
+	 * @return queue with all colorings of final states
+	 */
+	std::queue<Coloring> storeFinalStates() {
+		// States colored in basic coloring
+		std::queue<Coloring> final_colorings; 
+
+		std::for_each(final_states.begin(), final_states.end(), [&](std::size_t state_index) {
+			final_colorings.push(Coloring(state_index, states[state_index]));
+		});
+
+		// Return final vertices with their positions
+		return final_colorings;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTANT GETTERS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @return	number of states of the product structure
+	 */
+	inline const std::size_t getStatesCount() const {
+		return states.size();
+	}
+
+	/**
+	 * @return index of this combination of states in the product
+	 */
+	inline const std::size_t getProductIndex(const std::size_t ba_index, const std::size_t ks_index) const {
+		return (ks_index * automaton.getStatesCount() + ba_index);
+	}
+
+	/**
+	 * @return index of this combination of states in the product in the form (KS_state, BA_state)
+	 */
+	inline const std::pair<std::size_t, std::size_t> getStateIndexes(const std::size_t product_index) const {
+		const std::size_t KS_state = product_index / automaton.getStatesCount();
+		const std::size_t BA_state = product_index % automaton.getStatesCount();
+		return std::make_pair(KS_state, BA_state);
 	}
 
 	/**
@@ -99,14 +157,7 @@ public:
 	 * @return parameters assigned to the state
 	 */
 	inline const Parameters & getParameters(const std::size_t state_num) {
-		return state_parameters[state_num];
-	}
-
-	/**
-	 * Outside call to reset the product.
-	 */
-	inline void reset() {
-		resetProduct();
+		return states[state_num];
 	}
 };
 
