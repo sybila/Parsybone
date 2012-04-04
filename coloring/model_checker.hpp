@@ -53,34 +53,6 @@ class ModelChecker {
 	Results & results; 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DATA STORING FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	/**
-	 * Pick final states from basic coloring and store them with their parameters
-	 *
-	 * @return queue with all colorings of final states
-	 */
-	std::queue<Coloring> storeFinalStates() {
-		// States colored in basic coloring
-		std::queue<Coloring> final_states; 
-
-		// List throught product states that are final
-		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStatesCount(); ba_state_num++) {
-			if (automaton.isFinal(ba_state_num)) {
-				// For each final state of the product store the coloring
-				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
-					// Compute the product state position and store it with its parameters
-					std::size_t state_num = ks_state_num * automaton.getStatesCount() + ba_state_num;
-					final_states.push(std::make_pair(state_num, product.getParameters(state_num)));
-				}
-			}
-		}
-
-		// Return final vertices with their positions
-		return final_states;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	/**
@@ -144,7 +116,7 @@ class ModelChecker {
 		// If some parameters get passed
 		if (!none(parameters)) {
 			// Compute and update target state of product
-			std::size_t target_state = structure.getTargetID(source_KS_state,KS_transition_num) * automaton.getStatesCount() + target_BA_state;
+			std::size_t target_state = product.getProductIndex(structure.getTargetID(source_KS_state,KS_transition_num), target_BA_state);
 			if (product.updateParameters(parameters, target_state))
 				updates.insert(target_state);
 		}
@@ -159,8 +131,8 @@ class ModelChecker {
 	 */
 	void transferUpdates(const std::size_t source_state, const Parameters parameters) {
 		// From ID of product state compute IDs of KS and BA states
-		std::size_t source_BA_state = source_state % automaton.getStatesCount();
-		std::size_t source_KS_state = source_state / automaton.getStatesCount();
+		std::size_t source_KS_state = product.getStateIndexes(source_state).first;
+		std::size_t source_BA_state = product.getStateIndexes(source_state).second;
 
 		// For each feasible transition of BA store its ID in the queue
 		std::queue<std::size_t> transitible_ba;
@@ -256,17 +228,8 @@ class ModelChecker {
 	void colorProduct() {
 		// Assure emptyness
 		product.resetProduct();
-		updates.clear();
 		// For each initial state, store all the parameters and schedule for the update
-		for (std::size_t state_num = 0; state_num < product.getStatesCount(); state_num++) {
-			// Use only those states built from initial states of the BA
-			if (state_num % automaton.getStatesCount() == 0) {
-				// Schedule for an update
-				updates.insert(state_num);
-				// Get all the parameters for current round and pass them to structure
-				product.updateParameters(split_manager.createStartingParameters(), state_num);
-			}
-		}
+		updates = product.colorInitials(split_manager.createStartingParameters());
 		// Start coloring procedure
 		doColoring();
 	}
@@ -281,7 +244,7 @@ class ModelChecker {
 		// Basic coloring
 		colorProduct();
 		// Store colored final vertices
-		std::queue<Coloring> final_states = std::move(storeFinalStates());
+		std::queue<Coloring> final_states = std::move(product.storeFinalStates());
 
 		// Get the actuall results by cycle detection for each final vertex
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {

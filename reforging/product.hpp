@@ -104,6 +104,7 @@ public:
 		std::for_each(initial_states.begin(), initial_states.end(), [&](std::size_t state_index) {
 			states[state_index] = color;
 		});
+		return initial_states;
 	}
 
 	/**
@@ -129,6 +130,20 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
+	 * @return set of the initial states
+	 */
+	inline const std::set<std::size_t> & getInitials() {
+		return initial_states;
+	}
+
+	/**
+	 * @return set of final states
+	 */ 
+	inline const std::set<std::size_t> & getFinals() {
+		return final_states;
+	}
+
+	/**
 	 * @return	number of states of the product structure
 	 */
 	inline const std::size_t getStatesCount() const {
@@ -138,7 +153,7 @@ public:
 	/**
 	 * @return index of this combination of states in the product
 	 */
-	inline const std::size_t getProductIndex(const std::size_t ba_index, const std::size_t ks_index) const {
+	inline const std::size_t getProductIndex(const std::size_t ks_index, const std::size_t ba_index) const {
 		return (ks_index * automaton.getStatesCount() + ba_index);
 	}
 
