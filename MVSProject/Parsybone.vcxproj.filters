@@ -96,14 +96,17 @@
     <ClInclude Include="..\auxiliary\output_streamer.hpp">
       <Filter>auxiliary</Filter>
     </ClInclude>
-    <ClInclude Include="..\coloring\colors_storage.hpp">
-      <Filter>coloring</Filter>
-    </ClInclude>
     <ClInclude Include="..\coloring\synthesis_manager.hpp">
       <Filter>coloring</Filter>
     </ClInclude>
     <ClInclude Include="..\auxiliary\time_manager.hpp">
       <Filter>auxiliary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\product_builder.hpp">
+      <Filter>reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\product.hpp">
+      <Filter>reforging</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

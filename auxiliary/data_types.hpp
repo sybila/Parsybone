@@ -71,4 +71,7 @@ typedef std::pair<std::size_t, Parameters> Coloring;
 // Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
 typedef std::pair<std::size_t, std::size_t> Range;
 
+// How to deal with witnesses
+enum WitnessUse {none_wit, single_wit, all_wit};
+
 #endif

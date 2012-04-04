@@ -14,65 +14,58 @@
  * See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
-#define PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
+#ifndef PARSYBONE_PRODUCT_BUILDER_INCLUDED
+#define PARSYBONE_PRODUCT_BUILDER_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Class that shelters all of the synthesis and output of the results
+// ProductBuilder creates the Product for coloring, based on automaton and PKS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../reforging/parametrized_structure.hpp"
-#include "../reforging/automaton_structure.hpp"
-#include "product_structure.hpp"
-#include "parameters_functions.hpp"
-#include "../results/results.hpp"
+#include "../auxiliary/data_types.hpp"
 #include "../auxiliary/output_streamer.hpp"
+#include "parametrized_structure.hpp"
+#include "automaton_structure.hpp"
 
-class SynthesisManager {
+
+class ProductBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	const UserOptions & user_options; // Values provided as parameters
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
+	Product & product; // Product to build
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION
+// COMPUTING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SynthesisManager(const SynthesisManager & other);            // Forbidden copy constructor.
-	SynthesisManager& operator=(const SynthesisManager & other); // Forbidden assignment operator.
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTRUCTING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Creates the vector with all parameters set to zero
+	 */ 
+	void createEmptyProduct (const std::size_t states_count) {
+		product.state_parameters.resize(states_count);
+		// Fill and set all to zero
+		product.resetProduct();
+	}
+	
+	ProductBuilder(const ProductBuilder & other);            // Forbidden copy constructor.
+	ProductBuilder& operator=(const ProductBuilder & other); // Forbidden assignment operator.
 
 public:
-	SynthesisManager(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
-		            : user_options(_user_options), structure(_structure), automaton(_automaton)	{ }
-
 	/**
-	 * Main synthesis function that iterates through all the rounds of the synthesis
+	 * Constructor just attaches the references to data holders
 	 */
-	void doSynthesis() {
-		SplitManager split_manager(user_options.process_number, user_options.processes_count, structure.getParametersCount());
-		ProductStructure product(structure.getStatesCount() * automaton.getStatesCount() , getParamsetSize());
-		 // ModelChecker model_checker(product);
+	ProductBuilder(const UserOptions &_user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Product & _product) 
+		: user_options(_user_options), structure(_structure), automaton(_automaton), product(_product) { }
 
-		while (true) {
-			// Synthetize round
-			doRound();
-			// Get colors
-
-			// Synthetize witnesses
-
-			// Ouput params
-
-			// Increase round
-			if (!split_manager.lastRound())
-				split_manager.increaseRound();
-			else 
-				break;
-		}
-	}
-
-private:
-	void doRound() {
+	void buildProduct() {
+		const std::size_t states_count = structure.getStatesCount() * automaton.getStatesCount();
+		const std::size_t parameters_count = 1;
 	}
 };
 

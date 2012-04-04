@@ -28,6 +28,8 @@
 #include "reforging/functions_builder.hpp"
 #include "reforging/parametrized_structure_builder.hpp"
 #include "reforging/automaton_builder.hpp"
+#include "reforging/product.hpp"
+#include "reforging/product_builder.hpp"
 #include "coloring/model_checker.hpp"
 #include "coloring/synthesis_manager.hpp"
 #include "results/results.hpp"
