@@ -77,7 +77,6 @@
     <ClInclude Include="..\auxiliary\time_manager.hpp" />
     <ClInclude Include="..\coloring\model_checker.hpp" />
     <ClInclude Include="..\coloring\parameters_functions.hpp" />
-    <ClInclude Include="..\coloring\product_structure.hpp" />
     <ClInclude Include="..\coloring\synthesis_manager.hpp" />
     <ClInclude Include="..\parsing\argument_parser.hpp" />
     <ClInclude Include="..\parsing\model.hpp" />

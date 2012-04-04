@@ -21,9 +21,8 @@
 // Product stores product of BA and PKS
 // States are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
 // In other words, first iterate through BA then through KS
-// Product is pretty safe to use to create / delete dynamic memory.
 // Product data can be set only form the ProductBuilder object.
-// Rest of the code can access the data only via constant getters.
+// Product is used for computation - meaning it has also setter / computation functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <set>
@@ -113,9 +112,10 @@ public:
 	 * @return queue with all colorings of final states
 	 */
 	std::queue<Coloring> storeFinalStates() {
-		// States colored in basic coloring
+		// Queue tates colored in basic coloring
 		std::queue<Coloring> final_colorings; 
 
+		// Get the states and their colors
 		std::for_each(final_states.begin(), final_states.end(), [&](std::size_t state_index) {
 			final_colorings.push(Coloring(state_index, states[state_index]));
 		});

@@ -23,7 +23,7 @@
 
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
-#include "product_structure.hpp"
+#include "../reforging/product.hpp"
 #include "parameters_functions.hpp"
 #include "../results/results.hpp"
 #include "../auxiliary/output_streamer.hpp"
@@ -35,6 +35,7 @@ class SynthesisManager {
 	const UserOptions & user_options; // Values provided as parameters
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
+	Product & product;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION
@@ -43,15 +44,14 @@ class SynthesisManager {
 	SynthesisManager& operator=(const SynthesisManager & other); // Forbidden assignment operator.
 
 public:
-	SynthesisManager(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
-		            : user_options(_user_options), structure(_structure), automaton(_automaton)	{ }
+	SynthesisManager(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Product & _product)
+		            : user_options(_user_options), structure(_structure), automaton(_automaton), product(_product)	{ }
 
 	/**
 	 * Main synthesis function that iterates through all the rounds of the synthesis
 	 */
 	void doSynthesis() {
 		SplitManager split_manager(user_options.process_number, user_options.processes_count, structure.getParametersCount());
-		ProductStructure product(structure.getStatesCount() * automaton.getStatesCount() , getParamsetSize());
 		 // ModelChecker model_checker(product);
 
 		while (true) {

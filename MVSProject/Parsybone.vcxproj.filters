@@ -63,9 +63,6 @@
     <ClInclude Include="..\reforging\parametrized_structure_builder.hpp">
       <Filter>reforging</Filter>
     </ClInclude>
-    <ClInclude Include="..\coloring\product_structure.hpp">
-      <Filter>coloring</Filter>
-    </ClInclude>
     <ClInclude Include="..\rapidxml-1.13\rapidxml.hpp">
       <Filter>parsing\RapidXML-v1.13</Filter>
     </ClInclude>

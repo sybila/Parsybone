@@ -30,7 +30,7 @@
 
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
-#include "product_structure.hpp"
+#include "../reforging/product.hpp"
 #include "parameters_functions.hpp"
 #include "../results/results.hpp"
 #include "../auxiliary/output_streamer.hpp"
@@ -43,10 +43,10 @@ class ModelChecker {
 	const UserOptions & user_options;
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
+	Product & product;
 	SplitManager split_manager; // Copy of a split manager just for the checking
 
 	// Used for computation
-	std::unique_ptr<ProductStructure> product;
 	std::set<std::size_t> updates;
 
 	// Filled with computed data	
@@ -71,7 +71,7 @@ class ModelChecker {
 				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
 					// Compute the product state position and store it with its parameters
 					std::size_t state_num = ks_state_num * automaton.getStatesCount() + ba_state_num;
-					final_states.push(std::make_pair(state_num, product->getParameters(state_num)));
+					final_states.push(std::make_pair(state_num, product.getParameters(state_num)));
 				}
 			}
 		}
@@ -145,7 +145,7 @@ class ModelChecker {
 		if (!none(parameters)) {
 			// Compute and update target state of product
 			std::size_t target_state = structure.getTargetID(source_KS_state,KS_transition_num) * automaton.getStatesCount() + target_BA_state;
-			if (product->updateParameters(parameters, target_state))
+			if (product.updateParameters(parameters, target_state))
 				updates.insert(target_state);
 		}
 	}
@@ -193,13 +193,13 @@ class ModelChecker {
 			// Heuristics for an update with approximatelly maximal number of bits set
 			std::size_t state_num = 0; std::size_t current_par = 0;
 			for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
-				if (product->getParameters(*update_it) == (current_par | product->getParameters(*update_it))) {
+				if (product.getParameters(*update_it) == (current_par | product.getParameters(*update_it))) {
 					state_num = *update_it;
-					current_par = product->getParameters(state_num);
+					current_par = product.getParameters(state_num);
 				}
 			}
 			// Pass data from updated vertex to its succesors
-			transferUpdates(state_num, product->getParameters(state_num));
+			transferUpdates(state_num, product.getParameters(state_num));
 			// Erase completed update from the set
 			updates.erase(state_num);
 		}
@@ -216,9 +216,9 @@ class ModelChecker {
 			// Heuristics for an update with approximatelly maximal number of bits set
 			std::size_t state_num = 0; std::size_t current_par = 0;
 			for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
-				if (product->getParameters(*update_it) == (current_par | product->getParameters(*update_it))) {
+				if (product.getParameters(*update_it) == (current_par | product.getParameters(*update_it))) {
 					state_num = *update_it;
-					current_par = product->getParameters(state_num);
+					current_par = product.getParameters(state_num);
 				}
 				if (source_state == *update_it) {
 					state_num = *update_it;
@@ -226,9 +226,9 @@ class ModelChecker {
 				}
 			}
 			// Pass data from updated vertex to its succesors
-			transferUpdates(state_num, product->getParameters(state_num));
+			transferUpdates(state_num, product.getParameters(state_num));
 			if (source_state == state_num)
-				if (product->getParameters(state_num) == parameters)
+				if (product.getParameters(state_num) == parameters)
 					return;
 			// Erase completed update from the set
 			updates.erase(state_num);
@@ -242,7 +242,7 @@ class ModelChecker {
 	 */
 	void detectCycle(const Coloring & init_coloring) {
 		// Assure emptyness
-		product->reset();
+		product.resetProduct();
 		updates.clear();
 		// Send updates from the initial state
 		transferUpdates(init_coloring.first, init_coloring.second);
@@ -255,16 +255,16 @@ class ModelChecker {
 	 */
 	void colorProduct() {
 		// Assure emptyness
-		product->reset();
+		product.resetProduct();
 		updates.clear();
 		// For each initial state, store all the parameters and schedule for the update
-		for (std::size_t state_num = 0; state_num < product->getStatesCount(); state_num++) {
+		for (std::size_t state_num = 0; state_num < product.getStatesCount(); state_num++) {
 			// Use only those states built from initial states of the BA
 			if (state_num % automaton.getStatesCount() == 0) {
 				// Schedule for an update
 				updates.insert(state_num);
 				// Get all the parameters for current round and pass them to structure
-				product->updateParameters(split_manager.createStartingParameters(), state_num);
+				product.updateParameters(split_manager.createStartingParameters(), state_num);
 			}
 		}
 		// Start coloring procedure
@@ -289,7 +289,7 @@ class ModelChecker {
 			if (!none(final_states.front().second))
 				detectCycle(final_states.front());
 			// Store the result
-			results.addResult(state_index, product->getParameters(final_states.front().first));
+			results.addResult(state_index, product.getParameters(final_states.front().first));
 			// Remove the state
 			final_states.pop();
 		}
@@ -307,8 +307,8 @@ public:
 	 * Constructor, passes the data
 	 */
 	ModelChecker(const UserOptions & _user_options, const SplitManager _split_manager, const ParametrizedStructure & _structure, 
-		         const AutomatonStructure & _automaton, Results & _results) 
-	            : split_manager(_split_manager), user_options(_user_options), structure(_structure), automaton(_automaton), results(_results) { 
+		         const AutomatonStructure & _automaton, Results & _results, Product & _product) 
+	            : split_manager(_split_manager), user_options(_user_options), structure(_structure), automaton(_automaton), results(_results), product(_product) { 
 	}
 
 	// ModelChecker(ProductStructure & product, Results & _results) { }
@@ -317,9 +317,6 @@ public:
 	 * Function that does all the coloring. This part only covers iterating through subparts.
 	 */
 	void computeResults() {
-		// Create a new structure
-		product.reset(new ProductStructure(structure.getStatesCount() * automaton.getStatesCount() , getParamsetSize()));
-
 		// Cycle through the rounds
 		while (!split_manager.lastRound()) {
 			syntetizeParameters();
