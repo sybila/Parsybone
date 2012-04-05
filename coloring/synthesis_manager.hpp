@@ -43,19 +43,24 @@ class SynthesisManager {
 	const FunctionsStructure & functions;
 	Product & product;
 
+	std::unique_ptr<SplitManager> split_manager;
+	std::unique_ptr<ModelChecker> model_checker;
+	std::unique_ptr<Results> results;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Function that does all the coloring. This part only covers iterating through subparts.
 	 */
-	void cycleRounds(ModelChecker & model_checker, SplitManager & split_manager, Results & results) {
+	void cycleRounds() {
 		// Cycle through the rounds
 		while (true) {
-			syntetizeParameters(model_checker, split_manager, results);
+			model_checker->setRange(split_manager->getRoundRange());
+			syntetizeParameters();
 			// Increase rounds until the last one is reached - then end the loop
-			if (!split_manager.lastRound()) {
-				split_manager.increaseRound();
+			if (!split_manager->lastRound()) {
+				split_manager->increaseRound();
 			}
 			else {
 				// Remove the rounds line 
@@ -70,10 +75,10 @@ class SynthesisManager {
 	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
-	void syntetizeParameters(ModelChecker & model_checker, SplitManager & split_manager, Results & results) {
-		split_manager.outputRound();
+	void syntetizeParameters() {
+		split_manager->outputRound();
 		// Basic coloring
-		colorProduct(model_checker, split_manager, results);
+		colorProduct();
 		// Store colored final vertices
 		std::queue<Coloring> final_states = std::move(product.storeFinalStates());
 
@@ -81,9 +86,9 @@ class SynthesisManager {
 		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
 			if (!none(final_states.front().second))
-				detectCycle(final_states.front(), model_checker, split_manager, results);
+				detectCycle(final_states.front());
 			// Store the result
-			results.addResult(state_index, product.getParameters(final_states.front().first));
+			results->addResult(state_index, product.getParameters(final_states.front().first));
 			// Remove the state
 			final_states.pop();
 		}
@@ -94,26 +99,26 @@ class SynthesisManager {
 	 *
 	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
 	 */
-	void detectCycle(const Coloring & init_coloring, ModelChecker & model_checker, SplitManager & split_manager, Results & results) {
+	void detectCycle(const Coloring & init_coloring) {
 		// Assure emptyness
 		product.resetProduct();
-		model_checker.setUpdates();
+		model_checker->setUpdates();
 		// Send updates from the initial state
-		model_checker.transferUpdates(init_coloring.first, init_coloring.second);
+		model_checker->transferUpdates(init_coloring.first, init_coloring.second);
 		// Start coloring procedure
-		model_checker.doAcceptingColoring(init_coloring.first, init_coloring.second);
+		model_checker->doAcceptingColoring(init_coloring.first, init_coloring.second);
 	}
 
 	/**
 	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
 	 */
-	void colorProduct(ModelChecker & model_checker, SplitManager & split_manager, Results & results) {
+	void colorProduct() {
 		// Assure emptyness
 		product.resetProduct();
 		// For each initial state, store all the parameters and schedule for the update
-		model_checker.setUpdates(product.colorInitials(split_manager.createStartingParameters()));
+		model_checker->setUpdates(product.colorInitials(split_manager->createStartingParameters()));
 		// Start coloring procedure
-		model_checker.doColoring();
+		model_checker->doColoring();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +129,11 @@ class SynthesisManager {
 
 public:
 	SynthesisManager(const UserOptions & _user_options, const FunctionsStructure & _functions, Product & _product)
-		            : user_options(_user_options), functions(_functions), structure(_product.getKS()), automaton(_product.getBA()), product(_product) { }
+		            : user_options(_user_options), functions(_functions), structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
+		split_manager.reset(new SplitManager(user_options.process_number, user_options.processes_count, structure.getParametersCount()));
+		model_checker.reset(new ModelChecker(user_options, product));
+		results.reset(new Results(product, *split_manager));
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS ENTRY
@@ -133,14 +142,10 @@ public:
 	 * Main synthesis function that iterates through all the rounds of the synthesis
 	 */
 	void doSynthesis() {
-		// Pre-create data
-		SplitManager split_manager(user_options.process_number, user_options.processes_count, structure.getParametersCount());
-		Results results(product, split_manager);
-		ModelChecker model_checker(user_options, split_manager, results, product);
 		
 		time_manager.startClock("coloring runtime");
 		
-		cycleRounds(model_checker, split_manager, results);
+		cycleRounds();
 
 		time_manager.ouputClock("coloring runtime");
 
@@ -162,7 +167,7 @@ public:
 		}*/
 
 		// Do output
-		OutputManager output_manager(user_options, results, functions, split_manager);
+		OutputManager output_manager(user_options, *results, functions, *split_manager);
 		output_manager.basicOutput();
 	}
 };

@@ -44,13 +44,10 @@ class ModelChecker {
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	Product & product;
-	SplitManager split_manager; // Copy of a split manager just for the checking
 
 	// Used for computation
 	std::set<std::size_t> updates;
-
-	// Filled with computed data	
-	Results & results; 
+	Range synthesis_range;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
@@ -64,7 +61,7 @@ class ModelChecker {
 	 */
 	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values) {
 		// Number of the first parameter
-		std::size_t param_num = split_manager.getRoundRange().first;
+		std::size_t param_num = synthesis_range.first;
 		// First value might not bet 0 - get it from current parameter position
 		std::size_t value_num = (param_num / step_size) % transitive_values.size();
 		// As well current value step might not be the first one, it is also necessary to get it from current parameter position
@@ -77,7 +74,7 @@ class ModelChecker {
 			// List through ALL the target values
 			for (; value_num < transitive_values.size(); value_num++) {
 				// Get size of the step for current value 
-				std::size_t bits_in_step = std::min<std::size_t>(step_size, split_manager.getRoundRange().second - param_num);
+				std::size_t bits_in_step = std::min<std::size_t>(step_size, synthesis_range.second - param_num);
 				// Move the mask so new value data can be add
 				temporary <<= bits_in_step;
 				// If transitive, add ones for the width of the step
@@ -87,7 +84,7 @@ class ModelChecker {
 					temporary |= add;
 				}
 				// If we went throught the whole size, end
-				if ((param_num += bits_in_step) == split_manager.getRoundRange().second) {
+				if ((param_num += bits_in_step) == synthesis_range.second) {
 					// Create interection of source parameters and transition parameters
 					target_param &= temporary;
 					return;
@@ -103,7 +100,6 @@ class ModelChecker {
 	/**
 	 * Update target of the transition with transitible parameters
 	 *
-	 * @param updates	set that will hold ID of newly updated state
 	 * @param parameters	parameters that will be distributed
 	 * Positioning:
 	 * @param KS_transition_num		index of transition for this KS state
@@ -133,14 +129,13 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const UserOptions & _user_options, const SplitManager _split_manager, Results & _results, Product & _product) 
-		        : split_manager(_split_manager), user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), results(_results), product(_product) { 
+	ModelChecker(const UserOptions & _user_options, Product & _product) 
+		        : user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), product(_product) { 
 	}
 
 	/**
 	 * From the source distribute its parameters and newly colored neighbours shedule for update.
 	 *
-	 * @param updates	set containing IDs of states that are scheduled for update
 	 * @param souce_state	ID of the source state in the producte
 	 * @param parameters	parameters that will be distributed
 	 */
@@ -171,8 +166,6 @@ public:
 
 	/**
 	 * Distribute updates and store the new ones. Used only for initial coloring.
-	 *
-	 * @param updates	set containing IDs of states that are scheduled for update
 	 */
 	void doColoring() {
 		// While there are updates, pass them to succesing vertices
@@ -194,8 +187,6 @@ public:
 
 	/**
 	 * Distribute updates and store the new ones. Used only in cycle detection - prefers updates of the source vertex.
-	 *
-	 * @param updates	set containing IDs of states that are scheduled for update
 	 */
 	void doAcceptingColoring(const std::size_t source_state, const Parameters parameters) {
 		// While there are updates, pass them to succesing vertices
@@ -227,6 +218,13 @@ public:
 	 */
 	void setUpdates(const std::set<std::size_t> & _updates = std::set<std::size_t>()) {
 		updates = _updates;
+	}
+
+	/**
+	 * Set first and last parameters for this round.
+	 */
+	void setRange(const Range & _range) {
+		synthesis_range = _range;
 	}
 };
 
