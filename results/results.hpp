@@ -23,10 +23,11 @@
 
 #include <assert.h>
 
-#include "../auxiliary/split_manager.hpp"
-#include "../reforging/parametrized_structure.hpp"
-#include "../reforging/automaton_structure.hpp"
 #include "../auxiliary/output_streamer.hpp"
+#include "../auxiliary/split_manager.hpp"
+#include "../reforging/automaton_structure.hpp"
+#include "../reforging/parametrized_structure.hpp"
+#include "../reforging/product.hpp"
 
 class ModelChecker;
 
@@ -98,8 +99,8 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	Results(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, const SplitManager & _split_manager) 
-		   : structure(_structure), automaton(_automaton), split_manager(_split_manager) {
+	Results(const Product & _product, const SplitManager & _split_manager) 
+		   : structure(_product.getKS()), automaton(_product.getBA()), split_manager(_split_manager) {
 		createStates();	
 	} 
 	

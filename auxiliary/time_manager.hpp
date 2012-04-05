@@ -85,6 +85,6 @@ public:
 			output_streamer.output(fail, "Requested clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" have not been started until now.");
 		}
 	}
-};
+} time_manager;
 
 #endif

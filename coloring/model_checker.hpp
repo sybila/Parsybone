@@ -77,7 +77,7 @@ class ModelChecker {
 			// List through ALL the target values
 			for (; value_num < transitive_values.size(); value_num++) {
 				// Get size of the step for current value 
-				std::size_t bits_in_step = std::min(step_size, split_manager.getRoundRange().second - param_num);
+				std::size_t bits_in_step = std::min<std::size_t>(step_size, split_manager.getRoundRange().second - param_num);
 				// Move the mask so new value data can be add
 				temporary <<= bits_in_step;
 				// If transitive, add ones for the width of the step
@@ -269,9 +269,8 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const UserOptions & _user_options, const SplitManager _split_manager, const ParametrizedStructure & _structure, 
-		         const AutomatonStructure & _automaton, Results & _results, Product & _product) 
-	            : split_manager(_split_manager), user_options(_user_options), structure(_structure), automaton(_automaton), results(_results), product(_product) { 
+	ModelChecker(const UserOptions & _user_options, const SplitManager _split_manager, Results & _results, Product & _product) 
+		        : split_manager(_split_manager), user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), results(_results), product(_product) { 
 	}
 
 	// ModelChecker(ProductStructure & product, Results & _results) { }

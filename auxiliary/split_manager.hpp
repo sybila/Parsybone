@@ -22,7 +22,7 @@
 // All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <climits>
+#include <algorithm>
 
 #include "../auxiliary/data_types.hpp"
 #include "../coloring/parameters_functions.hpp"
@@ -104,7 +104,7 @@ public:
 	 */
 	void setStartPositions() {
 		round_begin = parameters_begin;
-		round_end = std::min(round_begin + bits_per_round, parameters_end);
+		round_end = std::min<std::size_t>(round_begin + bits_per_round, parameters_end);
 		round_number = 0;
 	}
 

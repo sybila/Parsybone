@@ -21,7 +21,8 @@
 #include <memory>
 #include <iostream>
 
-#include "auxiliary/split_manager.hpp"
+#include "auxiliary/time_manager.hpp"
+#include "auxiliary/output_streamer.hpp"
 #include "parsing/argument_parser.hpp"
 #include "parsing/model_parser.hpp"
 #include "reforging/basic_structure_builder.hpp"
@@ -30,12 +31,7 @@
 #include "reforging/automaton_builder.hpp"
 #include "reforging/product.hpp"
 #include "reforging/product_builder.hpp"
-#include "coloring/model_checker.hpp"
 #include "coloring/synthesis_manager.hpp"
-#include "results/results.hpp"
-#include "results/output_manager.hpp"
-#include "auxiliary/time_manager.hpp"
-#include "auxiliary/output_streamer.hpp"
 
 // porgram-related data
 const float program_version = 1.0;
@@ -46,10 +42,8 @@ const float program_version = 1.0;
 int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ZERO:
-// Create long-live objects.
+// Create long-live objects for the whole computation.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	// Object controlling usage of the resources.
-	TimeManager time_manager;
 	// Model that will be obtained from the input
 	Model model;
 	// structure that holds user-specified options, set to default values
@@ -80,70 +74,74 @@ int main(int argc, char* argv[]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP THREE:
-// Create the model structures.
+// Create the Parametrized Kripke Structure
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Long-life data structures - empty constructors
-	AutomatonStructure automaton; // Set of transitions - controlling automaton
 	ParametrizedStructure parametrized_structure; // Kripke structure that has transitions labelled with functions
-	BasicStructure basic_structure;   // Kripke structure built from the network
 	FunctionsStructure functions_structure; // Implicit reprezentation of regulatory functions
 
-	// Data creation
 	try {
 		output_streamer.output(verbose, "Data building started.", OutputStreamer::important);
 
-		// Parametrized Structure building
+		// Temporaries
+		BasicStructure basic_structure;   // Kripke structure built from the network
+
+
+		// Create temporaries
 		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
 		basic_structure_builder.buildStructure();
 		FunctionsBuilder functions_builder(user_options, model, functions_structure);
 		functions_builder.buildFunctions();
+
+		// Build PKS
 		ParametrizedStructureBuilder parametrized_structure_builder(user_options, basic_structure, functions_structure, parametrized_structure);
 		parametrized_structure_builder.buildStructure();
+	} 
+	catch (std::exception & e) {
+		output_streamer.output(fail, std::string("Error occured while building Parametrized Kripke structure: ").append(e.what()));
+		return 3;
+	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// STEP FOUR:
+// Create the automaton.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	AutomatonStructure automaton; // Set of transitions - controlling automaton
+	try {
 		// Automata Structure building
 		AutomatonBuilder automaton_builder(user_options, model, automaton);
 		automaton_builder.buildAutomaton();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while building data structures: ").append(e.what()));
-		return 3;
+		output_streamer.output(fail, std::string("Error occured while building the automaton: ").append(e.what()));
+		return 4;
 	}
 
-	// Product creation 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// STEP FIVE:
+// Create the product
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	Product product(user_options, parametrized_structure, automaton);
 	try {
 		ProductBuilder product_builder(user_options, parametrized_structure, automaton, product);
 		product_builder.buildProduct();
 	} catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while building the product: ").append(e.what()));
-		return 3;
+		return 5;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP FOUR:
-// Model-check and synthetize parameters.
+// STEP SIX:
+// Synthetize the colors and output them
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Long-life data structures
-	// Once built split manager that remains constant as a template for its copies within other classes
-	const SplitManager split_manager(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
-	// Holder of results
-	
 	try {
-		SynthesisManager synthesis_manager(user_options, parametrized_structure, automaton, functions_structure, product);
+		SynthesisManager synthesis_manager(user_options, functions_structure, product);
 		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
-		time_manager.startClock("coloring runtime");
 		synthesis_manager.doSynthesis();
-		time_manager.ouputClock("coloring runtime");
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
-		return 4;
+		return 6;
 	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP FIVE:
-// Analyze results and provide the output.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	return 0;
 }

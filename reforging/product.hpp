@@ -130,6 +130,20 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
+	 * @return reference to Kripke structure stored within the product
+	 */
+	const ParametrizedStructure & getKS() const {
+		return structure;
+	}
+
+	/**
+	 * @return reference to Buchi automaton stored within the product
+	 */
+	const AutomatonStructure & getBA() const {
+		return automaton;
+	}
+
+	/**
 	 * @return set of the initial states
 	 */
 	inline const std::set<std::size_t> & getInitials() {

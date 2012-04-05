@@ -21,14 +21,17 @@
 // Class that shelters all of the synthesis and output of the results
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "../auxiliary/output_streamer.hpp"
+#include "../auxiliary/time_manager.hpp"
+#include "parameters_functions.hpp"
+#include "model_checker.hpp"
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "../reforging/product.hpp"
 #include "../reforging/functions_structure.hpp"
-#include "parameters_functions.hpp"
 #include "../results/results.hpp"
 #include "../results/output_manager.hpp"
-#include "../auxiliary/output_streamer.hpp"
+
 
 class SynthesisManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,18 +50,21 @@ class SynthesisManager {
 	SynthesisManager& operator=(const SynthesisManager & other); // Forbidden assignment operator.
 
 public:
-	SynthesisManager(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, const FunctionsStructure & _functions,
-		             Product & _product)
-		            : user_options(_user_options), structure(_structure), automaton(_automaton), product(_product), functions(_functions) { }
+	SynthesisManager(const UserOptions & _user_options, const FunctionsStructure & _functions, Product & _product)
+		            : user_options(_user_options), functions(_functions), structure(_product.getKS()), automaton(_product.getBA()), product(_product) { }
 
 	/**
 	 * Main synthesis function that iterates through all the rounds of the synthesis
 	 */
 	void doSynthesis() {
+		// Pre-create data
 		SplitManager split_manager(user_options.process_number, user_options.processes_count, structure.getParametersCount());
-		Results results(structure, automaton, split_manager);
-		ModelChecker model_checker(user_options, split_manager, structure, automaton, results, product);
+		Results results(product, split_manager);
+		ModelChecker model_checker(user_options, split_manager, results, product);
+		
+		time_manager.startClock("coloring runtime");
 		model_checker.computeResults();
+		time_manager.ouputClock("coloring runtime");
 		 // ModelChecker model_checker(product);
 
 		/*while (true) {
@@ -77,7 +83,7 @@ public:
 				break;
 		}*/
 
-		output_streamer.output(verbose, "Output started", OutputStreamer::important);
+		// Do output
 		OutputManager output_manager(user_options, results, functions, split_manager);
 		output_manager.basicOutput();
 	}
