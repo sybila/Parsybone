@@ -44,6 +44,79 @@ class SynthesisManager {
 	Product & product;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SYNTHESIS CONTROL
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Function that does all the coloring. This part only covers iterating through subparts.
+	 */
+	void cycleRounds(ModelChecker & model_checker, SplitManager & split_manager, Results & results) {
+		// Cycle through the rounds
+		while (true) {
+			syntetizeParameters(model_checker, split_manager, results);
+			// Increase rounds until the last one is reached - then end the loop
+			if (!split_manager.lastRound()) {
+				split_manager.increaseRound();
+			}
+			else {
+				// Remove the rounds line 
+				output_streamer.output(verbose, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+				break;
+			}
+		}	
+	}
+
+	/**
+	 * Entry point of the parameter synthesis. 
+	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
+	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
+	 */
+	void syntetizeParameters(ModelChecker & model_checker, SplitManager & split_manager, Results & results) {
+		split_manager.outputRound();
+		// Basic coloring
+		colorProduct(model_checker, split_manager, results);
+		// Store colored final vertices
+		std::queue<Coloring> final_states = std::move(product.storeFinalStates());
+
+		// Get the actuall results by cycle detection for each final vertex
+		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
+			// Restart the coloring using coloring of the first final state if there are at least some parameters
+			if (!none(final_states.front().second))
+				detectCycle(final_states.front(), model_checker, split_manager, results);
+			// Store the result
+			results.addResult(state_index, product.getParameters(final_states.front().first));
+			// Remove the state
+			final_states.pop();
+		}
+	}
+
+	/**
+	 * For each final state that has at least one parameter assigned, start cycle detection.
+	 *
+	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
+	 */
+	void detectCycle(const Coloring & init_coloring, ModelChecker & model_checker, SplitManager & split_manager, Results & results) {
+		// Assure emptyness
+		product.resetProduct();
+		model_checker.setUpdates();
+		// Send updates from the initial state
+		model_checker.transferUpdates(init_coloring.first, init_coloring.second);
+		// Start coloring procedure
+		model_checker.doAcceptingColoring(init_coloring.first, init_coloring.second);
+	}
+
+	/**
+	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
+	 */
+	void colorProduct(ModelChecker & model_checker, SplitManager & split_manager, Results & results) {
+		// Assure emptyness
+		product.resetProduct();
+		// For each initial state, store all the parameters and schedule for the update
+		model_checker.setUpdates(product.colorInitials(split_manager.createStartingParameters()));
+		// Start coloring procedure
+		model_checker.doColoring();
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	SynthesisManager(const SynthesisManager & other);            // Forbidden copy constructor.
@@ -53,6 +126,9 @@ public:
 	SynthesisManager(const UserOptions & _user_options, const FunctionsStructure & _functions, Product & _product)
 		            : user_options(_user_options), functions(_functions), structure(_product.getKS()), automaton(_product.getBA()), product(_product) { }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SYNTHESIS ENTRY
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Main synthesis function that iterates through all the rounds of the synthesis
 	 */
@@ -63,9 +139,11 @@ public:
 		ModelChecker model_checker(user_options, split_manager, results, product);
 		
 		time_manager.startClock("coloring runtime");
-		model_checker.computeResults();
+		
+		cycleRounds(model_checker, split_manager, results);
+
 		time_manager.ouputClock("coloring runtime");
-		 // ModelChecker model_checker(product);
+
 
 		/*while (true) {
 			// Synthetize round
@@ -86,11 +164,6 @@ public:
 		// Do output
 		OutputManager output_manager(user_options, results, functions, split_manager);
 		output_manager.basicOutput();
-	}
-
-private:
-	void doRound() {
-
 	}
 };
 

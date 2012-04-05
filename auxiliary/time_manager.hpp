@@ -67,7 +67,7 @@ public:
 	 */
 	void startClock(const std::string clock_name) {
 		clocks.insert(std::make_pair(clock_name, getMilliseconds()));
-		output_streamer.output(verbose, "Started clock ", OutputStreamer::no_newl).output(clock_name);
+		output_streamer.output(verbose, "Started clock ", OutputStreamer::no_newl | OutputStreamer::time_val).output(clock_name);
 	}
 
 	/**
@@ -79,10 +79,10 @@ public:
 		// Find the clock and output time difference
 		if (clocks.find(clock_name) != clocks.end()) {
 			long long runtime = getMilliseconds() - clocks.find(clock_name)->second;
-			output_streamer.output(verbose, "Clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" counted: ", OutputStreamer::no_newl)
+			output_streamer.output(verbose, "Clock ", OutputStreamer::no_newl | OutputStreamer::time_val).output(clock_name, OutputStreamer::no_newl).output(" counted: ", OutputStreamer::no_newl)
 				           .output(runtime, OutputStreamer::no_newl).output("ms.");
 		} else { // If you do not find them, fail
-			output_streamer.output(fail, "Requested clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" have not been started until now.");
+			output_streamer.output(fail, "Requested clock ", OutputStreamer::no_newl | OutputStreamer::time_val).output(clock_name, OutputStreamer::no_newl).output(" have not been started until now.");
 		}
 	}
 } time_manager;

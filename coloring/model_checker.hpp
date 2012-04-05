@@ -122,6 +122,21 @@ class ModelChecker {
 		}
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTRUCTING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
+	ModelChecker& operator=(const ModelChecker & other); // Forbidden assignment operator.
+
+public:
+	/**
+	 * Constructor, passes the data
+	 */
+	ModelChecker(const UserOptions & _user_options, const SplitManager _split_manager, Results & _results, Product & _product) 
+		        : split_manager(_split_manager), user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), results(_results), product(_product) { 
+	}
+
 	/**
 	 * From the source distribute its parameters and newly colored neighbours shedule for update.
 	 *
@@ -208,85 +223,10 @@ class ModelChecker {
 	}
 
 	/**
-	 * For each final state that has at least one parameter assigned, start cycle detection.
-	 *
-	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
+	 * Assign provided set as current updates.
 	 */
-	void detectCycle(const Coloring & init_coloring) {
-		// Assure emptyness
-		product.resetProduct();
-		updates.clear();
-		// Send updates from the initial state
-		transferUpdates(init_coloring.first, init_coloring.second);
-		// Start coloring procedure
-		doAcceptingColoring(init_coloring.first, init_coloring.second);
-	}
-
-	/**
-	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
-	 */
-	void colorProduct() {
-		// Assure emptyness
-		product.resetProduct();
-		// For each initial state, store all the parameters and schedule for the update
-		updates = product.colorInitials(split_manager.createStartingParameters());
-		// Start coloring procedure
-		doColoring();
-	}
-
-	/**
-	 * Entry point of the parameter synthesis. 
-	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
-	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
-	 */
-	void syntetizeParameters() {
-		split_manager.outputRound();
-		// Basic coloring
-		colorProduct();
-		// Store colored final vertices
-		std::queue<Coloring> final_states = std::move(product.storeFinalStates());
-
-		// Get the actuall results by cycle detection for each final vertex
-		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
-			// Restart the coloring using coloring of the first final state if there are at least some parameters
-			if (!none(final_states.front().second))
-				detectCycle(final_states.front());
-			// Store the result
-			results.addResult(state_index, product.getParameters(final_states.front().first));
-			// Remove the state
-			final_states.pop();
-		}
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
-	ModelChecker& operator=(const ModelChecker & other); // Forbidden assignment operator.
-
-public:
-	/**
-	 * Constructor, passes the data
-	 */
-	ModelChecker(const UserOptions & _user_options, const SplitManager _split_manager, Results & _results, Product & _product) 
-		        : split_manager(_split_manager), user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), results(_results), product(_product) { 
-	}
-
-	// ModelChecker(ProductStructure & product, Results & _results) { }
-
-	/**
-	 * Function that does all the coloring. This part only covers iterating through subparts.
-	 */
-	void computeResults() {
-		// Cycle through the rounds
-		while (!split_manager.lastRound()) {
-			syntetizeParameters();
-			split_manager.increaseRound();
-		}
-		// Compute the last round
-		syntetizeParameters();
-		output_streamer.output(verbose, "");
+	void setUpdates(const std::set<std::size_t> & _updates = std::set<std::size_t>()) {
+		updates = _updates;
 	}
 };
 

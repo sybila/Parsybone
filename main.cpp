@@ -85,7 +85,6 @@ int main(int argc, char* argv[]) {
 		// Temporaries
 		BasicStructure basic_structure;   // Kripke structure built from the network
 
-
 		// Create temporaries
 		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
 		basic_structure_builder.buildStructure();

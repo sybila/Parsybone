@@ -55,6 +55,7 @@ public:
 	static Trait no_newl    = 1;
 	static Trait important  = 2;
 	static Trait rewrite_ln = 4;
+	static Trait time_val   = 8;
 
 	/**
 	 * test if given trait is present
@@ -157,18 +158,7 @@ public:
 	template <class outputType> 
     OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
 		last_stream_type = stream_type;
-		switch (stream_type) {
-		case fail:
-			actualOutput(*fail_stream, stream_data, trait_mask);		
-			break;
-		case verbose:
-			if (output_verbose)
-				actualOutput(*verbose_stream, stream_data, trait_mask);				
-			break;
-		case data: 
-			actualOutput(*result_stream, stream_data, trait_mask);		
-			break;
-		}
+		output(stream_data, trait_mask);
 		return *this;
 	}
 
@@ -201,12 +191,15 @@ private:
 		// Return to start of the line
 		if (testTrait(rewrite_ln, trait_mask))
 			stream << '\r';
-		// Add stars
+		// Add prefix stars
 		if (testTrait(important, trait_mask))
 			stream << "*** ";
+		// Add sharp
+		if (testTrait(time_val, trait_mask))
+			stream << "#";
 		// Actuall data
 		stream << stream_data;
-		// Add stars
+		// Add postfix stars
 		if (testTrait(important, trait_mask))
 			stream << " ***";
 		// End of the line if not requested otherwise
