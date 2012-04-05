@@ -18,11 +18,11 @@
 #define PARSYBONE_PRODUCT_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Product stores product of BA and PKS
+// ProductStructure stores product of BA and PKS
 // States are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
 // In other words, first iterate through BA then through KS
-// Product data can be set only form the ProductBuilder object.
-// Product is used for computation - meaning it has also setter / computation functions
+// ProductStructure data can be set only form the ProductBuilder object.
+// ProductStructure is used for computation - meaning it has also setter / computation functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <set>
@@ -35,9 +35,10 @@
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/output_streamer.hpp"
 #include "../reforging/automaton_structure.hpp"
+#include "../reforging/functions_structure.hpp"
 #include "../reforging/parametrized_structure.hpp"
 
-class Product {
+class ProductStructure {
 	friend class ProductBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
@@ -46,6 +47,7 @@ class Product {
 	
 	// References to data structures
 	const UserOptions & user_options; // Values provided as parameters
+	const FunctionsStructure & functions; // Implicit reprezentation of functions - used as reference
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	
@@ -61,12 +63,12 @@ class Product {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	Product(const Product & other);            // Forbidden copy constructor.
-	Product& operator=(const Product & other); // Forbidden assignment operator.
+	ProductStructure(const ProductStructure & other);            // Forbidden copy constructor.
+	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	Product(const UserOptions &_user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
-		: user_options(_user_options), structure(_structure), automaton(_automaton) { }
+	ProductStructure(const UserOptions &_user_options, const FunctionsStructure & _functions, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
+		: user_options(_user_options), functions(_functions), structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA HANDLING FUNCTIONS
@@ -130,17 +132,24 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @return reference to Kripke structure stored within the product
+	 * @return constant reference to Kripke structure stored within the product
 	 */
 	const ParametrizedStructure & getKS() const {
 		return structure;
 	}
 
 	/**
-	 * @return reference to Buchi automaton stored within the product
+	 * @return constant reference to Buchi automaton stored within the product
 	 */
 	const AutomatonStructure & getBA() const {
 		return automaton;
+	}
+
+	/**
+	 * @return constant reference to structure with regulatory functions
+	 */
+	const FunctionsStructure & getFunc() const {
+		return functions;
 	}
 
 	/**

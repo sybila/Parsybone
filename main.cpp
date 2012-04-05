@@ -29,7 +29,7 @@
 #include "reforging/functions_builder.hpp"
 #include "reforging/parametrized_structure_builder.hpp"
 #include "reforging/automaton_builder.hpp"
-#include "reforging/product.hpp"
+#include "reforging/product_structure.hpp"
 #include "reforging/product_builder.hpp"
 #include "coloring/synthesis_manager.hpp"
 
@@ -74,22 +74,32 @@ int main(int argc, char* argv[]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP THREE:
-// Create the Parametrized Kripke Structure
+// Create Functions (implicit reprezentation of regulatory contexts of species)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ParametrizedStructure parametrized_structure; // Kripke structure that has transitions labelled with functions
-	FunctionsStructure functions_structure; // Implicit reprezentation of regulatory functions
-
+	FunctionsStructure functions_structure;
 	try {
-		output_streamer.output(verbose, "Data building started.", OutputStreamer::important);
+		output_streamer.output(verbose, "Functions building started.", OutputStreamer::important);
 
-		// Temporaries
-		BasicStructure basic_structure;   // Kripke structure built from the network
-
-		// Create temporaries
-		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
-		basic_structure_builder.buildStructure();
 		FunctionsBuilder functions_builder(user_options, model, functions_structure);
 		functions_builder.buildFunctions();
+	} 
+	catch (std::exception & e) {
+		output_streamer.output(fail, std::string("Error occured while building Regulatory functions: ").append(e.what()));
+		return 3;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// STEP FOUR:
+// Create the Kripke Structure (product of all activation value of all the species)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	ParametrizedStructure parametrized_structure; // Kripke structure that has transitions labelled with functions
+	try {
+		output_streamer.output(verbose, "Parametrized Kripke structure building started.", OutputStreamer::important);
+
+		// Create temporary Kripke structure without parametrization
+		BasicStructure basic_structure; // Kripke structure built from the network
+		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
+		basic_structure_builder.buildStructure();
 
 		// Build PKS
 		ParametrizedStructureBuilder parametrized_structure_builder(user_options, basic_structure, functions_structure, parametrized_structure);
@@ -97,49 +107,52 @@ int main(int argc, char* argv[]) {
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while building Parametrized Kripke structure: ").append(e.what()));
-		return 3;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP FOUR:
-// Create the automaton.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	AutomatonStructure automaton; // Set of transitions - controlling automaton
-	try {
-		// Automata Structure building
-		AutomatonBuilder automaton_builder(user_options, model, automaton);
-		automaton_builder.buildAutomaton();
-	} 
-	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while building the automaton: ").append(e.what()));
 		return 4;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP FIVE:
-// Create the product
+// Create the automaton.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	Product product(user_options, parametrized_structure, automaton);
+	AutomatonStructure automaton; // Set of transitions - controlling automaton
 	try {
-		ProductBuilder product_builder(user_options, parametrized_structure, automaton, product);
-		product_builder.buildProduct();
-	} catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while building the product: ").append(e.what()));
+		output_streamer.output(verbose, "Buchi automaton building started.", OutputStreamer::important);
+
+		AutomatonBuilder automaton_builder(user_options, model, automaton);
+		automaton_builder.buildAutomaton();
+	} 
+	catch (std::exception & e) {
+		output_streamer.output(fail, std::string("Error occured while building the automaton: ").append(e.what()));
 		return 5;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP SIX:
+// Create the product
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	ProductStructure product_structure(user_options, functions_structure, parametrized_structure, automaton);
+	try {
+		output_streamer.output(verbose, "Product building started.", OutputStreamer::important);
+
+		ProductBuilder product_builder(user_options, parametrized_structure, automaton, product_structure);
+		product_builder.buildProduct();
+	} catch (std::exception & e) {
+		output_streamer.output(fail, std::string("Error occured while building the product: ").append(e.what()));
+		return 6;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// STEP SEVEN:
 // Synthetize the colors and output them
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		SynthesisManager synthesis_manager(user_options, functions_structure, product);
+		SynthesisManager synthesis_manager(user_options, functions_structure, product_structure);
 		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
 		synthesis_manager.doSynthesis();
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
-		return 6;
+		return 7;
 	}
 
 	return 0;

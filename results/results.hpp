@@ -27,7 +27,7 @@
 #include "../auxiliary/split_manager.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "../reforging/parametrized_structure.hpp"
-#include "../reforging/product.hpp"
+#include "../reforging/product_structure.hpp"
 #include "../coloring/synthesis_manager.hpp"
 
 class ModelChecker;
@@ -100,7 +100,7 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	Results(const Product & _product, const SplitManager & _split_manager) 
+	Results(const ProductStructure & _product, const SplitManager & _split_manager) 
 		   : structure(_product.getKS()), automaton(_product.getBA()), split_manager(_split_manager) {
 		createStates();	
 	} 

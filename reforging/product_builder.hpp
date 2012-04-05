@@ -36,12 +36,7 @@ class ProductBuilder {
 	const UserOptions & user_options; // Values provided as parameters
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
-	Product & product; // Product to build
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTING FUNCTIONS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	ProductStructure & product; // Product to build
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
@@ -84,7 +79,7 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	ProductBuilder(const UserOptions &_user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Product & _product) 
+	ProductBuilder(const UserOptions &_user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product) 
 		: user_options(_user_options), structure(_structure), automaton(_automaton), product(_product) { }
 
 	/**

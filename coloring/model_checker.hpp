@@ -30,7 +30,7 @@
 
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
-#include "../reforging/product.hpp"
+#include "../reforging/product_structure.hpp"
 #include "parameters_functions.hpp"
 #include "../results/results.hpp"
 #include "../auxiliary/output_streamer.hpp"
@@ -43,7 +43,7 @@ class ModelChecker {
 	const UserOptions & user_options;
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
-	Product & product;
+	ProductStructure & product;
 
 	// Used for computation
 	std::set<std::size_t> updates;
@@ -129,7 +129,7 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const UserOptions & _user_options, Product & _product) 
+	ModelChecker(const UserOptions & _user_options, ProductStructure & _product) 
 		        : user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), product(_product) { 
 	}
 

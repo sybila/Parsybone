@@ -93,8 +93,8 @@
     <ClInclude Include="..\reforging\functions_structure.hpp" />
     <ClInclude Include="..\reforging\parametrized_structure.hpp" />
     <ClInclude Include="..\reforging\parametrized_structure_builder.hpp" />
-    <ClInclude Include="..\reforging\product.hpp" />
     <ClInclude Include="..\reforging\product_builder.hpp" />
+    <ClInclude Include="..\reforging\product_structure.hpp" />
     <ClInclude Include="..\results\output_manager.hpp" />
     <ClInclude Include="..\results\results.hpp" />
   </ItemGroup>
