@@ -28,12 +28,10 @@
 #include "parametrized_structure.hpp"
 #include "automaton_structure.hpp"
 
-
 class ProductBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const UserOptions & user_options; // Values provided as parameters
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	ProductStructure & product; // Product to build
@@ -79,8 +77,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	ProductBuilder(const UserOptions &_user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product) 
-		: user_options(_user_options), structure(_structure), automaton(_automaton), product(_product) { }
+	ProductBuilder(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product) 
+		: structure(_structure), automaton(_automaton), product(_product) { }
 
 	/**
 	 * Create the the product from BA and KS together.

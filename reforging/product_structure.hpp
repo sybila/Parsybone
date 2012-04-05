@@ -25,13 +25,6 @@
 // ProductStructure is used for computation - meaning it has also setter / computation functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <set>
-#include <vector>
-#include <stdexcept>
-#include <algorithm>
-#include <queue>
-#include <utility>
-
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/output_streamer.hpp"
 #include "../reforging/automaton_structure.hpp"

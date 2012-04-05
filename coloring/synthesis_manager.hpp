@@ -37,7 +37,6 @@ class SynthesisManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const UserOptions & user_options; // Values provided as parameters
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	ProductStructure & product; // Product to compute on
@@ -121,10 +120,10 @@ class SynthesisManager {
 	SynthesisManager& operator=(const SynthesisManager & other); // Forbidden assignment operator.
 
 public:
-	SynthesisManager(const UserOptions & _user_options, ProductStructure & _product)
-		            : user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
-		split_manager.reset(new SplitManager(user_options.process_number, user_options.processes_count, structure.getParametersCount()));
-		model_checker.reset(new ModelChecker(user_options, product));
+	SynthesisManager(ProductStructure & _product)
+		            : structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
+		split_manager.reset(new SplitManager(structure.getParametersCount()));
+		model_checker.reset(new ModelChecker(product));
 		results.reset(new Results(product, *split_manager));
 	}
 
@@ -144,7 +143,7 @@ public:
 
 		// Do output
 		split_manager->setStartPositions();
-		OutputManager output_manager(user_options, *results, product.getFunc(), *split_manager);
+		OutputManager output_manager(*results, product.getFunc(), *split_manager);
 		output_manager.basicOutput();
 	}
 };

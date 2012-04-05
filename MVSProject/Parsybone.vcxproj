@@ -72,11 +72,11 @@
   <ItemGroup>
     <ClInclude Include="..\auxiliary\data_types.hpp" />
     <ClInclude Include="..\auxiliary\output_streamer.hpp" />
-    <ClInclude Include="..\auxiliary\split_manager.hpp" />
     <ClInclude Include="..\auxiliary\template.hpp" />
     <ClInclude Include="..\auxiliary\time_manager.hpp" />
     <ClInclude Include="..\coloring\model_checker.hpp" />
     <ClInclude Include="..\coloring\parameters_functions.hpp" />
+    <ClInclude Include="..\coloring\split_manager.hpp" />
     <ClInclude Include="..\coloring\synthesis_manager.hpp" />
     <ClInclude Include="..\parsing\argument_parser.hpp" />
     <ClInclude Include="..\parsing\model.hpp" />

@@ -41,36 +41,34 @@ const float program_version = 1.0;
  */
 int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP ZERO:
-// Create long-live objects for the whole computation.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	// Model that will be obtained from the input
-	Model model;
-	// structure that holds user-specified options, set to default values
-	UserOptions user_options = {0};	user_options.process_number = 1; user_options.processes_count = 1;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	try {
-		// Parse what is on the input
+		output_streamer.output(verbose, "Argument parsing started.", OutputStreamer::important);
+		// Set those values to 1 - everything else is already set to 0
+		user_options.process_number = 1; user_options.processes_count = 1;
 		parseArguments(user_options, argc, argv);
-
-		// Parse the model
-		output_streamer.output(verbose, "Model parsing started.", OutputStreamer::important);
-		ModelParser model_parser(user_options, model);
-		model_parser.parseInput();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while parsing input: ").append(e.what()));
+		output_streamer.output(fail, std::string("Error occured while parsing arguments: ").append(e.what()));
 		return 1;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP TWO:
-// Control the semantics.
+// Parse the model
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	Model model;
+	try {		
+		output_streamer.output(verbose, "Model parsing started.", OutputStreamer::important);
+		ModelParser model_parser(model);
+		model_parser.parseInput();
+	} 
+	catch (std::exception & e) {
+		output_streamer.output(fail, std::string("Error occured while parsing model: ").append(e.what()));
+		return 2;
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP THREE:
@@ -80,7 +78,7 @@ int main(int argc, char* argv[]) {
 	try {
 		output_streamer.output(verbose, "Functions building started.", OutputStreamer::important);
 
-		FunctionsBuilder functions_builder(user_options, model, functions_structure);
+		FunctionsBuilder functions_builder(model, functions_structure);
 		functions_builder.buildFunctions();
 	} 
 	catch (std::exception & e) {
@@ -98,11 +96,11 @@ int main(int argc, char* argv[]) {
 
 		// Create temporary Kripke structure without parametrization
 		BasicStructure basic_structure; // Kripke structure built from the network
-		BasicStructureBuilder basic_structure_builder(user_options, model, basic_structure);
+		BasicStructureBuilder basic_structure_builder(model, basic_structure);
 		basic_structure_builder.buildStructure();
 
 		// Build PKS
-		ParametrizedStructureBuilder parametrized_structure_builder(user_options, basic_structure, functions_structure, parametrized_structure);
+		ParametrizedStructureBuilder parametrized_structure_builder(basic_structure, functions_structure, parametrized_structure);
 		parametrized_structure_builder.buildStructure();
 	} 
 	catch (std::exception & e) {
@@ -118,7 +116,7 @@ int main(int argc, char* argv[]) {
 	try {
 		output_streamer.output(verbose, "Buchi automaton building started.", OutputStreamer::important);
 
-		AutomatonBuilder automaton_builder(user_options, model, automaton);
+		AutomatonBuilder automaton_builder( model, automaton);
 		automaton_builder.buildAutomaton();
 	} 
 	catch (std::exception & e) {
@@ -134,7 +132,7 @@ int main(int argc, char* argv[]) {
 	try {
 		output_streamer.output(verbose, "Product building started.", OutputStreamer::important);
 
-		ProductBuilder product_builder(user_options, parametrized_structure, automaton, product_structure);
+		ProductBuilder product_builder(parametrized_structure, automaton, product_structure);
 		product_builder.buildProduct();
 	} catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while building the product: ").append(e.what()));
@@ -146,7 +144,7 @@ int main(int argc, char* argv[]) {
 // Synthetize the colors and output them
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		SynthesisManager synthesis_manager(user_options, product_structure);
+		SynthesisManager synthesis_manager(product_structure);
 		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
 		synthesis_manager.doSynthesis();
 	} 

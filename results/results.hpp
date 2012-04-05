@@ -21,10 +21,8 @@
 // Results are used by ModelChecker to store the data computed during synthesis.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <assert.h>
-
 #include "../auxiliary/output_streamer.hpp"
-#include "../auxiliary/split_manager.hpp"
+#include "../coloring/split_manager.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/product_structure.hpp"

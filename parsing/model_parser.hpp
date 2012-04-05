@@ -26,13 +26,6 @@
 // The functions are rather long, but their meaning is quite straithforward and repetitive. Most of the code are controls of correctness.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <algorithm>
-#include <cstring>
-
-#include <boost/assert.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "model.hpp"
 #include "../auxiliary/data_types.hpp"
 
@@ -50,7 +43,6 @@ class ModelParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	Model & model; // Model that will hold the data
-	const UserOptions & user_options;
 
 	// Created with and for parsing
 	rapidxml::xml_document<>  model_xml; // Main parsing node
@@ -349,7 +341,7 @@ public:
 	/**
 	 * Constructor has to provide references to an input stream to read from and model object to store parsed information.
 	 */
-	ModelParser(const UserOptions &_user_options, Model & _model) : user_options(_user_options), model( _model) {}
+	ModelParser(Model & _model) : model( _model) {}
 
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.

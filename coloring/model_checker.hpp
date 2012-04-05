@@ -24,10 +24,6 @@
 // This class uses some global data that have to be handled safely, but it makes the computation faster.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <stdexcept>
-#include <queue>
-#include <cmath>
-
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "../reforging/product_structure.hpp"
@@ -40,7 +36,6 @@ class ModelChecker {
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	// Provided with constructor
-	const UserOptions & user_options;
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	ProductStructure & product;
@@ -129,8 +124,8 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const UserOptions & _user_options, ProductStructure & _product) 
-		        : user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), product(_product) { 
+	ModelChecker(ProductStructure & _product) 
+		        : structure(_product.getKS()), automaton(_product.getBA()), product(_product) { 
 	}
 
 	/**

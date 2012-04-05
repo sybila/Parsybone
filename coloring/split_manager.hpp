@@ -22,8 +22,6 @@
 // All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <algorithm>
-
 #include "../auxiliary/data_types.hpp"
 #include "../coloring/parameters_functions.hpp"
 #include "../auxiliary/output_streamer.hpp"
@@ -32,8 +30,6 @@ class SplitManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::size_t processes_count; // Number of the processes
-	std::size_t process_number; // Index of this process (starting from 1)
 	std::size_t all_parameters_count; // All the parameters
 	std::size_t parameters_begin; // Position to start a synthesis for this process (absolute position w.r.t. all the parameters)
 	std::size_t parameters_end; // Position one behind the last parameter for this process (absolute position w.r.t. all the parameters)
@@ -53,14 +49,14 @@ class SplitManager {
 	 */
 	void computeSubspace() {
 		// Split parameter space rounded down, this number may not be precise
-		std::size_t parameters_per_process = all_parameters_count / processes_count;
+		std::size_t parameters_per_process = all_parameters_count / user_options.processes_count;
 		// Compute start and end positions
-		parameters_begin = parameters_per_process * (process_number - 1);
-		if (process_number == processes_count) {
+		parameters_begin = parameters_per_process * (user_options.process_number - 1);
+		if (user_options.process_number == user_options.processes_count) {
 			parameters_end = all_parameters_count;
 		}
 		else {
-			parameters_end = parameters_per_process * process_number;
+			parameters_end = parameters_per_process * user_options.process_number;
 		}
 		std::size_t parameters_count = parameters_end - parameters_begin;
 		// Set positions for the round
@@ -88,10 +84,7 @@ public:
 	 * @param _process_number	index of this process
 	 * @param _parameters_count	complete number of parameters that have to be tested by all the processes
 	 */
-	SplitManager(const std::size_t _process_number, const std::size_t _processes_count, const std::size_t _parameters_count) {
-		// Pass the numbers
-		processes_count = _processes_count;
-		process_number = _process_number;
+	SplitManager(const std::size_t _parameters_count) {
 		all_parameters_count = _parameters_count;
 		// Set the main size of the loop
 		bits_per_round = sizeof(Parameters) * 8;
@@ -134,20 +127,6 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @return	total number of processes
-	 */ 
-	inline const std::size_t getProcessesCount() const {
-		return processes_count;
-	}
-
-	/**
-	 * @return	index of this process starting from 1
-	 */ 
-	inline const std::size_t getProcessNumber() const {
-		return process_number;
-	}
-
 	/**
 	 * @return	total number of parameters for all the processes
 	 */ 

@@ -21,10 +21,24 @@
 // This file holds specifications of data types used by multiple classes throughout the computation.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <algorithm>
+#include <assert.h>
+#include <cctype>
+#include <cmath>
+#include <cstring>
+#include <fstream>
 #include <iostream>
-#include <bitset>
+#include <map>
+#include <memory>
+#include <queue>
+#include <set>
+#include <string>
+#include <stdexcept>
+#include <utility>
 
-#include <boost/dynamic_bitset.hpp>
+#include <boost/assert.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT/OUTPUT RELATED TYPES
@@ -39,7 +53,7 @@ struct UserOptions {
 	std::size_t process_number : 32;
 	std::size_t processes_count : 32;
 	unsigned int padding : 11;
-};
+} user_options = {0};
 
 // What stream to use in all-streams functions
 enum StreamType {input, fail, verbose, data};

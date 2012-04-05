@@ -24,10 +24,6 @@
 // This expects semantically correct data from BasicStructure and FunctionsStructure.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <memory>
-#include <limits>
-#include <stdexcept>
-
 #include "basic_structure.hpp"
 #include "functions_structure.hpp"
 #include "parametrized_structure.hpp"
@@ -38,7 +34,6 @@ class ParametrizedStructureBuilder {
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
-	const UserOptions & user_options;
 	const BasicStructure & basic_structure; // Provider of basic KS data
 	const FunctionsStructure & regulatory_functions; // Provider of implicit functions
 	ParametrizedStructure & structure; // KipkeStructure to fill
@@ -183,9 +178,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	ParametrizedStructureBuilder(const UserOptions & _user_options, const BasicStructure & _basic_structure, const FunctionsStructure & _regulatory_functions, 
-		                         ParametrizedStructure & _structure) 
-		: user_options(_user_options), regulatory_functions(_regulatory_functions), basic_structure(_basic_structure), structure(_structure)  {
+	ParametrizedStructureBuilder(const BasicStructure & _basic_structure, const FunctionsStructure & _regulatory_functions, ParametrizedStructure & _structure) 
+		: regulatory_functions(_regulatory_functions), basic_structure(_basic_structure), structure(_structure)  {
 	}
 
 	/**

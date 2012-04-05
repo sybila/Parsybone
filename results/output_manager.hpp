@@ -17,8 +17,6 @@
 #ifndef PARSYBONE_OUTPUT_MANAGER_INCLUDED
 #define PARSYBONE_OUTPUT_MANAGER_INCLUDED
 
-#include <iostream>
-
 #include "../reforging/functions_structure.hpp"
 #include "../parsing/model.hpp"
 #include "results.hpp"
@@ -29,7 +27,6 @@ class OutputManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	const SplitManager & split_manager;
-	const UserOptions & user_options;
 	const Results & results;
 	const FunctionsStructure & functions_structure;
 
@@ -40,8 +37,8 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const UserOptions & _user_options, const Results & _results, const FunctionsStructure & _functions_structure, const SplitManager & _split_manager) 
-		         : user_options(_user_options), results(_results), functions_structure(_functions_structure), split_manager(_split_manager) { } 
+	OutputManager(const Results & _results, const FunctionsStructure & _functions_structure, const SplitManager & _split_manager) 
+		         : results(_results), functions_structure(_functions_structure), split_manager(_split_manager) { } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS

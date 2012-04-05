@@ -22,12 +22,6 @@
 // Correspondence to the states of the automaton itself assured by storing the source in the transition and correct ordering of the vector of transitions.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <set>
-#include <cctype>
-#include <stdexcept>
-
-#include <boost/algorithm/string.hpp>
-
 #include "../parsing/model.hpp"
 #include "automaton_structure.hpp"
 #include "../auxiliary/output_streamer.hpp"
@@ -36,7 +30,6 @@ class AutomatonBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const UserOptions & user_options;
 	const Model & model;
 	AutomatonStructure & automaton;
 
@@ -178,8 +171,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	AutomatonBuilder(const UserOptions &_user_options, const Model & _model, AutomatonStructure & _automaton) 
-		: user_options(_user_options), model(_model), automaton(_automaton) { }
+	AutomatonBuilder(const Model & _model, AutomatonStructure & _automaton) 
+		: model(_model), automaton(_automaton) { }
 
 	/**
 	 * Create the transitions from the model and fill the automaton with them

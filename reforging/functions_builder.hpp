@@ -23,8 +23,6 @@
 // Functions are built with some auxiliary precomputed data which fasten usage of the functions.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <memory>
-
 #include "../parsing/model.hpp"
 #include "functions_structure.hpp"
 #include "../auxiliary/output_streamer.hpp"
@@ -34,7 +32,6 @@ class FunctionsBuilder {
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
-	const UserOptions & user_options;
 	const Model & model; // Model that holds the data
 	FunctionsStructure & functions_structure; // FunctionsStructure class to fill
 
@@ -154,8 +151,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	FunctionsBuilder(const UserOptions & _user_options, const Model & _model, FunctionsStructure & _functions_structure) 
-		: user_options(_user_options), model(_model), functions_structure(_functions_structure)  {	}
+	FunctionsBuilder(const Model & _model, FunctionsStructure & _functions_structure) 
+		: model(_model), functions_structure(_functions_structure)  {	}
 
 	/**
 	 * Create the functions from the model 
