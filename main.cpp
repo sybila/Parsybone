@@ -127,16 +127,13 @@ int main(int argc, char* argv[]) {
 	// Once built split manager that remains constant as a template for its copies within other classes
 	const SplitManager split_manager(user_options.process_number, user_options.processes_count, parametrized_structure.getParametersCount());
 	// Holder of results
-	Results results(parametrized_structure, automaton, split_manager);
+	
 	try {
-		SynthesisManager synthesis_manager(user_options, parametrized_structure, automaton, product);
+		SynthesisManager synthesis_manager(user_options, parametrized_structure, automaton, functions_structure, product);
 		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
-		// Create splitting
 		time_manager.startClock("coloring runtime");
-		// Do the coloring
-		ModelChecker model_checker(user_options, split_manager, parametrized_structure, automaton, results, product);
-		model_checker.computeResults();
-		time_manager.ouputClock("color ing runtime");
+		synthesis_manager.doSynthesis();
+		time_manager.ouputClock("coloring runtime");
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
@@ -147,16 +144,6 @@ int main(int argc, char* argv[]) {
 // STEP FIVE:
 // Analyze results and provide the output.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	try {
-		// Proivde the output
-		output_streamer.output(verbose, "Output started", OutputStreamer::important);
-		OutputManager output_manager(user_options, results, functions_structure, split_manager);
-		output_manager.basicOutput();
-	} 
-	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured during output of the results: ").append(e.what()));
-		return 5;
-	}
 
 	return 0;
 }

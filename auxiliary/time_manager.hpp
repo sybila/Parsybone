@@ -40,7 +40,7 @@ class TimeManager {
 	std::map<std::string, long long> clocks;
 
 	/**
-	 * Clock - dependendent on the achitecture. 
+	 * Clock - independently on the architecture always (unless you have Mac... O.o) count time in ms
 	 *
 	 * @return	time in miliseconds
 	 */

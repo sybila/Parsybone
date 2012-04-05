@@ -24,8 +24,10 @@
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "../reforging/product.hpp"
+#include "../reforging/functions_structure.hpp"
 #include "parameters_functions.hpp"
 #include "../results/results.hpp"
+#include "../results/output_manager.hpp"
 #include "../auxiliary/output_streamer.hpp"
 
 class SynthesisManager {
@@ -35,6 +37,7 @@ class SynthesisManager {
 	const UserOptions & user_options; // Values provided as parameters
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
+	const FunctionsStructure & functions;
 	Product & product;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,17 +47,21 @@ class SynthesisManager {
 	SynthesisManager& operator=(const SynthesisManager & other); // Forbidden assignment operator.
 
 public:
-	SynthesisManager(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, Product & _product)
-		            : user_options(_user_options), structure(_structure), automaton(_automaton), product(_product)	{ }
+	SynthesisManager(const UserOptions & _user_options, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, const FunctionsStructure & _functions,
+		             Product & _product)
+		            : user_options(_user_options), structure(_structure), automaton(_automaton), product(_product), functions(_functions) { }
 
 	/**
 	 * Main synthesis function that iterates through all the rounds of the synthesis
 	 */
 	void doSynthesis() {
 		SplitManager split_manager(user_options.process_number, user_options.processes_count, structure.getParametersCount());
+		Results results(structure, automaton, split_manager);
+		ModelChecker model_checker(user_options, split_manager, structure, automaton, results, product);
+		model_checker.computeResults();
 		 // ModelChecker model_checker(product);
 
-		while (true) {
+		/*while (true) {
 			// Synthetize round
 			doRound();
 			// Get colors
@@ -68,11 +75,16 @@ public:
 				split_manager.increaseRound();
 			else 
 				break;
-		}
+		}*/
+
+		output_streamer.output(verbose, "Output started", OutputStreamer::important);
+		OutputManager output_manager(user_options, results, functions, split_manager);
+		output_manager.basicOutput();
 	}
 
 private:
 	void doRound() {
+
 	}
 };
 
