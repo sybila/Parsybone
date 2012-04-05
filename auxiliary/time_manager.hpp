@@ -17,31 +17,74 @@
 #ifndef POSEIDON_TIME_MANAGER_INCLUDED
 #define POSEIDON_TIME_MANAGER_INCLUDED
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Class that allows to start a use different clock for measurement
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <map>
+#include <string>
+
 #include "../auxiliary/output_streamer.hpp"
 
-// Clock - dependendent on the achitecture. 
 #ifdef __GNUC__
 #include <sys/time.h>
-/**
-	* @return	time in miliseconds
-	*/
-long long myClock() {
-	timeval tv;
-	gettimeofday(&tv, 0);
-	return tv.tv_sec*1000 + tv.tv_usec/1000;
-}
 #else
 #include <windows.h>
-/**
-	* @return	time in miliseconds
-	*/
-long long myClock() {
-	return GetTickCount();
-}
 #endif
 
 class TimeManager {
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MEASURE FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	typedef std::pair<std::string, long long> Clock;
+	std::map<std::string, long long> clocks;
 
+	/**
+	 * Clock - dependendent on the achitecture. 
+	 *
+	 * @return	time in miliseconds
+	 */
+	#ifdef __GNUC__
+	long long getMilliseconds() const {
+		timeval tv;
+		gettimeofday(&tv, 0);
+		return tv.tv_sec*1000 + tv.tv_usec/1000;
+	}
+	#else
+	long long getMilliseconds() const {
+		return GetTickCount();
+	}
+	#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// RUN FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+public:
+	/**
+	 * Starts a clock with given name and, if it is requsted by user, outputs the info.
+	 *
+	 * @param clock_name	unique ID of the clock that will also be send on the output
+	 */
+	void startClock(const std::string clock_name) {
+		clocks.insert(std::make_pair(clock_name, getMilliseconds()));
+		output_streamer.output(verbose, "Started clock ", OutputStreamer::no_newl).output(clock_name);
+	}
+
+	/**
+	 * Outputs current runtime of the clock
+	 *
+	 * @param clock_name	name of the clock to output (also appears on the output)
+	 */
+	void ouputClock(const std::string clock_name) const {
+		// Find the clock and output time difference
+		if (clocks.find(clock_name) != clocks.end()) {
+			long long runtime = getMilliseconds() - clocks.find(clock_name)->second;
+			output_streamer.output(verbose, "Clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" counted: ", OutputStreamer::no_newl)
+				           .output(runtime, OutputStreamer::no_newl).output("ms.");
+		} else { // If you do not find them, fail
+			output_streamer.output(fail, "Requested clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" have not been started until now.");
+		}
+	}
 };
 
 #endif
