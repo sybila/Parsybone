@@ -40,12 +40,11 @@ class SynthesisManager {
 	const UserOptions & user_options; // Values provided as parameters
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
-	const FunctionsStructure & functions;
-	ProductStructure & product;
+	ProductStructure & product; // Product to compute on
 
-	std::unique_ptr<SplitManager> split_manager;
-	std::unique_ptr<ModelChecker> model_checker;
-	std::unique_ptr<Results> results;
+	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
+	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
+	std::unique_ptr<Results> results; // Class to store results
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -55,19 +54,13 @@ class SynthesisManager {
 	 */
 	void cycleRounds() {
 		// Cycle through the rounds
-		while (true) {
+		while (split_manager->valid()) {
 			model_checker->setRange(split_manager->getRoundRange());
 			syntetizeParameters();
-			// Increase rounds until the last one is reached - then end the loop
-			if (!split_manager->lastRound()) {
-				split_manager->increaseRound();
-			}
-			else {
-				// Remove the rounds line 
-				output_streamer.output(verbose, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
-				break;
-			}
+			split_manager->increaseRound();
+
 		}	
+		output_streamer.output(verbose, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 	}
 
 	/**
@@ -128,8 +121,8 @@ class SynthesisManager {
 	SynthesisManager& operator=(const SynthesisManager & other); // Forbidden assignment operator.
 
 public:
-	SynthesisManager(const UserOptions & _user_options, const FunctionsStructure & _functions, ProductStructure & _product)
-		            : user_options(_user_options), functions(_functions), structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
+	SynthesisManager(const UserOptions & _user_options, ProductStructure & _product)
+		            : user_options(_user_options), structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
 		split_manager.reset(new SplitManager(user_options.process_number, user_options.processes_count, structure.getParametersCount()));
 		model_checker.reset(new ModelChecker(user_options, product));
 		results.reset(new Results(product, *split_manager));
@@ -149,25 +142,9 @@ public:
 
 		time_manager.ouputClock("coloring runtime");
 
-
-		/*while (true) {
-			// Synthetize round
-			doRound();
-			// Get colors
-
-			// Synthetize witnesses
-
-			// Ouput params
-
-			// Increase round
-			if (!split_manager.lastRound())
-				split_manager.increaseRound();
-			else 
-				break;
-		}*/
-
 		// Do output
-		OutputManager output_manager(user_options, *results, functions, *split_manager);
+		split_manager->setStartPositions();
+		OutputManager output_manager(user_options, *results, product.getFunc(), *split_manager);
 		output_manager.basicOutput();
 	}
 };

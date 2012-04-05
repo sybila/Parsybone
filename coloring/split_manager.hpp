@@ -177,6 +177,13 @@ public:
 	}
 
 	/**
+	 * @return	true if current round is valid (this round does not correspond to any paramteres)
+	 */ 
+	inline const bool valid() const {
+		return round_number < rounds_count;
+	}
+
+	/**
 	 * @return	number of this round
 	 */ 
 	inline const std::size_t getRoundNum() const {

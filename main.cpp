@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
 // Synthetize the colors and output them
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		SynthesisManager synthesis_manager(user_options, functions_structure, product_structure);
+		SynthesisManager synthesis_manager(user_options, product_structure);
 		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
 		synthesis_manager.doSynthesis();
 	} 
