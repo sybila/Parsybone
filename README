@@ -1,7 +1,7 @@
 Parsybone (Parameter Synthetizer for Boolean Networks) project
-by Adam Streck 
+Copyright (C) 2012 - Adam Streck
 Systems Biology Laboratory of Masaryk University, Brno
-open-source 2012, uses RapidXML (see http://rapidxml.sourceforge.net/ )
+open-source 2012, GNU GPL v3, uses RapidXML (see http://rapidxml.sourceforge.net/ )
 
 Requirements:
 	GCC v4.5.x or Microsoft Visual Studio 2010
