@@ -26,7 +26,6 @@
 #ifndef PARSYBONE_PARAMETERS_FUNCTIONS_INCLUDED
 #define PARSYBONE_PARAMETERS_FUNCTIONS_INCLUDED
 
-#include "../auxiliary/data_types.hpp"
 #include "../auxiliary/output_streamer.hpp"
 
 /**

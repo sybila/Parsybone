@@ -105,6 +105,9 @@
     <ClInclude Include="..\coloring\split_manager.hpp">
       <Filter>coloring</Filter>
     </ClInclude>
+    <ClInclude Include="..\results\product_analyzer.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">

@@ -26,8 +26,6 @@
 // Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../auxiliary/data_types.hpp"
-#include "basic_structure.hpp"
 #include "../auxiliary/output_streamer.hpp"
 
 class ParametrizedStructureBuilder;

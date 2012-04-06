@@ -24,12 +24,8 @@
 // This class uses some global data that have to be handled safely, but it makes the computation faster.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../reforging/parametrized_structure.hpp"
-#include "../reforging/automaton_structure.hpp"
 #include "../reforging/product_structure.hpp"
 #include "parameters_functions.hpp"
-#include "../results/results.hpp"
-#include "../auxiliary/output_streamer.hpp"
 
 class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +50,7 @@ class ModelChecker {
 	 * @param step_size	how many parameters share the same value for given function
 	 * @param transitive_values	mask of all values from which those that have false are non-transitive
 	 */
-	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values) {
+	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values) const {
 		// INITIALIZATION OF VALUES FOR POSITIONING
 		// Number of the first parameter
 		std::size_t param_num = synthesis_range.first;

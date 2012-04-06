@@ -26,14 +26,13 @@
 // The functions are rather long, but their meaning is quite straithforward and repetitive. Most of the code are controls of correctness.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "../auxiliary/output_streamer.hpp"
 #include "model.hpp"
-#include "../auxiliary/data_types.hpp"
 
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_iterators.hpp"
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
-#include "../auxiliary/output_streamer.hpp"
 
 class Model;
 

@@ -25,12 +25,9 @@
 #include "../auxiliary/time_manager.hpp"
 #include "parameters_functions.hpp"
 #include "model_checker.hpp"
-#include "../reforging/parametrized_structure.hpp"
-#include "../reforging/automaton_structure.hpp"
-#include "../reforging/product_structure.hpp"
-#include "../reforging/functions_structure.hpp"
 #include "../results/results.hpp"
 #include "../results/output_manager.hpp"
+#include "../results/product_analyzer.hpp"
 
 
 class SynthesisManager {
@@ -44,6 +41,7 @@ class SynthesisManager {
 	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
 	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
 	std::unique_ptr<Results> results; // Class to store results
+	std::unique_ptr<ProductAnalyzer> analyzer;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -109,7 +107,8 @@ class SynthesisManager {
 		// Assure emptyness
 		product.resetProduct();
 		// For each initial state, store all the parameters and schedule for the update
-		model_checker->setUpdates(product.colorInitials(split_manager->createStartingParameters()));
+		product.colorInitials(split_manager->createStartingParameters());
+		model_checker->setUpdates(std::move(product.getInitialUpdates()));
 		// Start coloring procedure
 		model_checker->doColoring();
 	}
@@ -129,6 +128,7 @@ public:
 		split_manager.reset(new SplitManager(structure.getParametersCount()));
 		model_checker.reset(new ModelChecker(product));
 		results.reset(new Results(product, *split_manager));
+		analyzer.reset(new ProductAnalyzer(product, *split_manager));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

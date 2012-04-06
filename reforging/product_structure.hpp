@@ -25,7 +25,6 @@
 // ProductStructure is used for computation - meaning it has also setter / computation functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../auxiliary/data_types.hpp"
 #include "../auxiliary/output_streamer.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "../reforging/functions_structure.hpp"
@@ -49,8 +48,8 @@ class ProductStructure {
 	// std::vector<Predecessors> state_predecesors;
 
 	// Information
-	std::set<std::size_t> initial_states;
-	std::set<std::size_t> final_states;
+	std::vector<std::size_t> initial_states;
+	std::vector<std::size_t> final_states;
 	// WitnessUse witness_use;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +94,7 @@ public:
 	 *
 	 * @return set of initial vertices
 	 */
-	const std::set<std::size_t> & colorInitials(const Parameters color) {
+	const std::vector<std::size_t> & colorInitials(const Parameters color) {
 		std::for_each(initial_states.begin(), initial_states.end(), [&](std::size_t state_index) {
 			states[state_index] = color;
 		});
@@ -148,14 +147,21 @@ public:
 	/**
 	 * @return set of the initial states
 	 */
-	inline const std::set<std::size_t> & getInitials() {
+	inline const std::vector<std::size_t> & getInitials() const {
 		return initial_states;
+	}
+
+	/**
+	 * @return set with initial states (instead of vector)
+	 */
+	std::set<std::size_t> getInitialUpdates() const {
+		return std::set<std::size_t>(initial_states.begin(), initial_states.end());
 	}
 
 	/**
 	 * @return set of final states
 	 */ 
-	inline const std::set<std::size_t> & getFinals() {
+	inline const std::vector<std::size_t> & getFinals() const {
 		return final_states;
 	}
 
@@ -187,7 +193,7 @@ public:
 	 * 
 	 * @return parameters assigned to the state
 	 */
-	inline const Parameters & getParameters(const std::size_t state_num) {
+	inline const Parameters & getParameters(const std::size_t state_num) const {
 		return states[state_num];
 	}
 };

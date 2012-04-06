@@ -23,11 +23,6 @@
 // Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <map>
-#include <algorithm>
-#include <vector>
-
-#include "../auxiliary/data_types.hpp"
 #include "../auxiliary/output_streamer.hpp"
 
 class ModelParser;

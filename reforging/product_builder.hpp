@@ -23,10 +23,7 @@
 // In other words, first iterate through BA then through KS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../auxiliary/data_types.hpp"
-#include "../auxiliary/output_streamer.hpp"
-#include "parametrized_structure.hpp"
-#include "automaton_structure.hpp"
+#include "product_structure.hpp"
 
 class ProductBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,13 +55,13 @@ class ProductBuilder {
 			// Insert the state if it is an initial state
 			if (ba_state_num == 0) {
 				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
-					product.initial_states.insert(product.getProductIndex(ks_state_num, ba_state_num));
+					product.initial_states.push_back(product.getProductIndex(ks_state_num, ba_state_num));
 				}
 			}
 			// Insert the state if it is a final state
 			if (automaton.isFinal(ba_state_num)) {
 				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++)  {
-					product.final_states.insert(product.getProductIndex(ks_state_num, ba_state_num));
+					product.final_states.push_back(product.getProductIndex(ks_state_num, ba_state_num));
 				}
 			}
 		}
