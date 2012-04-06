@@ -23,10 +23,10 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../coloring/split_manager.hpp"
+#include "../coloring/synthesis_manager.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "../reforging/parametrized_structure.hpp"
 #include "../reforging/product_structure.hpp"
-#include "../coloring/synthesis_manager.hpp"
 
 class ModelChecker;
 

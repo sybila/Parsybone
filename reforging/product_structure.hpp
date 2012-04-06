@@ -107,13 +107,13 @@ public:
 	 *
 	 * @return queue with all colorings of final states
 	 */
-	std::queue<Coloring> storeFinalStates() {
+	std::vector<Coloring> storeFinalStates() {
 		// Queue tates colored in basic coloring
-		std::queue<Coloring> final_colorings; 
+		std::vector<Coloring> final_colorings; 
 
 		// Get the states and their colors
 		std::for_each(final_states.begin(), final_states.end(), [&](std::size_t state_index) {
-			final_colorings.push(Coloring(state_index, states[state_index]));
+			final_colorings.push_back(Coloring(state_index, states[state_index]));
 		});
 
 		// Return final vertices with their positions

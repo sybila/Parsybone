@@ -22,9 +22,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
-#include <assert.h>
-#include <cctype>
-#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -34,7 +31,6 @@
 #include <set>
 #include <string>
 #include <stdexcept>
-#include <utility>
 
 #include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>

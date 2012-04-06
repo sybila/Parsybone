@@ -53,12 +53,14 @@ class SynthesisManager {
 	 */
 	void cycleRounds() {
 		// Cycle through the rounds
-		while (split_manager->valid()) {
+		for (;split_manager->valid(); split_manager->increaseRound()) {
+			// Output
+			split_manager->outputRound();
+			// Continue on synthesis
 			model_checker->setRange(split_manager->getRoundRange());
 			syntetizeParameters();
-			split_manager->increaseRound();
-
-		}	
+		}
+		// After last round, 
 		output_streamer.output(verbose, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 	}
 
@@ -68,21 +70,20 @@ class SynthesisManager {
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
 	void syntetizeParameters() {
-		split_manager->outputRound();
-		// Basic coloring
+		// Basic (initial) coloring
 		colorProduct();
 		// Store colored final vertices
-		std::queue<Coloring> final_states = std::move(product.storeFinalStates());
+		std::vector<Coloring> final_states = std::move(product.storeFinalStates());
 
 		// Get the actuall results by cycle detection for each final vertex
-		for (std::size_t state_index = 0; !final_states.empty(); state_index++) {
+		for (std::size_t state_index = 0; state_index < final_states.size(); state_index++) {
+			// Reference a final state for this round
+			auto & final = final_states[state_index];
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
-			if (!none(final_states.front().second))
-				detectCycle(final_states.front());
+			if (!none(final.second))
+				detectCycle(final);
 			// Store the result
-			results->addResult(state_index, product.getParameters(final_states.front().first));
-			// Remove the state
-			final_states.pop();
+			results->addResult(state_index, product.getParameters(final.first));
 		}
 	}
 
@@ -98,7 +99,7 @@ class SynthesisManager {
 		// Send updates from the initial state
 		model_checker->transferUpdates(init_coloring.first, init_coloring.second);
 		// Start coloring procedure
-		model_checker->doAcceptingColoring(init_coloring.first, init_coloring.second);
+		model_checker->doColoring(init_coloring.first, init_coloring.second);
 	}
 
 	/**
@@ -120,6 +121,9 @@ class SynthesisManager {
 	SynthesisManager& operator=(const SynthesisManager & other); // Forbidden assignment operator.
 
 public:
+	/**
+	 * Constructor builds all the data objects that are used within
+	 */
 	SynthesisManager(ProductStructure & _product)
 		            : structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
 		split_manager.reset(new SplitManager(structure.getParametersCount()));
@@ -134,7 +138,7 @@ public:
 	 * Main synthesis function that iterates through all the rounds of the synthesis
 	 */
 	void doSynthesis() {
-		
+		// Do computation
 		time_manager.startClock("coloring runtime");
 		
 		cycleRounds();
