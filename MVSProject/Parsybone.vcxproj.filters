@@ -24,9 +24,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\results\results.hpp">
-      <Filter>results</Filter>
-    </ClInclude>
     <ClInclude Include="..\results\output_manager.hpp">
       <Filter>results</Filter>
     </ClInclude>
@@ -107,6 +104,12 @@
     </ClInclude>
     <ClInclude Include="..\results\product_analyzer.hpp">
       <Filter>results</Filter>
+    </ClInclude>
+    <ClInclude Include="..\results\result_storage.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auxiliary\user_options.hpp">
+      <Filter>auxiliary</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

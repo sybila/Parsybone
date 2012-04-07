@@ -9,6 +9,7 @@
 #ifndef PARSYBONE_OUTPUT_MANAGER_INCLUDED
 #define PARSYBONE_OUTPUT_MANAGER_INCLUDED
 
+#include "../auxiliary/user_options.hpp"
 #include "../coloring/split_manager.hpp"
 #include "product_analyzer.hpp"
 
@@ -43,7 +44,7 @@ public:
 	 * display given parameters in the form [fun1, fun2, ...]
 	 */
 	void outputColors() const {
-		if (!user_options.show_final_coloring) 
+		if (!user_options.coloring()) 
 			return;
 		auto colors = std::move(analyzer.getColors());
 		for (auto color_it = colors.begin(); color_it != colors.end(); color_it++) {

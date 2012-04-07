@@ -74,6 +74,7 @@
     <ClInclude Include="..\auxiliary\output_streamer.hpp" />
     <ClInclude Include="..\auxiliary\template.hpp" />
     <ClInclude Include="..\auxiliary\time_manager.hpp" />
+    <ClInclude Include="..\auxiliary\user_options.hpp" />
     <ClInclude Include="..\coloring\model_checker.hpp" />
     <ClInclude Include="..\coloring\parameters_functions.hpp" />
     <ClInclude Include="..\coloring\split_manager.hpp" />
@@ -97,7 +98,7 @@
     <ClInclude Include="..\reforging\product_structure.hpp" />
     <ClInclude Include="..\results\output_manager.hpp" />
     <ClInclude Include="..\results\product_analyzer.hpp" />
-    <ClInclude Include="..\results\results.hpp" />
+    <ClInclude Include="..\results\result_storage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />

@@ -30,7 +30,6 @@ class ProductStructure {
 	// typedef std::vector<std::size_t> Predecessors; // Where to store predecessors
 	
 	// References to data structures
-	const UserOptions & user_options; // Values provided as parameters
 	const FunctionsStructure & functions; // Implicit reprezentation of functions - used as reference
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
@@ -51,8 +50,8 @@ class ProductStructure {
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	ProductStructure(const UserOptions &_user_options, const FunctionsStructure & _functions, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
-		: user_options(_user_options), functions(_functions), structure(_structure), automaton(_automaton) { }
+	ProductStructure(const FunctionsStructure & _functions, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
+		: functions(_functions), structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA HANDLING FUNCTIONS

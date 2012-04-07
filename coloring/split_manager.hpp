@@ -14,9 +14,9 @@
 // All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "../auxiliary/user_options.hpp"
 #include "../auxiliary/output_streamer.hpp"
 #include "../coloring/parameters_functions.hpp"
-
 
 class SplitManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,14 +41,14 @@ class SplitManager {
 	 */
 	void computeSubspace() {
 		// Split parameter space rounded down, this number may not be precise
-		std::size_t parameters_per_process = all_parameters_count / user_options.processes_count;
+		std::size_t parameters_per_process = all_parameters_count / user_options.procCount();
 		// Compute start and end positions
-		parameters_begin = parameters_per_process * (user_options.process_number - 1);
-		if (user_options.process_number == user_options.processes_count) {
+		parameters_begin = parameters_per_process * (user_options.procNum() - 1);
+		if (user_options.procNum() == user_options.procCount()) {
 			parameters_end = all_parameters_count;
 		}
 		else {
-			parameters_end = parameters_per_process * user_options.process_number;
+			parameters_end = parameters_per_process * user_options.procNum();
 		}
 		std::size_t parameters_count = parameters_end - parameters_begin;
 		// Set positions for the round

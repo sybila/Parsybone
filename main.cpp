@@ -15,6 +15,7 @@
 
 #include "auxiliary/time_manager.hpp"
 #include "auxiliary/output_streamer.hpp"
+#include "auxiliary/user_options.hpp"
 #include "parsing/argument_parser.hpp"
 #include "parsing/model_parser.hpp"
 #include "reforging/basic_structure_builder.hpp"
@@ -39,8 +40,8 @@ int main(int argc, char* argv[]) {
 	try {
 		output_streamer.output(verbose, "Argument parsing started.", OutputStreamer::important);
 		// Set those values to 1 - everything else is already set to 0
-		user_options.process_number = 1; user_options.processes_count = 1;
-		parseArguments(user_options, argc, argv);
+		ArgumentParser parser;
+		parser.parseArguments(user_options, argc, argv);
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(fail, std::string("Error occured while parsing arguments: ").append(e.what()));
@@ -120,7 +121,7 @@ int main(int argc, char* argv[]) {
 // STEP SIX:
 // Create the product
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure product_structure(user_options, functions_structure, parametrized_structure, automaton);
+	ProductStructure product_structure(functions_structure, parametrized_structure, automaton);
 	try {
 		output_streamer.output(verbose, "Product building started.", OutputStreamer::important);
 

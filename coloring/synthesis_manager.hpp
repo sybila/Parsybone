@@ -17,7 +17,7 @@
 #include "../auxiliary/time_manager.hpp"
 #include "parameters_functions.hpp"
 #include "model_checker.hpp"
-#include "../results/results.hpp"
+#include "../results/result_storage.hpp"
 #include "../results/output_manager.hpp"
 #include "../results/product_analyzer.hpp"
 
@@ -32,23 +32,26 @@ class SynthesisManager {
 
 	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
 	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
-	std::unique_ptr<Results> results; // Class to store results
+	std::unique_ptr<ResultStorage> results; // Class to store results
 	std::unique_ptr<ProductAnalyzer> analyzer; // Class for analysis
+	std::unique_ptr<OutputManager> output; // Class for output
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	/**
 	 * Function that does all the coloring. This part only covers iterating through subparts.
 	 */
 	void cycleRounds() {
 		// Cycle through the rounds
 		for (;split_manager->valid(); split_manager->increaseRound()) {
-			// Output
+			// Output round_num
 			split_manager->outputRound();
 			// Continue on synthesis
 			model_checker->setRange(split_manager->getRoundRange());
 			syntetizeParameters();
+			// Output round results
+			output->output();
 		}
 		// After last round, 
 		output_streamer.output(verbose, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
@@ -72,8 +75,6 @@ class SynthesisManager {
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
 			if (!none(final.second))
 				detectCycle(final);
-			// Store the result
-			results->addResult(state_index, product.getParameters(final.first));
 		}
 	}
 
@@ -119,8 +120,9 @@ public:
 		            : structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
 		split_manager.reset(new SplitManager(structure.getParametersCount()));
 		model_checker.reset(new ModelChecker(product));
-		results.reset(new Results(product, *split_manager));
+		results.reset(new ResultStorage(product));
 		analyzer.reset(new ProductAnalyzer(product, *split_manager));
+		output.reset(new OutputManager(*split_manager, *analyzer));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,11 +138,6 @@ public:
 		cycleRounds();
 
 		time_manager.ouputClock("coloring runtime");
-
-		// Do output
-		split_manager->setStartPositions();
-		OutputManager output_manager(*split_manager, *analyzer);
-		output_manager.output();
 	}
 };
 
