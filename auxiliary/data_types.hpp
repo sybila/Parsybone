@@ -32,7 +32,7 @@
 // INPUT/OUTPUT RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // What stream to use in all-streams functions
-enum StreamType {input, fail, verbose, data};
+enum StreamType {input, error, verbose, data};
 
 // Named pointer - just in case of necessity to use a file
 std::istream * const input_stream = &std::cin;
@@ -41,10 +41,10 @@ std::istream * const input_stream = &std::cin;
 // DATA RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // If a regulation is missing, what kind of value it should get?
-enum UnspecifiedRegulations {error, basal, param};
+enum UnspecifiedRegulations {error_reg, basal_reg, param_reg};
 
 // To store the way a specie value has changed
-enum Direction {up, stay, down};
+enum Direction {up_dir, stay_dir, down_dir};
 
 // vector of activation levels of species used for labelling of states of KS
 typedef std::vector<std::size_t> Levels;

@@ -25,6 +25,26 @@
 	* @param result_stream	pointer to the stream that will get the output
 	*/
 class ArgumentParser {
+
+	/**
+	 * Obtains numbers for distributed synthesis
+	 */
+	void getDistribution(char * argv [], int & arg_n) {
+		// Get numbers
+		try {
+			user_options.process_number = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+1]);
+			user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+2]);
+		} catch (boost::bad_lexical_cast & e) {
+			std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(argv[arg_n+1]).append(" ").append(argv[arg_n+2]).append(". Should be -d this_ID number_of_parts."));
+			throw(std::runtime_error(std::string("Parameter parsing failed.").append(e.what())));
+		}
+		// Assert that process ID is in the range
+		if (user_options.process_number > user_options.processes_count)
+			throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes."));
+		// Skip arguments that are already read
+		arg_n += 2;
+	}
+
 public:
 	void parseArguments (UserOptions & user_options, int argc, char* argv[]) {
 
@@ -59,19 +79,7 @@ public:
 						// After d there must be a white space (to distinct requsted numbers)
 						if (switch_num + 1 < arg.size())
 							throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-						// Get numbers
-						try {
-							user_options.process_number = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+1]);
-							user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+2]);
-						} catch (boost::bad_lexical_cast & e) {
-							std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(argv[arg_n+1]).append(" ").append(argv[arg_n+2]).append(". Should be -d this_ID number_of_parts."));
-							throw(std::runtime_error(std::string("Parameter parsing failed.").append(e.what())));
-						}
-						// Assert that process ID is in the range
-						if (user_options.process_number > user_options.processes_count)
-							throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes."));
-						// Skip arguments that are already read
-						arg_n += 2;
+						getDistribution(argv, arg_n);
 						break;
 
 					// Redirecting results output to a file by a parameter

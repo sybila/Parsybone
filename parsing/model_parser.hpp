@@ -59,7 +59,7 @@ class ModelParser {
 			try {
 				mask.push_back(boost::lexical_cast<bool, char>(ch));
 			} catch (boost::bad_lexical_cast e) {
-				std::cerr << "Error occured while parsing a regulation. " << e.what() << "\n";
+				output_streamer.output(error, std::string("Error occured while parsing a regulation: ").append(e.what()));
 				throw std::runtime_error("boost::lexical_cast<size_t, char>(temp_attr->value()) failed");
 			}
 		});
@@ -73,11 +73,11 @@ class ModelParser {
 	 */
 	UnspecifiedRegulations getUnspecType(std::string unspec_type) {
 		if      (unspec_type.compare("error"))
-			return error;
+			return error_reg;
 		else if (unspec_type.compare("basal"))
-			return basal;
+			return basal_reg;
 		else if (unspec_type.compare("param"))
-			return param;
+			return param_reg;
 		else 
 			throw std::runtime_error("Wrong value given as an uspec attribute.");
 	}
@@ -139,7 +139,7 @@ class ModelParser {
 			try {
 				requested_data = boost::lexical_cast<returnType, char*>(temp_attr->value());
 			} catch (boost::bad_lexical_cast e) {
-				std::cerr << "Error while parsing an attribute " << attribute_name << "." << e.what() << "\n";
+				output_streamer.output(error, std::string("Error while parsing an attribute ").append(attribute_name).append(": ").append(e.what()));
 				throw std::runtime_error("boost::lexical_cast<returnType, char*>(temp_attr->value()) failed");
 			}
 		}
@@ -320,7 +320,7 @@ class ModelParser {
 		try {
 			model_xml.parse<0>(parsed_data.get());
 		} catch (rapidxml::parse_error e) {
-			std::cerr << "Error occured while trying to reconstruct xml document from the stream: " << e.what() << ". \n";
+			output_streamer.output(error, std::string("Error occured while trying to reconstruct xml document from the stream: ").append(e.what()));
 			throw std::runtime_error("rapidxml::xml_document<>.parse(char *) failed");
 		}
 	}

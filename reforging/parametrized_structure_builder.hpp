@@ -100,21 +100,21 @@ class ParametrizedStructureBuilder {
 		// Vector to fill
 		std::vector<bool> transitive_values;
 		// Based on direction of the change create a mask of transitivity for all parameter values
-		if (direction == up) {
+		if (direction == up_dir) {
 			std::for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const std::size_t value){
 				if (value < current_specie_level + 1) // If the value is not at least as high as the target
 					transitive_values.push_back(false);
 				else transitive_values.push_back(true);
 			});
 		}
-		else if (direction == stay){
+		else if (direction == stay_dir){
 			std::for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const std::size_t value){
 				if (value != current_specie_level) // If the value is not same as the target
 					transitive_values.push_back(false);
 				else transitive_values.push_back(true);
 			});
 		}
-		else {
+		else if (direction == down_dir) {
 			std::for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const std::size_t value){
 				if (value > current_specie_level - 1) // If the value is not at least as low as the target
 					transitive_values.push_back(false);

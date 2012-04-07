@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 		parser.parseArguments(user_options, argc, argv);
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while parsing arguments: ").append(e.what()));
+		output_streamer.output(error, std::string("Error occured while parsing arguments: ").append(e.what()));
 		return 1;
 	}
 
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 		model_parser.parseInput();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while parsing model: ").append(e.what()));
+		output_streamer.output(error, std::string("Error occured while parsing model: ").append(e.what()));
 		return 2;
 	}
 
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 		functions_builder.buildFunctions();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while building Regulatory functions: ").append(e.what()));
+		output_streamer.output(error, std::string("Error occured while building Regulatory functions: ").append(e.what()));
 		return 3;
 	}
 
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 		parametrized_structure_builder.buildStructure();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while building Parametrized Kripke structure: ").append(e.what()));
+		output_streamer.output(error, std::string("Error occured while building Parametrized Kripke structure: ").append(e.what()));
 		return 4;
 	}
 
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
 		automaton_builder.buildAutomaton();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while building the automaton: ").append(e.what()));
+		output_streamer.output(error, std::string("Error occured while building the automaton: ").append(e.what()));
 		return 5;
 	}
 
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
 		ProductBuilder product_builder(parametrized_structure, automaton, product_structure);
 		product_builder.buildProduct();
 	} catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while building the product: ").append(e.what()));
+		output_streamer.output(error, std::string("Error occured while building the product: ").append(e.what()));
 		return 6;
 	}
 
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 		synthesis_manager.doSynthesis();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(fail, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
+		output_streamer.output(error, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
 		return 7;
 	}
 

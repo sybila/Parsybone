@@ -37,33 +37,9 @@ class ProductAnalyzer {
 // COMPUTATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Compute a vector that stores all the values for each regulatory context
-	 *
-	 * @return vector of vectors of values
-	 */
-	const std::vector<std::vector<std::size_t>> getValues() const {
-		std::vector<std::vector<std::size_t>> parameter_values;
-		for (std::size_t function_num = 0; function_num < functions.getFunctionsCount(); function_num++) 
-			// Get all the values for a function
-			parameter_values.push_back(functions.getPossibleValues(function_num));
-		return parameter_values;
-	}
-
-	/**
-	 * Get vector with the lowest value for each function
-	 *
-	 * @return vector of values
-	 */
-	std::vector<std::size_t> getBottomValues() const {
-		std::vector<std::size_t> bottom_values;
-		for (std::size_t function_num = 0; function_num < functions.getFunctionsCount(); function_num++) 
-			// Get the lowes value for the function
-			bottom_values.push_back(functions.getPossibleValues(function_num).front());
-		return bottom_values;
-	}
-
-	/**
 	 * Creates a color string in the form [context_11, context_12, context_21 ...]
+	 *
+	 * @param color	vector of contexts for the color
 	 */
 	const std::string createColorString(std::vector<std::size_t> color) const {
 		std::string color_str = "[";
@@ -80,6 +56,8 @@ class ProductAnalyzer {
 
 	/**
 	 * Increment values in curren_color so we get next color in the ordering
+	 *
+	 * @param color	vector of contexts for the color
 	 */
 	void iterateColor(std::vector<std::size_t> & color) const {
 		// If there is a posibility to increaset the value (from left to right), increase it and end, otherwise null it and continue
@@ -127,6 +105,32 @@ class ProductAnalyzer {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	/**
+	 * Compute a vector that stores all the values for each regulatory context
+	 *
+	 * @return vector of vectors of values
+	 */
+	const std::vector<std::vector<std::size_t>> getValues() const {
+		std::vector<std::vector<std::size_t>> parameter_values;
+		for (std::size_t function_num = 0; function_num < functions.getFunctionsCount(); function_num++) 
+			// Get all the values for a function
+			parameter_values.push_back(functions.getPossibleValues(function_num));
+		return parameter_values;
+	}
+
+	/**
+	 * Get vector with the lowest value for each function
+	 *
+	 * @return vector of values
+	 */
+	std::vector<std::size_t> getBottomValues() const {
+		std::vector<std::size_t> bottom_values;
+		for (std::size_t function_num = 0; function_num < functions.getFunctionsCount(); function_num++) 
+			// Get the lowes value for the function
+			bottom_values.push_back(functions.getPossibleValues(function_num).front());
+		return bottom_values;
+	}	
+	
 	ProductAnalyzer(const ProductAnalyzer & other);            // Forbidden copy constructor.
 	ProductAnalyzer& operator=(const ProductAnalyzer & other); // Forbidden assignment operator.
 

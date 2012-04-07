@@ -85,7 +85,7 @@ public:
 		fail_file = verbose_file = result_file = false;
 
 		// Set stream type in the beggining to error stream
-		last_stream_type = fail;
+		last_stream_type = error;
 	}
 
 	/**
@@ -121,7 +121,7 @@ public:
 		
 		// Assiciate pointer to the file with one of the streams
 		switch (stream_type) {
-		case fail:
+		case error:
 			fail_stream = file_stream;
 			fail_file = true;
 			break;
@@ -163,7 +163,7 @@ public:
 	template <class outputType> 
     const OutputStreamer & output(const outputType & stream_data, const unsigned int trait_mask = 0) const {
 		switch (last_stream_type) {
-		case fail:
+		case error:
 			actualOutput(*fail_stream, stream_data, trait_mask);		
 			break;
 		case verbose:

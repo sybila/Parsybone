@@ -10,12 +10,13 @@
 #define PARSYBONE_RESULTS_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Results are used by ModelChecker to store the data computed during synthesis.
+// Results are used by ModelChecker to store the data computed during synthesis - used mostly only for a single round.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../coloring/synthesis_manager.hpp"
+#include "../reforging/product_structure.hpp"
 
-class ModelChecker;
+class SynthesisManager;
+class ProductAnalyzer;
 
 class ResultStorage {
 	friend class SynthesisManager;
@@ -55,7 +56,7 @@ class ResultStorage {
 	}
 
 	/**
-	 * After the round some values get cleared
+	 * Prepare for the next round
 	 */
 	void finishRound() {
 		total_colors += count(getAllParameters());
@@ -88,6 +89,7 @@ public:
 	 */
 	const Parameters getAllParameters() const {
 		Parameters merged = 0;
+		// Merge colors from all final states
 		for (auto color_it = colorings.begin(); color_it != colorings.end(); color_it++) {
 			merged |= color_it->parameters;
 		}
@@ -99,9 +101,11 @@ public:
 	 */
 	const std::vector<std::string> getAllColors() const {
 		std::set<std::string> colors;
+		// Take all the unique color strings
 		for (auto color_it = colorings.begin(); color_it != colorings.end(); color_it++) {
 			colors.insert(color_it->colors.begin(), color_it->colors.end());
 		}
+		// Return color strings in a vector
 		return std::vector<std::string>(colors.begin(), colors.end());
 	}
 };

@@ -105,7 +105,7 @@ class AutomatonBuilder {
 			try {
 				compare_value = boost::lexical_cast<std::size_t,std::string>(formula->substr(op_position+1, formula->size()));
 			} catch (boost::bad_lexical_cast e) {
-				std::cerr << "Error occured while parsing a label. It seems that you have entered non-numerical value as a value. " << e.what() << "\n";
+				output_streamer.output(error, std::string("Error occured while parsing a label. It seems that you have entered non-numerical value as a value. ").append(e.what()));
 				throw std::runtime_error("boost::lexical_cast<size_t, std::string>(formula.substr(op_position+1, formula.size() - 1)) failed");
 			}
 
@@ -144,7 +144,7 @@ class AutomatonBuilder {
 		try {
 			boost::split(subformulas, constrains, boost::is_any_of("&"));
 		} catch (std::exception & e) {
-			std::cerr << "Error occured while parsing a label. " << e.what() << "\n";
+			output_streamer.output(error, std::string("Error occured while parsing a label. ").append(e.what()));
 			throw std::runtime_error("boost::split(subformulas, constrains, boost::is_any_of(\"&\")) failed");
 		}
 

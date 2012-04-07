@@ -13,14 +13,12 @@
 // Class that shelters all of the synthesis and output of the results
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../auxiliary/output_streamer.hpp"
 #include "../auxiliary/time_manager.hpp"
 #include "parameters_functions.hpp"
 #include "model_checker.hpp"
 #include "../results/result_storage.hpp"
 #include "../results/output_manager.hpp"
 #include "../results/product_analyzer.hpp"
-
 
 class SynthesisManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,11 +45,16 @@ class SynthesisManager {
 	void cycleRounds() {
 		// Cycle through the rounds
 		for (;split_manager->valid(); split_manager->increaseRound()) {
+			// Output round number
 			output->outputRound();
+			// Pass information about round
 			model_checker->setRange(split_manager->getRoundRange());
 			analyzer->setRange(split_manager->getRoundRange());
+			// Do the synthesis
 			syntetizeParameters();
+			// Output what has been synthetized
 			output->outputColors();
+			// Do finishing changes
 			results->finishRound();
 		}
 		// After last round, 
@@ -76,8 +79,22 @@ class SynthesisManager {
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
 			if (!none(final.second))
 				detectCycle(final);
+			// Store results from the detection
 			analyzer->storeResults(final.first, product.getParameters(final.first));
 		}
+	}
+
+	/**
+	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
+	 */
+	void colorProduct() {
+		// Assure emptyness
+		product.resetProduct();
+		// For each initial state, store all the parameters and schedule for the update
+		product.colorInitials(split_manager->createStartingParameters());
+		model_checker->setUpdates(std::move(product.getInitialUpdates()));
+		// Start coloring procedure
+		model_checker->doColoring();
 	}
 
 	/**
@@ -93,19 +110,6 @@ class SynthesisManager {
 		model_checker->transferUpdates(init_coloring.first, init_coloring.second);
 		// Start coloring procedure
 		model_checker->doColoring(init_coloring.first, init_coloring.second);
-	}
-
-	/**
-	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
-	 */
-	void colorProduct() {
-		// Assure emptyness
-		product.resetProduct();
-		// For each initial state, store all the parameters and schedule for the update
-		product.colorInitials(split_manager->createStartingParameters());
-		model_checker->setUpdates(std::move(product.getInitialUpdates()));
-		// Start coloring procedure
-		model_checker->doColoring();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,14 +139,16 @@ public:
 	 * Main synthesis function that iterates through all the rounds of the synthesis
 	 */
 	void doSynthesis() {
-		// Do computation
-		time_manager.startClock("coloring runtime");
 		
+		time_manager.startClock("coloring");
+		
+		// Do computation
 		cycleRounds();
 
-		output->outputSum();
+		time_manager.ouputClock("coloring");
 
-		time_manager.ouputClock("coloring runtime");
+		// Output final number
+		output->outputSum();
 	}
 };
 

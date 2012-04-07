@@ -71,7 +71,7 @@ public:
 			output_streamer.output(verbose, "Clock ", OutputStreamer::no_newl | OutputStreamer::time_val).output(clock_name, OutputStreamer::no_newl).output(" counted: ", OutputStreamer::no_newl)
 				           .output(runtime, OutputStreamer::no_newl).output("ms.");
 		} else { // If you do not find them, fail
-			output_streamer.output(fail, "Requested clock ", OutputStreamer::no_newl | OutputStreamer::time_val).output(clock_name, OutputStreamer::no_newl).output(" have not been started until now.");
+			output_streamer.output(error, "Requested clock ", OutputStreamer::no_newl | OutputStreamer::time_val).output(clock_name, OutputStreamer::no_newl).output(" have not been started until now.");
 		}
 	}
 } time_manager;

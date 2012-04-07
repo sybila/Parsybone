@@ -9,6 +9,10 @@
 #ifndef PARSYBONE_OUTPUT_MANAGER_INCLUDED
 #define PARSYBONE_OUTPUT_MANAGER_INCLUDED
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Class that outputs formatted data from results
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "../auxiliary/user_options.hpp"
 #include "../coloring/split_manager.hpp"
 #include "../reforging/product_structure.hpp"
@@ -22,10 +26,6 @@ class OutputManager {
 	const SplitManager & split_manager;
 	const ResultStorage & results;
 	const ProductStructure & product;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION FUNCTIONS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -43,7 +43,7 @@ public:
 
 public:
 	void outputSum() {
-		output_streamer.output(data, "Total number of colors: ", OutputStreamer::no_newl).output(results.getTotalColors(), OutputStreamer::no_newl)
+		output_streamer.output(data, "#Total number of colors: ", OutputStreamer::no_newl).output(results.getTotalColors(), OutputStreamer::no_newl)
 			.output("/", OutputStreamer::no_newl).output(split_manager.getProcessRange().second - split_manager.getProcessRange().first); 
 	}
 
@@ -51,8 +51,8 @@ public:
 	 * Ouputs round number
 	 */ 
 	void outputRound() {
-		// Erase the line if there are no data on  the line
-		if (output_streamer.isResultInFile()) 
+		// Erase the line if outputting to file or not at all
+		if (output_streamer.isResultInFile() || (!user_options.coloring() && !user_options.witnesses())) 
 			output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 		else 
 			output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl);
@@ -61,8 +61,8 @@ public:
 		output_streamer.output(split_manager.getRoundNum() + 1, OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
 			           .output(split_manager.getRoundCount(), OutputStreamer::no_newl);
 
-		// Add new line if outputting to file, otherwise
-		if (output_streamer.isResultInFile())
+		// Add white space if outputting to file or not at all, otherwise add a new line
+		if (output_streamer.isResultInFile() || (!user_options.coloring() && !user_options.witnesses())) 
 			output_streamer.output("         ", OutputStreamer::no_newl);
 		else
 			output_streamer.output("");
@@ -72,6 +72,8 @@ public:
 	 * Display colors synthetized during current round
 	 */
 	void outputColors() const {
+		if (!user_options.coloring())
+			return;
 		auto colors = results.getAllColors();
 		// Display amount of all colors
 		std::for_each(colors.begin(), colors.end(), [&] (std::string color) {
