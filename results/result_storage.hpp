@@ -37,7 +37,6 @@ class ResultStorage {
 	std::size_t total_colors;
 
 	// Data stored for this round only
-	std::size_t round_num;
 	std::vector<StateColoring> colorings;
 
 	const ProductStructure & product; // Referecnce to product
@@ -59,7 +58,7 @@ class ResultStorage {
 	 * After the round some values get cleared
 	 */
 	void finishRound() {
-		round_num++;
+		total_colors += count(getAllParameters());
 		colorings.clear();
 	}
 
@@ -71,14 +70,20 @@ public:
 	 * Get reference data and create final states that will hold all the computed data
 	 */
 	ResultStorage(const ProductStructure & _product) : product(_product) { 
-		round_num = 0;
-		total_colors += count(getAllParameters());
+		total_colors = 0;
 	} 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
+	/*
+	 * @return	number of all the parameters synthetized
+	 */
+	inline const std::size_t getTotalColors() const {
+		return total_colors;
+	}
+
+	/*
 	 * @return	merge of parameters of all the states
 	 */
 	const Parameters getAllParameters() const {

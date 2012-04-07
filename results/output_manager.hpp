@@ -11,7 +11,8 @@
 
 #include "../auxiliary/user_options.hpp"
 #include "../coloring/split_manager.hpp"
-#include "product_analyzer.hpp"
+#include "../reforging/product_structure.hpp"
+#include "result_storage.hpp"
 
 class OutputManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,12 +20,12 @@ class OutputManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	const SplitManager & split_manager;
-	ProductAnalyzer & analyzer;
+	const ResultStorage & results;
+	const ProductStructure & product;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -33,39 +34,50 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const SplitManager & _split_manager, ProductAnalyzer & _analyzer) 
-		         : split_manager(_split_manager), analyzer(_analyzer) { } 
+	OutputManager(const ProductStructure & _product, const SplitManager & _split_manager, const ResultStorage & _results) 
+		         : product(_product), split_manager(_split_manager), results(_results) { } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//	/**
-//	 * display given parameters in the form [fun1, fun2, ...]
-//	 */
-//	void outputColors() const {
-//		if (!user_options.coloring()) 
-//			return;
-//		auto colors = std::move(analyzer.getColors());
-//		for (auto color_it = colors.begin(); color_it != colors.end(); color_it++) {
-//			output_streamer.output(data, *color_it);
-//		}
-//	}
-//
-//public:
-//	/**
-//	 * main output function - displays number of parameters and parameters themselves if needed
-//	 *
-//	 * @param colors	if true, coloring of individuall final states will be shown
-//	 */
-//	void output() const {
-//		// Display amount of all colors
-//		output_streamer.output(data, "Total number of parameters is ", OutputStreamer::no_newl)
-//						.output(count(analyzer.mergeColors()));
-//
-//		// display the colors
-//		outputColors();
-//	}
+public:
+	void outputSum() {
+		output_streamer.output(data, "Total number of colors: ", OutputStreamer::no_newl).output(results.getTotalColors(), OutputStreamer::no_newl)
+			.output("/", OutputStreamer::no_newl).output(split_manager.getProcessRange().second - split_manager.getProcessRange().first); 
+	}
+
+	/**
+	 * Ouputs round number
+	 */ 
+	void outputRound() {
+		// Erase the line if there are no data on  the line
+		if (output_streamer.isResultInFile()) 
+			output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+		else 
+			output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl);
+
+		// Output data
+		output_streamer.output(split_manager.getRoundNum() + 1, OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
+			           .output(split_manager.getRoundCount(), OutputStreamer::no_newl);
+
+		// Add new line if outputting to file, otherwise
+		if (output_streamer.isResultInFile())
+			output_streamer.output("         ", OutputStreamer::no_newl);
+		else
+			output_streamer.output("");
+	}
+
+	/**
+	 * Display colors synthetized during current round
+	 */
+	void outputColors() const {
+		auto colors = results.getAllColors();
+		// Display amount of all colors
+		std::for_each(colors.begin(), colors.end(), [&] (std::string color) {
+			output_streamer.output(data, color);
+		});
+	}
 };
 
 #endif

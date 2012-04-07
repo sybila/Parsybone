@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	try {
 		output_streamer.output(verbose, "Argument parsing started.", OutputStreamer::important);
-		// Set those values to 1 - everything else is already set to 0
+
 		ArgumentParser parser;
 		parser.parseArguments(user_options, argc, argv);
 	} 
@@ -55,6 +55,7 @@ int main(int argc, char* argv[]) {
 	Model model;
 	try {		
 		output_streamer.output(verbose, "Model parsing started.", OutputStreamer::important);
+
 		ModelParser model_parser(model);
 		model_parser.parseInput();
 	} 

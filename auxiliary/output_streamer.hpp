@@ -123,12 +123,15 @@ public:
 		switch (stream_type) {
 		case fail:
 			fail_stream = file_stream;
+			fail_file = true;
 			break;
 		case verbose:
 			verbose_stream = file_stream;
+			verbose_file = true;
 			break;
 		case data: 
 			result_stream = file_stream;
+			result_file = true;
 			break;
 		}	
 	}

@@ -26,10 +26,12 @@ class SynthesisManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Provided
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	ProductStructure & product; // Product to compute on
 
+	// Created within the constructor
 	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
 	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
 	std::unique_ptr<ResultStorage> results; // Class to store results
@@ -45,13 +47,12 @@ class SynthesisManager {
 	void cycleRounds() {
 		// Cycle through the rounds
 		for (;split_manager->valid(); split_manager->increaseRound()) {
-			// Output round_num
-			split_manager->outputRound();
-			// Continue on synthesis
+			output->outputRound();
 			model_checker->setRange(split_manager->getRoundRange());
+			analyzer->setRange(split_manager->getRoundRange());
 			syntetizeParameters();
-			// Output round results
-			// output->output();
+			output->outputColors();
+			results->finishRound();
 		}
 		// After last round, 
 		output_streamer.output(verbose, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
@@ -119,11 +120,12 @@ public:
 	 */
 	SynthesisManager(ProductStructure & _product)
 		            : structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
+		// Create classes that help with the synthesis
 		split_manager.reset(new SplitManager(structure.getParametersCount()));
 		model_checker.reset(new ModelChecker(product));
 		results.reset(new ResultStorage(product));
-		analyzer.reset(new ProductAnalyzer(product, *split_manager, *results));
-		output.reset(new OutputManager(*split_manager, *analyzer));
+		analyzer.reset(new ProductAnalyzer(product, *results));
+		output.reset(new OutputManager(product, *split_manager, *results));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,6 +139,8 @@ public:
 		time_manager.startClock("coloring runtime");
 		
 		cycleRounds();
+
+		output->outputSum();
 
 		time_manager.ouputClock("coloring runtime");
 	}

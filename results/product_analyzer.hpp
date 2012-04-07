@@ -23,11 +23,15 @@ class ProductAnalyzer {
 	const ParametrizedStructure & structure; // Structure from the product
     const AutomatonStructure & automaton; // Automaton from the product
 	const FunctionsStructure & functions; // Functions from the product
-	const SplitManager & split_manager; // Split manager that holds information about current round
 	ResultStorage & results; // Place to store the obtained data
 
+	// Used throughout full computation
 	std::vector<std::vector<std::size_t>> functions_values;
+
+	// Used only for a single round
 	std::vector<std::size_t> current_color;
+	std::size_t parameter_begin;
+	std::size_t parameter_end;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS
@@ -104,11 +108,11 @@ class ProductAnalyzer {
 		std::vector<std::size_t> work_color = current_color;
 		// Change the order of values to from right to left
 		result_parameters = swap(result_parameters);
-		if (split_manager.lastRound()) 
-			result_parameters >>= (getParamsetSize() - (split_manager.getRoundRange().second - split_manager.getRoundRange().first));
+		// For the last round, arrangement is necessary, for all others, there is just a 0 bit shift 
+		result_parameters >>= (getParamsetSize() - (parameter_end - parameter_begin));
 
 		// Cycle through all round colors
-		for (std::size_t col_num = split_manager.getRoundRange().first; col_num < split_manager.getRoundRange().second; col_num++) {
+		for (std::size_t col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters % 2) 
 				colors.push_back(createColorString(work_color));
@@ -130,12 +134,26 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	ProductAnalyzer(const ProductStructure & _product, const SplitManager & _split_manager, ResultStorage & _results) 
-		           : structure(_product.getKS()), automaton(_product.getBA()), functions(_product.getFunc()), 
-				     split_manager(_split_manager), results(_results)  {
+	ProductAnalyzer(const ProductStructure & _product, ResultStorage & _results) 
+		           : structure(_product.getKS()), automaton(_product.getBA()), functions(_product.getFunc()), results(_results)  {
 		functions_values = std::move(getValues());
 		current_color = std::move(getBottomValues());
+		parameter_begin = parameter_end = 0;
 	} 
+
+	/**
+	 * Iterates color until it responds to the first parameter of this round
+	 *
+	 * @param round_range	first and one behind last parameter of this round
+	 */
+	void setRange(const Range & round_range) {
+		if (round_range.first < parameter_begin)
+			throw std::runtime_error("Round start value is lower than start of previous round.");
+		parameter_end = round_range.second;
+		for (; parameter_begin < round_range.first; parameter_begin++) {
+			iterateColor(current_color);
+		}
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // RESULT FUNCTIONS
