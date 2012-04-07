@@ -175,6 +175,13 @@ public:
 	}
 
 private:
+	/**
+	 * method that makes formatted ouput
+	 *
+	 * @param stream	reference to the ostream that gets the data
+	 * @param stream_data	provided content
+	 * @param trait_mask	information about how the output should be formatted
+	 */
 	template <class outputType> 
 	void actualOutput(std::ostream & stream, const outputType & stream_data, const unsigned int trait_mask) const {
 		// Return to start of the line

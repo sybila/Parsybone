@@ -40,32 +40,32 @@ public:
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * display given parameters in the form [fun1, fun2, ...]
-	 */
-	void outputColors() const {
-		if (!user_options.coloring()) 
-			return;
-		auto colors = std::move(analyzer.getColors());
-		for (auto color_it = colors.begin(); color_it != colors.end(); color_it++) {
-			output_streamer.output(data, *color_it);
-		}
-	}
-
-public:
-	/**
-	 * main output function - displays number of parameters and parameters themselves if needed
-	 *
-	 * @param colors	if true, coloring of individuall final states will be shown
-	 */
-	void output() const {
-		// Display amount of all colors
-		output_streamer.output(data, "Total number of parameters is ", OutputStreamer::no_newl)
-						.output(count(analyzer.mergeColors()));
-
-		// display the colors
-		outputColors();
-	}
+//	/**
+//	 * display given parameters in the form [fun1, fun2, ...]
+//	 */
+//	void outputColors() const {
+//		if (!user_options.coloring()) 
+//			return;
+//		auto colors = std::move(analyzer.getColors());
+//		for (auto color_it = colors.begin(); color_it != colors.end(); color_it++) {
+//			output_streamer.output(data, *color_it);
+//		}
+//	}
+//
+//public:
+//	/**
+//	 * main output function - displays number of parameters and parameters themselves if needed
+//	 *
+//	 * @param colors	if true, coloring of individuall final states will be shown
+//	 */
+//	void output() const {
+//		// Display amount of all colors
+//		output_streamer.output(data, "Total number of parameters is ", OutputStreamer::no_newl)
+//						.output(count(analyzer.mergeColors()));
+//
+//		// display the colors
+//		outputColors();
+//	}
 };
 
 #endif

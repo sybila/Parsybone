@@ -51,7 +51,7 @@ class SynthesisManager {
 			model_checker->setRange(split_manager->getRoundRange());
 			syntetizeParameters();
 			// Output round results
-			output->output();
+			// output->output();
 		}
 		// After last round, 
 		output_streamer.output(verbose, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
@@ -75,6 +75,7 @@ class SynthesisManager {
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
 			if (!none(final.second))
 				detectCycle(final);
+			analyzer->storeResults(final.first, product.getParameters(final.first));
 		}
 	}
 
@@ -121,7 +122,7 @@ public:
 		split_manager.reset(new SplitManager(structure.getParametersCount()));
 		model_checker.reset(new ModelChecker(product));
 		results.reset(new ResultStorage(product));
-		analyzer.reset(new ProductAnalyzer(product, *split_manager));
+		analyzer.reset(new ProductAnalyzer(product, *split_manager, *results));
 		output.reset(new OutputManager(*split_manager, *analyzer));
 	}
 

@@ -13,25 +13,55 @@
 // Results are used by ModelChecker to store the data computed during synthesis.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../auxiliary/output_streamer.hpp"
-#include "../coloring/split_manager.hpp"
 #include "../coloring/synthesis_manager.hpp"
-#include "../reforging/automaton_structure.hpp"
-#include "../reforging/parametrized_structure.hpp"
-#include "../reforging/product_structure.hpp"
 
 class ModelChecker;
 
 class ResultStorage {
 	friend class SynthesisManager;
+	friend class ProductAnalyzer;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	struct StateColoring {
+		std::size_t KS_state;
+		std::size_t BA_state;
+		Parameters parameters; // Mask of all the round parameters
+		std::vector<std::string> colors; // Colors from present parameters
+
+		StateColoring(const std::size_t _KS_state, const std::size_t _BA_state, const Parameters _parameters, const std::vector<std::string> && _colors) 
+			         : KS_state(_KS_state), BA_state(_BA_state), parameters(_parameters), colors(std::move(_colors)) { }
+	};
+
+	// Values that increase through the rounds
+	std::size_t total_colors;
+
+	// Data stored for this round only
+	std::size_t round_num;
+	std::vector<StateColoring> colorings;
+
 	const ProductStructure & product; // Referecnce to product
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	/**
+	 * Add a new results - contains product state, mask of parameters for this state and a color that corespond to them
+	 */ 
+	void addColoring (const std::size_t product_state, const Parameters _parameters, const std::vector<std::string> && _colors) {
+		// Recompute the states
+		std::size_t KS_state = product.getStateIndexes(product_state).first;
+		std::size_t BA_state = product.getStateIndexes(product_state).second;
+		colorings.push_back(StateColoring(KS_state, BA_state, _parameters, std::move(_colors)));
+	}
+
+	/**
+	 * After the round some values get cleared
+	 */
+	void finishRound() {
+		round_num++;
+		colorings.clear();
+	}
 
 	ResultStorage(const ResultStorage & other);            // Forbidden copy constructor.
 	ResultStorage& operator=(const ResultStorage & other); // Forbidden assignment operator.
@@ -40,93 +70,35 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	ResultStorage(const ProductStructure & _product) 
-		   : product(_product) { } 
-	
+	ResultStorage(const ProductStructure & _product) : product(_product) { 
+		round_num = 0;
+		total_colors += count(getAllParameters());
+	} 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///**
-	// * Routine that counts how many unique bits (parameters) are set in all the final states together.
-	// *
-	// * @return	total number of parameters
-	// */
-	//const std::size_t countParameters() const {
-	//	// Resulting number
-	//	std::size_t parameter_count = 0;
-	//	// Go through each partition 
-	//	for(std::size_t round_num = 0; round_num < split_manager.getRoundCount(); round_num++) {
-	//		Parameters all = 0;
-	//		// Add parameters from each other final state
-	//		std::for_each(states.begin(), states.end(), [&all, round_num](const ColoredState & state){
-	//			all |= state.parameters_parts[round_num];
-	//		});
-	//		// sum number of parameters from this partition with that from previous partitions
-	//		parameter_count += count(all);
-	//	}
-	//	return parameter_count;
-	//}
+	/**
+	 * @return	merge of parameters of all the states
+	 */
+	const Parameters getAllParameters() const {
+		Parameters merged = 0;
+		for (auto color_it = colorings.begin(); color_it != colorings.end(); color_it++) {
+			merged |= color_it->parameters;
+		}
+		return merged;
+	}
 
-	///**
-	// * @return total number of parameters for this process
-	// */
-	//inline const std::size_t getParametersCount() const {
-	//	return (split_manager.getProcessRange().second - split_manager.getProcessRange().first);
-	//}
-
-	///**
-	// * @return	number of colorings in the result
-	// */
-	//inline const std::size_t getStatesCount() const {
-	//	return states.size();
-	//}
-
-	///**
-	// * @param state_index	index in the vector of states
-	// *
-	// * @return	ID of state of the Kripke Structure this state is build from
-	// */
-	//inline const std::size_t & getKSNum(const std::size_t state_index) const {
-	//	return states[state_index].KS_num;
-	//}
-
-	///**
-	// * @param state_index	index in the vector of states
-	// *
-	// * @return	ID of state of the Buchi automaton this state is build from
-	// */
-	//inline const std::size_t & getBANum(const std::size_t state_index) const {
-	//	return states[state_index].BA_num;
-	//}
-
-	///**
-	// * Get part of parameters of the state
-	// *
-	// * @param state_index	index in the vector of states
-	// * @param round_num	round to pick
-	// *
-	// * @return	coloring with given index
-	// */
-	//const Parameters getStateParameters(const std::size_t state_index, const std::size_t round_num) const {
-	//	return states[state_index].parameters_parts[round_num];
-	//}
-
-	///**
-	// * Get part of union of all the parameters
-	// *
-	// * @param round_num	round to pick
-	// *
-	// * @return	part of the coloring coloring with given index
-	// */
-	//const Parameters getMergedParameters(const std::size_t round_num) const {
-	//	Parameters all = 0;
-	//	// Add parameters from each other final state
-	//	std::for_each(states.begin(), states.end(), [&all, round_num](const ColoredState & state){
-	//		all |= state.parameters_parts[round_num];
-	//	});
-	//	return all;
-	//}
-
+	/**
+	 * @return	all the distinctive colors from this round
+	 */
+	const std::vector<std::string> getAllColors() const {
+		std::set<std::string> colors;
+		for (auto color_it = colorings.begin(); color_it != colorings.end(); color_it++) {
+			colors.insert(color_it->colors.begin(), color_it->colors.end());
+		}
+		return std::vector<std::string>(colors.begin(), colors.end());
+	}
 };
 
 #endif
