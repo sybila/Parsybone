@@ -33,7 +33,7 @@ class SynthesisManager {
 	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
 	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
 	std::unique_ptr<Results> results; // Class to store results
-	std::unique_ptr<ProductAnalyzer> analyzer;
+	std::unique_ptr<ProductAnalyzer> analyzer; // Class for analysis
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -139,8 +139,8 @@ public:
 
 		// Do output
 		split_manager->setStartPositions();
-		OutputManager output_manager(*results, product.getFunc(), *split_manager);
-		output_manager.basicOutput();
+		OutputManager output_manager(*split_manager, *analyzer);
+		output_manager.output();
 	}
 };
 

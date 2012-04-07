@@ -140,7 +140,7 @@ class ModelParser {
 				requested_data = boost::lexical_cast<returnType, char*>(temp_attr->value());
 			} catch (boost::bad_lexical_cast e) {
 				std::cerr << "Error while parsing an attribute " << attribute_name << "." << e.what() << "\n";
-				throw std::runtime_error("boost::lexical_cast<decltype(requested_data), char*>(temp_attr->value()) failed");
+				throw std::runtime_error("boost::lexical_cast<returnType, char*>(temp_attr->value()) failed");
 			}
 		}
 	}

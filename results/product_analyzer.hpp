@@ -19,10 +19,77 @@ class ProductAnalyzer {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const SplitManager & split_manager; // Own copy of the split manager
-	const ProductStructure & product;
-	const ParametrizedStructure & structure;
-    const AutomatonStructure & automaton;
+	const ProductStructure & product; // Referecnce to product
+	const ParametrizedStructure & structure; // Structure from the product
+    const AutomatonStructure & automaton; // Automaton from the product
+	const FunctionsStructure & functions; // Functions from the product
+	const SplitManager & split_manager; // Split manager that holds information about current round
+
+	std::vector<std::vector<std::size_t>> functions_values;
+	std::vector<std::size_t> current_color;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// COMPUTATION FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Compute a vector that stores all the values for each regulatory context
+	 *
+	 * @return vector of vectors of values
+	 */
+	const std::vector<std::vector<std::size_t>> getValues() const {
+		std::vector<std::vector<std::size_t>> parameter_values;
+		for (std::size_t function_num = 0; function_num < functions.getFunctionsCount(); function_num++) 
+			// Get all the values for a function
+			parameter_values.push_back(functions.getPossibleValues(function_num));
+		return parameter_values;
+	}
+
+	/**
+	 * Get vector with the lowest value for each function
+	 *
+	 * @return vector of values
+	 */
+	std::vector<std::size_t> getBottomValues() const {
+		std::vector<std::size_t> bottom_values;
+		for (std::size_t function_num = 0; function_num < functions.getFunctionsCount(); function_num++) 
+			// Get the lowes value for the function
+			bottom_values.push_back(functions.getPossibleValues(function_num).back());
+		return bottom_values;
+	}
+
+	/**
+	 * Creates a color string in the form [context_11, context_12, context_21 ...]
+	 */
+	const std::string createColorString() const {
+		std::string color = "[";
+		// Cycle through all values except last
+		for (auto it = current_color.begin(); it != current_color.end() - 1; it++) {
+			color += boost::lexical_cast<std::string, std::size_t>(*it);
+			color += ",";
+		}
+		// Add the last one
+		color += boost::lexical_cast<std::string, std::size_t>(current_color.back());
+		color += "]";
+		return color;
+	}
+
+	/**
+	 * Increment values in curren_color so we get next color in the ordering
+	 */
+	void iterateColor() {
+		// If there is a posibility to increaset the value (from left to right), increase it and end, otherwise null it and continue
+		for (std::size_t value_num = 0; value_num < current_color.size(); value_num++) {
+			// Increase and end
+			if (current_color[value_num] < functions_values[value_num].back()) {
+				current_color[value_num]++;
+				return;
+			}
+			// Null 
+			else { 
+				current_color[value_num] = functions_values[value_num].front();
+			}
+		}
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS
@@ -35,110 +102,59 @@ public:
 	 * Get reference data and create final states that will hold all the computed data
 	 */
 	ProductAnalyzer(const ProductStructure & _product, const SplitManager & _split_manager) 
-		   : product(_product), structure(_product.getKS()), automaton(_product.getBA()), split_manager(_split_manager) { } 
+		           : product(_product), structure(_product.getKS()), automaton(_product.getBA()), functions(_product.getFunc()), split_manager(_split_manager) {
+		functions_values = std::move(getValues());
+		current_color = std::move(getBottomValues());
+	} 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION FUNCTIONS
+// RESULT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
 	/**
 	 * Merget all the final colors together in a single color of all vertices
 	 *
 	 * @return a merge of all the accepting colors
 	 */
-	Parameters mergetAccepting() const {
+	Parameters mergeColors() const {
 		Parameters merged = 0;
 		const std::vector<std::size_t> & finals = product.getFinals();
+		// Merge colors from all the final states into one
 		for (auto color_it = finals.begin(); color_it != finals.end(); color_it++) {
 			merged |= product.getParameters(*color_it); 
 		}
+		return merged;
+	}
+	
+	/**
+	 * obtain colors given parameters in the form [fun1, fun2, ...]
+	 * this function also causes current_color to change (iterate)
+	 *
+	 * @return vector of strings with colors
+	 */
+	std::vector<std::string> getColors() {	
+		// Vector to fill
+		std::vector<std::string> colors;
+		// Change the order of values to from right to left
+		Parameters result_parameters = swap(mergeColors());
+		if (split_manager.lastRound()) 
+			result_parameters >>= (getParamsetSize() - (split_manager.getRoundRange().second - split_manager.getRoundRange().first));
+
+		// Cycle through all round colors
+		for (std::size_t col_num = split_manager.getRoundRange().first; col_num < split_manager.getRoundRange().second; col_num++) {
+			// Output current values
+			if (result_parameters % 2) 
+				colors.push_back(createColorString());
+
+			// Increase values
+			result_parameters >>= 1;
+			iterateColor();
+		}
+		return colors;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	
-	///**
-	// * Routine that counts how many unique bits (parameters) are set in all the final states together.
-	// *
-	// * @return	total number of parameters
-	// */
-	//const std::size_t countParameters() const {
-	//	// Resulting number
-	//	std::size_t parameter_count = 0;
-	//	// Go through each partition 
-	//	for(std::size_t round_num = 0; round_num < split_manager.getRoundCount(); round_num++) {
-	//		Parameters all = 0;
-	//		// Add parameters from each other final state
-	//		std::for_each(states.begin(), states.end(), [&all, round_num](const ColoredState & state){
-	//			all |= state.parameters_parts[round_num];
-	//		});
-	//		// sum number of parameters from this partition with that from previous partitions
-	//		parameter_count += count(all);
-	//	}
-	//	return parameter_count;
-	//}
-
-	///**
-	// * @return total number of parameters for this process
-	// */
-	//inline const std::size_t getParametersCount() const {
-	//	return (split_manager.getProcessRange().second - split_manager.getProcessRange().first);
-	//}
-
-	///**
-	// * @return	number of colorings in the result
-	// */
-	//inline const std::size_t getStatesCount() const {
-	//	return states.size();
-	//}
-
-	///**
-	// * @param state_index	index in the vector of states
-	// *
-	// * @return	ID of state of the Kripke Structure this state is build from
-	// */
-	//inline const std::size_t & getKSNum(const std::size_t state_index) const {
-	//	return states[state_index].KS_num;
-	//}
-
-	///**
-	// * @param state_index	index in the vector of states
-	// *
-	// * @return	ID of state of the Buchi automaton this state is build from
-	// */
-	//inline const std::size_t & getBANum(const std::size_t state_index) const {
-	//	return states[state_index].BA_num;
-	//}
-
-	///**
-	// * Get part of parameters of the state
-	// *
-	// * @param state_index	index in the vector of states
-	// * @param round_num	round to pick
-	// *
-	// * @return	coloring with given index
-	// */
-	//const Parameters getStateParameters(const std::size_t state_index, const std::size_t round_num) const {
-	//	return states[state_index].parameters_parts[round_num];
-	//}
-
-	///**
-	// * Get part of union of all the parameters
-	// *
-	// * @param round_num	round to pick
-	// *
-	// * @return	part of the coloring coloring with given index
-	// */
-	//const Parameters getMergedParameters(const std::size_t round_num) const {
-	//	Parameters all = 0;
-	//	// Add parameters from each other final state
-	//	std::for_each(states.begin(), states.end(), [&all, round_num](const ColoredState & state){
-	//		all |= state.parameters_parts[round_num];
-	//	});
-	//	return all;
-	//}
 
 };
 
