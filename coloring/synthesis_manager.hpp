@@ -58,7 +58,7 @@ class SynthesisManager {
 			results->finishRound();
 		}
 		// After last round, 
-		output_streamer.output(verbose, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+		output_streamer.output(verbose_str, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 	}
 
 	/**

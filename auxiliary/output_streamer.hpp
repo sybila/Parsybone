@@ -21,16 +21,16 @@ class OutputStreamer {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Stream to output minor fails as well as terminal failures
-	std::ostream * fail_stream;
+	std::ostream * error_stream;
 	// Stream to output work status in case it is requested by user
 	std::ostream * verbose_stream;
+	// Stream to output overall statistics
+	std::ostream * stats_stream;
 	// Stream to output results of coloring
 	std::ostream * result_stream;
 	
-	// True if the user chooses so
-	bool output_verbose;
 	// True if these streams are assigned a file
-	bool fail_file, verbose_file, result_file;
+	bool error_file, verbose_file, stats_file, result_file;
 
 	// Used to ease usage of output
 	StreamType last_stream_type;
@@ -44,7 +44,6 @@ public:
 	static Trait no_newl    = 1;
 	static Trait important  = 2;
 	static Trait rewrite_ln = 4;
-	static Trait time_val   = 8;
 
 	/**
 	 * test if given trait is present
@@ -76,36 +75,35 @@ public:
 	 */
 	OutputStreamer() { 
 		// Basic direction of the streams
-		fail_stream = &std::cerr;
-		verbose_stream = &std::cout;
+		error_stream = &std::cerr;
 		result_stream = &std::cout;
+		stats_stream = &std::cout;
+		verbose_stream = &std::cout;
 
 		// Set control variables
-		output_verbose = false;
-		fail_file = verbose_file = result_file = false;
+		error_file = result_file = stats_file = verbose_file = false;
 
 		// Set stream type in the beggining to error stream
-		last_stream_type = error;
+		last_stream_type = error_str;
 	}
 
 	/**
 	 * If some of the streams has been assigned a file, delete that file object
 	 */
 	~OutputStreamer() {
-		if (fail_file)
-			delete fail_stream;
-		if (verbose_file)
-			delete verbose_stream;
+		if (error_file)
+			delete error_stream;
+		if (stats_file)
+			delete stats_stream;
 		if (result_file)
 			delete result_stream;
+		if (verbose_file)
+			delete verbose_stream;
 	}
 
 	/**
-	 * Set verbose to true
+	 * 
 	 */
-	inline void useVerbose() {
-		output_verbose = true;
-	}
 
 	/**
 	 * output on a specified stream
@@ -121,17 +119,21 @@ public:
 		
 		// Assiciate pointer to the file with one of the streams
 		switch (stream_type) {
-		case error:
-			fail_stream = file_stream;
-			fail_file = true;
+		case error_str:
+			error_stream = file_stream;
+			error_file = true;
 			break;
-		case verbose:
-			verbose_stream = file_stream;
-			verbose_file = true;
-			break;
-		case data: 
+		case stats_str:
+			stats_stream = file_stream;
+			stats_file = true;
+			break;			
+		case results_str: 
 			result_stream = file_stream;
 			result_file = true;
+			break;
+		case verbose_str:
+			verbose_stream = file_stream;
+			verbose_file = true;
 			break;
 		}	
 	}
@@ -150,6 +152,19 @@ public:
 	template <class outputType> 
     OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
 		last_stream_type = stream_type;
+		switch (stream_type) {
+		case error_str:
+			*error_stream << "! ";
+			break;
+		case stats_str:
+			if (user_options.stats())
+				*verbose_stream << "# ";
+			break;
+		case verbose_str:
+			if (user_options.verbose())
+				*verbose_stream << "* ";
+			break;
+		}
 		output(stream_data, trait_mask);
 		return *this;
 	}
@@ -163,15 +178,19 @@ public:
 	template <class outputType> 
     const OutputStreamer & output(const outputType & stream_data, const unsigned int trait_mask = 0) const {
 		switch (last_stream_type) {
-		case error:
-			actualOutput(*fail_stream, stream_data, trait_mask);		
+		case error_str:
+			actualOutput(*error_stream, stream_data, trait_mask);	
 			break;
-		case verbose:
-			if (output_verbose)
-				actualOutput(*verbose_stream, stream_data, trait_mask);				
-			break;
-		case data: 
+		case results_str: 
 			actualOutput(*result_stream, stream_data, trait_mask);		
+			break;
+		case stats_str: 
+			if (user_options.stats())
+			actualOutput(*stats_stream, stream_data, trait_mask);		
+			break;
+		case verbose_str:
+			if (user_options.verbose())
+				actualOutput(*verbose_stream, stream_data, trait_mask);
 			break;
 		}
 		return *this;
@@ -192,15 +211,12 @@ private:
 			stream << '\r';
 		// Add prefix stars
 		if (testTrait(important, trait_mask))
-			stream << "*** ";
-		// Add sharp
-		if (testTrait(time_val, trait_mask))
-			stream << "#";
+			stream << "-- ";
 		// Actuall data
 		stream << stream_data;
 		// Add postfix stars
 		if (testTrait(important, trait_mask))
-			stream << " ***";
+			stream << " --";
 		// End of the line if not requested otherwise
 		if (!testTrait(no_newl, trait_mask))
 			stream << std::endl;

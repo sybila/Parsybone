@@ -32,7 +32,7 @@
 // INPUT/OUTPUT RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // What stream to use in all-streams functions
-enum StreamType {input, error, verbose, data};
+enum StreamType {input_str, error_str, results_str, stats_str, verbose_str};
 
 // Named pointer - just in case of necessity to use a file
 std::istream * const input_stream = &std::cin;

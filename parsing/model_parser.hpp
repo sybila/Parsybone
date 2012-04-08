@@ -59,7 +59,7 @@ class ModelParser {
 			try {
 				mask.push_back(boost::lexical_cast<bool, char>(ch));
 			} catch (boost::bad_lexical_cast e) {
-				output_streamer.output(error, std::string("Error occured while parsing a regulation: ").append(e.what()));
+				output_streamer.output(error_str, std::string("Error occured while parsing a regulation: ").append(e.what()));
 				throw std::runtime_error("boost::lexical_cast<size_t, char>(temp_attr->value()) failed");
 			}
 		});
@@ -139,7 +139,7 @@ class ModelParser {
 			try {
 				requested_data = boost::lexical_cast<returnType, char*>(temp_attr->value());
 			} catch (boost::bad_lexical_cast e) {
-				output_streamer.output(error, std::string("Error while parsing an attribute ").append(attribute_name).append(": ").append(e.what()));
+				output_streamer.output(error_str, std::string("Error while parsing an attribute ").append(attribute_name).append(": ").append(e.what()));
 				throw std::runtime_error("boost::lexical_cast<returnType, char*>(temp_attr->value()) failed");
 			}
 		}
@@ -320,7 +320,7 @@ class ModelParser {
 		try {
 			model_xml.parse<0>(parsed_data.get());
 		} catch (rapidxml::parse_error e) {
-			output_streamer.output(error, std::string("Error occured while trying to reconstruct xml document from the stream: ").append(e.what()));
+			output_streamer.output(error_str, std::string("Error occured while trying to reconstruct xml document from the stream: ").append(e.what()));
 			throw std::runtime_error("rapidxml::xml_document<>.parse(char *) failed");
 		}
 	}
@@ -357,13 +357,13 @@ public:
 		getAttribute(file_version, current_node, "ver");
 
 		// Parse Kripke Structure
-		output_streamer.output(verbose, "Started reading of the Kripke structure.");
+		output_streamer.output(verbose_str, "Started reading of the Kripke structure.");
 		current_node = getChildNode(current_node, "STRUCTURE");
 		getAttribute(unspecified_regulations, current_node, "unspec");
 		parseSpecies(current_node);
 
 		// Parse Buchi Automaton
-		output_streamer.output(verbose, "Started reading of the Buchi automaton.");
+		output_streamer.output(verbose_str, "Started reading of the Buchi automaton.");
 		current_node = getSiblingNode(current_node, "AUTOMATON");
 		parseStates(current_node);
 

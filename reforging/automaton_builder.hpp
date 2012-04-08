@@ -105,7 +105,7 @@ class AutomatonBuilder {
 			try {
 				compare_value = boost::lexical_cast<std::size_t,std::string>(formula->substr(op_position+1, formula->size()));
 			} catch (boost::bad_lexical_cast e) {
-				output_streamer.output(error, std::string("Error occured while parsing a label. It seems that you have entered non-numerical value as a value. ").append(e.what()));
+				output_streamer.output(error_str, std::string("Error occured while parsing a label. It seems that you have entered non-numerical value as a value. ").append(e.what()));
 				throw std::runtime_error("boost::lexical_cast<size_t, std::string>(formula.substr(op_position+1, formula.size() - 1)) failed");
 			}
 
@@ -144,7 +144,7 @@ class AutomatonBuilder {
 		try {
 			boost::split(subformulas, constrains, boost::is_any_of("&"));
 		} catch (std::exception & e) {
-			output_streamer.output(error, std::string("Error occured while parsing a label. ").append(e.what()));
+			output_streamer.output(error_str, std::string("Error occured while parsing a label. ").append(e.what()));
 			throw std::runtime_error("boost::split(subformulas, constrains, boost::is_any_of(\"&\")) failed");
 		}
 
@@ -174,7 +174,7 @@ public:
 		// Index of the first transition for each transition in the vector of transition
 		std::size_t state_begin = 0;
 
-		output_streamer.output(verbose, "Costructing Buchi automaton structure states, total number of states: ", OutputStreamer::no_newl)
+		output_streamer.output(stats_str, "Costructing Buchi automaton structure states, total number of states: ", OutputStreamer::no_newl)
 			           .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
 		// List throught all the automaton states
 		for (std::size_t state_num = 0; state_num < model.getStatesCount(); state_num++) {

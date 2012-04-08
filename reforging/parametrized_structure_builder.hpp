@@ -177,7 +177,7 @@ public:
 	 * Create the states from the model and fill the structure with them.
 	 */
 	void buildStructure() {
-		output_streamer.output(verbose, "Merging functions and Kripke structure into Parametrized Kripke structure.");
+		output_streamer.output(stats_str, "Merging functions and Kripke structure into Parametrized Kripke structure.");
 		// Just pass the value
 		structure.setParametersCount(regulatory_functions.getParametersCount());
 		structure.setStepSizes(regulatory_functions.getStepSizes());

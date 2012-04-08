@@ -25,6 +25,7 @@ class UserOptions {
 	bool show_coloring;
 	bool show_witnesses;
 	bool be_verbose;
+	bool display_stats;
 	bool negation_check;
 	std::size_t process_number;
 	std::size_t processes_count;
@@ -40,7 +41,7 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-		show_witnesses = show_coloring = be_verbose = negation_check = false;
+		show_witnesses = show_coloring = be_verbose = display_stats = negation_check = false;
 		process_number = processes_count = 1;
 	}
 
@@ -62,10 +63,17 @@ public:
 	}
 
 	/**
-	 * @return	true if verbose is set (displaying additional information during computation
+	 * @return	true if verbose is set (displaying additional information during computation)
 	 */
 	inline const bool verbose() const {
 		return be_verbose;
+	}
+
+	/**
+	 * @return	true if display_stats is set (displaying statistics of the model)
+	 */
+	inline const bool stats() const {
+		return display_stats;
 	}
 
 	/**

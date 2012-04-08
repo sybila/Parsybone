@@ -46,6 +46,9 @@ class ArgumentParser {
 	}
 
 public:
+	/**
+	 * Take all the arguments on the input and store information from them
+	 */
 	void parseArguments (UserOptions & user_options, int argc, char* argv[]) {
 
 		std::string switches;
@@ -58,20 +61,24 @@ public:
 				for (std::size_t switch_num = 1; switch_num < arg.size(); switch_num++) {
 					switch (arg[switch_num]) {
 
-					case 'w':
-						user_options.show_witnesses = true;
-						break;
-
 					case 'c':
 						user_options.show_coloring = true;
 						break;
 
-					case 'v':
-						output_streamer.useVerbose();
-						break;
-
 					case 'n':
 						user_options.negation_check = true;
+						break;
+
+					case 's':
+						user_options.display_stats = true;
+						break;
+
+					case 'v':
+						user_options.be_verbose = true;
+						break;
+
+					case 'w':
+						user_options.show_witnesses = true;
 						break;
 
 					// Get data for distributed computation
@@ -88,7 +95,7 @@ public:
 						if (switch_num + 1 < arg.size())
 							throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(arg.begin() + switch_num + 1, arg.end())));
 						// Create file for the result output and iterate argument pointer
-						output_streamer.createStreamFile(data, argv[++arg_n]);
+						output_streamer.createStreamFile(results_str, argv[++arg_n]);
 						break;
 
 					// If the swich is not known.

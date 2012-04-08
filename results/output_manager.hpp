@@ -43,7 +43,7 @@ public:
 
 public:
 	void outputSum() {
-		output_streamer.output(data, "#Total number of colors: ", OutputStreamer::no_newl).output(results.getTotalColors(), OutputStreamer::no_newl)
+		output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(results.getTotalColors(), OutputStreamer::no_newl)
 			.output("/", OutputStreamer::no_newl).output(split_manager.getProcessRange().second - split_manager.getProcessRange().first); 
 	}
 
@@ -53,9 +53,9 @@ public:
 	void outputRound() {
 		// Erase the line if outputting to file or not at all
 		if (output_streamer.isResultInFile() || (!user_options.coloring() && !user_options.witnesses())) 
-			output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 		else 
-			output_streamer.output(verbose, "Round: ", OutputStreamer::no_newl);
+			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl);
 
 		// Output data
 		output_streamer.output(split_manager.getRoundNum() + 1, OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
@@ -77,7 +77,7 @@ public:
 		auto colors = results.getAllColors();
 		// Display amount of all colors
 		std::for_each(colors.begin(), colors.end(), [&] (std::string color) {
-			output_streamer.output(data, color);
+			output_streamer.output(results_str, color);
 		});
 	}
 };

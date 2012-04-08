@@ -38,13 +38,13 @@ int main(int argc, char* argv[]) {
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	try {
-		output_streamer.output(verbose, "Argument parsing started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Argument parsing started.", OutputStreamer::important);
 
 		ArgumentParser parser;
 		parser.parseArguments(user_options, argc, argv);
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(error, std::string("Error occured while parsing arguments: ").append(e.what()));
+		output_streamer.output(error_str, std::string("Error occured while parsing arguments: ").append(e.what()));
 		return 1;
 	}
 
@@ -54,13 +54,13 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	Model model;
 	try {		
-		output_streamer.output(verbose, "Model parsing started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Model parsing started.", OutputStreamer::important);
 
 		ModelParser model_parser(model);
 		model_parser.parseInput();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(error, std::string("Error occured while parsing model: ").append(e.what()));
+		output_streamer.output(error_str, std::string("Error occured while parsing model: ").append(e.what()));
 		return 2;
 	}
 
@@ -70,13 +70,13 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	FunctionsStructure functions_structure;
 	try {
-		output_streamer.output(verbose, "Functions building started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
 
 		FunctionsBuilder functions_builder(model, functions_structure);
 		functions_builder.buildFunctions();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(error, std::string("Error occured while building Regulatory functions: ").append(e.what()));
+		output_streamer.output(error_str, std::string("Error occured while building Regulatory functions: ").append(e.what()));
 		return 3;
 	}
 
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	ParametrizedStructure parametrized_structure; // Kripke structure that has transitions labelled with functions
 	try {
-		output_streamer.output(verbose, "Parametrized Kripke structure building started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Parametrized Kripke structure building started.", OutputStreamer::important);
 
 		// Create temporary Kripke structure without parametrization
 		BasicStructure basic_structure; // Kripke structure built from the network
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 		parametrized_structure_builder.buildStructure();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(error, std::string("Error occured while building Parametrized Kripke structure: ").append(e.what()));
+		output_streamer.output(error_str, std::string("Error occured while building Parametrized Kripke structure: ").append(e.what()));
 		return 4;
 	}
 
@@ -108,13 +108,13 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	AutomatonStructure automaton; // Set of transitions - controlling automaton
 	try {
-		output_streamer.output(verbose, "Buchi automaton building started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Buchi automaton building started.", OutputStreamer::important);
 
 		AutomatonBuilder automaton_builder( model, automaton);
 		automaton_builder.buildAutomaton();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(error, std::string("Error occured while building the automaton: ").append(e.what()));
+		output_streamer.output(error_str, std::string("Error occured while building the automaton: ").append(e.what()));
 		return 5;
 	}
 
@@ -124,12 +124,12 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	ProductStructure product_structure(functions_structure, parametrized_structure, automaton);
 	try {
-		output_streamer.output(verbose, "Product building started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Product building started.", OutputStreamer::important);
 
 		ProductBuilder product_builder(parametrized_structure, automaton, product_structure);
 		product_builder.buildProduct();
 	} catch (std::exception & e) {
-		output_streamer.output(error, std::string("Error occured while building the product: ").append(e.what()));
+		output_streamer.output(error_str, std::string("Error occured while building the product: ").append(e.what()));
 		return 6;
 	}
 
@@ -139,11 +139,11 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
 		SynthesisManager synthesis_manager(product_structure);
-		output_streamer.output(verbose, "Coloring started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Coloring started.", OutputStreamer::important);
 		synthesis_manager.doSynthesis();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(error, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
+		output_streamer.output(error_str, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
 		return 7;
 	}
 
