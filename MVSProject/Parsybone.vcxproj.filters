@@ -111,6 +111,9 @@
     <ClInclude Include="..\auxiliary\user_options.hpp">
       <Filter>auxiliary</Filter>
     </ClInclude>
+    <ClInclude Include="..\results\witness_searcher.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">

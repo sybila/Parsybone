@@ -62,6 +62,6 @@ typedef std::pair<std::size_t, Parameters> Coloring;
 typedef std::pair<std::size_t, std::size_t> Range;
 
 // How to deal with witnesses
-enum WitnessUse {none_wit, single_wit, all_wit};
+enum WitnessUse {none_wit, short_wit, all_wit};
 
 #endif

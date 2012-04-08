@@ -18,6 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/output_streamer.hpp"
+#include "../coloring/parameters_functions.hpp"
 #include "../reforging/automaton_structure.hpp"
 #include "../reforging/functions_structure.hpp"
 #include "../reforging/parametrized_structure.hpp"
@@ -26,22 +27,20 @@ class ProductStructure {
 	friend class ProductBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// typedef std::vector<std::size_t> Predecessors; // Where to store predecessors
-	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	// References to data structures
 	const FunctionsStructure & functions; // Implicit reprezentation of functions - used as reference
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	
-	// pointer used to access all the parameters
-	std::vector<Parameters> states;
-	// std::vector<Predecessors> state_predecesors;
+	// vector with values for each of the states
+	std::vector<Parameters> states_params;
+	// For each state and for each of its colors stores predecessor/s
+	std::vector<std::vector<std::vector<std::size_t>>> states_preds;
 
 	// Information
 	std::vector<std::size_t> initial_states;
 	std::vector<std::size_t> final_states;
-	// WitnessUse witness_use;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -53,18 +52,23 @@ public:
 	ProductStructure(const FunctionsStructure & _functions, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
 		: functions(_functions), structure(_structure), automaton(_automaton) { }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DATA HANDLING FUNCTIONS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Sets all to zero
 	 */ 
 	void resetProduct() {
-		std::for_each(states.begin(), states.end(),[](Parameters & parameters) {
+		std::for_each(states_params.begin(), states_params.end(),[](Parameters & parameters) {
 			parameters = 0;
+		});
+		std::size_t parameter_count = getParamsetSize();
+		std::for_each(states_preds.begin(), states_preds.end(), [parameter_count](std::vector<std::vector<std::size_t>> & state_preds) {
+			state_preds.clear();
+			state_preds.resize(parameter_count);
 		});
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PARAMTERS HANDLING
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * @param state_num	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
@@ -72,9 +76,9 @@ public:
 	 * @return true if there was an actuall update
 	 */
 	inline bool updateParameters(const Parameters parameters, const std::size_t state_num) {
-		if (states[state_num] == (parameters | states[state_num]))
+		if (states_params[state_num] == (parameters | states_params[state_num]))
 			return false;
-		states[state_num] |= parameters;
+		states_params[state_num] |= parameters;
 		return true;
 	}
 
@@ -87,7 +91,7 @@ public:
 	 */
 	const std::vector<std::size_t> & colorInitials(const Parameters color) {
 		std::for_each(initial_states.begin(), initial_states.end(), [&](std::size_t state_index) {
-			states[state_index] = color;
+			states_params[state_index] = color;
 		});
 		return initial_states;
 	}
@@ -97,17 +101,30 @@ public:
 	 *
 	 * @return queue with all colorings of final states
 	 */
-	std::vector<Coloring> storeFinalStates() {
+	std::vector<Coloring> storeFinalParams() {
 		// Queue tates colored in basic coloring
 		std::vector<Coloring> final_colorings; 
 
 		// Get the states and their colors
 		std::for_each(final_states.begin(), final_states.end(), [&](std::size_t state_index) {
-			final_colorings.push_back(Coloring(state_index, states[state_index]));
+			final_colorings.push_back(Coloring(state_index, states_params[state_index]));
 		});
 
 		// Return final vertices with their positions
 		return final_colorings;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// WITNESSES HANDLING
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * For all transitive parameters, add source as target's predecessor
+	 *
+	 * @param source	ID of the source state
+	 * @param target	ID of the target state
+	 * @param passed	mask of parameters that are passed from source to target
+	 */
+	void addPredecessor(const std::size_t source, const std::size_t target, const Parameters passed) {
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +177,7 @@ public:
 	 * @return	number of states of the product structure
 	 */
 	inline const std::size_t getStatesCount() const {
-		return states.size();
+		return states_params.size();
 	}
 
 	/**
@@ -185,7 +202,7 @@ public:
 	 * @return parameters assigned to the state
 	 */
 	inline const Parameters & getParameters(const std::size_t state_num) const {
-		return states[state_num];
+		return states_params[state_num];
 	}
 };
 

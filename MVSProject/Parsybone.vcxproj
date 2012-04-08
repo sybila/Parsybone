@@ -99,6 +99,7 @@
     <ClInclude Include="..\results\output_manager.hpp" />
     <ClInclude Include="..\results\product_analyzer.hpp" />
     <ClInclude Include="..\results\result_storage.hpp" />
+    <ClInclude Include="..\results\witness_searcher.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />

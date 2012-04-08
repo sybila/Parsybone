@@ -50,15 +50,16 @@ class SynthesisManager {
 			// Pass information about round
 			model_checker->setRange(split_manager->getRoundRange());
 			analyzer->setRange(split_manager->getRoundRange());
-			// Do the synthesis
-			syntetizeParameters();
+			// Do the synthesis, storing all feasible parameters
+			synthetizeParameters(none_wit);
+			// Compute witnesses
+			if (user_options.witnesses())
+				synthetizeParameters(all_wit);
 			// Output what has been synthetized
 			output->outputColors();
 			// Do finishing changes
 			results->finishRound();
 		}
-		// After last round, 
-		output_streamer.output(verbose_str, "", OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 	}
 
 	/**
@@ -66,11 +67,11 @@ class SynthesisManager {
 	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
-	void syntetizeParameters() {
+	void synthetizeParameters(WitnessUse witness_use) {
 		// Basic (initial) coloring
-		colorProduct();
+		colorProduct(witness_use);
 		// Store colored final vertices
-		std::vector<Coloring> final_states = std::move(product.storeFinalStates());
+		std::vector<Coloring> final_states = std::move(product.storeFinalParams());
 
 		// Get the actuall results by cycle detection for each final vertex
 		for (std::size_t state_index = 0; state_index < final_states.size(); state_index++) {
@@ -78,7 +79,7 @@ class SynthesisManager {
 			auto & final = final_states[state_index];
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
 			if (!none(final.second) && !user_options.timeSerie())
-				detectCycle(final);
+				detectCycle(final, witness_use);
 			// Store results from the detection
 			analyzer->storeResults(final.first, product.getParameters(final.first));
 		}
@@ -87,11 +88,15 @@ class SynthesisManager {
 	/**
 	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
 	 */
-	void colorProduct() {
+	void colorProduct(WitnessUse witness_use) {
 		// Assure emptyness
 		product.resetProduct();
-		// For each initial state, store all the parameters and schedule for the update
-		product.colorInitials(split_manager->createStartingParameters());
+		// Color each initial state with current parameters (All for the first round)
+		if (witness_use == none_wit)
+			product.colorInitials(split_manager->createStartingParameters());
+		else 
+			product.colorInitials(results->getAllParameters());
+		// Schedule all initial states for updates
 		model_checker->setUpdates(std::move(product.getInitialUpdates()));
 		// Start coloring procedure
 		model_checker->doColoring();
@@ -102,7 +107,7 @@ class SynthesisManager {
 	 *
 	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
 	 */
-	void detectCycle(const Coloring & init_coloring) {
+	void detectCycle(const Coloring & init_coloring, WitnessUse witness_use) {
 		// Assure emptyness
 		product.resetProduct();
 		model_checker->setUpdates();

@@ -34,7 +34,9 @@ class ProductBuilder {
 	 * @param states_count	how many states the product will have
 	 */ 
 	void createEmptyProduct (const std::size_t states_count) {
-		product.states.resize(states_count);
+		product.states_params.resize(states_count);
+		if (user_options.witnesses())
+			product.states_preds.resize(states_count);
 		// Fill and set all to zero
 		product.resetProduct();
 	}

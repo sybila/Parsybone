@@ -28,6 +28,7 @@ class ModelChecker {
 	// Used for computation
 	std::set<std::size_t> updates; // Set of states that need to spread their updates
 	Range synthesis_range; // First and one beyond last color to be computed in this round
+	WitnessUse witness_use; // How wintesses will be held in this computation
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
@@ -87,7 +88,10 @@ class ModelChecker {
 	 * @param source_KS_state	this KS state - target_KS is obtained from the transition index
 	 * @param BA_target	target state of the BA
 	 */
-	void updateTarget(Parameters parameters, const std::size_t KS_trans,  const std::size_t KS_source, const std::size_t BA_target) {
+	void updateTarget(Parameters parameters, const std::size_t product_source, const std::size_t KS_trans, const std::size_t BA_target) {
+		// Obtain parts of source
+		std::size_t KS_source = product.getStateIndexes(product_source).first;
+		std::size_t BA_source = product.getStateIndexes(product_source).second;
 		// From an update strip all the parameters that can not pass through the transition - color intersection on the transition
 		passParameters(parameters, structure.getStepSize(KS_source, KS_trans), structure.getTransitive(KS_source, KS_trans));
 		// If some parameters get passed
@@ -96,8 +100,10 @@ class ModelChecker {
 			std::size_t KS_target = structure.getTargetID(KS_source, KS_trans);
 			std::size_t product_target = product.getProductIndex(KS_target, BA_target);
 			// If there is something new, schedule the target for an update
-			if (product.updateParameters(parameters, product_target))
+			if (product.updateParameters(parameters, product_target)) {
+				product.addPredecessor(product_target, product_source, parameters);
 				updates.insert(product_target);
+			}
 		}
 	}
 
@@ -108,16 +114,16 @@ class ModelChecker {
 	 *
 	 * @return	vector of all the reachable BA states
 	 */
-	std::vector<std::size_t> getReachableBA(const std::size_t source_state) const {
+	std::vector<std::size_t> getReachableBA(const std::size_t product_source) const {
 		// From where 
-		std::size_t source_BA_state = product.getStateIndexes(source_state).second;
-		std::size_t source_KS_state = product.getStateIndexes(source_state).first;
+		std::size_t KS_source = product.getStateIndexes(product_source).first;
+		std::size_t BA_source = product.getStateIndexes(product_source).second;
 		// Vector to store them
 		std::vector<std::size_t> reachable;
 		// Cycle through all the transitions
-		for (std::size_t transition_num = automaton.getBeginIndex(source_BA_state); transition_num < automaton.getBeginIndex(source_BA_state + 1); transition_num++) {
+		for (std::size_t transition_num = automaton.getBeginIndex(BA_source); transition_num < automaton.getBeginIndex(BA_source + 1); transition_num++) {
 			// Check the transitibility
-			if (automaton.isTransitionFeasible(transition_num, structure.getStateLevels(source_KS_state)))
+			if (automaton.isTransitionFeasible(transition_num, structure.getStateLevels(KS_source)))
 				reachable.push_back(automaton.getTarget(transition_num));
 		}
 		return reachable;
@@ -159,21 +165,21 @@ public:
 	/**
 	 * From the source distribute its parameters and newly colored neighbours shedule for update.
 	 *
-	 * @param souce_state	ID of the source state in the producte
+	 * @param souce_state	ID of the source state in the product
 	 * @param parameters	parameters that will be distributed
 	 */
-	void transferUpdates(const std::size_t source_state, const Parameters parameters) {
+	void transferUpdates(const std::size_t product_source, const Parameters parameters) {
 		// Get current KS state
-		std::size_t KS_source = product.getStateIndexes(source_state).first;
+		std::size_t KS_source = product.getStateIndexes(product_source).first;
 		// For each feasible transition of BA store its ID in the queue
-		std::vector<std::size_t> reach_BA = getReachableBA(source_state);
+		std::vector<std::size_t> reach_BA = getReachableBA(product_source);
 
 		// Push updates for each BA transition times each KS transition
 		for (auto state_it = reach_BA.begin(); state_it != reach_BA.end(); state_it++) {	
 			// Combine BA transition with all KS transitions and update those
 			for (std::size_t KS_trans = 0; KS_trans < structure.getTransitionsCount(KS_source); KS_trans++) {
 				// Send an update to the given target
-				updateTarget(parameters, KS_trans, KS_source, *state_it);
+				updateTarget(parameters, product_source, KS_trans, *state_it);
 			}
 		}
 	}
@@ -193,6 +199,9 @@ public:
 		}
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SETTERS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Assign provided set as current updates.
 	 */
@@ -205,6 +214,13 @@ public:
 	 */
 	void setRange(const Range & _range) {
 		synthesis_range = _range;
+	}
+
+	/** 
+	 * Set how wintesses will be used in this round
+	 */
+	void setWitnessUse(const WitnessUse _witness_use) {
+		witness_use = _witness_use;
 	}
 };
 

@@ -124,6 +124,13 @@ public:
 	}
 
 	/**
+	 * @return	number of bits in current round
+	 */
+	inline const std::size_t getRoundSize() const {
+		return round_end - round_begin;
+	}
+
+	/**
 	 * @return	range with first and one before last parameter to compute for this process
 	 */ 
 	inline const Range getProcessRange() const {
