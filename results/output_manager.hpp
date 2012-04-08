@@ -68,6 +68,8 @@ public:
 			output_streamer.output("         ", OutputStreamer::no_newl);
 		else
 			output_streamer.output("");
+
+		output_streamer.flush();
 	}
 
 	/**
@@ -106,13 +108,16 @@ public:
 	 * Display colors synthetized during current round
 	 */
 	void outputData() const {
-		// Abort if not requested
-		if (!user_options.coloring() && !user_options.witnesses())
-			return;
-		// Get strings
-		auto colors = std::move(results.getAllColors());
-		auto path_wits = std::move(witnesses.getAllWitnesses(true));
-		auto cycle_wits = std::move(witnesses.getAllWitnesses(false));
+		std::vector<std::pair<std::size_t, std::string>> colors;
+		std::vector<std::pair<std::size_t, std::vector<std::pair<std::size_t, std::string>>>> path_wits, cycle_wits;
+		// Get colors if needed
+		if (user_options.coloring())
+			colors = std::move(results.getAllColors());
+		// Get witnesses if needed
+		if (user_options.witnesses()) {
+			path_wits = std::move(witnesses.getAllWitnesses(true));
+			cycle_wits = std::move(witnesses.getAllWitnesses(false));
+		}
 		// Display color and witness if requested
 		for (std::size_t color_index = 0; color_index < colors.size(); color_index++) {
 			outputFullColor(colors[color_index].second, path_wits[color_index].second, cycle_wits[color_index].second);

@@ -55,7 +55,7 @@ class SynthesisManager {
 			// Do the synthesis, storing all feasible parameters
 			synthetizeParameters(none_wit);
 			// Compute witnesses
-			if (user_options.witnesses())
+			if (user_options.witnesses() && count(results->getAllParameters()))
 				synthetizeParameters(all_wit);
 			// Output what has been synthetized (colors, witnesses)
 			output->outputData();

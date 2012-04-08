@@ -155,8 +155,8 @@ public:
 		}
 		// Add the last species level
 		state_string += boost::lexical_cast<std::string, std::size_t>(structure.getStateLevels(KS_state).back());
-		state_string += ";";
 		// Add BA state
+		state_string += ";";
 		state_string += boost::lexical_cast<std::string, std::size_t>(BA_state);
 		// End
 		state_string += ")";

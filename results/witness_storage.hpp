@@ -106,11 +106,14 @@ public:
 		const std::vector<StateWitnesses> & wits = path ? path_witnesses : cycle_witnesses;
 		// Data to fill
 		std::vector<std::pair<std::size_t, std::vector<std::pair<std::size_t, std::string>>>> strings;
+
 		// Cycle through colors
 		for (std::size_t color_num = 0; color_num < getParamsetSize(); color_num++) {
+
 			// Cycle through all colored states
 			std::vector<std::pair<std::size_t, std::string>> color_wits;
 			for (std::size_t state_num = 0; state_num < wits.size(); state_num++) {
+
 				// If the state has the color, add witnesses
 				if (wits[state_num].witnesses.find(color_num) != wits[state_num].witnesses.end()) {
 					std::vector<std::string> state_wits = std::move(getWitnesses(path, state_num, color_num));
