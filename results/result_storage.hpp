@@ -28,9 +28,9 @@ class ResultStorage {
 		std::size_t KS_state;
 		std::size_t BA_state;
 		Parameters parameters; // Mask of all the round parameters
-		std::vector<std::string> colors; // Colors from present parameters
+		std::vector<std::pair<std::size_t, std::string>> colors; // Colors from present parameters
 
-		StateColoring(const std::size_t _KS_state, const std::size_t _BA_state, const Parameters _parameters, const std::vector<std::string> && _colors) 
+		StateColoring(const std::size_t _KS_state, const std::size_t _BA_state, const Parameters _parameters, std::vector<std::pair<std::size_t, std::string>> && _colors) 
 			         : KS_state(_KS_state), BA_state(_BA_state), parameters(_parameters), colors(std::move(_colors)) { }
 	};
 
@@ -48,7 +48,7 @@ class ResultStorage {
 	/**
 	 * Add a new results - contains product state, mask of parameters for this state and a color that corespond to them
 	 */ 
-	void addColoring (const std::size_t product_state, const Parameters _parameters, const std::vector<std::string> && _colors) {
+	void addColoring (const std::size_t product_state, const Parameters _parameters, std::vector<std::pair<std::size_t, std::string>> && _colors) {
 		// Recompute the states
 		std::size_t KS_state = product.getStateIndexes(product_state).first;
 		std::size_t BA_state = product.getStateIndexes(product_state).second;
@@ -99,14 +99,15 @@ public:
 	/**
 	 * @return	all the distinctive colors from this round
 	 */
-	const std::vector<std::string> getAllColors() const {
-		std::set<std::string> colors;
+	const std::vector<std::pair<std::size_t, std::string>> getAllColors() const {
+		std::set<std::pair<std::size_t, std::string>> colors;
 		// Take all the unique color strings
 		for (auto color_it = colorings.begin(); color_it != colorings.end(); color_it++) {
 			colors.insert(color_it->colors.begin(), color_it->colors.end());
 		}
 		// Return color strings in a vector
-		return std::vector<std::string>(colors.begin(), colors.end());
+
+		return std::vector<std::pair<std::size_t, std::string>>(colors.begin(), colors.end());
 	}
 };
 

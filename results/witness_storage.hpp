@@ -27,21 +27,28 @@ class WitnessStorage {
 	struct StateWitnesses {
 		std::size_t KS_state;
 		std::size_t BA_state;
-		std::vector<TreeNode> witnesses; // Witness tree for each color
+		std::vector<std::pair<std::size_t,TreeNode>>  witnesses; // Witness tree for each color in the form (color_num, witness_tree)
 
-		StateWitnesses(const std::size_t _KS_state, const std::size_t _BA_state, std::vector<TreeNode> && _witnesses) 
+		StateWitnesses(const std::size_t _KS_state, const std::size_t _BA_state, std::vector<std::pair<std::size_t,TreeNode>>  && _witnesses) 
 			         : KS_state(_KS_state), BA_state(_BA_state), witnesses(std::move(_witnesses)) { }
 	};
 
-	std::vector<StateWitnesses> states_witnesses;
+	std::vector<StateWitnesses> path_witnesses;
+	std::vector<StateWitnesses> cycle_witnesses;
 
 	const ProductStructure & product;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void addStateWitness(const std::size_t _KS_state, const std::size_t _BA_state, std::vector<TreeNode> && _witnesses) {
-		states_witnesses.push_back(StateWitnesses(_KS_state, _BA_state, std::move(_witnesses)));
+	/**
+	 * Stores a witness trees for all colors of a single state
+	 */
+	void addWitness(const bool path, const std::size_t _KS_state, const std::size_t _BA_state, std::vector<std::pair<std::size_t,TreeNode>> && _witnesses) {
+		if (path) // for a path from initial to final vertex
+			path_witnesses.push_back(StateWitnesses(_KS_state, _BA_state, std::move(_witnesses)));
+		else // for a cycle from a finial vertex to itself
+			cycle_witnesses.push_back(StateWitnesses(_KS_state, _BA_state, std::move(_witnesses)));
 	}
 
 	WitnessStorage(const WitnessStorage & other);            // Forbidden copy constructor.
@@ -53,6 +60,8 @@ public:
 	 */
 	WitnessStorage(const ProductStructure & _product) : product(_product) {
 	} 
+
+	const std::vector<std::string> getAllWitnesses();
 };
 
 #endif

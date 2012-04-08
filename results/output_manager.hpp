@@ -76,10 +76,10 @@ public:
 	void outputData() const {
 		if (!user_options.coloring())
 			return;
-		auto colors = results.getAllColors();
+		auto colors = std::move(results.getAllColors());
 		// Display amount of all colors
-		std::for_each(colors.begin(), colors.end(), [&] (std::string color) {
-			output_streamer.output(results_str, color);
+		std::for_each(colors.begin(), colors.end(), [&] (std::pair<std::size_t, std::string> color) {
+			output_streamer.output(results_str, color.second);
 		});
 	}
 };

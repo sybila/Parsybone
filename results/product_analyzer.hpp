@@ -81,9 +81,9 @@ class ProductAnalyzer {
 	 *
 	 * @return vector of strings with colors
 	 */
-	std::vector<std::string> getColors(Parameters result_parameters) const {	
+	std::vector<std::pair<std::size_t, std::string>> getColors(Parameters result_parameters) const {	
 		// Vector to fill
-		std::vector<std::string> colors;
+		std::vector<std::pair<std::size_t, std::string>> colors;
 		std::vector<std::size_t> work_color = current_color;
 		// Change the order of values to: from right to left
 		result_parameters = swap(result_parameters, (parameter_end - parameter_begin));
@@ -92,7 +92,7 @@ class ProductAnalyzer {
 		for (std::size_t col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters % 2) 
-				colors.push_back(createColorString(work_color));
+				colors.push_back(std::make_pair(col_num,createColorString(work_color)));
 
 			// Increase values
 			result_parameters >>= 1;
