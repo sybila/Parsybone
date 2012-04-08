@@ -36,7 +36,7 @@ class ProductStructure {
 	// vector with values for each of the states
 	std::vector<Parameters> states_params;
 	// For each state and for each of its colors stores predecessor/s
-	std::vector<std::vector<std::vector<std::size_t>>> states_preds;
+	std::vector<std::vector<std::set<std::size_t>>> states_preds;
 
 	// Information
 	std::vector<std::size_t> initial_states;
@@ -59,8 +59,9 @@ public:
 		std::for_each(states_params.begin(), states_params.end(),[](Parameters & parameters) {
 			parameters = 0;
 		});
+		// Clear and then again resize predecessors for colors
 		std::size_t parameter_count = getParamsetSize();
-		std::for_each(states_preds.begin(), states_preds.end(), [parameter_count](std::vector<std::vector<std::size_t>> & state_preds) {
+		std::for_each(states_preds.begin(), states_preds.end(), [parameter_count](std::vector<std::set<std::size_t>> & state_preds) {
 			state_preds.clear();
 			state_preds.resize(parameter_count);
 		});
@@ -124,7 +125,15 @@ public:
 	 * @param target	ID of the target state
 	 * @param passed	mask of parameters that are passed from source to target
 	 */
-	void addPredecessor(const std::size_t source, const std::size_t target, const Parameters passed) {
+	void addPredecessor(const std::size_t source, const std::size_t target, Parameters passed) {
+		// For each color
+		for (std::size_t color_index = 0; color_index < getParamsetSize(); color_index++) {
+			// If the color is present, add predecessor
+			if (passed % 2)
+				states_preds[target][color_index].insert(source);
+			// Iterate color
+			passed >>= 1;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

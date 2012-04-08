@@ -67,6 +67,8 @@ inline Parameters flip(const Parameters parameters) {
 /**
  * Swaps parameters within a variable - last become first etc.
  *
+ * @param parameters	parameters to swap
+ *
  * @return copy of input with descending order of parameters
  */
 inline Parameters swap(Parameters parameters) {
@@ -79,6 +81,21 @@ inline Parameters swap(Parameters parameters) {
 	}
 	return new_params;
 }
+
+/**
+ * Swaps parameters within a variable - last become first etc.
+ *
+ * @param parameters	parameters to swap
+ * @param shift	if there are not all the parameters used, shift back after swapping
+ *
+ * @return copy of input with descending order of parameters
+ */
+inline Parameters swap(Parameters parameters, std::size_t shift) {
+	parameters = swap(parameters);
+	parameters >>= shift;
+	return parameters;
+}
+
 
 
 

@@ -84,10 +84,8 @@ class ProductAnalyzer {
 		// Vector to fill
 		std::vector<std::string> colors;
 		std::vector<std::size_t> work_color = current_color;
-		// Change the order of values to from right to left
-		result_parameters = swap(result_parameters);
-		// For the last round, arrangement is necessary, for all others, there is just a 0 bit shift 
-		result_parameters >>= (getParamsetSize() - (parameter_end - parameter_begin));
+		// Change the order of values to: from right to left
+		result_parameters = swap(result_parameters, (parameter_end - parameter_begin));
 
 		// Cycle through all round colors
 		for (std::size_t col_num = parameter_begin; col_num < parameter_end; col_num++) {
