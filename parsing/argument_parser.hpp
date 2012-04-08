@@ -73,6 +73,10 @@ public:
 						user_options.display_stats = true;
 						break;
 
+					case 't':
+						user_options.time_serie = true;
+						break;
+
 					case 'v':
 						user_options.be_verbose = true;
 						break;

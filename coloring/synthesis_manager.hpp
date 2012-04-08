@@ -77,7 +77,7 @@ class SynthesisManager {
 			// Reference a final state for this round
 			auto & final = final_states[state_index];
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
-			if (!none(final.second))
+			if (!none(final.second) && !user_options.timeSerie())
 				detectCycle(final);
 			// Store results from the detection
 			analyzer->storeResults(final.first, product.getParameters(final.first));
@@ -109,7 +109,7 @@ class SynthesisManager {
 		// Send updates from the initial state
 		model_checker->transferUpdates(init_coloring.first, init_coloring.second);
 		// Start coloring procedure
-		model_checker->doColoring(init_coloring.first, init_coloring.second);
+		model_checker->doColoring();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

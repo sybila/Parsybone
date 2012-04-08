@@ -27,6 +27,7 @@ class UserOptions {
 	bool be_verbose;
 	bool display_stats;
 	bool negation_check;
+	bool time_serie;
 	std::size_t process_number;
 	std::size_t processes_count;
 
@@ -41,7 +42,7 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-		show_witnesses = show_coloring = be_verbose = display_stats = negation_check = false;
+		show_witnesses = show_coloring = be_verbose = display_stats = negation_check = time_serie= false;
 		process_number = processes_count = 1;
 	}
 
@@ -77,10 +78,17 @@ public:
 	}
 
 	/**
-	 * @return	true if negative_check (switching feasible for non-feasible)
+	 * @return	true if time_serie (checking only reachability)
 	 */
 	inline const bool negation() const {
 		return negation_check;
+	}
+
+		/**
+	 * @return	true if negative_check (switching feasible for non-feasible)
+	 */
+	inline const bool timeSerie() const {
+		return time_serie;
 	}
 
 	/**

@@ -162,6 +162,8 @@ public:
 			break;
 		case verbose_str:
 			if (user_options.verbose())
+				if (testTrait(rewrite_ln, trait_mask))
+					*verbose_stream << '\r';
 				*verbose_stream << "* ";
 			break;
 		}
@@ -206,9 +208,6 @@ private:
 	 */
 	template <class outputType> 
 	void actualOutput(std::ostream & stream, const outputType & stream_data, const unsigned int trait_mask) const {
-		// Return to start of the line
-		if (testTrait(rewrite_ln, trait_mask))
-			stream << '\r';
 		// Add prefix stars
 		if (testTrait(important, trait_mask))
 			stream << "-- ";

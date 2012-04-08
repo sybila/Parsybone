@@ -179,7 +179,7 @@ public:
 	}
 
 	/**
-	 * Distribute updates and store the new ones. Used only for initial coloring.
+	 * Distribute updates and store the new ones.
 	 */
 	void doColoring() {
 		// While there are updates, pass them to succesing vertices
@@ -188,29 +188,6 @@ public:
 			std::size_t state_num = getStrongestUpdate();
 			// Pass data from updated vertex to its succesors
 			transferUpdates(state_num, product.getParameters(state_num));
-			// Erase completed update from the set
-			updates.erase(state_num);
-		}
-	}
-
-	/**
-	 * Distribute updates and store the new ones. Used only in cycle detection - prefers updates of the source vertex.
-	 */
-	void doColoring(const std::size_t source_state, const Parameters parameters) {
-		// While there are updates, pass them to succesing vertices
-		while (!updates.empty()) {
-			// Check if the source is among updates, if not find the one with most bits
-			std::size_t state_num;
-			if (updates.find(source_state) != updates.end())
-				state_num = source_state;
-			else 
-				state_num = getStrongestUpdate();
-			// Pass data from updated vertex to its succesors
-			transferUpdates(state_num, product.getParameters(state_num));
-			// If source was updated and it contains all the parameters, then end
-			if (source_state == state_num)
-				if (product.getParameters(state_num) == parameters)
-					return;
 			// Erase completed update from the set
 			updates.erase(state_num);
 		}
