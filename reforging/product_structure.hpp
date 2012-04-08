@@ -144,7 +144,7 @@ public:
 	 *
 	 * @return string with the state
 	 */
-	const std::string getStateString(const std::size_t state_num) {
+	const std::string getStateString(const std::size_t state_num) const {
 		const std::size_t KS_state = getStateIndexes(state_num).first;
 		const std::size_t BA_state = getStateIndexes(state_num).second;
 		std::string state_string = "(";
@@ -158,8 +158,9 @@ public:
 		state_string += ";";
 		// Add BA state
 		state_string += boost::lexical_cast<std::string, std::size_t>(BA_state);
-		// Edn
+		// End
 		state_string += ")";
+		return state_string;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

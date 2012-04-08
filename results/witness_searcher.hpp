@@ -83,14 +83,14 @@ public:
 	 */
 	void storeWitnesses(const std::size_t state_num, bool final) {
 		// Stores a tree for each color
-		std::vector<std::pair<std::size_t,TreeNode>> all_trees;
+		std::map<std::size_t,TreeNode> all_trees;
 		// Cycle through all the colors
 		for (std::size_t color_num = 0; color_num < getParamsetSize(); color_num++) {
 			// create a witness tree
 			TreeNode witness_tree = std::move(getTree(state_num, color_num, UsedArcs()));
 			// If not empty, store
 			if (!witness_tree.getSuccs().empty())
-				all_trees.push_back(std::make_pair(color_num, witness_tree));
+				all_trees.insert(std::make_pair(color_num, witness_tree));
 		}
 		// Pass to the storage
 		std::size_t KS_state = product.getStateIndexes(state_num).first;

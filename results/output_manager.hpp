@@ -71,16 +71,52 @@ public:
 	}
 
 	/**
+	 * Outputs color and witness, if requested
+	 *
+	 * @param color	color string to output
+	 * @param paths	vector of witnessed for initil to final paths with their final vertex number
+	 * @param cycles vector of witnessed for final to final paths with their final vertex number
+	 */
+	void outputFullColor(const std::string & color, const std::vector<std::pair<std::size_t, std::string>> & paths, 
+		                 const std::vector<std::pair<std::size_t, std::string>> & cycles) const {
+		// Output color
+		if (user_options.coloring())
+			output_streamer.output(results_str, color, OutputStreamer::no_newl).output(" | ", OutputStreamer::no_newl);
+		// For time serie work only with path from init to final, if witnesses are requested
+		if (user_options.timeSerie() && user_options.witnesses()) {
+			// Cycle through paths
+			for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
+				output_streamer.output(" | ", OutputStreamer::no_newl).output(path_it->second, OutputStreamer::no_newl);
+		}
+		// For general LTL, use full laso shape - search for combinations
+		else if (!user_options.timeSerie() && user_options.witnesses()){
+			// cycle paths
+			for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
+				// cycle cycles
+				for (auto cycle_it = cycles.begin(); cycle_it != cycles.end(); cycle_it++) 
+					// If agree on state, combine
+					if (path_it->first == cycle_it->first)
+						output_streamer.output(" | ", OutputStreamer::no_newl).output(path_it->second, OutputStreamer::no_newl)
+									   .output("-", OutputStreamer::no_newl).output(cycle_it->second, OutputStreamer::no_newl);
+		}
+		output_streamer.output("");
+	}
+
+	/**
 	 * Display colors synthetized during current round
 	 */
 	void outputData() const {
-		if (!user_options.coloring())
+		// Abort if not requested
+		if (!user_options.coloring() && !user_options.witnesses())
 			return;
+		// Get strings
 		auto colors = std::move(results.getAllColors());
-		// Display amount of all colors
-		std::for_each(colors.begin(), colors.end(), [&] (std::pair<std::size_t, std::string> color) {
-			output_streamer.output(results_str, color.second);
-		});
+		auto path_wits = std::move(witnesses.getAllWitnesses(true));
+		auto cycle_wits = std::move(witnesses.getAllWitnesses(false));
+		// Display color and witness if requested
+		for (std::size_t color_index = 0; color_index < colors.size(); color_index++) {
+			outputFullColor(colors[color_index].second, path_wits[color_index].second, cycle_wits[color_index].second);
+		}
 	}
 };
 

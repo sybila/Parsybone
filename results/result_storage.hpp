@@ -97,7 +97,7 @@ public:
 	}
 
 	/**
-	 * @return	all the distinctive colors from this round
+	 * @return	all the distinctive colors from this round in the form (color_num, color_string)
 	 */
 	const std::vector<std::pair<std::size_t, std::string>> getAllColors() const {
 		std::set<std::pair<std::size_t, std::string>> colors;

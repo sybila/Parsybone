@@ -36,7 +36,7 @@ public:
 	/**
 	 * @return	state number in the product
 	 */
-	const std::size_t getstate () const {
+	const std::size_t getState () const {
 		return my_state;
 	}
 
