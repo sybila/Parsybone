@@ -150,25 +150,29 @@ public:
 	 * @param trait_mask	bitmask of traits for output 
 	 */
 	template <class outputType> 
-    OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
+    const OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
+		// Update stream
 		last_stream_type = stream_type;
 		switch (stream_type) {
 		case error_str:
+			// Start with !
 			*error_stream << "! ";
 			break;
 		case stats_str:
+			// Start with #
 			if (user_options.stats())
 				*verbose_stream << "# ";
 			break;
 		case verbose_str:
+			// Start with * - if requseted, remove previous line
 			if (user_options.verbose())
 				if (testTrait(rewrite_ln, trait_mask))
 					*verbose_stream << '\r';
 				*verbose_stream << "* ";
 			break;
 		}
-		output(stream_data, trait_mask);
-		return *this;
+		// Continue with output, then return this object
+		return output(stream_data, trait_mask);
 	}
 
 	/**
@@ -179,6 +183,7 @@ public:
 	 */
 	template <class outputType> 
     const OutputStreamer & output(const outputType & stream_data, const unsigned int trait_mask = 0) const {
+		// Pick the correct stream and pass the data - output only if requested
 		switch (last_stream_type) {
 		case error_str:
 			actualOutput(*error_stream, stream_data, trait_mask);	
@@ -188,7 +193,7 @@ public:
 			break;
 		case stats_str: 
 			if (user_options.stats())
-			actualOutput(*stats_stream, stream_data, trait_mask);		
+				actualOutput(*stats_stream, stream_data, trait_mask);		
 			break;
 		case verbose_str:
 			if (user_options.verbose())

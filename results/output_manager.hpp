@@ -17,15 +17,17 @@
 #include "../coloring/split_manager.hpp"
 #include "../reforging/product_structure.hpp"
 #include "result_storage.hpp"
+#include "witness_storage.hpp"
 
 class OutputManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
+	const ProductStructure & product;
 	const SplitManager & split_manager;
 	const ResultStorage & results;
-	const ProductStructure & product;
+	const WitnessStorage & witnesses;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -34,23 +36,23 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const ProductStructure & _product, const SplitManager & _split_manager, const ResultStorage & _results) 
-		         : product(_product), split_manager(_split_manager), results(_results) { } 
+	OutputManager(const ProductStructure & _product, const SplitManager & _split_manager, const ResultStorage & _results, WitnessStorage & _witnesses) 
+		         : product(_product), split_manager(_split_manager), results(_results), witnesses(_witnesses) { } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public:
-	void outputSum() {
+	void outputSummary() {
 		output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(results.getTotalColors(), OutputStreamer::no_newl)
 			.output("/", OutputStreamer::no_newl).output(split_manager.getProcessRange().second - split_manager.getProcessRange().first); 
 	}
 
 	/**
-	 * Ouputs round number
+	 * Ouputs round number - if there are no data within, then erase the line each round
 	 */ 
-	void outputRound() {
+	void outputRoundNum() {
 		// Erase the line if outputting to file or not at all
 		if (output_streamer.isResultInFile() || (!user_options.coloring() && !user_options.witnesses())) 
 			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
@@ -71,7 +73,7 @@ public:
 	/**
 	 * Display colors synthetized during current round
 	 */
-	void outputColors() const {
+	void outputData() const {
 		if (!user_options.coloring())
 			return;
 		auto colors = results.getAllColors();

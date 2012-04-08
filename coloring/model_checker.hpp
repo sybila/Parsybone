@@ -101,7 +101,9 @@ class ModelChecker {
 			std::size_t product_target = product.getProductIndex(KS_target, BA_target);
 			// If there is something new, schedule the target for an update
 			if (product.updateParameters(parameters, product_target)) {
-				product.addPredecessor(product_target, product_source, swap(parameters, synthesis_range.second - synthesis_range.first));
+				// Also store the witnesses, if required
+				if (witness_use == all_wit)
+					product.addPredecessor(product_source, product_target, swap(parameters, synthesis_range.second - synthesis_range.first));
 				updates.insert(product_target);
 			}
 		}

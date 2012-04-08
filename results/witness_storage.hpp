@@ -6,8 +6,8 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_WITNESS_SEARCHER_INCLUDED
-#define PARSYBONE_WITNESS_SEARCHER_INCLUDED
+#ifndef PARSYBONE_WITNESS_STORAGE_INCLUDED
+#define PARSYBONE_WITNESS_STORAGE_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description
@@ -15,31 +15,29 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../reforging/product_structure.hpp"
-#include "witness_storage.hpp"
 
-class WitnessSearcher {
+class WintessSearcher;
+
+class WitnessStorage {
+	friend class WintessSearcher;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	const ProductStructure & product;
-	WitnessStorage & witnesses;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	WitnessSearcher(const WitnessSearcher & other);            // Forbidden copy constructor.
-	WitnessSearcher& operator=(const WitnessSearcher & other); // Forbidden assignment operator.
+	WitnessStorage(const WitnessStorage & other);            // Forbidden copy constructor.
+	WitnessStorage& operator=(const WitnessStorage & other); // Forbidden assignment operator.
 
 public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	WitnessSearcher(const ProductStructure & _product, WitnessStorage & _witnesses) : product(_product), witnesses(_witnesses) {
-
+	WitnessStorage(const ProductStructure & _product) : product(_product) {
 	} 
-
-
 };
 
 #endif

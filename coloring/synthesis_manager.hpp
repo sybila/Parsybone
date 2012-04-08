@@ -16,9 +16,9 @@
 #include "../auxiliary/time_manager.hpp"
 #include "parameters_functions.hpp"
 #include "model_checker.hpp"
-#include "../results/result_storage.hpp"
 #include "../results/output_manager.hpp"
 #include "../results/product_analyzer.hpp"
+#include "../results/witness_searcher.hpp"
 
 class SynthesisManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,10 +31,12 @@ class SynthesisManager {
 
 	// Created within the constructor
 	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
-	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
-	std::unique_ptr<ResultStorage> results; // Class to store results
-	std::unique_ptr<ProductAnalyzer> analyzer; // Class for analysis
 	std::unique_ptr<OutputManager> output; // Class for output
+	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
+	std::unique_ptr<ProductAnalyzer> analyzer; // Class for analysis
+	std::unique_ptr<ResultStorage> results; // Class to store results
+	std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
+	std::unique_ptr<WitnessStorage> witnesses; // Class to store witnesses
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -46,7 +48,7 @@ class SynthesisManager {
 		// Cycle through the rounds
 		for (;split_manager->valid(); split_manager->increaseRound()) {
 			// Output round number
-			output->outputRound();
+			output->outputRoundNum();
 			// Pass information about round
 			model_checker->setRange(split_manager->getRoundRange());
 			analyzer->setRange(split_manager->getRoundRange());
@@ -55,8 +57,8 @@ class SynthesisManager {
 			// Compute witnesses
 			if (user_options.witnesses())
 				synthetizeParameters(all_wit);
-			// Output what has been synthetized
-			output->outputColors();
+			// Output what has been synthetized (colors, witnesses)
+			output->outputData();
 			// Do finishing changes
 			results->finishRound();
 		}
@@ -68,6 +70,7 @@ class SynthesisManager {
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
 	void synthetizeParameters(WitnessUse witness_use) {
+		model_checker->setWitnessUse(witness_use);
 		// Basic (initial) coloring
 		colorProduct(witness_use);
 		// Store colored final vertices
@@ -134,7 +137,9 @@ public:
 		model_checker.reset(new ModelChecker(product));
 		results.reset(new ResultStorage(product));
 		analyzer.reset(new ProductAnalyzer(product, *results));
-		output.reset(new OutputManager(product, *split_manager, *results));
+		witnesses.reset(new WitnessStorage(product));
+		searcher.reset(new WitnessSearcher(product, *witnesses));
+		output.reset(new OutputManager(product, *split_manager, *results, *witnesses));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +158,7 @@ public:
 		time_manager.ouputClock("coloring");
 
 		// Output final number
-		output->outputSum();
+		output->outputSummary();
 	}
 };
 
