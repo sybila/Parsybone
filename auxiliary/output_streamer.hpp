@@ -102,10 +102,6 @@ public:
 	}
 
 	/**
-	 * 
-	 */
-
-	/**
 	 * output on a specified stream
 	 *
 	 * @param stream_type	enumeration type specifying the type of stream to output to

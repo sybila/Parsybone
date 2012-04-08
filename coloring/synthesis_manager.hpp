@@ -74,7 +74,8 @@ class SynthesisManager {
 		// Basic (initial) coloring
 		colorProduct(witness_use);
 		// Store colored final vertices
-		std::vector<Coloring> final_states = std::move(product.storeFinalParams());
+		std::vector<Coloring> final_states = std::move(analyzer->getFinalColoring());
+		searcher->storeWitnesses(product.getFinals());
 
 		// Get the actuall results by cycle detection for each final vertex
 		for (std::size_t state_index = 0; state_index < final_states.size(); state_index++) {
@@ -84,7 +85,8 @@ class SynthesisManager {
 			if (!none(final.second) && !user_options.timeSerie())
 				detectCycle(final, witness_use);
 			// Store results from the detection
-			analyzer->storeResults(final.first, product.getParameters(final.first));
+			analyzer->storeResults(final.first);
+			searcher->storeWitnesses(final.first);
 		}
 	}
 

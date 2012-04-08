@@ -6,53 +6,46 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_WITNESS_STORAGE_INCLUDED
-#define PARSYBONE_WITNESS_STORAGE_INCLUDED
+#ifndef PARSYBONE_TREE_NODE_INCLUDED
+#define PARSYBONE_TREE_NODE_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Description
+// Nodes used for storing witness paths after synthesis - each node has its state number (of the product) and it stores its succesing nodes
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/data_types.hpp"
-#include "../reforging/product_structure.hpp"
-#include "tree_node.hpp"
 
-class WitnessSearcher;
-
-class WitnessStorage {
-	friend class WitnessSearcher;
+class TreeNode {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NEW TYPES AND DATA:
+// DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	struct StateWitnesses {
-		std::size_t KS_state;
-		std::size_t BA_state;
-		std::vector<TreeNode> witnesses; // Witness tree for each color
-
-		StateWitnesses(const std::size_t _KS_state, const std::size_t _BA_state, std::vector<TreeNode> && _witnesses) 
-			         : KS_state(_KS_state), BA_state(_BA_state), witnesses(std::move(_witnesses)) { }
-	};
-
-	std::vector<StateWitnesses> states_witnesses;
-
-	const ProductStructure & product;
+	std::size_t my_state;
+	std::vector<TreeNode> succesors;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING FUNCTIONS
+// METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void addStateWitness(const std::size_t _KS_state, const std::size_t _BA_state, std::vector<TreeNode> && _witnesses) {
-		states_witnesses.push_back(StateWitnesses(_KS_state, _BA_state, std::move(_witnesses)));
-	}
-
-	WitnessStorage(const WitnessStorage & other);            // Forbidden copy constructor.
-	WitnessStorage& operator=(const WitnessStorage & other); // Forbidden assignment operator.
 
 public:
 	/**
-	 * Get reference data and create final states that will hold all the computed data
+	 * Constructor - constructed from a state number and vector of succesing node (might be empty)
 	 */
-	WitnessStorage(const ProductStructure & _product) : product(_product) {
-	} 
+	TreeNode(const std::size_t _state, std::vector<TreeNode> && _succesors = std::vector<TreeNode>()) 
+		: my_state(_state), succesors(std::move(_succesors)) { }
+
+	/**
+	 * @return	state number in the product
+	 */
+	const std::size_t getstate () const {
+		return my_state;
+	}
+
+	/**
+	 * @return	all succesing nodes
+	 */ 
+	const std::vector<TreeNode> & getSuccs() const {
+		return succesors;
+	}
 };
 
 #endif

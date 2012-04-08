@@ -36,7 +36,7 @@ class ProductStructure {
 	// vector with values for each of the states
 	std::vector<Parameters> states_params;
 	// For each state and for each of its colors stores predecessor/s
-	std::vector<std::vector<std::set<std::size_t>>> states_preds;
+	std::vector<std::vector<Predecessors>> states_preds;
 
 	// Information
 	std::vector<std::size_t> initial_states;
@@ -95,24 +95,6 @@ public:
 			states_params[state_index] = color;
 		});
 		return initial_states;
-	}
-
-	/**
-	 * Pick final states from the product and store them with their parameters in the queue of colorings
-	 *
-	 * @return queue with all colorings of final states
-	 */
-	std::vector<Coloring> storeFinalParams() {
-		// Queue tates colored in basic coloring
-		std::vector<Coloring> final_colorings; 
-
-		// Get the states and their colors
-		std::for_each(final_states.begin(), final_states.end(), [&](std::size_t state_index) {
-			final_colorings.push_back(Coloring(state_index, states_params[state_index]));
-		});
-
-		// Return final vertices with their positions
-		return final_colorings;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,12 +188,31 @@ public:
 	}
 
 	/**
-	 * @param state_num	index of the state to ask
+	 * @param state_num	index of the state to ask for parameters
 	 * 
 	 * @return parameters assigned to the state
 	 */
 	inline const Parameters & getParameters(const std::size_t state_num) const {
 		return states_params[state_num];
+	}
+
+	/** 
+	 * @param state_num	index of the state to ask for predecessors
+	 * @param color_index	index of the color in this round (0 .. sizeof(Parameters)*8)
+	 *
+	 * @return predecessors for given state and color
+	 */
+	inline const Predecessors & getPredecessors(const std::size_t state_num, const std::size_t color_index) const {
+		return states_preds[state_num][color_index];
+	}
+
+	/** 
+	 * @param state_num	index of the state to ask for predecessors
+	 *
+	 * @return predecessors for given state
+	 */
+	inline const std::vector<Predecessors> & getPredecessors(const std::size_t state_num) const {
+		return states_preds[state_num];
 	}
 };
 

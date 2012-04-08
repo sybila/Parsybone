@@ -20,6 +20,7 @@ class ProductAnalyzer {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	const ProductStructure & product; // Product itself
 	const ParametrizedStructure & structure; // Structure from the product
     const AutomatonStructure & automaton; // Automaton from the product
 	const FunctionsStructure & functions; // Functions from the product
@@ -137,7 +138,7 @@ public:
 	 * Get reference data and create final states that will hold all the computed data
 	 */
 	ProductAnalyzer(const ProductStructure & _product, ResultStorage & _results) 
-		           : structure(_product.getKS()), automaton(_product.getBA()), functions(_product.getFunc()), results(_results)  {
+		           : product(_product), structure(_product.getKS()), automaton(_product.getBA()), functions(_product.getFunc()), results(_results)  {
 		functions_values = std::move(getValues());
 		current_color = std::move(getBottomValues());
 		parameter_begin = parameter_end = 0;
@@ -160,9 +161,28 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // RESULT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void storeResults(const std::size_t state_num, const Parameters parameters) {
+	void storeResults(const std::size_t state_num) {
+		Parameters parameters = product.getParameters(state_num);
 		// Store results for this 
 		results.addColoring(state_num, parameters, getColors(parameters));
+	}
+
+	/**
+	 * Pick final states from the product and store them with their parameters in the queue of colorings
+	 *
+	 * @return queue with all colorings of final states
+	 */
+	const std::vector<Coloring> getFinalColoring() const {
+		// Queue tates colored in basic coloring
+		std::vector<Coloring> final_colorings; 
+
+		// Get the states and their colors
+		std::for_each(product.getFinals().begin(), product.getFinals().end(), [&](std::size_t state_index) {
+			final_colorings.push_back(Coloring(state_index, product.getParameters(state_index)));
+		});
+
+		// Return final vertices with their positions
+		return final_colorings;
 	}
 };
 

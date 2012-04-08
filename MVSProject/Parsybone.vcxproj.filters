@@ -117,6 +117,9 @@
     <ClInclude Include="..\results\witness_storage.hpp">
       <Filter>results</Filter>
     </ClInclude>
+    <ClInclude Include="..\results\tree_node.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">
