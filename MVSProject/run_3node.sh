@@ -1,1 +1,1 @@
-cp ./Release/Parsybone.exe Parsybone.exe; ./Parsybone.exe -tsvw -F ../Computed/3node_wits.out < ../Models/3node.dbm 
+cp ./Release/Parsybone.exe Parsybone.exe; ./Parsybone.exe -tsv -F ../Computed/3node.out < ../Models/3node.dbm 
