@@ -81,10 +81,15 @@ private:
 	 */
 	void createPaths(const TreeNode & node, std::string substring, std::vector<std::string> & full_strings) const {
 		substring = product.getStateString(node.getState()) + substring;
-		if (node.getSuccs().empty()) 
+		// Do not add if does not end in the initial state
+		if (node.getSuccs().empty() && (node.getState() % product.getBA().getStatesCount() == 0)) 
 			full_strings.push_back(substring);
 		else
 			for (auto succ_it = node.getSuccs().begin(); succ_it != node.getSuccs().end(); succ_it++) {
+				// Skip if cycles on the final state
+				if (node.getState() % product.getBA().getStatesCount() == product.getBA().getStatesCount() - 1)
+					if (succ_it->getState() % product.getBA().getStatesCount() == product.getBA().getStatesCount() - 1)
+						continue;
 				createPaths(*succ_it, substring, full_strings);
 			}
 	}

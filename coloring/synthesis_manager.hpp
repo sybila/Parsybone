@@ -67,12 +67,12 @@ class SynthesisManager {
 	 * Store results that have not been stored yet and finalize the round where needed
 	 */
 	void doConclusion() {
-			// Output what has been synthetized (colors, witnesses)
-			output->outputData();
-			// Do finishing changes and reset results in this round
-			results->finishRound();
-			// Do finishing changes and reset witnesses in this round
-			witnesses->finishRound();
+		// Output what has been synthetized (colors, witnesses)
+		output->outputData();
+		// Do finishing changes and reset results in this round
+		results->finishRound();
+		// Do finishing changes and reset witnesses in this round
+		witnesses->finishRound();
 	}
 	
 	/**
@@ -101,7 +101,7 @@ class SynthesisManager {
 			// For the round without witnesses, store only coloring, for the other, store only witnesses
 			if (witness_use == none_wit) 
 				analyzer->storeResults(final_it->first, user_options.coloring());
-			else
+			else if (!user_options.timeSerie())
 				searcher->storeWitnesses(final_it->first, false);
 		}
 	}

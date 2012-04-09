@@ -49,17 +49,12 @@
 		</STATE>
 		<STATE final="0">
 			<TRANSITIONS>
-				<TRANS label="i=1&j=0&k=0" target="4" />
+				<TRANS label="i=1&j=0&k=0" target="3" />
 				<TRANS label="tt" target="2" />			</TRANSITIONS>
-		</STATE>
-		<STATE final="0">
-			<TRANSITIONS>
-				<TRANS label="i=1&j=0&k=0" target="4" />
-				<TRANS label="i=1&j=0&k=1" target="3" />			</TRANSITIONS>
 		</STATE>
 		<STATE final="1">
 			<TRANSITIONS>
-				<TRANS label="tt" target="4" />
+				<TRANS label="tt" target="3" />
 			</TRANSITIONS>
 		</STATE>
 	</AUTOMATON>

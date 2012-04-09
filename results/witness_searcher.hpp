@@ -45,17 +45,22 @@ class WitnessSearcher {
 		// Store predecesors here
 		std::vector<TreeNode> nodes;
 		// Cycle through arcs
+		bool used_any = false;
 		for (auto pred_it = predecessors.begin(); pred_it != predecessors.end(); pred_it++) {
 			// Skip if already used
 			auto used_state = used_arcs.find(state_num);
 			if (used_state != used_arcs.end())
+				// This predicesor has been already used
 				if (used_state->second == *pred_it)
 					continue;
+			used_any = true;
 			// Otherwise include this arcs and continue in recursion
 			UsedArcs new_used = used_arcs;
 			new_used.insert(std::make_pair(state_num, *pred_it));
 			nodes.push_back(getTree(*pred_it, color_num, new_used));
 		}
+		//if (used_any == false && product.getStateIndexes(state_num).second != 0 && !used_arcs.empty())
+		//	int my_break = 0;
 		// Retrun yourself
 		return TreeNode(state_num, std::move(nodes));
 	}
