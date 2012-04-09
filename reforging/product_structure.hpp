@@ -157,8 +157,8 @@ public:
 		state_string += boost::lexical_cast<std::string, std::size_t>(structure.getStateLevels(KS_state).back());
 		// Add BA state
 		// if (!user_options.timeSerie()) {
-		//	state_string += ";";
-		//	state_string += boost::lexical_cast<std::string, std::size_t>(BA_state);
+			state_string += ";";
+			state_string += boost::lexical_cast<std::string, std::size_t>(BA_state);
 		// }
 		// End
 		state_string += ")";
