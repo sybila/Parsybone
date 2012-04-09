@@ -42,64 +42,79 @@ class SynthesisManager {
 // SYNTHESIS CONTROL
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	/**
-	 * Function that does all the coloring. This part only covers iterating through subparts.
+	 * Setup everything that needs it for computation in this round
 	 */
-	void cycleRounds() {
-		// Cycle through the rounds
-		for (;split_manager->valid(); split_manager->increaseRound()) {
-			// Output round number
-			output->outputRoundNum();
-			// Pass information about round
-			model_checker->setRange(split_manager->getRoundRange());
-			analyzer->setRange(split_manager->getRoundRange());
-			// Do the synthesis, storing all feasible parameters
-			synthetizeParameters(none_wit);
-			// Compute witnesses
-			if (user_options.witnesses() && count(results->getAllParameters()))
-				synthetizeParameters(all_wit);
+	void doPreparation() {
+		// Output round number
+		output->outputRoundNum();
+		// Pass information about round (necessary for setup of those classes)
+		model_checker->setRange(split_manager->getRoundRange());
+		analyzer->setRange(split_manager->getRoundRange());	
+	}
+
+	/**
+	 * Compute data that are requested
+	 */
+	void doComputation() {
+		// Do the synthesis, storing all feasible parameters
+		synthetizeParameters(none_wit);
+		// Compute witnesses
+		if (user_options.witnesses() && count(results->getAllParameters()))
+			synthetizeParameters(all_wit);
+	}
+
+	/**
+	 * Store results that have not been stored yet and finalize the round where needed
+	 */
+	void doConclusion() {
 			// Output what has been synthetized (colors, witnesses)
 			output->outputData();
 			// Do finishing changes
 			results->finishRound();
-		}
 	}
-
+	
 	/**
 	 * Entry point of the parameter synthesis. 
 	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
+	 *
+	 * @param witness_use - how to handle witnesses
 	 */
 	void synthetizeParameters(WitnessUse witness_use) {
-		model_checker->setWitnessUse(witness_use);
+		// FIRST PART: // 
 		// Basic (initial) coloring
 		colorProduct(witness_use);
-		// Store colored final vertices
-		std::vector<Coloring> final_states = std::move(analyzer->getFinalColoring());
 		// Store witnesses for basic coloring
 		if (witness_use != none_wit)
 			searcher->storeWitnesses(product.getFinals(), true);
 
+		// SECOND PART: //
+		// Store colored final vertices
+		std::vector<Coloring> final_states = std::move(analyzer->getFinalColoring());
 		// Get the actuall results by cycle detection for each final vertex
-		for (std::size_t state_index = 0; state_index < final_states.size(); state_index++) {
-			// Reference a final state for this round
-			auto & final = final_states[state_index];
+		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
-			if (!none(final.second) && !user_options.timeSerie())
-				detectCycle(final, witness_use);
-			// Store results from the detection
-			analyzer->storeResults(final.first);
-			// Store witnesses for cycle detection
-			if (witness_use != none_wit)
-				searcher->storeWitnesses(final.first, false);
+			if (!none(final_it->second) && !user_options.timeSerie())
+				detectCycle(*final_it);
+			// For the round without witnesses, store only coloring, for the other, store only witnesses
+			if (witness_use == none_wit) 
+				analyzer->storeResults(final_it->first, user_options.coloring());
+			else
+				searcher->storeWitnesses(final_it->first, false);
 		}
 	}
 
 	/**
 	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
+	 *
+	 * @param witness_use - how to handle witnesses
 	 */
 	void colorProduct(WitnessUse witness_use) {
 		// Assure emptyness
 		product.resetProduct();
+		// Pass the information about witness usage
+		model_checker->setWitnessUse(witness_use);
+
 		// Color each initial state with current parameters (All for the first round)
 		if (witness_use == none_wit)
 			product.colorInitials(split_manager->createStartingParameters());
@@ -107,6 +122,7 @@ class SynthesisManager {
 			product.colorInitials(results->getAllParameters());
 		// Schedule all initial states for updates
 		model_checker->setUpdates(std::move(product.getInitialUpdates()));
+
 		// Start coloring procedure
 		model_checker->doColoring();
 	}
@@ -116,12 +132,15 @@ class SynthesisManager {
 	 *
 	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
 	 */
-	void detectCycle(const Coloring & init_coloring, WitnessUse witness_use) {
+	void detectCycle(const Coloring & init_coloring) {
 		// Assure emptyness
 		product.resetProduct();
+		// Sechedule nothing for updates (will be done during transfer in the next step)
 		model_checker->setUpdates();
+
 		// Send updates from the initial state
 		model_checker->transferUpdates(init_coloring.first, init_coloring.second);
+
 		// Start coloring procedure
 		model_checker->doColoring();
 	}
@@ -155,15 +174,17 @@ public:
 	 * Main synthesis function that iterates through all the rounds of the synthesis
 	 */
 	void doSynthesis() {
-		
 		time_manager.startClock("coloring");
 		
-		// Do computation
-		cycleRounds();
+		// Do the computation for all the rounds
+		for (;split_manager->valid(); split_manager->increaseRound()) {
+			doPreparation();
+			doComputation();
+			doConclusion();
+		}
 
 		time_manager.ouputClock("coloring");
-
-		// Output final number
+		// Output final numbers
 		output->outputSummary();
 	}
 };

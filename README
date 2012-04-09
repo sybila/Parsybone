@@ -14,9 +14,12 @@ Execution:
 	Parsybone reads the model in a XML format from the standard stream, displays results on the standard output and errors on the standard error output.
 
 Arguments:
-	Parsybone [-fv] [-D process_ID number_of_processes] [-F results_file]
+	Parsybone [-cstvw] [-D process_ID number_of_processes] [-F results_file]
+	-c show permitted colors
+	-s show satistics
+	-t test against time serie (or another property that can be checked by Final Buchi automaton)
 	-v use verbose output
-	-f show coloring of final states
+	-w show witnesses
 	-D Used for distributed computation - process will compute only part of the parameter space as given in the second number, first number determines which part it is
 	-F Name of the file that will store the results.
 	

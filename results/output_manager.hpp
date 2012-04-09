@@ -73,41 +73,50 @@ public:
 	}
 
 	/**
-	 * Outputs color and witness, if requested
+	 * Outputs color 
+	 */
+	void outputColor(const std::string & color) const {
+		// Output color
+		output_streamer.output(results_str, color, OutputStreamer::no_newl).output(" | ", OutputStreamer::no_newl);
+	}
+
+	/**
+	 * Outputs  witness
 	 *
-	 * @param color	color string to output
 	 * @param paths	vector of witnessed for initil to final paths with their final vertex number
 	 * @param cycles vector of witnessed for final to final paths with their final vertex number
 	 */
-	void outputFullColor(const std::string & color, const std::vector<std::pair<std::size_t, std::string>> & paths, 
-		                 const std::vector<std::pair<std::size_t, std::string>> & cycles) const {
-		// Output color
-		if (user_options.coloring())
-			output_streamer.output(results_str, color, OutputStreamer::no_newl).output(" | ", OutputStreamer::no_newl);
-		// For time serie work only with path from init to final, if witnesses are requested
-		if (user_options.timeSerie() && user_options.witnesses()) {
-			// Cycle through paths
-			for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
-				output_streamer.output(" | ", OutputStreamer::no_newl).output(path_it->second, OutputStreamer::no_newl);
-		}
-		// For general LTL, use full laso shape - search for combinations
-		else if (!user_options.timeSerie() && user_options.witnesses()){
-			// cycle paths
-			for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
-				// cycle cycles
-				for (auto cycle_it = cycles.begin(); cycle_it != cycles.end(); cycle_it++) 
-					// If agree on state, combine
-					if (path_it->first == cycle_it->first)
-						output_streamer.output(" | ", OutputStreamer::no_newl).output(path_it->second, OutputStreamer::no_newl)
-									   .output("-", OutputStreamer::no_newl).output(cycle_it->second, OutputStreamer::no_newl);
-		}
-		output_streamer.output("");
+	void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths) const {
+		// Cycle through paths
+		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
+			output_streamer.output(" | ", OutputStreamer::no_newl).output(path_it->second, OutputStreamer::no_newl);
+	}
+
+	/**
+	 * Outputs  witness
+	 *
+	 * @param paths	vector of witnessed for initil to final paths with their final vertex number
+	 * @param cycles vector of witnessed for final to final paths with their final vertex number
+	 */
+	void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths, const std::vector<std::pair<std::size_t, std::string>> & cycles) const {
+		// cycle paths
+		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
+			// cycle cycles
+			for (auto cycle_it = cycles.begin(); cycle_it != cycles.end(); cycle_it++) 
+				// If agree on state, combine
+				if (path_it->first == cycle_it->first)
+					output_streamer.output(" | ", OutputStreamer::no_newl).output(path_it->second, OutputStreamer::no_newl)
+									.output("-", OutputStreamer::no_newl).output(cycle_it->second, OutputStreamer::no_newl);
 	}
 
 	/**
 	 * Display colors synthetized during current round
 	 */
 	void outputData() const {
+		// If there is nothing to output, skip
+		if (!user_options.coloring() && !user_options.witnesses()) 
+			return;
+		// Storing objects
 		std::vector<std::pair<std::size_t, std::string>> colors;
 		std::vector<std::pair<std::size_t, std::vector<std::pair<std::size_t, std::string>>>> path_wits, cycle_wits;
 		// Get colors if needed
@@ -118,9 +127,27 @@ public:
 			path_wits = std::move(witnesses.getAllWitnesses(true));
 			cycle_wits = std::move(witnesses.getAllWitnesses(false));
 		}
+
 		// Display color and witness if requested
 		for (std::size_t color_index = 0; color_index < colors.size(); color_index++) {
-			outputFullColor(colors[color_index].second, path_wits[color_index].second, cycle_wits[color_index].second);
+			if (user_options.coloring() && user_options.witnesses() && user_options.timeSerie()) {
+				outputColor(colors[color_index].second);
+				outputWitness(path_wits[color_index].second);
+			}
+			else if (user_options.coloring() && user_options.witnesses() && !user_options.timeSerie()) {
+				outputColor(colors[color_index].second);
+				outputWitness(path_wits[color_index].second, cycle_wits[color_index].second);
+			}
+			else if (user_options.coloring() && !user_options.witnesses()) {
+				outputColor(colors[color_index].second);
+			}
+			else if (user_options.timeSerie()) {
+				outputWitness(path_wits[color_index].second);
+			}
+			else {
+				outputWitness(path_wits[color_index].second, cycle_wits[color_index].second);
+			}
+			output_streamer.output("");
 		}
 	}
 };

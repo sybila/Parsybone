@@ -32,6 +32,9 @@ class ResultStorage {
 
 		StateColoring(const std::size_t _KS_state, const std::size_t _BA_state, const Parameters _parameters, std::vector<std::pair<std::size_t, std::string>> && _colors) 
 			         : KS_state(_KS_state), BA_state(_BA_state), parameters(_parameters), colors(std::move(_colors)) { }
+		// If colors are not requested, they are not stored
+		StateColoring(const std::size_t _KS_state, const std::size_t _BA_state, const Parameters _parameters) 
+			         : KS_state(_KS_state), BA_state(_BA_state), parameters(_parameters) { }
 	};
 
 	// Values that increase through the rounds
@@ -53,6 +56,16 @@ class ResultStorage {
 		std::size_t KS_state = product.getStateIndexes(product_state).first;
 		std::size_t BA_state = product.getStateIndexes(product_state).second;
 		colorings.push_back(StateColoring(KS_state, BA_state, _parameters, std::move(_colors)));
+	}
+
+	/**
+	 * Add a new results in case colors are not requsted by user.
+	 */ 
+	void addColoring (const std::size_t product_state, const Parameters _parameters) {
+		// Recompute the states
+		std::size_t KS_state = product.getStateIndexes(product_state).first;
+		std::size_t BA_state = product.getStateIndexes(product_state).second;
+		colorings.push_back(StateColoring(KS_state, BA_state, _parameters));
 	}
 
 	/**

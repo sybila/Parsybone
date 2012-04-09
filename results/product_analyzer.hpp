@@ -161,10 +161,17 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // RESULT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void storeResults(const std::size_t state_num) {
+	/**
+	 * Store requested results for a give state of product
+	 */
+	void storeResults(const std::size_t state_num, const bool use_colors) {
+		// Get parameters from the state
 		Parameters parameters = product.getParameters(state_num);
 		// Store results for this 
-		results.addColoring(state_num, parameters, getColors(parameters));
+		if (use_colors)
+			results.addColoring(state_num, parameters, getColors(parameters));
+		else
+			results.addColoring(state_num, parameters);
 	}
 
 	/**
