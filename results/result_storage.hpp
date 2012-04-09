@@ -15,11 +15,9 @@
 
 #include "../reforging/product_structure.hpp"
 
-class SynthesisManager;
 class ProductAnalyzer;
 
 class ResultStorage {
-	friend class SynthesisManager;
 	friend class ProductAnalyzer;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
@@ -68,13 +66,6 @@ class ResultStorage {
 		colorings.push_back(StateColoring(KS_state, BA_state, _parameters));
 	}
 
-	/**
-	 * Prepare for the next round
-	 */
-	void finishRound() {
-		total_colors += count(getAllParameters());
-		colorings.clear();
-	}
 
 	ResultStorage(const ResultStorage & other);            // Forbidden copy constructor.
 	ResultStorage& operator=(const ResultStorage & other); // Forbidden assignment operator.
@@ -86,6 +77,14 @@ public:
 	ResultStorage(const ProductStructure & _product) : product(_product) { 
 		total_colors = 0;
 	} 
+
+	/**
+	 * Prepare for the next round (Free memory and store overall number)
+	 */
+	void finishRound() {
+		total_colors += count(getAllParameters());
+		colorings.clear();
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 

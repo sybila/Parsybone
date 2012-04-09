@@ -77,7 +77,7 @@ public:
 	 */
 	void outputColor(const std::string & color) const {
 		// Output color
-		output_streamer.output(results_str, color, OutputStreamer::no_newl).output(" | ", OutputStreamer::no_newl);
+		output_streamer.output(results_str, color, OutputStreamer::no_newl).output("____________________________________________________________________________________________");
 	}
 
 	/**
@@ -89,7 +89,7 @@ public:
 	void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths) const {
 		// Cycle through paths
 		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
-			output_streamer.output(" | ", OutputStreamer::no_newl).output(path_it->second, OutputStreamer::no_newl);
+			output_streamer.output(results_str, path_it->second);
 	}
 
 	/**
@@ -105,8 +105,8 @@ public:
 			for (auto cycle_it = cycles.begin(); cycle_it != cycles.end(); cycle_it++) 
 				// If agree on state, combine
 				if (path_it->first == cycle_it->first)
-					output_streamer.output(" | ", OutputStreamer::no_newl).output(path_it->second, OutputStreamer::no_newl)
-									.output("-", OutputStreamer::no_newl).output(cycle_it->second, OutputStreamer::no_newl);
+					output_streamer.output(results_str, path_it->second, OutputStreamer::no_newl)
+									.output("-", OutputStreamer::no_newl).output(cycle_it->second);
 	}
 
 	/**
@@ -129,25 +129,16 @@ public:
 		}
 
 		// Display color and witness if requested
-		for (std::size_t color_index = 0; color_index < colors.size(); color_index++) {
-			if (user_options.coloring() && user_options.witnesses() && user_options.timeSerie()) {
+		for (std::size_t color_index = 0; color_index < max(colors.size(), path_wits.size()); color_index++) {
+			if (user_options.coloring()) {
 				outputColor(colors[color_index].second);
-				outputWitness(path_wits[color_index].second);
 			}
-			else if (user_options.coloring() && user_options.witnesses() && !user_options.timeSerie()) {
-				outputColor(colors[color_index].second);
+			if (user_options.witnesses() && !user_options.timeSerie()) {
 				outputWitness(path_wits[color_index].second, cycle_wits[color_index].second);
 			}
-			else if (user_options.coloring() && !user_options.witnesses()) {
-				outputColor(colors[color_index].second);
-			}
-			else if (user_options.timeSerie()) {
+			else if (user_options.witnesses()  && user_options.timeSerie()) {
 				outputWitness(path_wits[color_index].second);
 			}
-			else {
-				outputWitness(path_wits[color_index].second, cycle_wits[color_index].second);
-			}
-			output_streamer.output("");
 		}
 	}
 };

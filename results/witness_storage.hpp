@@ -58,9 +58,15 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	WitnessStorage(const ProductStructure & _product) : product(_product) {
-	} 
+	WitnessStorage(const ProductStructure & _product) : product(_product) { } 
 
+	/**
+	 * Prepare for the next round (Free memory and store overall number)
+	 */
+	void finishRound() {
+		path_witnesses.clear();
+		cycle_witnesses.clear();
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PATHS TO STRINGS FUNCTIONS

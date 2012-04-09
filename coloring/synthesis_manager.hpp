@@ -69,8 +69,10 @@ class SynthesisManager {
 	void doConclusion() {
 			// Output what has been synthetized (colors, witnesses)
 			output->outputData();
-			// Do finishing changes
+			// Do finishing changes and reset results in this round
 			results->finishRound();
+			// Do finishing changes and reset witnesses in this round
+			witnesses->finishRound();
 	}
 	
 	/**
