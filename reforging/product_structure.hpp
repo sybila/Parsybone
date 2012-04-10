@@ -156,10 +156,10 @@ public:
 		// Add the last species level
 		state_string += boost::lexical_cast<std::string, std::size_t>(structure.getStateLevels(KS_state).back());
 		// Add BA state
-		// if (!user_options.timeSerie()) {
+		if (user_options.BA()) {
 			state_string += ";";
 			state_string += boost::lexical_cast<std::string, std::size_t>(BA_state);
-		// }
+		}
 		// End
 		state_string += ")";
 		return state_string;

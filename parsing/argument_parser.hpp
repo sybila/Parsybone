@@ -69,6 +69,10 @@ public:
 						user_options.negation_check = true;
 						break;
 
+					case 'o':
+						user_options.single_witness = true;
+						break;
+
 					case 's':
 						user_options.display_stats = true;
 						break;
@@ -83,6 +87,11 @@ public:
 
 					case 'w':
 						user_options.show_witnesses = true;
+						break;
+
+					case 'W':
+						user_options.show_witnesses = true;
+						user_options.add_BA_to_witness = true;
 						break;
 
 					// Get data for distributed computation

@@ -28,6 +28,8 @@ class UserOptions {
 	bool display_stats;
 	bool negation_check;
 	bool time_serie;
+	bool add_BA_to_witness;
+	bool single_witness;
 	std::size_t process_number;
 	std::size_t processes_count;
 
@@ -42,7 +44,7 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-		show_witnesses = show_coloring = be_verbose = display_stats = negation_check = time_serie= false;
+		show_witnesses = show_coloring = be_verbose = display_stats = negation_check = time_serie = single_witness = add_BA_to_witness = false;
 		process_number = processes_count = 1;
 	}
 
@@ -61,6 +63,20 @@ public:
 	 */
 	inline const bool witnesses() const {
 		return show_witnesses;
+	}
+
+	/**
+	 * @return	true if single_witness is set (displaying only a single witness per color)
+	 */
+	inline const bool single() const {
+		return single_witness;
+	}
+
+	/**
+	 * @return	true if add_BA_to_witness is set (displaying path with BA states as well)
+	 */
+	inline const bool BA() const {
+		return add_BA_to_witness;
 	}
 
 	/**

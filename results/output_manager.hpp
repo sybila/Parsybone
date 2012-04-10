@@ -88,8 +88,18 @@ public:
 	 */
 	void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths) const {
 		// Cycle through paths
-		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
-			output_streamer.output(results_str, path_it->second);
+		std::size_t lenght = ~0;
+		auto shortest = paths.begin();
+		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) {
+			if (!user_options.single())
+				output_streamer.output(results_str, path_it->second);
+			else if (path_it->second.size() < lenght) {
+					shortest = path_it;
+					lenght = path_it->second.size();
+			}
+		}
+		if (user_options.single())
+			output_streamer.output(results_str, shortest->second);
 	}
 
 	/**
@@ -100,13 +110,27 @@ public:
 	 */
 	void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths, const std::vector<std::pair<std::size_t, std::string>> & cycles) const {
 		// cycle paths
-		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) 
+		std::size_t lenght = ~0;
+		auto shortest_path = paths.begin();
+		auto shortest_cycle = cycles.begin();
+		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) {
 			// cycle cycles
-			for (auto cycle_it = cycles.begin(); cycle_it != cycles.end(); cycle_it++) 
+			for (auto cycle_it = cycles.begin(); cycle_it != cycles.end(); cycle_it++) {
 				// If agree on state, combine
 				if (path_it->first == cycle_it->first)
-					output_streamer.output(results_str, path_it->second, OutputStreamer::no_newl)
-									.output("-", OutputStreamer::no_newl).output(cycle_it->second);
+					if (!user_options.single())
+						output_streamer.output(results_str, path_it->second, OutputStreamer::no_newl)
+										.output("-", OutputStreamer::no_newl).output(cycle_it->second);
+					else if  (path_it->second.size() + cycle_it->second.size() < lenght) {
+						lenght = path_it->second.size() + cycle_it->second.size();
+						shortest_path = path_it;
+						shortest_cycle = cycle_it;
+					}
+			}
+		}
+		if (user_options.single())
+		output_streamer.output(results_str, shortest_path->second, OutputStreamer::no_newl)
+			.output("-", OutputStreamer::no_newl).output(shortest_cycle->second);
 	}
 
 	/**
@@ -129,7 +153,7 @@ public:
 		}
 
 		// Display color and witness if requested
-		for (std::size_t color_index = 0; color_index < max(colors.size(), path_wits.size()); color_index++) {
+		for (std::size_t color_index = 0; color_index < std::max(colors.size(), path_wits.size()); color_index++) {
 			if (user_options.coloring()) {
 				outputColor(colors[color_index].second);
 			}

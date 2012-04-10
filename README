@@ -20,6 +20,9 @@ Arguments:
 	-t test against time serie (or another property that can be checked by Final Buchi automaton)
 	-v use verbose output
 	-w show witnesses
+	-W show witnesses with BA states
+	-o show only one witness for each color
 	-D Used for distributed computation - process will compute only part of the parameter space as given in the second number, first number determines which part it is
 	-F Name of the file that will store the results.
 	
+For info on how to create a model, read Manual.pdf in the Manual directory.
