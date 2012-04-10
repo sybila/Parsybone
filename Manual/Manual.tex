@@ -72,11 +72,33 @@ Model is described within \texttt{STRUCTURE} tag.
 \texttt{threshold} Lowest value of the source specie that activates this interaction.
 
 \subsubsection {\texttt{REGUL}}
-All combination of 
-\texttt{mask} Boolean mask over all incoming interactions \\
-\texttt{threshold} Lowest value of the source specie that activates this interaction.
+\texttt{mask} Boolean mask over all incoming interactions (1 for active, 0 for non-active) \\
+\texttt{t\_value} Target value for given regulatory context - must be a value the state can occur in or -1, meaning this value is a parameter. \\
+Currently all regulations (exponentially many w.r.t. incomming interactions) must be explicitly specified.
 
-\subsection{Description of behaviour}
+\subsection{Description of property}
+Property is described within \texttt{AUTOMATON} tag using the B\"{u}chi automaton.
+
+\subsubsection {\texttt{AUTOMATON} }
+\texttt{AUTOMATON} holds \texttt{STATES}
+
+\subsubsection {\texttt{STATE}}
+\texttt{final} 1 if the state is final, 0 otherwise\\
+\texttt{STATE} holds container of \texttt{TRANSITIONS}.
+
+\subsubsection {\texttt{TRANS}}
+\texttt{label} Atomic propositions or dual clause of atomic propositions or $tt$ for always true. Each AP is in the form: SpecieName$*$Value where Value is an integer and $*$ is one of $<,=,>$. AP can also be a negation of previous written !AP. \\
+\texttt{target} Index of a state (indexed from 0) that is reachable if the property is true.
+
+\subsubsection {Creating B\"{u}chi automaton}
+It is important to keep in mind that B\"{u}chi automata (BA) are non-deterministic. \\
+To create BA for a time serie (TS), create a sequence of states that contain two transitions:
+\begin{itemize}
+\item One with label $tt$ to itself.
+\item One leading to next state with label that requests all the species to have values requested by the TS.
+\end{itemize}
+Last state is only required to have a transition by parse, it can be anything and lead anywhere..., I use $tt$ to itself. \\
+To achive monotonicity, it is necessary to put other states between those for two measuerements that are reached when value, that is required to be monotene changes and the state has transition to itself only if that value does not change its value other way around.
 
 \end{document}
 
