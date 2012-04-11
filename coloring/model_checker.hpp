@@ -123,10 +123,10 @@ class ModelChecker {
 		// Vector to store them
 		std::vector<std::size_t> reachable;
 		// Cycle through all the transitions
-		for (std::size_t transition_num = automaton.getBeginIndex(BA_source); transition_num < automaton.getBeginIndex(BA_source + 1); transition_num++) {
+		for (std::size_t trans_num = 0; trans_num < automaton.getTransitionsCount(BA_source); trans_num++) {
 			// Check the transitibility
-			if (automaton.isTransitionFeasible(transition_num, structure.getStateLevels(KS_source)))
-				reachable.push_back(automaton.getTarget(transition_num));
+			if (automaton.isTransitionFeasible(BA_source, trans_num, structure.getStateLevels(KS_source)))
+				reachable.push_back(automaton.getTarget(BA_source, trans_num));
 		}
 		return reachable;
 	}

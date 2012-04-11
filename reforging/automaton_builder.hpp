@@ -173,7 +173,7 @@ class AutomatonBuilder {
 	 * @param state_num	index of the state of BA 
 	 * @param start_position	index of the last transition created
 	 */
-	void addTransitions(const std::size_t state_num, std::size_t & start_position) const {
+	void addTransitions(const std::size_t state_num) const {
 		const std::vector<Model::Egde> & edges = model.getEdges(state_num); 
 
 		// Transform each edge into transition and pass it to the automaton
@@ -183,8 +183,6 @@ class AutomatonBuilder {
 			// If the transition is possible for at least some values, add it
 			if (!constrained_values.empty())
 				automaton.addTransition(state_num, edges[edge_num].first, std::move(constrained_values));
-			// Increase the value so it is correct for the next state
-			start_position++;
 		}
 	}
 
@@ -204,21 +202,14 @@ public:
 	void buildAutomaton() {
 		output_streamer.output(stats_str, "Costructing Buchi automaton structure states, total number of states: ", OutputStreamer::no_newl)
 			           .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
-
-		// Index of the first transition for each state in the vector of transition
-		std::size_t state_begin = 0;
 		
 		// List throught all the automaton states
 		for (std::size_t state_num = 0; state_num < model.getStatesCount(); state_num++) {
 			// Fill auxiliary data
-			automaton.addStateBegin(state_begin);
-			automaton.addFinality(model.isFinal(state_num));
+			automaton.addState(state_num, model.isFinal(state_num));
 			// Add transitions for this state
-			addTransitions(state_num, state_begin);
+			addTransitions(state_num);
 		}
-
-		// Add the first index after last transition - used to check the range to search the transition in
-		automaton.addStateBegin(state_begin);
 	}
 };
 

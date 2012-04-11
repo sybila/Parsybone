@@ -39,18 +39,18 @@ class ParametrizedStructure {
 	};
 	
 	// Simple state enriched with transition functions
-	struct ParamState {
+	struct State {
 	private:
 		friend class ParametrizedStructure;
-		std::size_t ID; // unique ID of the node
+		std::size_t ID; // unique ID of the state
 		Levels species_level; // species_level[i] = activation level of specie i
 		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
 
-		ParamState(const std::size_t _ID, const Levels& _species_level) 
+		State(const std::size_t _ID, const Levels& _species_level) 
 			: ID(_ID), species_level(_species_level) { }
 	};
 
-	std::vector<ParamState> states;
+	std::vector<State> states;
 	// Auxiliary data
 	std::vector<std::size_t> step_sizes; // Sizes of steps for each function
 	std::size_t parameters_count; // Size of the parameter space
@@ -76,7 +76,7 @@ class ParametrizedStructure {
 	 * Add a new state, only with ID and levels
 	 */
 	inline void addState(const std::size_t _ID, const Levels& _species_level) {
-		states.push_back(ParamState(_ID, _species_level));
+		states.push_back(State(_ID, _species_level));
 	}
 
 	/**
@@ -98,6 +98,16 @@ public:
 	ParametrizedStructure() {} // Default empty constructor
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// KRIPKE STRUCTURE FUNCTIONS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * @return	number of the states
+	 */
+	inline const std::size_t getStatesCount() const {
+		return states.size();
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
@@ -107,13 +117,6 @@ public:
 		return parameters_count;
 	}
 	
-	/**
-	 * @return	number of the states
-	 */
-	inline const std::size_t getStatesCount() const {
-		return states.size();
-	}
-
 	/**
 	 * @param state_ID	ID of the state to get the data from
 	 *
