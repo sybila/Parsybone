@@ -40,8 +40,6 @@ class ParametrizedStructure {
 	
 	// Simple state enriched with transition functions
 	struct State {
-	private:
-		friend class ParametrizedStructure;
 		std::size_t ID; // unique ID of the state
 		Levels species_level; // species_level[i] = activation level of specie i
 		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
@@ -51,20 +49,13 @@ class ParametrizedStructure {
 	};
 
 	std::vector<State> states;
+
 	// Auxiliary data
 	std::vector<std::size_t> step_sizes; // Sizes of steps for each function
-	std::size_t parameters_count; // Size of the parameter space
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from ParametrizedStructureBuilder)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @param _parameters_count total number of parameters 
-	 */ 
-	inline void setParametersCount(const std::size_t _parameters_count) {
-		parameters_count = _parameters_count;
-	}
-
 	/**
 	 * @param _step_sizes lenght of the steps of function with ID equal to the index in the vector
 	 */
@@ -107,25 +98,6 @@ public:
 		return states.size();
 	}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @return	size of the parameter space
-	 */
-	inline const std::size_t getParametersCount() const {
-		return parameters_count;
-	}
-	
-	/**
-	 * @param state_ID	ID of the state to get the data from
-	 *
-	 * @return	species level 
-	 */
-	inline const Levels & getStateLevels(const std::size_t state_ID) const {
-		return states[state_ID].species_level;
-	}
-
 	/**
 	 * @param state_ID	ID of the state to get the data from
 	 *
@@ -143,6 +115,18 @@ public:
 	 */
 	inline const std::size_t getTargetID(const std::size_t state_ID, const std::size_t transtion_num) const {
 		return states[state_ID].transitions[transtion_num].target_ID;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// OTHER CONSTANT GETTERS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * @param state_ID	ID of the state to get the data from
+	 *
+	 * @return	species level 
+	 */
+	inline const Levels & getStateLevels(const std::size_t state_ID) const {
+		return states[state_ID].species_level;
 	}
 
 	/**

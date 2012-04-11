@@ -97,19 +97,6 @@ public:
 		return states.size();
 	}
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @param state_ID	ID of the state to get the data from
-	 *
-	 * @return	true if the state is final
-	 */
-	inline const bool isFinal(const std::size_t state_ID) const {
-		return states[state_ID].final;
-	}
-
 	/**
 	 * @param state_ID	ID of the state to get the data from
 	 *
@@ -118,7 +105,7 @@ public:
 	inline const std::size_t getTransitionsCount(const std::size_t state_ID) const {
 		return states[state_ID].transitions.size();
 	}
-
+	
 	/**
 	 * @param transition_num	number of transition to get the data from
 	 *
@@ -126,6 +113,18 @@ public:
 	 */
 	inline const std::size_t getTarget(const std::size_t state_ID, const std::size_t transition_num) const {
 		return states[state_ID].transitions[transition_num].target_state;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// OTHER CONSTANT GETTERS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * @param state_ID	ID of the state to get the data from
+	 *
+	 * @return	true if the state is final
+	 */
+	inline const bool isFinal(const std::size_t state_ID) const {
+		return states[state_ID].final;
 	}
 
 	/**

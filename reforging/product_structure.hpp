@@ -28,19 +28,21 @@ class ProductStructure {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	struct State {
+		Parameters parameters; // 32 bits for each color in this round marking its presence or absence
+		std::vector<Predecessors> predecessors; // Vector of states for each color - predecessors in this color
+	};
+	
 	// References to data structures
 	const FunctionsStructure & functions; // Implicit reprezentation of functions - used as reference
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
-	
-	// vector with values for each of the states
-	std::vector<Parameters> states_params;
-	// For each state and for each of its colors stores predecessor/s
-	std::vector<std::vector<Predecessors>> states_preds;
 
 	// Information
 	std::vector<std::size_t> initial_states;
 	std::vector<std::size_t> final_states;
+
+	std::vector<State> states;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -56,14 +58,12 @@ public:
 	 * Sets all to zero
 	 */ 
 	void resetProduct() {
-		std::for_each(states_params.begin(), states_params.end(),[](Parameters & parameters) {
-			parameters = 0;
-		});
-		// Clear and then again resize predecessors for colors
-		std::size_t parameter_count = getParamsetSize();
-		std::for_each(states_preds.begin(), states_preds.end(), [parameter_count](std::vector<std::set<std::size_t>> & state_preds) {
-			state_preds.clear();
-			state_preds.resize(parameter_count);
+		const std::size_t parameter_cound = getParamsetSize();
+		// Clear each state
+		std::for_each(states.begin(), states.end(),[parameter_cound](State & state) {
+			state.parameters = 0;
+			state.predecessors.clear();
+			state.predecessors.resize(parameter_cound);
 		});
 	}
 
@@ -74,7 +74,7 @@ public:
 	 * @return	number of states of the product structure
 	 */
 	inline const std::size_t getStatesCount() const {
-		return states_params.size();
+		return states.size();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,9 +87,9 @@ public:
 	 * @return true if there was an actuall update
 	 */
 	inline bool updateParameters(const Parameters parameters, const std::size_t state_num) {
-		if (states_params[state_num] == (parameters | states_params[state_num]))
+		if (states[state_num].parameters == (parameters | states[state_num].parameters))
 			return false;
-		states_params[state_num] |= parameters;
+		states[state_num].parameters |= parameters;
 		return true;
 	}
 
@@ -101,8 +101,8 @@ public:
 	 * @return set of initial vertices
 	 */
 	const std::vector<std::size_t> & colorInitials(const Parameters color) {
-		std::for_each(initial_states.begin(), initial_states.end(), [&](std::size_t state_index) {
-			states_params[state_index] = color;
+		std::for_each(initial_states.begin(), initial_states.end(), [&](std::size_t state_num) {
+			states[state_num].parameters = color;
 		});
 		return initial_states;
 	}
@@ -122,7 +122,7 @@ public:
 		for (std::size_t color_index = 0; color_index < getParamsetSize(); color_index++) {
 			// If the color is present, add predecessor
 			if (passed % 2)
-				states_preds[target][color_index].insert(source);
+				states[target].predecessors[color_index].insert(source);
 			// Iterate color
 			passed >>= 1;
 		}
@@ -209,17 +209,17 @@ public:
 	}
 
 	/**
-	 * @return set with initial states (instead of vector)
-	 */
-	std::set<std::size_t> getInitialUpdates() const {
-		return std::set<std::size_t>(initial_states.begin(), initial_states.end());
-	}
-
-	/**
 	 * @return set of final states
 	 */ 
 	inline const std::vector<std::size_t> & getFinals() const {
 		return final_states;
+	}
+
+	/**
+	 * @return set with initial states (instead of vector)
+	 */
+	std::set<std::size_t> getInitialUpdates() const {
+		return std::set<std::size_t>(initial_states.begin(), initial_states.end());
 	}
 
 	/**
@@ -228,7 +228,7 @@ public:
 	 * @return parameters assigned to the state
 	 */
 	inline const Parameters & getParameters(const std::size_t state_num) const {
-		return states_params[state_num];
+		return states[state_num].parameters;
 	}
 
 	/** 
@@ -238,7 +238,7 @@ public:
 	 * @return predecessors for given state and color
 	 */
 	inline const Predecessors & getPredecessors(const std::size_t state_num, const std::size_t color_index) const {
-		return states_preds[state_num][color_index];
+		return states[state_num].predecessors[color_index];
 	}
 
 	/** 
@@ -247,7 +247,7 @@ public:
 	 * @return predecessors for given state
 	 */
 	inline const std::vector<Predecessors> & getPredecessors(const std::size_t state_num) const {
-		return states_preds[state_num];
+		return states[state_num].predecessors;
 	}
 };
 

@@ -179,7 +179,6 @@ public:
 	void buildStructure() {
 		output_streamer.output(stats_str, "Merging functions and Kripke structure into Parametrized Kripke structure.");
 		// Just pass the value
-		structure.setParametersCount(regulatory_functions.getParametersCount());
 		structure.setStepSizes(regulatory_functions.getStepSizes());
 
 		// Recreate all the states of the simple structure
@@ -189,9 +188,9 @@ public:
 			structure.addState(state_num, state_levels);
 
 			// For each existing neighbour add a transition to the newly created state
-			for (std::size_t neighbour_index = 0; neighbour_index < basic_structure.getNeighboursCount(state_num); neighbour_index++) {
+			for (std::size_t neighbour_index = 0; neighbour_index < basic_structure.getTransitionsCount(state_num); neighbour_index++) {
 				// Data to fill
-				std::size_t target_ID = basic_structure.getNeighbourID(state_num, neighbour_index); // ID of the state the transition leads to
+				std::size_t target_ID = basic_structure.getTargetID(state_num, neighbour_index); // ID of the state the transition leads to
 				std::size_t step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
 				std::size_t function_num = ~0; // ID of the active function - if ~0, no function is active
 				std::vector<bool> transitive_values; // Which of possible are used (in this case)

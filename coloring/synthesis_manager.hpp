@@ -160,7 +160,7 @@ public:
 	SynthesisManager(ProductStructure & _product)
 		            : structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
 		// Create classes that help with the synthesis
-		split_manager.reset(new SplitManager(structure.getParametersCount()));
+		split_manager.reset(new SplitManager(product.getFunc().getParametersCount()));
 		model_checker.reset(new ModelChecker(product));
 		results.reset(new ResultStorage(product));
 		analyzer.reset(new ProductAnalyzer(product, *results));
