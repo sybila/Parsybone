@@ -153,7 +153,7 @@ public:
 		}
 
 		// Display color and witness if requested
-		for (std::size_t color_index = 0; color_index < std::max(colors.size(), path_wits.size()); color_index++) {
+		for (std::size_t color_index = 0; color_index < my_max(colors.size(), path_wits.size()); color_index++) {
 			if (user_options.coloring()) {
 				outputColor(colors[color_index].second);
 			}

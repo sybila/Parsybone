@@ -24,41 +24,42 @@ class AutomatonBuilder {
 	const Model & model;
 	AutomatonStructure & automaton;
 
+	AllowedValues all_values;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-
 	/**
 	 * Creates complete vector of with all levels combinations with no constrains i.e. constrains for tt transition
-	 *
-	 * @return	vector of all possible values of all the species
 	 */
-	const std::vector<std::set<std::size_t> > buildAllValues() {
-		std::vector<std::set<std::size_t> > all_values;
+	void buildAllValues() {
 		// For each specie insert all its posible levels
 		for (std::size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
+			// Storage
 			std::set<std::size_t> values;
+			// Get all the values from the range 0..max(specie)
 			for (std::size_t value = 0; value <= model.getMax(specie_num); value++) {
 				values.insert(value);
 			}
+			// Pass the temporarry
 			all_values.push_back(std::move(values));
 		}
-		return all_values;
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PARSING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	/**
 	 * Function takes data parsed from the label and puts the restrictions on the values of species. Restrictions are atoms in the form  [negate]Specie op value
 	 *
 	 * @param current_values	set with values that might be restricted
-	 * @param all_values	origin holding all the values with no constrains
 	 * @param op	operator of comparation - either '<' or '=' or '>'
 	 * @param negate	true if the atom is negated
 	 * @param compare_value	value on the right side of the atom
 	 * @param specie_ID	ID of the compared specie
 	 */
-	void eraseForbiddenValues(std::set<std::size_t> & current_values, const std::vector<std::set<std::size_t> > & all_values, const char op, 
-	                           const bool negate, const std::size_t compare_value, const std::size_t specie_ID) {
-		// List through the original values
+	void eraseForbiddenValues(std::set<std::size_t> & current_values, const char op, const bool negate, const std::size_t compare_value, const std::size_t specie_ID) const {
+		// List through the original values and test if they satisfy the property, if not, remove them
 		std::for_each(all_values[specie_ID].begin(), all_values[specie_ID].end(), [op, negate, compare_value, &current_values](const std::size_t val) {
 			if (negate) { // Erase values satisfying the condition (not satisfying its negation)
 				if (op == '<' && val < compare_value )
@@ -68,7 +69,7 @@ class AutomatonBuilder {
 				else if ( op == '=' && val == compare_value )
 					current_values.erase(val);
 			}
-			else { // Erase values not satisfying the condition
+			else { // Erase values not satisfying the condition (operators are complementary)
 				if (op == '<' && val >= compare_value )
 					current_values.erase(val);
 				else if ( op == '>' && val <= compare_value )
@@ -83,24 +84,31 @@ class AutomatonBuilder {
 	 * Creates a vector of allowed values for individual species by removing non-allowed values from the vector of all possible values accordingly to atoms of a formula.
 	 *
 	 * @param subformulas	vector of atoms or negative atoms
-	 * @param all_values	vector of all possible values of all the species
 	 *
 	 * @return	vector of values of the species that are allowed
 	 */
-	std::vector<std::set<std::size_t> > applyConstrains(std::vector<std::string> & subformulas, const std::vector<std::set<std::size_t> > & all_values) {
+	AllowedValues applyConstrains(std::vector<std::string> & subformulas) const {
 		// Data to return
-		std::vector<std::set<std::size_t> > allowed_values(all_values);
-		// Cycle through atoms or negations of atoms
+		AllowedValues allowed_values(all_values);
+
+		// Cycle through atomic formulas and get ALL the data
 		for (auto formula = subformulas.begin(); formula != subformulas.end(); formula++) {
+
 			// Check negativity and delete the ! if needed
 			bool negate = ((*formula)[0] == '!');
 			if (negate) *formula = formula->substr( 1, formula->size());
+
 			// Find position of the comparation operator
 			const std::size_t op_position = formula->find_first_of("<>=");
 
-			// Get all the data from the formula
+			// Specie ID
 			std::string specie_name = formula->substr(0, op_position);
+			const std::size_t ID = model.findID(specie_name);
+
+			// Operator
 			char op = (*formula)[op_position]; // comparation operator
+
+			// Value that is compared
 			std::size_t compare_value;	
 			try {
 				compare_value = boost::lexical_cast<std::size_t,std::string>(formula->substr(op_position+1, formula->size()));
@@ -109,11 +117,8 @@ class AutomatonBuilder {
 				throw std::runtime_error("boost::lexical_cast<size_t, std::string>(formula.substr(op_position+1, formula.size() - 1)) failed");
 			}
 
-			// Find index of the specie
-			const std::size_t ID = model.findID(specie_name);
-
-			// Erase the forbidden values
-			eraseForbiddenValues(allowed_values[ID], all_values, op, negate, compare_value, ID);	
+			// Erase the forbidden values for this atomic formula
+			eraseForbiddenValues(allowed_values[ID], op, negate, compare_value, ID);	
 		}
 		return allowed_values;
 	}
@@ -122,18 +127,21 @@ class AutomatonBuilder {
 	 * From edge label create constrains on the transition
 	 *
 	 * @param constrains	string containing the edge label
-	 * @param all_values	mask for the constrains for tt transition
 	 *
 	 * @return	constrains that control satisfaction of the label
 	 */
-	std::vector<std::set<std::size_t> > parseConstrains(std::string constrains, const std::vector<std::set<std::size_t> > & all_values) {
-		// If the label is always true, do not even bother with constrains
+	AllowedValues parseConstrains(std::string constrains) const {
+		// If the label is always true or alway false, do not even bother with constrains and return all / none
 		if (constrains.compare("tt") == 0) {
-			std::vector<std::set<std::size_t> > allowed_values(all_values);
+			AllowedValues allowed_values(all_values);
 			return std::move(allowed_values);
 		}
+		else if (constrains.compare("ff") == 0) {
+			AllowedValues none;
+			return std::move(none);
+		}
 		
-		// Check for incorrect characters - to be removed later.
+		// Check if all the characters are within allowed (nums, alpha, <, >, =, !, &)
 		std::for_each(constrains.begin(), constrains.end(), [&constrains](char ch) {
 			if (!(isalpha(ch) || isdigit(ch) || ch == '<' || ch == '>' || ch == '=' || ch == '!' || ch == '&'))
 				throw std::runtime_error(std::string("String: ").append(constrains).append(" contains invalid character: ").append(&ch).c_str());
@@ -148,7 +156,8 @@ class AutomatonBuilder {
 			throw std::runtime_error("boost::split(subformulas, constrains, boost::is_any_of(\"&\")) failed");
 		}
 
-		return std::move(applyConstrains(subformulas, all_values));
+		// Return values with 
+		return std::move(applyConstrains(subformulas));
 	}
 
 
@@ -158,39 +167,56 @@ class AutomatonBuilder {
 	AutomatonBuilder(const AutomatonBuilder & other);            // Forbidden copy constructor.
 	AutomatonBuilder& operator=(const AutomatonBuilder & other); // Forbidden assignment operator.
 
+	/**
+	 * Creates transitions from labelled edges of BA and passes them to automaton structure
+	 *
+	 * @param state_num	index of the state of BA 
+	 * @param start_position	index of the last transition created
+	 */
+	void addTransitions(const std::size_t state_num, std::size_t & start_position) const {
+		const std::vector<Model::Egde> & edges = model.getEdges(state_num); 
+
+		// Transform each edge into transition and pass it to the automaton
+		for (std::size_t edge_num = 0; edge_num < model.getEdges(state_num).size(); edge_num++) {
+			// Compute allowed values from string of constrains
+			AllowedValues constrained_values = std::move(parseConstrains(edges[edge_num].second));
+			// If the transition is possible for at least some values, add it
+			if (!constrained_values.empty())
+				automaton.addTransition(state_num, edges[edge_num].first, std::move(constrained_values));
+			// Increase the value so it is correct for the next state
+			start_position++;
+		}
+	}
+
 public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
 	AutomatonBuilder(const Model & _model, AutomatonStructure & _automaton) 
-		: model(_model), automaton(_automaton) { }
+		            : model(_model), automaton(_automaton) {
+		// Create vector all all values that can be present
+		buildAllValues();
+	}
 
 	/**
 	 * Create the transitions from the model and fill the automaton with them
 	 */
 	void buildAutomaton() {
-		// Reference data
-		const std::vector<std::set<std::size_t> > all_values = std::move(buildAllValues());
-		// Index of the first transition for each transition in the vector of transition
-		std::size_t state_begin = 0;
-
 		output_streamer.output(stats_str, "Costructing Buchi automaton structure states, total number of states: ", OutputStreamer::no_newl)
 			           .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
+
+		// Index of the first transition for each state in the vector of transition
+		std::size_t state_begin = 0;
+		
 		// List throught all the automaton states
 		for (std::size_t state_num = 0; state_num < model.getStatesCount(); state_num++) {
-			// Auxiliary data - position of the first function with source being state[state_num]
+			// Fill auxiliary data
 			automaton.addStateBegin(state_begin);
 			automaton.addFinality(model.isFinal(state_num));
-
-			// List through all the edges of the state
-			const std::vector<Model::Egde> & edges = model.getEdges(state_num); 
-			// Transform each edge into transition and pass it to the automaton
-			for (std::size_t edge_num = 0; edge_num < model.getEdges(state_num).size(); edge_num++) {
-				// Compute data and pass them
-				automaton.addTransition(state_num, edges[edge_num].first, std::move(parseConstrains(edges[edge_num].second, all_values)));
-				state_begin++;
-			}
+			// Add transitions for this state
+			addTransitions(state_num, state_begin);
 		}
+
 		// Add the first index after last transition - used to check the range to search the transition in
 		automaton.addStateBegin(state_begin);
 	}

@@ -145,8 +145,10 @@ public:
 	 * @return string with the state
 	 */
 	const std::string getStateString(const std::size_t state_num) const {
+		// Get states numbers
 		const std::size_t KS_state = getStateIndexes(state_num).first;
 		const std::size_t BA_state = getStateIndexes(state_num).second;
+		// Start a state
 		std::string state_string = "(";
 		// Add species levels
 		for (auto spec_it = structure.getStateLevels(KS_state).begin(); spec_it != structure.getStateLevels(KS_state).end() - 1; spec_it++) {
@@ -155,12 +157,12 @@ public:
 		}
 		// Add the last species level
 		state_string += boost::lexical_cast<std::string, std::size_t>(structure.getStateLevels(KS_state).back());
-		// Add BA state
+		// Add BA state (only if requested)
 		if (user_options.BA()) {
 			state_string += ";";
 			state_string += boost::lexical_cast<std::string, std::size_t>(BA_state);
 		}
-		// End
+		// End the state
 		state_string += ")";
 		return state_string;
 	}
