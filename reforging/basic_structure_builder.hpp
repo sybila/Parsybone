@@ -25,46 +25,16 @@ class BasicStructureBuilder {
 	// Provided with constructor
 	const Model & model; // Model that holds the data
 	BasicStructure & structure; // KipkeStructure to fill
+	std::size_t species_count; // Number of species of the model
 
 	// Computed
-	std::size_t states_count;
-	std::size_t species_count;
+	std::size_t states_count; // Number of states in this KS (exponential in number of species)
 	std::vector<std::size_t> index_jumps; // Holds index differences between two neighbour states in each direction for each specie
+	Levels maxes; // Maximal activity levels of the species
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTING FUNCTIONS:
+// FILLING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Compute a vector of maximal levels 
-	 *
-	 * @param state_levels	vector of levels that is initialized to zero
-	 *
-	 * @return	vector of maximal levels of species
-	 */
-	const Levels getMaxes(Levels & state_levels) {
-		Levels maxes; 
-		for(std::size_t specie_num = 0; specie_num < species_count; specie_num++) {
-			state_levels.push_back(0);
-			maxes.push_back(model.getMax(specie_num));
-			states_count *= (model.getMax(specie_num) + 1);
-		}
-		return maxes;
-	}
-
-	/**
-	 * Creates a vector of index differences between neighbour states in each direction.
-	 * Value is difference of the indexes between two states that were generated as a cartesian product.
-	 * Differences are caused by the way the states are generated.
-	 */
-	void computeJumpDifferences() {
-		std::size_t jump_lenght = 1;
-		// Species with higher index cause bigger differences
-		for (std::size_t specie_num = 0; specie_num < species_count; specie_num++) {
-			index_jumps[specie_num] = jump_lenght;
-			jump_lenght *= (model.getMax(specie_num) + 1);
-		}
-	}
-
 	/**
 	 * Compute indexes of the neighbour states of this state and pass them to the state. For each dimension store self and upper and lower neighbour. 
 	 * If none such exists, store max value of std::size_t. 
@@ -89,8 +59,61 @@ class BasicStructureBuilder {
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// COMPUTATION FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Generate next combination of levels i.e. new state of the KS - using standard method for cartesian product generation
+	 */
+	Levels getNextState(Levels state_levels) const {
+		// ID of specie to iterate
+		int position = 0; 
+		// Iterate through species
+		for (auto specie_level = state_levels.begin(); specie_level != state_levels.end(); specie_level++) {
+			if (*specie_level == maxes[position]) {	// Is max? Set to 0 and continue rights. 
+				(*specie_level) = 0;
+				position++;
+			}
+			else { // Else increase and return
+				(*specie_level)++;
+				return state_levels;
+			}
+		}
+		// All-zero is returned after last round
+		return state_levels;
+	}
+	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Compute a vector of maximal levels and store information about states
+	 */
+	void computeBoundaries() {
+		states_count = 1;
+		for(std::size_t specie_num = 0; specie_num < species_count; specie_num++) {
+			// Maximal values of species
+			maxes.push_back(model.getMax(specie_num));
+			// How many states
+			states_count *= (model.getMax(specie_num) + 1);
+		}
+	}
+
+	/**
+	 * Creates a vector of index differences between neighbour states in each direction.
+	 * Value is difference of the indexes between two states that were generated as a cartesian product.
+	 * Differences are caused by the way the states are generated.
+	 */
+	void computeJumps() {
+		index_jumps.resize(species_count);
+		// How many far away are two neighbour in the vector
+		std::size_t jump_lenght = 1;
+		// Species with higher index cause bigger differences
+		for (std::size_t specie_num = 0; specie_num < species_count; specie_num++) {
+			index_jumps[specie_num] = jump_lenght;
+			jump_lenght *= (model.getMax(specie_num) + 1);
+		}
+	}
+	
 	BasicStructureBuilder(const BasicStructureBuilder & other);            // Forbidden copy constructor.
 	BasicStructureBuilder& operator=(const BasicStructureBuilder & other); // Forbidden assignment operator.
 
@@ -99,43 +122,30 @@ public:
 	 * Constructor initializes basic information from the model
 	 */
 	BasicStructureBuilder(const Model & _model, BasicStructure & _structure) 
-		: model(_model), structure(_structure), states_count(1)  {
-		species_count = model.getSpeciesCount();
-		index_jumps.resize(species_count);
-		computeJumpDifferences();
+		                 : model(_model), structure(_structure), species_count(_model.getSpeciesCount())   {
+		// Compute species-related values
+		computeBoundaries();
+		// Compute transitions-related values
+		computeJumps();
 	}
 
 	/**
 	 * Create the states from the model and fill the structure with them.
 	 */
 	void buildStructure() {
-		Levels state_levels; // Initialized to zeroes
-		Levels maxes = std::move(getMaxes(state_levels)); 
-
-		// Create states 
 		output_streamer.output(stats_str, "Computing Kripke structure states, total number of states: ", OutputStreamer::no_newl)
 			           .output(states_count, OutputStreamer::no_newl).output(".");
+
+		// Create initial state (by its values)
+		Levels state_levels(species_count, 0);
+
+		// Create states 
 		for(std::size_t state_num = 0; state_num < states_count; state_num++) {
 			// Fill the structure with the state
 			structure.addState(state_num, state_levels);
 			storeNeigbours(state_num, state_levels, maxes);
-
-			// Generate next combination of levels i.e. new state of the KS - using standard method for cartesian product generation
-			int position = 0; // ID of specie to iterate
-			std::for_each(state_levels.begin(), state_levels.end(),[&maxes, &position](std::size_t & level) {
-				// Values are increased from left to right
-				if (position == -1) ;
-				// Is max? Set to 0 and continue rights.
-				else if (level == maxes[position]) {
-					level = 0;
-					position++;
-				}
-				// Else increase and inform about ending.
-				else {
-					level++;
-					position = -1;
-				}
-			});
+			// Generate new state for the next round
+			state_levels = std::move(getNextState(state_levels));
 		}
 	}
 };
