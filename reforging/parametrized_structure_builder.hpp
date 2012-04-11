@@ -199,8 +199,6 @@ public:
 	 */
 	void buildStructure() {
 		output_streamer.output(stats_str, "Merging functions and Kripke structure into Parametrized Kripke structure.");
-		// Just pass the value
-		structure.setStepSizes(regulatory_functions.getStepSizes());
 
 		// Recreate all the states of the simple structure
 		for(std::size_t state_ID = 0; state_ID < basic_structure.getStateCount(); state_ID++) {

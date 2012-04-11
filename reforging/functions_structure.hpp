@@ -28,6 +28,10 @@ class FunctionsStructure {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Storing a regulatory function in explicit form
 	struct RegulatoryFunction {
+
+	private:
+		friend class FunctionsStructure;
+
 		std::size_t target_specie; // Specie that is regulated.
 		std::vector<std::size_t> source_species; // Regulating species (those who have outcoming interaction to the target of the function, ergo both active and inactive)
 		std::vector<std::size_t> possible_values; // The levels the target can occur in, same for all the functions of one specie
