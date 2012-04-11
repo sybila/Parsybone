@@ -80,7 +80,7 @@ private:
 	 * @param full_strings	storage for fully build paths
 	 */
 	void createPaths(const TreeNode & node, std::string substring, std::vector<std::string> & full_strings) const {
-		substring = product.getStateString(node.getState()) + substring;
+		substring = product.getString(node.getState()) + substring;
 		// Do not add if does not end in the initial state
 		if (node.getSuccs().empty() /* && (node.getState() % product.getBA().getStatesCount() == 0) */) 
 			full_strings.push_back(substring);

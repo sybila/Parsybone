@@ -34,7 +34,7 @@ class ParametrizedStructureBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Test wheather the current state corresponds to the requirments put on values of the specified species.
+	 * Test wheather the current state corresponds to the requirements put on values of the specified species.
 	 * 
 	 * @param source_species	Species that can possibly regulate the target
 	 * @param source_values	In which levels the species have to be for regulation to be active
@@ -162,6 +162,27 @@ class ParametrizedStructureBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * For each existing neighbour add a transition to the newly created state
+	 */
+	void addTransitions(const std::size_t state_ID, const Levels & state_levels) {
+		// Go through all the original transitions
+		for (std::size_t trans_num = 0; trans_num < basic_structure.getTransitionsCount(state_ID); trans_num++) {
+			
+			// Data to fill
+			std::size_t target_ID = basic_structure.getTargetID(state_ID, trans_num); // ID of the state the transition leads to
+			std::size_t step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
+			std::size_t function_num = ~0; // ID of the active function - if ~0, no function is active
+			std::vector<bool> transitive_values; // Which of possible are used (in this case)
+
+			// Fill data about the transition and check if it is even feasible
+			if (fillFunctions(state_ID, trans_num, state_levels, function_num, step_size, transitive_values)) {
+				// Add the transition
+				structure.addTransition(state_ID, target_ID, function_num, step_size, std::move(transitive_values));
+			}
+		}	
+	}
+	
 	ParametrizedStructureBuilder(const ParametrizedStructureBuilder & other);            // Forbidden copy constructor.
 	ParametrizedStructureBuilder& operator=(const ParametrizedStructureBuilder & other); // Forbidden assignment operator.
 
@@ -182,25 +203,14 @@ public:
 		structure.setStepSizes(regulatory_functions.getStepSizes());
 
 		// Recreate all the states of the simple structure
-		for(std::size_t state_num = 0; state_num < basic_structure.getStateCount(); state_num++) {
+		for(std::size_t state_ID = 0; state_ID < basic_structure.getStateCount(); state_ID++) {
+
 			// Create a new state from the known data
-			const Levels & state_levels = basic_structure.getStateLevels(state_num);
-			structure.addState(state_num, state_levels);
+			const Levels & state_levels = basic_structure.getStateLevels(state_ID);
+			structure.addState(state_ID, state_levels);
 
-			// For each existing neighbour add a transition to the newly created state
-			for (std::size_t neighbour_index = 0; neighbour_index < basic_structure.getTransitionsCount(state_num); neighbour_index++) {
-				// Data to fill
-				std::size_t target_ID = basic_structure.getTargetID(state_num, neighbour_index); // ID of the state the transition leads to
-				std::size_t step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
-				std::size_t function_num = ~0; // ID of the active function - if ~0, no function is active
-				std::vector<bool> transitive_values; // Which of possible are used (in this case)
-
-				// Fill data about the transition and check if it is even feasible
-				if (fillFunctions(state_num, neighbour_index, state_levels, function_num, step_size, transitive_values)) {
-					// Add the transition
-					structure.addTransition(state_num, target_ID, function_num, step_size, std::move(transitive_values));
-				}
-			}
+			// Add all the transitions
+			addTransitions(state_ID, state_levels);
 		}
 	}
 };

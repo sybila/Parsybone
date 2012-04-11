@@ -117,6 +117,25 @@ public:
 		return states[state_ID].transitions[transtion_num].target_ID;
 	}
 
+	/**
+	 * @param state_ID	ID of the state to get the data from
+	 *
+	 * @return	give state as a string
+	 */
+	const std::string getString(const std::size_t state_ID) const {
+		std::string state_string = "(";
+		// Add species levels
+		for (auto spec_it = getStateLevels(state_ID).begin(); spec_it != getStateLevels(state_ID).end() - 1; spec_it++) {
+			state_string += boost::lexical_cast<std::string, std::size_t>(*spec_it);
+			state_string += ",";
+		}
+		// Add the last species level
+		state_string += boost::lexical_cast<std::string, std::size_t>(getStateLevels(state_ID).back());
+		// End the state
+		state_string += ")";
+		return std::move(state_string);
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

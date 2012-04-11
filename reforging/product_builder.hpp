@@ -36,6 +36,11 @@ class ProductBuilder {
 	void createEmptyProduct (const std::size_t states_count) {
 		product.states.resize(states_count);
 		// Fill and set all to zero
+		if (user_options.witnesses()) {
+			for (auto state_it = product.states.begin(); state_it != product.states.end(); state_it++) {
+				state_it->predecessors.resize(getParamsetSize());
+			}
+		}
 		product.resetProduct();
 	}
 

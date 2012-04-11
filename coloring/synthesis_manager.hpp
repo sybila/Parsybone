@@ -96,7 +96,7 @@ class SynthesisManager {
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
-			if (!none(final_it->second) && !user_options.timeSerie())
+ 			if (!none(final_it->second) && !user_options.timeSerie())
 				detectCycle(*final_it);
 			// For the round without witnesses, store only coloring, for the other, store only witnesses
 			if (witness_use == none_wit) 

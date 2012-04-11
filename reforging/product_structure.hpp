@@ -58,23 +58,16 @@ public:
 	 * Sets all to zero
 	 */ 
 	void resetProduct() {
-		const std::size_t parameter_cound = getParamsetSize();
+		const std::size_t color_count = getParamsetSize();
 		// Clear each state
-		std::for_each(states.begin(), states.end(),[parameter_cound](State & state) {
+		std::for_each(states.begin(), states.end(),[color_count](State & state) {
 			state.parameters = 0;
-			state.predecessors.clear();
-			state.predecessors.resize(parameter_cound);
+			if (user_options.witnesses()) {
+				for(auto color_it = state.predecessors.begin(); color_it != state.predecessors.end(); color_it++) {
+					color_it->clear();
+				}
+			}
 		});
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// KRIPKE STRUCTURE FUNCTIONS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @return	number of states of the product structure
-	 */
-	inline const std::size_t getStatesCount() const {
-		return states.size();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,6 +122,33 @@ public:
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// KRIPKE STRUCTURE FUNCTIONS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * @return	number of states of the product structure
+	 */
+	inline const std::size_t getStatesCount() const {
+		return states.size();
+	}
+
+	/**
+	 * @param state_ID	ID of the state to get the data from
+	 *
+	 * @return	give state as a string
+	 */
+	const std::string getString(const std::size_t state_ID) const {
+		// Get states numbers
+		const std::size_t KS_state = getStateIndexes(state_ID).first;
+		const std::size_t BA_state = getStateIndexes(state_ID).second;
+		// Concat strings of subparts
+		std::string state_string = std::move(structure.getString(KS_state));
+		if (user_options.BA())
+			state_string += std::move(automaton.getString(BA_state));
+
+		return std::move(state_string);
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REFORMING GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
@@ -145,36 +165,6 @@ public:
 		const std::size_t KS_state = product_index / automaton.getStatesCount();
 		const std::size_t BA_state = product_index % automaton.getStatesCount();
 		return std::make_pair(KS_state, BA_state);
-	}
-
-	/**
-	 * Create string in the form (specie_1_lvl, specie_2_lvl, ..., specie_n_lvl; BA_lvl)
-	 *
-	 * @param state_num	number of the state to make the string from
-	 *
-	 * @return string with the state
-	 */
-	const std::string getStateString(const std::size_t state_num) const {
-		// Get states numbers
-		const std::size_t KS_state = getStateIndexes(state_num).first;
-		const std::size_t BA_state = getStateIndexes(state_num).second;
-		// Start a state
-		std::string state_string = "(";
-		// Add species levels
-		for (auto spec_it = structure.getStateLevels(KS_state).begin(); spec_it != structure.getStateLevels(KS_state).end() - 1; spec_it++) {
-			state_string += boost::lexical_cast<std::string, std::size_t>(*spec_it);
-			state_string += ",";
-		}
-		// Add the last species level
-		state_string += boost::lexical_cast<std::string, std::size_t>(structure.getStateLevels(KS_state).back());
-		// Add BA state (only if requested)
-		if (user_options.BA()) {
-			state_string += ";";
-			state_string += boost::lexical_cast<std::string, std::size_t>(BA_state);
-		}
-		// End the state
-		state_string += ")";
-		return state_string;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
