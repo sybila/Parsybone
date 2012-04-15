@@ -168,6 +168,13 @@ public:
 	}
 
 	/**
+	 * @return	name of the specie
+	 */
+	inline const std::string & getName(const std::size_t ID) const {
+		return species[ID].name;
+	}
+
+	/**
 	 * @return	maximal value of the specie
 	 */
 	inline const std::size_t getMax(const std::size_t ID) const {

@@ -36,14 +36,15 @@ class FunctionsBuilder {
 	 *
 	 * @param interactions	all the regulators
 	 * @param mask mask of the present regulators - true if the interaction is active
-	 * @param source_species	IDs of regulation species
-	 * @param source_values		levels corresponding species (by vector index) have to be at
+	 *
+	 * @return	levels corresponding species (by vector index) have to be at
 	 */
-	void getInteractionValues(const std::vector<Model::Interaction> & interactions, const std::vector<bool> & mask, 
-		                      std::vector<std::size_t> & source_species, std::vector<std::vector<std::size_t> > & source_values) {
+	std::vector<std::vector<std::size_t> > getSourceValues(const std::vector<Model::Interaction> & interactions, const std::vector<bool> & mask) const {
+		// Data to return
+		std::vector<std::vector<std::size_t> > source_values;
+
 		// For each regulating interaction pass the information
 		for (std::size_t interaction_num = 0; interaction_num < interactions.size(); interaction_num++) {
-			source_species.push_back(interactions[interaction_num].first); // Regulating specie ID
 			std::vector<std::size_t> possible_levels; // In wich levels the regulating specie has to be for regulation to be active?
 			
 			// If regulation has to be active, store values from treshold above
@@ -55,8 +56,11 @@ class FunctionsBuilder {
 				for (std::size_t possible_level = 0; possible_level < interactions[interaction_num].second; possible_level++)
 					possible_levels.push_back(possible_level);
 
+			// Store computed values
 			source_values.push_back(std::move(possible_levels));
 		}
+
+		return source_values;
 	}
 	
 	/**
@@ -67,69 +71,79 @@ class FunctionsBuilder {
 	 *
 	 * @return possible target values for given function
 	 */
-	std::vector<std::size_t> computePossibleValues(const int target_val, const std::size_t specie_ID) {
+	std::vector<std::size_t> computePossibleValues(const int target_val, const std::size_t specie_ID) const {
+		// Data to return
 		std::vector<std::size_t> possible_values;
-		// Add target values (if input negative, add all possibilities), if positive, add current requested value
+
+		// Add target values (if input negative, add all possibilities), if positive, add current requested value (by creator of the model)
 		if (target_val >= 0 )
 			possible_values.push_back(target_val);
 		else
 			for (std::size_t possible_value = 0; possible_value <= model.getMax(specie_ID); possible_value++) 
 				possible_values.push_back(possible_value);
+
 		return possible_values;
 	}
 
 	/**
 	 * Creates the functions in explicit form from the model information.
 	 */
-	void buildFunctionsStructure() {
-		for (std::size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
-			// Get information
-			const std::vector<Model::Interaction> & interactions = model.getInteractions(specie_num);
-			const std::vector<Model::Regulation> & regulations = model.getRegulations(specie_num);
+	void addRegulations(const std::size_t specie_ID, std::size_t & step_size) const {
+		// get referecnces to Specie data
+		const std::vector<Model::Interaction> & interactions = model.getInteractions(specie_ID);
+		const std::vector<Model::Regulation> & regulations = model.getRegulations(specie_ID);
 
-			output_streamer.output(verbose_str, "Computing functions for specie ", OutputStreamer::no_newl).output(specie_num, OutputStreamer::no_newl)
-				           .output(" with ", OutputStreamer::no_newl).output(interactions.size(), OutputStreamer::no_newl)
-				           .output(" interactions and ", OutputStreamer::no_newl).output(regulations.size(), OutputStreamer::no_newl)
-						   .output(" regulatory contexts.");
-			// Go through regulations of a specie - each represents a single function
-			for (auto it = regulations.begin(); it != regulations.end(); it++) {
-				// Get data from interactions
-				std::vector<std::size_t> source_species;
-				std::vector<std::vector<std::size_t> > source_values;
-				getInteractionValues(interactions, it->first, source_species, source_values);
+		// Go through regulations of a specie - each represents a single function
+		for (auto regul_it = regulations.begin(); regul_it != regulations.end(); regul_it++) {
+			// Compute allowed values for each regulating specie for this function to be active
+			std::vector<std::vector<std::size_t> > source_values = std::move(getSourceValues(interactions, regul_it->first));
 
-				// Add target values (if input negative, add all possibilities), if positive, add current requested value
-				std::vector<std::size_t> possible_values = std::move(computePossibleValues(it->second, specie_num));
+			// Add target values (if input negative, add all possibilities), if positive, add current requested value
+			std::vector<std::size_t> possible_values = std::move(computePossibleValues(regul_it->second, specie_ID));
+			const std::size_t values_count = possible_values.size();
 
-				// pass the function to the holder.
-				functions_structure.addRegulatoryFunction(specie_num, std::move(source_species), std::move(source_values), std::move(possible_values));
-			}
+			// pass the function to the holder.
+			functions_structure.addRegulatoryFunction(specie_ID, step_size, std::move(possible_values), std::move(source_values));
+
+			// Increase step size for the next function
+			step_size *= values_count;
 		}
 	}
 
 	/**
-	 * Computes iformation about where functions with common target starts and how big are steps in parameter set.
+	 * Get all the values possible for given specie
+	 *
+	 * @param specie_ID	specie to get the values from
+	 *
+	 * @return vector of all specie levels
 	 */
-	void computeAuxiliaryData() {
-		output_streamer.output(stats_str, "Computing auxiliary data for functions.");
-		// Aid variables
-		std::size_t last_target = 0;
-		std::size_t function_num = 0;
-		std::size_t step_size = 1;
+	std::vector<std::size_t> getPossibleValues(const std::size_t specie_ID) const {
+		// Storage
+		std::vector<std::size_t> possible_values;
+		// Add all the values between 0 and max
+		for (std::size_t possible_value = 0; possible_value <= model.getMax(specie_ID); possible_value++) 
+			possible_values.push_back(possible_value);
 
-		// Add species begin when the target specie ends. Compute step lenght as an iterative multiplication by size of possibilities of previous functions.
-		functions_structure.addSpecieBegin(0);
-		for (function_num = 0; function_num < functions_structure.reg_functions.size(); function_num++) {
-			// Store where it begins
-			if (functions_structure.getTarget(function_num) != last_target) {
-				functions_structure.addSpecieBegin(function_num);
-				last_target = functions_structure.getTarget(function_num);
-			}
-			// Store how many combinations of target values of previous functions there are
-			functions_structure.addStepSize(step_size);
-			step_size *= functions_structure.getPossibleValues(function_num).size();
-		}
-		functions_structure.addSpecieBegin(function_num);
+		return possible_values;
+	}
+
+	/**
+	 * Get IDs of the sources of regulations for this specie
+	 *
+	 * @param specie_ID	specie to get the values from
+	 *
+	 * @return vector of all species that have outcoming interaction to this specie
+	 */
+	std::vector<std::size_t> getSourceSpecies(const std::size_t specie_ID) const {
+		// Storage
+		std::vector<std::size_t> source_species;
+		// Get reference
+		const std::vector<Model::Interaction> & interactions = model.getInteractions(specie_ID);
+		// Add all the values between 0 and max
+		for (auto inter_it = interactions.begin(); inter_it != interactions.end(); inter_it++) 
+			source_species.push_back(inter_it->first);
+
+		return source_species;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,14 +157,33 @@ public:
 	 * Constructor just attaches the references to data holders
 	 */
 	FunctionsBuilder(const Model & _model, FunctionsStructure & _functions_structure) 
-		: model(_model), functions_structure(_functions_structure)  {	}
+		: model(_model), functions_structure(_functions_structure)  { }
 
 	/**
-	 * Create the functions from the model 
+	 * For each specie recreate all its regulatory functions
 	 */
-	void buildFunctions() { 
-		buildFunctionsStructure();
-		computeAuxiliaryData();
+	void buildFunctions() {
+		output_streamer.output(stats_str, "Costructing Regulatory functions for: ", OutputStreamer::no_newl)
+			           .output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
+
+		std::size_t step_size = 1; // Variable necessary for encoding of colors 
+
+		// Cycle through all the species
+		for (std::size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
+
+			// Compute data
+			std::vector<std::size_t> possible_values = std::move(getPossibleValues(specie_num));
+			std::vector<std::size_t> source_species = std::move(getSourceSpecies(specie_num));
+
+			// Add specie
+			functions_structure.addSpecie(model.getName(specie_num), specie_num, std::move(possible_values), std::move(source_species));
+			
+			// Add regulations for this specie
+			addRegulations(specie_num, step_size);
+		}
+
+		// Set the number by what would be step size for next function
+		functions_structure.parameter_count = step_size;
 	}
 };
 #endif

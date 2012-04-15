@@ -111,9 +111,12 @@ class ProductAnalyzer {
 	 */
 	const std::vector<std::vector<std::size_t>> getValues() const {
 		std::vector<std::vector<std::size_t>> parameter_values;
-		for (std::size_t function_num = 0; function_num < functions.getFunctionsCount(); function_num++) 
-			// Get all the values for a function
-			parameter_values.push_back(functions.getPossibleValues(function_num));
+		for (std::size_t specie_num = 0; specie_num != functions.getSpeciesCount(); specie_num++) {
+			for (std::size_t function_num = 0; function_num < functions.getRegulationsCount(specie_num); function_num++) {
+				// Get all the values for a function
+				parameter_values.push_back(functions.getPossibleValues(specie_num, function_num));
+			}
+		}
 		return parameter_values;
 	}
 
@@ -124,9 +127,12 @@ class ProductAnalyzer {
 	 */
 	std::vector<std::size_t> getBottomValues() const {
 		std::vector<std::size_t> bottom_values;
-		for (std::size_t function_num = 0; function_num < functions.getFunctionsCount(); function_num++) 
-			// Get the lowes value for the function
-			bottom_values.push_back(functions.getPossibleValues(function_num).front());
+		for (std::size_t specie_num = 0; specie_num != functions.getSpeciesCount(); specie_num++) {
+			for (std::size_t function_num = 0; function_num < functions.getRegulationsCount(specie_num); function_num++) {
+				// Get the lowes value for the function
+				bottom_values.push_back(functions.getPossibleValues(specie_num, function_num).front());
+			}
+		}
 		return bottom_values;
 	}	
 	

@@ -39,6 +39,7 @@ class BasicStructure {
 	struct State { 
 		std::size_t ID; // unique ID of the state
 		Levels species_level; // species_level[i] = activation level of specie i
+
 		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
 
 		State(std::size_t _ID, Levels _species_level) 

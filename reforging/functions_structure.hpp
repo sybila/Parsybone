@@ -28,51 +28,52 @@ class FunctionsStructure {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Storing a regulatory function in explicit form
 	struct RegulatoryFunction {
-
-	private:
-		friend class FunctionsStructure;
-
-		std::size_t target_specie; // Specie that is regulated.
-		std::vector<std::size_t> source_species; // Regulating species (those who have outcoming interaction to the target of the function, ergo both active and inactive)
-		std::vector<std::size_t> possible_values; // The levels the target can occur in, same for all the functions of one specie
+		std::size_t step_size; // How many neighbour parameters have the same value for this function 
+		std::vector<std::size_t> possible_values; // Levels towards which this function can regulate
 		std::vector<std::vector<std::size_t> > source_values;  // Values at which the regulations are active
 
-		RegulatoryFunction(std::size_t _target_specie, std::vector<std::size_t> && _source_species, std::vector<std::vector<std::size_t> > && _source_values, 
-			               std::vector<std::size_t> && _possible_values)
-			: target_specie(_target_specie), source_species(std::move(_source_species)), 
-			source_values(std::move(_source_values)), possible_values(std::move(_possible_values)) {}
+		RegulatoryFunction(const std::size_t _step_size, std::vector<std::size_t> && _possible_values, std::vector<std::vector<std::size_t> > && _source_values)
+			: step_size(_step_size), possible_values(std::move(_possible_values)), source_values(std::move(_source_values)) {}
 	};
 	
-	std::vector<RegulatoryFunction> reg_functions;
-	// auxiliary data
-	std::vector<std::size_t> specie_begin; // lenght = |Species| Positions of reg_functions where functions that regulates specie i begin
-	std::vector<std::size_t> step_sizes; // lenght = |Regulatory functions| How many neighbour parameters have the same value for this function 
+	// Storing a sigle specie with its regulations
+	struct Specie {
+		std::string name; // Real name of the specie
+		std::size_t ID; // Reference number
+		std::vector<std::size_t> specie_values; // Levels this specie can occur in
+		std::vector<std::size_t> source_species; // IDs of regulators
+
+		std::vector<RegulatoryFunction> functions; // Regulatory functions - values the gene tends to in different regulatory contexts
+	
+		Specie(const std::string _name, const std::size_t _ID, std::vector<std::size_t> && _specie_values, std::vector<std::size_t> && _source_species)
+			  : name(_name), ID(_ID), specie_values(std::move(_specie_values)), source_species(std::move(_source_species)) { }
+	};
+
+	std::vector<Specie> species;
+
+	// Toatal number of parameters (colors)
+	std::size_t parameter_count;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from FunctionsBuilder)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Add a new function - consist of target, IDs of regulators (both active and inactive) and levels they have to be at, and possible parameter values
+	 * Add a new function - consist of target, step_size and values in which this function is active
+	 *
+	 * @param source_ID	ID of the spicie whose function this is
 	 */
-	inline void addRegulatoryFunction(std::size_t _target_specie, std::vector<std::size_t> && _source_species, std::vector<std::vector<std::size_t> > && _source_values, 
-		                       std::vector<std::size_t> && _possible_values_count) {
-		reg_functions.push_back(RegulatoryFunction(_target_specie, std::move(_source_species), 
-			std::move(_source_values), std::move(_possible_values_count)));
+	inline void addRegulatoryFunction(const std::size_t target_ID, const std::size_t step_sizes, 
+		                              std::vector<std::size_t> && possible_values, std::vector<std::vector<std::size_t> > && source_values) {
+		species[target_ID].functions.push_back(RegulatoryFunction(step_sizes, std::move(possible_values), std::move(source_values)));
 	}
 
 	/**
-	 * @param position	number of the first function with target specie equal to vector index
+	 * Add a new specie - consists of its name within a string, ID, possible values vector and source species IDs vector
 	 */
-	inline void addSpecieBegin(const std::size_t position) {
-		specie_begin.push_back(position);
+	inline void addSpecie(const std::string name, const std::size_t ID, std::vector<std::size_t> && specie_values, std::vector<std::size_t> && source_species) {
+		species.push_back(Specie(name, ID, std::move(specie_values), std::move(source_species)));
 	}
 
-	/**
-	 * @param number	how many parameter steps it takes to change the value of the current function
-	 */
-	inline void addStepSize(const std::size_t step_size) {
-		step_sizes.push_back(step_size);
-	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER FUNCTIONS
@@ -89,80 +90,64 @@ public:
 	/**
 	 * @return	size of the parameter space
 	 */
-	const std::size_t getParametersCount() const {
-		std::size_t parameters_count = 1;
-		std::for_each(reg_functions.begin(), reg_functions.end(), [&parameters_count](const RegulatoryFunction & function) {
-			parameters_count *= function.possible_values.size();
-		});
-		return parameters_count;
+	inline const std::size_t getParametersCount() const {
+		return parameter_count;
 	}
 
 	/**
-	 * @return	number of single regulatory functions
+	 * @return	number of the species
 	 */
-	inline const std::size_t getFunctionsCount() const {
-		return reg_functions.size();
+	inline const std::size_t getSpeciesCount() const {
+		return species.size();
 	}
 
 	/**
-	 * @param specie_num	number of the specie that is regulated
-	 *
-	 * @return	position in the functions vector where functions regulating specie_num starts
+	 * @return	name of the specie with given ID
 	 */
-	inline const std::size_t getSpecieBegin(std::size_t specie_num) const {
-		return specie_begin[specie_num];
+	inline const std::string & getSpecieName(const std::size_t ID) const {
+		return species[ID].name;
 	}
 
 	/**
-	 * @param function_num	number of the funcion
-	 *
-	 * @return	number of neighbour bits in the bitset that share the same value for this function
+	 * @return	all the values the specie can occur in
 	 */
-	inline const std::size_t getStepSize(std::size_t function_num) const {
-		return step_sizes[function_num];
+	inline const std::vector<std::size_t> & getSpecieValues(const std::size_t ID) const {
+		return species[ID].specie_values;
 	}
 
 	/**
-	 * @return	vector of the step sizes for the functions
+	 * @return	IDs of all the species that regulate this specie
 	 */
-	inline const std::vector<std::size_t> getStepSizes() const {
-		return step_sizes;
+	inline const std::vector<std::size_t> & getSourceSpecies(const std::size_t ID) const {
+		return species[ID].source_species;
 	}
 
 	/**
-	 * @param ID	ID of the function to get data from
-	 *
-	 * @return	target of the function
+	 * @return	number of regulations for this specie (two to power of number of source species)
 	 */
-	inline const std::vector<std::size_t>& getPossibleValues(std::size_t ID) const {
-		return reg_functions[ID].possible_values;
+	inline const std::size_t getRegulationsCount(const std::size_t ID) const {
+		return species[ID].functions.size();
 	}
 
 	/**
-	 * @param ID	ID of the function to get data from
-	 *
-	 * @return	target of the function
+	 * @return	step_size (how many neigbour parameters share the same value for this regulation)
 	 */
-	inline const std::vector<std::size_t>& getSourceSpecies(std::size_t ID) const {
-		return reg_functions[ID].source_species;
+	const std::size_t getStepSize(const std::size_t ID, const std::size_t regulation) const {
+		return species[ID].functions[regulation].step_size;
 	}
 
 	/**
-	 * @param ID	ID of the function to get data from
-	 *
-	 * @return	target of the function
+	 * @return	values this function can possibly regulate to
 	 */
-	inline const std::vector<std::vector<std::size_t> >&  getSourceValues(std::size_t ID) const {
-		return reg_functions[ID].source_values;
+	const std::vector<std::size_t> & getPossibleValues(const std::size_t ID, const std::size_t regulation) const {
+		return species[ID].functions[regulation].possible_values;
 	}
 
 	/**
-	 * @param ID	ID of the function to get data from
-	 *
-	 * @return	target of the function
+	 * @return	for each source specie all the values that if it is within them, it allows this function
 	 */
-	inline const std::size_t getTarget(std::size_t ID) const {
-		return reg_functions[ID].target_specie;
+	const std::vector<std::vector<std::size_t> > & getSourceValues(const std::size_t ID, const std::size_t regulation) const {
+		return species[ID].functions[regulation].source_values;
 	}
 };
 

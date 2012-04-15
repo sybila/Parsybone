@@ -72,19 +72,21 @@ class ParametrizedStructureBuilder {
 	 *
 	 * @return function that might lead to the next state
 	 */
-	const std::size_t getActiveFunction(const std::size_t state_ID, const std::size_t neighbour_index, const Levels & state_levels) {
-		// Positions between which the function has to be
-		std::size_t function_num = regulatory_functions.getSpecieBegin(basic_structure.getSpecieID(state_ID, neighbour_index));
-		const std::size_t search_to = regulatory_functions.getSpecieBegin(basic_structure.getSpecieID(state_ID, neighbour_index) + 1);
-		
+	const std::size_t getActiveFunction(const std::size_t specie_ID, const Levels & state_levels) {
+		// Source species that will be tested
+		const std::vector<std::size_t> & source_species = regulatory_functions.getSourceSpecies(specie_ID);
+
 		// Cycle until the function is found
 		bool found = false;
-		do {
-			found = testRegulators(regulatory_functions.getSourceSpecies(function_num), regulatory_functions.getSourceValues(function_num), state_levels);
-			if (found) return function_num;
-		} while (++function_num < search_to); 
+		for (std::size_t regul_num = 0; regul_num < regulatory_functions.getRegulationsCount(specie_ID); regul_num++) {
+			const auto source_vals = regulatory_functions.getSourceValues(specie_ID, regul_num);
 
-		throw std::length_error("Function for some state has not been found.");
+			found = testRegulators(source_species, source_vals, state_levels);
+
+			if (found) 
+				return regul_num;
+		} 
+		throw std::runtime_error("Active function in same state not found.");
 	}
 
 	/**
@@ -140,16 +142,18 @@ class ParametrizedStructureBuilder {
 	 */
 	const bool fillFunctions(const std::size_t state_ID, const std::size_t neighbour_index, const Levels & state_levels, 
 		                     std::size_t & function_num, std::size_t & step_size, std::vector<bool> & transitive_values) {
+		const std::size_t specie_ID = basic_structure.getSpecieID(state_ID, neighbour_index);
+
 		// Find out which function is currently active
-		function_num = getActiveFunction(state_ID, neighbour_index, state_levels);
+		function_num = getActiveFunction(specie_ID, state_levels);
 
 		// Fill step size
-		step_size = regulatory_functions.getStepSize(function_num);
+		step_size = regulatory_functions.getStepSize(specie_ID, function_num);
 
 		// Fill data about transitivity using provided values
 		transitive_values = std::move(fillTransitivityData(basic_structure.getDirection(state_ID, neighbour_index), 
-			                                                   state_levels[basic_structure.getSpecieID(state_ID, neighbour_index)], 
-			                                                   regulatory_functions.getPossibleValues(function_num)));
+			                                                   state_levels[specie_ID], 
+			                                                   regulatory_functions.getPossibleValues(specie_ID, function_num)));
 
 		// Check if there even is a transition
 		for (auto it = transitive_values.begin(); it != transitive_values.end(); it++) {
