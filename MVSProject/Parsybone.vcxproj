@@ -90,6 +90,7 @@
     <ClInclude Include="..\reforging\automaton_structure.hpp" />
     <ClInclude Include="..\reforging\basic_structure.hpp" />
     <ClInclude Include="..\reforging\basic_structure_builder.hpp" />
+    <ClInclude Include="..\reforging\color_storage.hpp" />
     <ClInclude Include="..\reforging\functions_builder.hpp" />
     <ClInclude Include="..\reforging\functions_structure.hpp" />
     <ClInclude Include="..\reforging\parametrized_structure.hpp" />

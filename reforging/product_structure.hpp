@@ -29,8 +29,7 @@ class ProductStructure {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	struct State {
-		Parameters parameters; // 32 bits for each color in this round marking its presence or absence
-		std::vector<Predecessors> predecessors; // Vector of states for each color - predecessors in this color
+		std::size_t ID;
 	};
 	
 	// References to data structures
@@ -53,73 +52,6 @@ class ProductStructure {
 public:
 	ProductStructure(const FunctionsStructure & _functions, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
 		: functions(_functions), structure(_structure), automaton(_automaton) { }
-
-	/**
-	 * Sets all to zero
-	 */ 
-	void resetProduct() {
-		const std::size_t color_count = getParamsetSize();
-		// Clear each state
-		std::for_each(states.begin(), states.end(),[color_count](State & state) {
-			state.parameters = 0;
-			if (user_options.witnesses()) {
-				for(auto color_it = state.predecessors.begin(); color_it != state.predecessors.end(); color_it++) {
-					color_it->clear();
-				}
-			}
-		});
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARAMTERS HANDLING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @param state_num	index of the state to fill
-	 * @param parameters to add - if empty, add all, otherwise use bitwise or
-	 * 
-	 * @return true if there was an actuall update
-	 */
-	inline bool updateParameters(const Parameters parameters, const std::size_t state_num) {
-		if (states[state_num].parameters == (parameters | states[state_num].parameters))
-			return false;
-		states[state_num].parameters |= parameters;
-		return true;
-	}
-
-	/**
-	 * Color initial states of the product with given color
-	 *
-	 * @param color	color to use for the initial coloring
-	 *
-	 * @return set of initial vertices
-	 */
-	const std::vector<std::size_t> & colorInitials(const Parameters color) {
-		std::for_each(initial_states.begin(), initial_states.end(), [&](std::size_t state_num) {
-			states[state_num].parameters = color;
-		});
-		return initial_states;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// WITNESSES HANDLING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * For all transitive parameters, add source as target's predecessor
-	 *
-	 * @param source	ID of the source state
-	 * @param target	ID of the target state
-	 * @param passed	mask of parameters that are passed from source to target
-	 */
-	void addPredecessor(const std::size_t source, const std::size_t target, Parameters passed) {
-		// For each color
-		for (std::size_t color_index = 0; color_index < getParamsetSize(); color_index++) {
-			// If the color is present, add predecessor
-			if (passed % 2)
-				states[target].predecessors[color_index].insert(source);
-			// Iterate color
-			passed >>= 1;
-		}
-	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KRIPKE STRUCTURE FUNCTIONS 
@@ -212,33 +144,6 @@ public:
 		return std::set<std::size_t>(initial_states.begin(), initial_states.end());
 	}
 
-	/**
-	 * @param state_num	index of the state to ask for parameters
-	 * 
-	 * @return parameters assigned to the state
-	 */
-	inline const Parameters & getParameters(const std::size_t state_num) const {
-		return states[state_num].parameters;
-	}
-
-	/** 
-	 * @param state_num	index of the state to ask for predecessors
-	 * @param color_index	index of the color in this round (0 .. sizeof(Parameters)*8)
-	 *
-	 * @return predecessors for given state and color
-	 */
-	inline const Predecessors & getPredecessors(const std::size_t state_num, const std::size_t color_index) const {
-		return states[state_num].predecessors[color_index];
-	}
-
-	/** 
-	 * @param state_num	index of the state to ask for predecessors
-	 *
-	 * @return predecessors for given state
-	 */
-	inline const std::vector<Predecessors> & getPredecessors(const std::size_t state_num) const {
-		return states[state_num].predecessors;
-	}
 };
 
 #endif

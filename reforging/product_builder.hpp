@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "product_structure.hpp"
+#include "color_storage.hpp"
 
 class ProductBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +25,7 @@ class ProductBuilder {
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	ProductStructure & product; // Product to build
+	ColorStorage & storage; // Auxiliary product storage
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
@@ -35,13 +37,13 @@ class ProductBuilder {
 	 */ 
 	void createEmptyProduct (const std::size_t states_count) {
 		product.states.resize(states_count);
-		// Fill and set all to zero
-		if (user_options.witnesses()) {
-			for (auto state_it = product.states.begin(); state_it != product.states.end(); state_it++) {
-				state_it->predecessors.resize(getParamsetSize());
-			}
+
+		for (std::size_t state_num = 0; state_num < states_count; state_num++) {
+			storage.addState(std::move(std::vector<std::size_t>()));
 		}
-		product.resetProduct();
+
+		// Set all to zero
+		storage.reset();
 	}
 
 	/**
@@ -71,8 +73,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	ProductBuilder(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product) 
-		: structure(_structure), automaton(_automaton), product(_product) { }
+	ProductBuilder(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product, ColorStorage & _storage) 
+		: structure(_structure), automaton(_automaton), product(_product), storage(_storage) { }
 
 	/**
 	 * Create the the product from BA and KS together.

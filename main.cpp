@@ -120,10 +120,11 @@ int main(int argc, char* argv[]) {
 // Create the product
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	ProductStructure product_structure(functions_structure, parametrized_structure, automaton);
+	ColorStorage color_storage;
 	try {
 		output_streamer.output(verbose_str, "Product building started.", OutputStreamer::important);
 
-		ProductBuilder product_builder(parametrized_structure, automaton, product_structure);
+		ProductBuilder product_builder(parametrized_structure, automaton, product_structure, color_storage);
 		product_builder.buildProduct();
 	} catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while building the product: ").append(e.what()));
@@ -136,7 +137,7 @@ int main(int argc, char* argv[]) {
 // Synthetize the colors and output them
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		SynthesisManager synthesis_manager(product_structure);
+		SynthesisManager synthesis_manager(product_structure, color_storage);
 		output_streamer.output(verbose_str, "Coloring started.", OutputStreamer::important);
 		synthesis_manager.doSynthesis();
 	} 

@@ -14,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../reforging/product_structure.hpp"
+#include "../reforging/color_storage.hpp"
 #include "../results/result_storage.hpp"
 
 class ProductAnalyzer {
@@ -24,6 +25,7 @@ class ProductAnalyzer {
 	const ParametrizedStructure & structure; // Structure from the product
     const AutomatonStructure & automaton; // Automaton from the product
 	const FunctionsStructure & functions; // Functions from the product
+	const ColorStorage & storage;
 	ResultStorage & results; // Place to store the obtained data
 
 	// Used throughout full computation
@@ -143,8 +145,8 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	ProductAnalyzer(const ProductStructure & _product, ResultStorage & _results) 
-		           : product(_product), structure(_product.getKS()), automaton(_product.getBA()), functions(_product.getFunc()), results(_results)  {
+	ProductAnalyzer(const ProductStructure & _product, const ColorStorage & _storage, ResultStorage & _results) 
+		           : product(_product), storage(_storage), structure(_product.getKS()), automaton(_product.getBA()), functions(_product.getFunc()), results(_results)  {
 		functions_values = std::move(getValues());
 		current_color = std::move(getBottomValues());
 		parameter_begin = parameter_end = 0;
@@ -172,7 +174,7 @@ public:
 	 */
 	void storeResults(const std::size_t state_num, const bool use_colors) {
 		// Get parameters from the state
-		Parameters parameters = product.getParameters(state_num);
+		Parameters parameters = storage.getParameters(state_num);
 		// Store results for this 
 		if (use_colors)
 			results.addColoring(state_num, parameters, getColors(parameters));
@@ -191,7 +193,7 @@ public:
 
 		// Get the states and their colors
 		std::for_each(product.getFinals().begin(), product.getFinals().end(), [&](std::size_t state_index) {
-			final_colorings.push_back(Coloring(state_index, product.getParameters(state_index)));
+			final_colorings.push_back(Coloring(state_index, storage.getParameters(state_index)));
 		});
 
 		// Return final vertices with their positions

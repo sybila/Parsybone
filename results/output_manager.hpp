@@ -27,7 +27,6 @@ class OutputManager {
 	const ProductStructure & product;
 	const SplitManager & split_manager;
 	const ResultStorage & results;
-	const WitnessStorage & witnesses;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -36,8 +35,8 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const ProductStructure & _product, const SplitManager & _split_manager, const ResultStorage & _results, WitnessStorage & _witnesses) 
-		         : product(_product), split_manager(_split_manager), results(_results), witnesses(_witnesses) { } 
+	OutputManager(const ProductStructure & _product, const SplitManager & _split_manager, const ResultStorage & _results) 
+		         : product(_product), split_manager(_split_manager), results(_results) { } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
@@ -80,58 +79,58 @@ public:
 		output_streamer.output(results_str, color, OutputStreamer::no_newl).output("____________________________________________________________________________________________");
 	}
 
-	/**
-	 * Outputs  witness
-	 *
-	 * @param paths	vector of witnessed for initil to final paths with their final vertex number
-	 * @param cycles vector of witnessed for final to final paths with their final vertex number
-	 */
-	void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths) const {
-		// Cycle through paths
-		std::size_t lenght = ~0;
-		auto shortest = paths.begin();
-		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) {
-			if (!user_options.single())
-				output_streamer.output(results_str, path_it->second);
-			else if (path_it->second.size() < lenght) {
-					shortest = path_it;
-					lenght = path_it->second.size();
-			}
-		}
-		if (user_options.single())
-			output_streamer.output(results_str, shortest->second);
-	}
+	///**
+	// * Outputs  witness
+	// *
+	// * @param paths	vector of witnessed for initil to final paths with their final vertex number
+	// * @param cycles vector of witnessed for final to final paths with their final vertex number
+	// */
+	//void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths) const {
+	//	// Cycle through paths
+	//	std::size_t lenght = ~0;
+	//	auto shortest = paths.begin();
+	//	for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) {
+	//		if (!user_options.single())
+	//			output_streamer.output(results_str, path_it->second);
+	//		else if (path_it->second.size() < lenght) {
+	//				shortest = path_it;
+	//				lenght = path_it->second.size();
+	//		}
+	//	}
+	//	if (user_options.single())
+	//		output_streamer.output(results_str, shortest->second);
+	//}
 
-	/**
-	 * Outputs  witness
-	 *
-	 * @param paths	vector of witnessed for initil to final paths with their final vertex number
-	 * @param cycles vector of witnessed for final to final paths with their final vertex number
-	 */
-	void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths, const std::vector<std::pair<std::size_t, std::string>> & cycles) const {
-		// cycle paths
-		std::size_t lenght = ~0;
-		auto shortest_path = paths.begin();
-		auto shortest_cycle = cycles.begin();
-		for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) {
-			// cycle cycles
-			for (auto cycle_it = cycles.begin(); cycle_it != cycles.end(); cycle_it++) {
-				// If agree on state, combine
-				if (path_it->first == cycle_it->first)
-					if (!user_options.single())
-						output_streamer.output(results_str, path_it->second, OutputStreamer::no_newl)
-										.output("-", OutputStreamer::no_newl).output(cycle_it->second);
-					else if  (path_it->second.size() + cycle_it->second.size() < lenght) {
-						lenght = path_it->second.size() + cycle_it->second.size();
-						shortest_path = path_it;
-						shortest_cycle = cycle_it;
-					}
-			}
-		}
-		if (user_options.single())
-		output_streamer.output(results_str, shortest_path->second, OutputStreamer::no_newl)
-			.output("-", OutputStreamer::no_newl).output(shortest_cycle->second);
-	}
+	///**
+	// * Outputs  witness
+	// *
+	// * @param paths	vector of witnessed for initil to final paths with their final vertex number
+	// * @param cycles vector of witnessed for final to final paths with their final vertex number
+	// */
+	//void outputWitness(const std::vector<std::pair<std::size_t, std::string>> & paths, const std::vector<std::pair<std::size_t, std::string>> & cycles) const {
+	//	// cycle paths
+	//	std::size_t lenght = ~0;
+	//	auto shortest_path = paths.begin();
+	//	auto shortest_cycle = cycles.begin();
+	//	for (auto path_it = paths.begin(); path_it != paths.end(); path_it++) {
+	//		// cycle cycles
+	//		for (auto cycle_it = cycles.begin(); cycle_it != cycles.end(); cycle_it++) {
+	//			// If agree on state, combine
+	//			if (path_it->first == cycle_it->first)
+	//				if (!user_options.single())
+	//					output_streamer.output(results_str, path_it->second, OutputStreamer::no_newl)
+	//									.output("-", OutputStreamer::no_newl).output(cycle_it->second);
+	//				else if  (path_it->second.size() + cycle_it->second.size() < lenght) {
+	//					lenght = path_it->second.size() + cycle_it->second.size();
+	//					shortest_path = path_it;
+	//					shortest_cycle = cycle_it;
+	//				}
+	//		}
+	//	}
+	//	if (user_options.single())
+	//	output_streamer.output(results_str, shortest_path->second, OutputStreamer::no_newl)
+	//		.output("-", OutputStreamer::no_newl).output(shortest_cycle->second);
+	//}
 
 	/**
 	 * Display colors synthetized during current round
@@ -142,27 +141,27 @@ public:
 			return;
 		// Storing objects
 		std::vector<std::pair<std::size_t, std::string>> colors;
-		std::vector<std::pair<std::size_t, std::vector<std::pair<std::size_t, std::string>>>> path_wits, cycle_wits;
+		//std::vector<std::pair<std::size_t, std::vector<std::pair<std::size_t, std::string>>>> path_wits, cycle_wits;
 		// Get colors if needed
 		if (user_options.coloring())
 			colors = std::move(results.getAllColors());
 		// Get witnesses if needed
-		if (user_options.witnesses()) {
-			path_wits = std::move(witnesses.getAllWitnesses(true));
-			cycle_wits = std::move(witnesses.getAllWitnesses(false));
-		}
+		//if (user_options.witnesses()) {
+		//	path_wits = std::move(witnesses.getAllWitnesses(true));
+		//	cycle_wits = std::move(witnesses.getAllWitnesses(false));
+		//}
 
 		// Display color and witness if requested
-		for (std::size_t color_index = 0; color_index < my_max(colors.size(), path_wits.size()); color_index++) {
+		for (std::size_t color_index = 0; color_index < colors.size(); color_index++) {
 			if (user_options.coloring()) {
 				outputColor(colors[color_index].second);
 			}
-			if (user_options.witnesses() && !user_options.timeSerie()) {
-				outputWitness(path_wits[color_index].second, cycle_wits[color_index].second);
-			}
-			else if (user_options.witnesses()  && user_options.timeSerie()) {
-				outputWitness(path_wits[color_index].second);
-			}
+			//if (user_options.witnesses() && !user_options.timeSerie()) {
+			//	outputWitness(path_wits[color_index].second, cycle_wits[color_index].second);
+			//}
+			//else if (user_options.witnesses()  && user_options.timeSerie()) {
+			//	outputWitness(path_wits[color_index].second);
+			//}
 		}
 	}
 };

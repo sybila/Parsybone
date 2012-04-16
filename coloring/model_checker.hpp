@@ -23,7 +23,8 @@ class ModelChecker {
 	// Provided with constructor
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
-	ProductStructure & product; // Product on which the computation will be conducted
+	const ProductStructure & product; // Product on which the computation will be conducted
+	ColorStorage & storage; // Auxiliary product storage
 
 	// Used for computation
 	std::set<std::size_t> updates; // Set of states that need to spread their updates
@@ -100,10 +101,7 @@ class ModelChecker {
 			std::size_t KS_target = structure.getTargetID(KS_source, KS_trans);
 			std::size_t product_target = product.getProductIndex(KS_target, BA_target);
 			// If there is something new, schedule the target for an update
-			if (product.updateParameters(parameters, product_target)) {
-				// Also store the witnesses, if required
-				if (witness_use == all_wit)
-					product.addPredecessor(product_source, product_target, swap(parameters, synthesis_range.second - synthesis_range.first));
+			if (storage.update(parameters, product_target)) {
 				updates.insert(product_target);
 			}
 		}
@@ -143,9 +141,9 @@ class ModelChecker {
 		// Cycle throught the updates
 		for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
 			// Compapre with current data - if better, replace
-			if (product.getParameters(*update_it) == (current_par | product.getParameters(*update_it))) {
+			if (storage.getParameters(*update_it) == (current_par | storage.getParameters(*update_it))) {
 				state_num = *update_it;
-				current_par = product.getParameters(state_num);
+				current_par = storage.getParameters(state_num);
 			}
 		}
 		return state_num;
@@ -162,7 +160,7 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(ProductStructure & _product) : structure(_product.getKS()), automaton(_product.getBA()), product(_product) { }
+	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) { }
 
 	/**
 	 * From the source distribute its parameters and newly colored neighbours shedule for update.
@@ -195,7 +193,7 @@ public:
 			// Within updates, find the one with most bits
 			std::size_t state_num = getStrongestUpdate();
 			// Pass data from updated vertex to its succesors
-			transferUpdates(state_num, product.getParameters(state_num));
+			transferUpdates(state_num, storage.getParameters(state_num));
 			// Erase completed update from the set
 			updates.erase(state_num);
 		}

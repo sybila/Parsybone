@@ -27,7 +27,8 @@ class SynthesisManager {
 	// Provided
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
-	ProductStructure & product; // Product to compute on
+	const ProductStructure & product; // Product to compute on
+	ColorStorage & storage; // Auxiliary product storage
 
 	// Created within the constructor
 	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
@@ -35,8 +36,8 @@ class SynthesisManager {
 	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
 	std::unique_ptr<ProductAnalyzer> analyzer; // Class for analysis
 	std::unique_ptr<ResultStorage> results; // Class to store results
-	std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
-	std::unique_ptr<WitnessStorage> witnesses; // Class to store witnesses
+	//std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
+	//std::unique_ptr<WitnessStorage> witnesses; // Class to store witnesses
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -59,8 +60,8 @@ class SynthesisManager {
 		// Do the synthesis, storing all feasible parameters
 		synthetizeParameters(none_wit);
 		// Compute witnesses
-		if (user_options.witnesses() && count(results->getAllParameters()))
-			synthetizeParameters(all_wit);
+		//if (user_options.witnesses() && count(results->getAllParameters()))
+		//	synthetizeParameters(all_wit);
 	}
 
 	/**
@@ -72,7 +73,7 @@ class SynthesisManager {
 		// Do finishing changes and reset results in this round
 		results->finishRound();
 		// Do finishing changes and reset witnesses in this round
-		witnesses->finishRound();
+		//witnesses->finishRound();
 	}
 	
 	/**
@@ -87,8 +88,8 @@ class SynthesisManager {
 		// Basic (initial) coloring
 		colorProduct(witness_use);
 		// Store witnesses for basic coloring
-		if (witness_use != none_wit)
-			searcher->storeWitnesses(product.getFinals(), true);
+		//if (witness_use != none_wit)
+		//	searcher->storeWitnesses(product.getFinals(), true);
 
 		// SECOND PART: //
 		// Store colored final vertices
@@ -101,8 +102,8 @@ class SynthesisManager {
 			// For the round without witnesses, store only coloring, for the other, store only witnesses
 			if (witness_use == none_wit) 
 				analyzer->storeResults(final_it->first, user_options.coloring());
-			else if (!user_options.timeSerie())
-				searcher->storeWitnesses(final_it->first, false);
+			//else if (!user_options.timeSerie())
+			//	searcher->storeWitnesses(final_it->first, false);
 		}
 	}
 
@@ -113,15 +114,20 @@ class SynthesisManager {
 	 */
 	void colorProduct(WitnessUse witness_use) {
 		// Assure emptyness
-		product.resetProduct();
+		storage.reset();
 		// Pass the information about witness usage
 		model_checker->setWitnessUse(witness_use);
 
-		// Color each initial state with current parameters (All for the first round)
+		// Get initial coloring
+		Parameters starting = 0;
 		if (witness_use == none_wit)
-			product.colorInitials(split_manager->createStartingParameters());
+			starting = split_manager->createStartingParameters();
 		else 
-			product.colorInitials(results->getAllParameters());
+			starting = results->getAllParameters();
+
+		// Set all the initial states to initial color
+		for (auto init_it = product.getInitials().begin(); init_it != product.getInitials().end(); init_it++) 
+			storage.update(starting, *init_it);
 		// Schedule all initial states for updates
 		model_checker->setUpdates(std::move(product.getInitialUpdates()));
 
@@ -136,7 +142,7 @@ class SynthesisManager {
 	 */
 	void detectCycle(const Coloring & init_coloring) {
 		// Assure emptyness
-		product.resetProduct();
+		storage.reset();
 		// Sechedule nothing for updates (will be done during transfer in the next step)
 		model_checker->setUpdates();
 
@@ -157,16 +163,16 @@ public:
 	/**
 	 * Constructor builds all the data objects that are used within
 	 */
-	SynthesisManager(ProductStructure & _product)
-		            : structure(_product.getKS()), automaton(_product.getBA()), product(_product) {
+	SynthesisManager(const ProductStructure & _product, ColorStorage & _storage)
+		            : structure(_product.getKS()), storage(_storage), automaton(_product.getBA()), product(_product) {
 		// Create classes that help with the synthesis
 		split_manager.reset(new SplitManager(product.getFunc().getParametersCount()));
-		model_checker.reset(new ModelChecker(product));
+		model_checker.reset(new ModelChecker(product, storage));
 		results.reset(new ResultStorage(product));
-		analyzer.reset(new ProductAnalyzer(product, *results));
-		witnesses.reset(new WitnessStorage(product));
-		searcher.reset(new WitnessSearcher(product, *witnesses));
-		output.reset(new OutputManager(product, *split_manager, *results, *witnesses));
+		analyzer.reset(new ProductAnalyzer(product, storage, *results));
+		//witnesses.reset(new WitnessStorage(product));
+		//searcher.reset(new WitnessSearcher(product, *witnesses));
+		output.reset(new OutputManager(product, *split_manager, *results));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

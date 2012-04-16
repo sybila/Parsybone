@@ -120,6 +120,9 @@
     <ClInclude Include="..\results\tree_node.hpp">
       <Filter>results</Filter>
     </ClInclude>
+    <ClInclude Include="..\reforging\color_storage.hpp">
+      <Filter>reforging</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">
