@@ -43,18 +43,18 @@ class BasicStructureBuilder {
 	 * @param state_levels	levels of species of this state
 	 * @param maxes	globally maximal levels
 	 */
-	void storeNeigbours(const std::size_t state_num, const Levels & state_levels, const Levels & maxes) {
+	void storeNeigbours(const StateID ID, const Levels & state_levels, const Levels & maxes) {
 		for (std::size_t specie = 0; specie < species_count; specie++) {
 			// If this value is not the lowest one, add neighbour with lower
 			if (state_levels[specie] > 0) 
-				structure.addNeighbour(state_num, state_num - index_jumps[specie], specie, down_dir);
+				structure.addNeighbour(ID, ID - index_jumps[specie], specie, down_dir);
 
 			// Add yourself
-			structure.addNeighbour(state_num, state_num, specie, stay_dir);
+			structure.addNeighbour(ID, ID, specie, stay_dir);
 
 			// If this value is not the highest one, add neighbour with higher
 			if (state_levels[specie] < maxes[specie]) 
-				structure.addNeighbour(state_num, state_num + index_jumps[specie], specie, up_dir);
+				structure.addNeighbour(ID, ID + index_jumps[specie], specie, up_dir);
 		}	
 	}
 

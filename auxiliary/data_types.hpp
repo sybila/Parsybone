@@ -46,7 +46,11 @@ enum UnspecifiedRegulations {error_reg, basal_reg, param_reg};
 // To store the way a specie value has changed
 enum Direction {up_dir, stay_dir, down_dir};
 
-typedef std::size_t StateID; // Not used now
+// ID of a graph/automaton state
+typedef std::size_t StateID; 
+
+// ID of a specie
+typedef std::size_t SpecieID; 
 
 // vector of activation levels of species used for labelling of states of KS
 typedef std::vector<std::size_t> Levels;
@@ -59,10 +63,12 @@ typedef std::vector<std::set<std::size_t> > AllowedValues;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // mask of parameters - each bit represents single combination of target values for each function
 typedef unsigned int Parameters;
-typedef std::set<std::size_t> Predecessors;
+
+// IDs of predecessors of a state
+typedef std::set<StateID> Predecessors;
 
 // State number and its coloring
-typedef std::pair<std::size_t, Parameters> Coloring;
+typedef std::pair<StateID, Parameters> Coloring;
 
 // Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
 typedef std::pair<std::size_t, std::size_t> Range;

@@ -23,16 +23,16 @@ class ResultStorage {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	struct StateColoring {
-		std::size_t KS_state;
-		std::size_t BA_state;
+		StateID KS_ID;
+		StateID BA_ID;
 		Parameters parameters; // Mask of all the round parameters
 		std::vector<std::pair<std::size_t, std::string>> colors; // Colors from present parameters
 
-		StateColoring(const std::size_t _KS_state, const std::size_t _BA_state, const Parameters _parameters, std::vector<std::pair<std::size_t, std::string>> && _colors) 
-			         : KS_state(_KS_state), BA_state(_BA_state), parameters(_parameters), colors(std::move(_colors)) { }
+		StateColoring(const StateID _KS_ID, const StateID _BA_ID, const Parameters _parameters, std::vector<std::pair<std::size_t, std::string>> && _colors) 
+			         : KS_ID(BA_ID), BA_ID(_BA_ID), parameters(_parameters), colors(std::move(_colors)) { }
 		// If colors are not requested, they are not stored
-		StateColoring(const std::size_t _KS_state, const std::size_t _BA_state, const Parameters _parameters) 
-			         : KS_state(_KS_state), BA_state(_BA_state), parameters(_parameters) { }
+		StateColoring(const StateID _KS_ID, const StateID _BA_ID, const Parameters _parameters) 
+			         : KS_ID(_KS_ID), BA_ID(_BA_ID), parameters(_parameters) { }
 	};
 
 	// Values that increase through the rounds
@@ -49,21 +49,21 @@ class ResultStorage {
 	/**
 	 * Add a new results - contains product state, mask of parameters for this state and a color that corespond to them
 	 */ 
-	void addColoring (const std::size_t product_state, const Parameters _parameters, std::vector<std::pair<std::size_t, std::string>> && _colors) {
+	void addColoring (const StateID ID, const Parameters parameters, std::vector<std::pair<std::size_t, std::string>> && colors) {
 		// Recompute the states
-		std::size_t KS_state = product.getStateIndexes(product_state).first;
-		std::size_t BA_state = product.getStateIndexes(product_state).second;
-		colorings.push_back(StateColoring(KS_state, BA_state, _parameters, std::move(_colors)));
+		StateID KS_ID = product.getKSID(ID);
+		StateID BA_ID = product.getBAID(ID);
+		colorings.push_back(StateColoring(KS_ID, BA_ID, parameters, std::move(colors)));
 	}
 
 	/**
 	 * Add a new results in case colors are not requsted by user.
 	 */ 
-	void addColoring (const std::size_t product_state, const Parameters _parameters) {
+	void addColoring (const StateID ID, const Parameters parameters) {
 		// Recompute the states
-		std::size_t KS_state = product.getStateIndexes(product_state).first;
-		std::size_t BA_state = product.getStateIndexes(product_state).second;
-		colorings.push_back(StateColoring(KS_state, BA_state, _parameters));
+		StateID KS_ID = product.getKSID(ID);
+		StateID BA_ID = product.getBAID(ID);
+		colorings.push_back(StateColoring(KS_ID, BA_ID, parameters));
 	}
 
 

@@ -42,16 +42,16 @@ class ParametrizedStructureBuilder {
 	 *
 	 * @return true it the state satisfy the requirments
 	 */
-	const bool testRegulators(const std::vector<std::size_t> & source_species, const std::vector<std::vector<std::size_t>> & source_values, const Levels & state_levels) {
+	const bool testRegulators(const std::vector<StateID> & source_species, const std::vector<std::vector<std::size_t>> & source_values, const Levels & state_levels) {
 		// List throught regulating species of the function
 		for (std::size_t regulator_num = 0; regulator_num < source_species.size(); regulator_num++) {
 			bool is_included = false; // Remains false if the specie level is not in allowed range
-			const std::size_t specie_ID = source_species[regulator_num]; // real ID of the regulator
+			const StateID ID = source_species[regulator_num]; // real ID of the regulator
 
 			// Does current level of the specie belongs to the levels that are required?
-			std::for_each(source_values[regulator_num].begin(), source_values[regulator_num].end(),	[&state_levels,&is_included,&source_species,specie_ID]
+			std::for_each(source_values[regulator_num].begin(), source_values[regulator_num].end(),	[&]
 				(std::size_t feasible_level) {
-					if (feasible_level == state_levels[specie_ID])
+					if (feasible_level == state_levels[ID])
 						is_included = true;
 			});
 
@@ -129,20 +129,19 @@ class ParametrizedStructureBuilder {
 	/**
 	 * Fill properties of an implicit function that is connected to specified transition
 	 * 
-	 * @param state_ID	ID of this state in KS
+	 * @param ID	ID of this state in KS
 	 * @param neighbour_index	index of the neighbour state. Specie that change is used to determine wich function to use.
 	 * @param state_levels	species level of the state we are currently at
 	 * Data to fill:
 	 * @param function_num	ID of the active function
 	 * @param step_size	step size of the function
-	 * @param possible_values	all parameter values of the function
 	 * @param transitive_values	those parameter values that does not cause transition
 	 *
 	 * @return true if there is a possibility of transition, false otherwise
 	 */
-	const bool fillFunctions(const std::size_t state_ID, const std::size_t neighbour_index, const Levels & state_levels, 
+	const bool fillFunctions(const StateID ID, const std::size_t neighbour_index, const Levels & state_levels, 
 		                     std::size_t & function_num, std::size_t & step_size, std::vector<bool> & transitive_values) {
-		const std::size_t specie_ID = basic_structure.getSpecieID(state_ID, neighbour_index);
+		const std::size_t specie_ID = basic_structure.getSpecieID(ID, neighbour_index);
 
 		// Find out which function is currently active
 		function_num = getActiveFunction(specie_ID, state_levels);
@@ -151,9 +150,8 @@ class ParametrizedStructureBuilder {
 		step_size = regulatory_functions.getStepSize(specie_ID, function_num);
 
 		// Fill data about transitivity using provided values
-		transitive_values = std::move(fillTransitivityData(basic_structure.getDirection(state_ID, neighbour_index), 
-			                                                   state_levels[specie_ID], 
-			                                                   regulatory_functions.getPossibleValues(specie_ID, function_num)));
+		transitive_values = std::move(fillTransitivityData(basic_structure.getDirection(ID, neighbour_index),  state_levels[specie_ID], 
+			                                               regulatory_functions.getPossibleValues(specie_ID, function_num)));
 
 		// Check if there even is a transition
 		for (auto it = transitive_values.begin(); it != transitive_values.end(); it++) {
@@ -169,20 +167,19 @@ class ParametrizedStructureBuilder {
 	/**
 	 * For each existing neighbour add a transition to the newly created state
 	 */
-	void addTransitions(const std::size_t state_ID, const Levels & state_levels) {
+	void addTransitions(const StateID ID, const Levels & state_levels) {
 		// Go through all the original transitions
-		for (std::size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(state_ID); trans_num++) {
-			
+		for (std::size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(ID); trans_num++) {
 			// Data to fill
-			std::size_t target_ID = basic_structure.getTargetID(state_ID, trans_num); // ID of the state the transition leads to
+			StateID target_ID = basic_structure.getTargetID(ID, trans_num); // ID of the state the transition leads to
 			std::size_t step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
 			std::size_t function_num = ~0; // ID of the active function - if ~0, no function is active
 			std::vector<bool> transitive_values; // Which of possible are used (in this case)
 
 			// Fill data about the transition and check if it is even feasible
-			if (fillFunctions(state_ID, trans_num, state_levels, function_num, step_size, transitive_values)) {
+			if (fillFunctions(ID, trans_num, state_levels, function_num, step_size, transitive_values)) {
 				// Add the transition
-				structure.addTransition(state_ID, target_ID, function_num, step_size, std::move(transitive_values));
+				structure.addTransition(ID, target_ID, step_size, std::move(transitive_values));
 			}
 		}	
 	}
@@ -205,14 +202,14 @@ public:
 		output_streamer.output(stats_str, "Merging functions and Kripke structure into Parametrized Kripke structure.");
 
 		// Recreate all the states of the simple structure
-		for(std::size_t state_ID = 0; state_ID < basic_structure.getStateCount(); state_ID++) {
+		for(StateID ID = 0; ID < basic_structure.getStateCount(); ID++) {
 
 			// Create a new state from the known data
-			const Levels & state_levels = basic_structure.getStateLevels(state_ID);
-			structure.addState(state_ID, state_levels);
+			const Levels & state_levels = basic_structure.getStateLevels(ID);
+			structure.addState(ID, state_levels);
 
 			// Add all the transitions
-			addTransitions(state_ID, state_levels);
+			addTransitions(ID, state_levels);
 		}
 	}
 };

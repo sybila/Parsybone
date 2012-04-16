@@ -28,25 +28,26 @@ class BasicStructure : public GraphInterface {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Stores an unlabelled transition to next state 
 	struct Transition {
-		std::size_t target_ID; // index in the vector of states
+		StateID target_ID; // index in the vector of states
 		std::size_t changed_specie; // ID of specie that differs between this and neighbour
 		Direction change_direction; // way the specie's value is changed
 
-		Transition(std::size_t _target_ID, std::size_t _changed_specie, Direction _change_direction)
+		Transition(const StateID _target_ID, const std::size_t _changed_specie, const Direction _change_direction)
 			: target_ID(_target_ID), changed_specie(_changed_specie), change_direction(_change_direction) { }
 	};
 	
 	// Storing a single state - its activation levels of each of the species and IDs of states that are neighbours (differ only in single step of single value)
 	struct State { 
-		std::size_t ID; // unique ID of the state
+		StateID ID; // unique ID of the state
 		Levels species_level; // species_level[i] = activation level of specie i
 
 		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
 
-		State(std::size_t _ID, Levels _species_level) 
+		State(const StateID _ID, const Levels _species_level) 
 			: ID(_ID), species_level(_species_level) { }
 	};
 	
+	// DATA STORAGE
 	std::vector<State> states;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,15 +57,15 @@ class BasicStructure : public GraphInterface {
 	/**
 	 * Add a new state to the structure - structure consist of ID, its levels and IDs of neighbours.
 	 */
-	inline void addState(const std::size_t _ID, const  Levels _species_level) {
+	inline void addState(const StateID _ID, const  Levels _species_level) {
 		states.push_back(State(_ID, _species_level));
 	}
 
 	/**
 	 * Add a new neighbour to the target state
 	 */
-	inline void addNeighbour(const std::size_t state_ID, std::size_t target_ID, const std::size_t changed_specie, const Direction change_direction) {
-		states[state_ID].transitions.push_back(std::move(Transition(target_ID, changed_specie, change_direction)));
+	inline void addNeighbour(const StateID ID, StateID target_ID, const std::size_t changed_specie, const Direction change_direction) {
+		states[ID].transitions.push_back(std::move(Transition(target_ID, changed_specie, change_direction)));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,32 +81,31 @@ public:
 // KRIPKE STRUCTURE FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @return	size of the state space
+	 * @override
 	 */
 	const std::size_t getStateCount() const { 
 		return states.size(); 
 	}
 
 	/**
-	 * @param ID	ID of the state to get value from
-	 *
-	 * @return	levels of the state
+	 * @override
 	 */
-	const std::size_t getTransitionCount(const std::size_t ID) const { 
+	const std::size_t getTransitionCount(const StateID ID) const { 
 		return states[ID].transitions.size(); 
 	}
 
 	/**
-	 * @param this_ID	ID of the state to get the neighbour from
-	 * @param trans_number	index in the vector of transitions
-	 *
-	 * @return	ID of the requested neighbour
+	 * @override
 	 */
-	const std::size_t getTargetID(const std::size_t this_ID, const std::size_t trans_number) const {
-		return states[this_ID].transitions[trans_number].target_ID;
+	const std::size_t getTargetID(const StateID ID, const std::size_t trans_number) const {
+		return states[ID].transitions[trans_number].target_ID;
 	}
 
-	const std::string getString(const std::size_t state_ID) const {
+	/**
+	 * Unused, return empty string.
+	 * @override
+	 */
+	const std::string getString(const StateID ID) const {
 		return "";
 	}
 
@@ -117,28 +117,28 @@ public:
 	 *
 	 * @return	levels of the state
 	 */
-	inline const Levels & getStateLevels(const std::size_t ID) const { 
+	inline const Levels & getStateLevels(const StateID ID) const { 
 		return states[ID].species_level; 
 	}
 
 	/**
-	 * @param this_ID	ID of the state to get the neighbour from
+	 * @param ID	ID of the state to get the neighbour from
 	 * @param neighbour_index	index in the vector of neighbours
 	 *
 	 * @return	ID of the specie that vary between the two states
 	 */
-	inline const std::size_t getSpecieID(const std::size_t this_ID, const std::size_t neighbour_index) const {
-		return states[this_ID].transitions[neighbour_index].changed_specie;
+	inline const std::size_t getSpecieID(const StateID ID, const std::size_t neighbour_index) const {
+		return states[ID].transitions[neighbour_index].changed_specie;
 	}
 
 	/**
-	 * @param this_ID	ID of the state to get the neighbour from
+	 * @param ID	ID of the state to get the neighbour from
 	 * @param neighbour_index	index in the vector of neighbours
 	 *
 	 * @return	Direction in which the specie changes
 	 */
-	inline const Direction getDirection(const std::size_t this_ID, const std::size_t neighbour_index) const {
-		return states[this_ID].transitions[neighbour_index].change_direction;
+	inline const Direction getDirection(const StateID ID, const std::size_t neighbour_index) const {
+		return states[ID].transitions[neighbour_index].change_direction;
 	}
 };
 

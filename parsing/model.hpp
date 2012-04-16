@@ -114,8 +114,8 @@ private:
 	/**
 	 * Add a new transition - transition is specified by the target state and label
 	 */
-	inline void addConditions(std::size_t state_ID, std::size_t target_ID, std::string && edge_label) {
-		states[state_ID].edges.push_back(Egde(target_ID, std::move(edge_label)));
+	inline void addConditions(StateID source_ID, StateID target_ID, std::string && edge_label) {
+		states[source_ID].edges.push_back(Egde(target_ID, std::move(edge_label)));
 	}
 
 	/**

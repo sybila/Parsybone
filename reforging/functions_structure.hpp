@@ -49,6 +49,7 @@ class FunctionsStructure {
 			  : name(_name), ID(_ID), specie_values(std::move(_specie_values)), source_species(std::move(_source_species)) { }
 	};
 
+	// DATA STORAGE
 	std::vector<Specie> species;
 
 	// Toatal number of parameters (colors)

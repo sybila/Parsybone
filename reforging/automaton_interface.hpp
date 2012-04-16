@@ -25,7 +25,7 @@ public:
 	 *
 	 * @return	true if the state is final
 	 */
-	virtual inline const bool isFinal(const std::size_t ID) const = 0;
+	virtual inline const bool isFinal(const StateID ID) const = 0;
 
 	/**
 	 * For given state find out if it is marked as initial.
@@ -34,21 +34,21 @@ public:
 	 *
 	 * @return	true if the state is initial
 	 */
-	virtual inline const bool isInitial(const std::size_t ID) const = 0;
+	virtual inline const bool isInitial(const StateID ID) const = 0;
 
 	/**
 	 * Get IDs of all states that are marked as final.
 	 *
 	 * @return vector of final states' IDs
 	 */
-	virtual inline const std::vector<std::size_t> & getFinalStates() const = 0;
+	virtual inline const std::vector<StateID> & getFinalStates() const = 0;
 
 	/**
 	 * Get IDs of all states that are marked as initial.
 	 *
 	 * @return vector of initial states' IDs
 	 */
-	virtual inline const std::vector<std::size_t> & getInitialStates() const = 0;
+	virtual inline const std::vector<StateID> & getInitialStates() const = 0;
 
 	/**
 	 * Virtual destructor.

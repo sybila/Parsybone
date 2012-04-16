@@ -34,11 +34,11 @@ class AutomatonBuilder {
 	 */
 	void buildAllValues() {
 		// For each specie insert all its posible levels
-		for (std::size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
+		for (StateID ID = 0; ID < model.getSpeciesCount(); ID++) {
 			// Storage
 			std::set<std::size_t> values;
 			// Get all the values from the range 0..max(specie)
-			for (std::size_t value = 0; value <= model.getMax(specie_num); value++) {
+			for (std::size_t value = 0; value <= model.getMax(ID); value++) {
 				values.insert(value);
 			}
 			// Pass the temporarry
@@ -173,16 +173,16 @@ class AutomatonBuilder {
 	 * @param state_num	index of the state of BA 
 	 * @param start_position	index of the last transition created
 	 */
-	void addTransitions(const std::size_t state_num) const {
-		const std::vector<Model::Egde> & edges = model.getEdges(state_num); 
+	void addTransitions(const StateID ID) const {
+		const std::vector<Model::Egde> & edges = model.getEdges(ID); 
 
 		// Transform each edge into transition and pass it to the automaton
-		for (std::size_t edge_num = 0; edge_num < model.getEdges(state_num).size(); edge_num++) {
+		for (std::size_t edge_num = 0; edge_num < model.getEdges(ID).size(); edge_num++) {
 			// Compute allowed values from string of constrains
 			AllowedValues constrained_values = std::move(parseConstrains(edges[edge_num].second));
 			// If the transition is possible for at least some values, add it
 			if (!constrained_values.empty())
-				automaton.addTransition(state_num, edges[edge_num].first, std::move(constrained_values));
+				automaton.addTransition(ID, edges[edge_num].first, std::move(constrained_values));
 		}
 	}
 
@@ -204,11 +204,11 @@ public:
 			           .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
 		
 		// List throught all the automaton states
-		for (std::size_t state_num = 0; state_num < model.getStatesCount(); state_num++) {
+		for (StateID ID = 0; ID < model.getStatesCount(); ID++) {
 			// Fill auxiliary data
-			automaton.addState(state_num, model.isFinal(state_num));
+			automaton.addState(ID, model.isFinal(ID));
 			// Add transitions for this state
-			addTransitions(state_num);
+			addTransitions(ID);
 		}
 	}
 };

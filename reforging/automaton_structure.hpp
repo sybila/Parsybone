@@ -29,7 +29,7 @@ class AutomatonStructure : public AutomatonInterface {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Single labelled transition from one state to another
 	struct Transition { 
-		std::size_t target_state; // To where
+		StateID target_state; // To where
 		std::vector<std::set<std::size_t> > allowed_values; // Allowed values of species for this transition
 
 		Transition(const std::size_t _target_state, std::vector<std::set<std::size_t> > && _allowed_values) 
@@ -38,17 +38,19 @@ class AutomatonStructure : public AutomatonInterface {
 
 	// Storing a single state - its activation levels of each of the species and IDs of states that are neighbours (differ only in single step of single value)
 	struct State {
-		std::size_t ID; // unique ID of the state
+		StateID ID; // unique ID of the state
 		bool final; // true if this state is final
 		std::vector<Transition> transitions; // Transitions from this state
 
-		State(const std::size_t _ID, const bool _final) : ID(_ID), final(_final) {}
+		State(const StateID _ID, const bool _final) : ID(_ID), final(_final) {}
 	};
 
+	// DATA STORAGE
 	std::vector<State> states;
+
 	// Information
-	std::vector<std::size_t> initial_states;
-	std::vector<std::size_t> final_states;
+	std::vector<StateID> initial_states;
+	std::vector<StateID> final_states;
 		
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from AutomatonStructureBuilder)
@@ -56,14 +58,14 @@ class AutomatonStructure : public AutomatonInterface {
 	/**
 	 * Add a new transition - having a source, target and permitted values for each specie
 	 */
-	inline void addTransition(const std::size_t source_state, const std::size_t target_state, std::vector<std::set<std::size_t> > && allowed_values) {
+	inline void addTransition(const StateID source_state, const StateID target_state, std::vector<std::set<std::size_t> > && allowed_values) {
 		states[source_state].transitions.push_back(std::move(Transition(target_state, std::move(allowed_values))));
 	}
 
 	/**
 	 * @param final	if true than state with index equal to the one of this vector is final
 	 */
-	inline void addState(const std::size_t ID, const bool final) {
+	inline void addState(const StateID ID, const bool final) {
 		states.push_back(std::move(State(ID, final)));
 		if (ID == 0) 
 			initial_states.push_back(ID);
@@ -109,25 +111,25 @@ public:
 	/**
 	 * @override
 	 */
-	inline const std::size_t getTransitionCount(const std::size_t state_ID) const {
-		return states[state_ID].transitions.size();
+	inline const std::size_t getTransitionCount(const StateID ID) const {
+		return states[ID].transitions.size();
 	}
 	
 	/**
 	 * @override
 	 */
-	inline const std::size_t getTargetID(const std::size_t state_ID, const std::size_t transition_num) const {
-		return states[state_ID].transitions[transition_num].target_state;
+	inline const std::size_t getTargetID(const StateID ID, const std::size_t transition_num) const {
+		return states[ID].transitions[transition_num].target_state;
 	}
 
 	/**
-	 * Return string representing the state in the form: (state_ID).
+	 * Return string representing the state in the form: (ID).
 	 * @override
 	 */
-	const std::string getString(const std::size_t state_ID) const {
+	const std::string getString(const StateID ID) const {
 		std::string state_string;
 		state_string = "(";
-		state_string += boost::lexical_cast<std::string, std::size_t>(state_ID);
+		state_string += boost::lexical_cast<std::string, std::size_t>(ID);
 		state_string += ")";
 		return std::move(state_string);
 	}
@@ -138,7 +140,7 @@ public:
 	/**
 	 * @override
 	 */
-	virtual inline const bool isFinal(const std::size_t ID) const {
+	virtual inline const bool isFinal(const StateID ID) const {
 		return states[ID].final;
 	}
 
@@ -146,14 +148,14 @@ public:
 	 * Only the first state is considered initial.
 	 * @override
 	 */
-	virtual inline const bool isInitial(const std::size_t ID) const {
+	virtual inline const bool isInitial(const StateID ID) const {
 		return (ID == 0);
 	}
 
 	/**
 	 * @override
 	 */
-	virtual inline const std::vector<std::size_t> & getFinalStates() const {
+	virtual inline const std::vector<StateID> & getFinalStates() const {
 		return final_states;
 	}
 
@@ -161,7 +163,7 @@ public:
 	 * Only the first state is considered initial.
 	 * @override
 	 */
-	virtual inline const std::vector<std::size_t> & getInitialStates() const {
+	virtual inline const std::vector<StateID> & getInitialStates() const {
 		return initial_states;
 	}
 
@@ -173,8 +175,8 @@ public:
 	 *
 	 * @return	ID of the target state of this transition
 	 */
-	inline const std::vector<std::set<std::size_t> > & getAllowedValues(const std::size_t state_ID, const std::size_t transition_num) const {
-		return states[state_ID].transitions[transition_num].allowed_values;
+	inline const std::vector<std::set<std::size_t> > & getAllowedValues(const StateID ID, const std::size_t transition_num) const {
+		return states[ID].transitions[transition_num].allowed_values;
 	}
 };
 

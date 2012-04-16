@@ -27,7 +27,7 @@ class ModelChecker {
 	ColorStorage & storage; // Auxiliary product storage
 
 	// Used for computation
-	std::set<std::size_t> updates; // Set of states that need to spread their updates
+	std::set<StateID> updates; // Set of states that need to spread their updates
 	Range synthesis_range; // First and one beyond last color to be computed in this round
 	WitnessUse witness_use; // How wintesses will be held in this computation
 
@@ -89,17 +89,17 @@ class ModelChecker {
 	 * @param source_KS_state	this KS state - target_KS is obtained from the transition index
 	 * @param BA_target	target state of the BA
 	 */
-	void updateTarget(Parameters parameters, const std::size_t product_source, const std::size_t KS_trans, const std::size_t BA_target) {
+	void updateTarget(Parameters parameters, const StateID product_source, const StateID KS_trans, const StateID BA_target) {
 		// Obtain parts of source
-		std::size_t KS_source = product.getStateIndexes(product_source).first;
-		std::size_t BA_source = product.getStateIndexes(product_source).second;
+		StateID KS_source = product.getKSID(product_source);
+		StateID BA_source = product.getBAID(product_source);
 		// From an update strip all the parameters that can not pass through the transition - color intersection on the transition
 		passParameters(parameters, structure.getStepSize(KS_source, KS_trans), structure.getTransitive(KS_source, KS_trans));
 		// If some parameters get passed
 		if (!none(parameters)) {
 			// Compute and update target state of product
-			std::size_t KS_target = structure.getTargetID(KS_source, KS_trans);
-			std::size_t product_target = product.getProductIndex(KS_target, BA_target);
+			StateID KS_target = structure.getTargetID(KS_source, KS_trans);
+			StateID product_target = product.getProductID(KS_target, BA_target);
 			// If there is something new, schedule the target for an update
 			if (storage.update(parameters, product_target)) {
 				updates.insert(product_target);
@@ -114,12 +114,12 @@ class ModelChecker {
 	 *
 	 * @return	vector of all the reachable BA states
 	 */
-	std::vector<std::size_t> getReachableBA(const std::size_t product_source) const {
+	std::vector<StateID> getReachableBA(const StateID product_source) const {
 		// From where 
-		std::size_t KS_source = product.getStateIndexes(product_source).first;
-		std::size_t BA_source = product.getStateIndexes(product_source).second;
+		StateID KS_source = product.getKSID(product_source);
+		StateID BA_source = product.getBAID(product_source);
 		// Vector to store them
-		std::vector<std::size_t> reachable;
+		std::vector<StateID> reachable;
 		// Cycle through all the transitions
 		for (std::size_t trans_num = 0; trans_num < automaton.getTransitionCount(BA_source); trans_num++) {
 			// Check the transitibility
@@ -134,19 +134,19 @@ class ModelChecker {
 	 *
 	 * @return index of the state to start an update from
 	 */
-	const std::size_t getStrongestUpdate() const {
+	const StateID getStrongestUpdate() const {
 		// Reference value
-		std::size_t state_num = 0;
+		StateID ID = 0;
 		Parameters current_par = 0;
 		// Cycle throught the updates
 		for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
 			// Compapre with current data - if better, replace
 			if (storage.getParameters(*update_it) == (current_par | storage.getParameters(*update_it))) {
-				state_num = *update_it;
-				current_par = storage.getParameters(state_num);
+				ID = *update_it;
+				current_par = storage.getParameters(ID);
 			}
 		}
-		return state_num;
+		return ID;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,18 +168,18 @@ public:
 	 * @param souce_state	ID of the source state in the product
 	 * @param parameters	parameters that will be distributed
 	 */
-	void transferUpdates(const std::size_t product_source, const Parameters parameters) {
+	void transferUpdates(const StateID product_source, const Parameters parameters) {
 		// Get current KS state
-		std::size_t KS_source = product.getStateIndexes(product_source).first;
+		StateID KS_source = product.getKSID(product_source);
 		// For each feasible transition of BA store its ID in the queue
-		std::vector<std::size_t> reach_BA = getReachableBA(product_source);
+		std::vector<StateID> reach_BA = getReachableBA(product_source);
 
 		// Push updates for each BA transition times each KS transition
-		for (auto state_it = reach_BA.begin(); state_it != reach_BA.end(); state_it++) {	
+		for (auto BA_ID = reach_BA.begin(); BA_ID != reach_BA.end(); BA_ID++) {	
 			// Combine BA transition with all KS transitions and update those
 			for (std::size_t KS_trans = 0; KS_trans < structure.getTransitionCount(KS_source); KS_trans++) {
 				// Send an update to the given target
-				updateTarget(parameters, product_source, KS_trans, *state_it);
+				updateTarget(parameters, product_source, KS_trans, *BA_ID);
 			}
 		}
 	}
@@ -191,11 +191,11 @@ public:
 		// While there are updates, pass them to succesing vertices
 		while (!updates.empty()) {
 			// Within updates, find the one with most bits
-			std::size_t state_num = getStrongestUpdate();
+			StateID ID = getStrongestUpdate();
 			// Pass data from updated vertex to its succesors
-			transferUpdates(state_num, storage.getParameters(state_num));
+			transferUpdates(ID, storage.getParameters(ID));
 			// Erase completed update from the set
-			updates.erase(state_num);
+			updates.erase(ID);
 		}
 	}
 
@@ -205,7 +205,7 @@ public:
 	/**
 	 * Assign provided set as current updates.
 	 */
-	void setUpdates(const std::set<std::size_t> & _updates = std::set<std::size_t>()) {
+	void setUpdates(const std::set<StateID> & _updates = std::set<StateID>()) {
 		updates = _updates;
 	}
 

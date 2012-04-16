@@ -30,7 +30,7 @@ public:
 	 *
 	 * @return	integer with number of outcoming transitions 
 	 */
-	virtual inline const std::size_t getTransitionCount(const std::size_t ID) const = 0;
+	virtual inline const std::size_t getTransitionCount(const StateID ID) const = 0;
 
 	/**
 	 * Obtains ID of the target of given transition for given state.
@@ -40,16 +40,16 @@ public:
 	 *
 	 * @return	ID of the requested target
 	 */
-	virtual inline const std::size_t getTargetID(const std::size_t ID, const std::size_t transition_number) const = 0;
+	virtual inline const StateID getTargetID(const StateID ID, const std::size_t transition_number) const = 0;
 
 	/**
 	 * Returns given state as a string.
 	 *
-	 * @param state_ID	ID of the state to turn into the string
+	 * @param ID	ID of the state to turn into the string
 	 *
 	 * @return	given state as a string
 	 */
-	virtual inline const std::string getString(const std::size_t state_ID) const = 0;
+	virtual inline const std::string getString(const std::size_t StateID) const = 0;
 
 	/**
 	 * Virtual destructor.

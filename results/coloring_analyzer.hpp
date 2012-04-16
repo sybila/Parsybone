@@ -175,14 +175,14 @@ public:
 	/**
 	 * Store requested results for a give state of product
 	 */
-	void storeResults(const std::size_t state_num, const bool use_colors) {
+	void storeResults(const StateID ID, const bool use_colors) {
 		// Get parameters from the state
-		Parameters parameters = storage.getParameters(state_num);
+		Parameters parameters = storage.getParameters(ID);
 		// Store results for this 
 		if (use_colors)
-			results.addColoring(state_num, parameters, getColors(parameters));
+			results.addColoring(ID, parameters, getColors(parameters));
 		else
-			results.addColoring(state_num, parameters);
+			results.addColoring(ID, parameters);
 	}
 
 	/**
@@ -195,8 +195,8 @@ public:
 		std::vector<Coloring> final_colorings; 
 
 		// Get the states and their colors
-		std::for_each(product.getFinalStates().begin(), product.getFinalStates().end(), [&](std::size_t state_index) {
-			final_colorings.push_back(Coloring(state_index, storage.getParameters(state_index)));
+		std::for_each(product.getFinalStates().begin(), product.getFinalStates().end(), [&](StateID ID) {
+			final_colorings.push_back(Coloring(ID, storage.getParameters(ID)));
 		});
 
 		// Return final vertices with their positions

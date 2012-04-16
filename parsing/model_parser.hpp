@@ -244,7 +244,7 @@ class ModelParser {
 	/**
 	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
 	 */
-	void parseTransitions(const rapidxml::xml_node<> * const state_node, size_t state_ID) const {
+	void parseTransitions(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
 		rapidxml::xml_node<>      *transition;
 		// Interaction data
 		std::string label_string; std::size_t target_ID;
@@ -261,7 +261,7 @@ class ModelParser {
 			getAttribute(target_ID, transition, "target");
 
 			// Add a new regulation to the specified target
-			model.addConditions(state_ID, target_ID, std::move(label_string));
+			model.addConditions(source_ID, target_ID, std::move(label_string));
 
 			// Continue stepping into REGUL tags while possible
 			if (transition->next_sibling("TRANS"))
@@ -286,10 +286,10 @@ class ModelParser {
 			getAttribute(final, state, "final");
 
 			// Create a new state
-			size_t state_ID = model.addState(final);
+			StateID ID = model.addState(final);
 
 			// Get all the transitions of the state and store them to the model.
-			parseTransitions(state, state_ID);
+			parseTransitions(state, ID);
 
 			// Continue stepping into STATE tags while possible
 			if (state->next_sibling("STATE"))

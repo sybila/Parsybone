@@ -24,9 +24,9 @@ class ColorStorage {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	struct State {
 		Parameters parameters; // 32 bits for each color in this round marking its presence or absence
-		std::vector<std::pair<std::size_t, Parameters> > predecessors; // Stores a predeccesor in the form (product_ID, parameters)
+		std::vector<std::pair<StateID, Parameters> > predecessors; // Stores a predeccesor in the form (product_ID, parameters)
 
-		State(const std::vector<std::size_t> _predecessors) {
+		State(const std::vector<StateID> _predecessors) {
 			parameters = 0;
 			for (auto pred_it = _predecessors.begin(); pred_it != _predecessors.end(); pred_it++) {
 				predecessors.push_back(std::make_pair(*pred_it, 0));
@@ -36,6 +36,7 @@ class ColorStorage {
 	
 	WitnessUse current_mode; // If set to none_wit, stores only parameters
 
+	// DATA STORAGE
 	std::vector<State> states;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +47,7 @@ class ColorStorage {
 	 *
 	 * @param predecessors	vector with IDs of all predecessors of this state
 	 */
-	void addState(const std::vector<std::size_t> && predecessors) {
+	void addState(const std::vector<StateID> && predecessors) {
 		states.push_back(State(std::move(predecessors)));
 	}
 
@@ -90,17 +91,17 @@ public:
 // PARAMTERS HANDLING
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @param state_num	index of the state to fill
+	 * @param ID	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
 	 * 
 	 * @return true if there was an actuall update
 	 */
-	inline bool update(const Parameters parameters, const std::size_t state_num) {
+	inline bool update(const Parameters parameters, const StateID ID) {
 		// If nothing is new return false
-		if (states[state_num].parameters == (parameters | states[state_num].parameters))
+		if (states[ID].parameters == (parameters | states[ID].parameters))
 			return false;
 		// Add new parameters and return true
-		states[state_num].parameters |= parameters;
+		states[ID].parameters |= parameters;
 		return true;
 	}
 
@@ -109,12 +110,12 @@ public:
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @param state_num	index of the state to ask for parameters
+	 * @param ID	index of the state to ask for parameters
 	 * 
 	 * @return parameters assigned to the state
 	 */
-	inline const Parameters & getParameters(const std::size_t state_num) const {
-		return states[state_num].parameters;
+	inline const Parameters & getParameters(const StateID ID) const {
+		return states[ID].parameters;
 	}
 
 	///** 

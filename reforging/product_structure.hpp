@@ -28,15 +28,26 @@ class ProductStructure {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	// Storing a single transition to neighbour state together with its transition function
 	struct Transition {
+		StateID target_ID; // ID of the state the transition leads to
+		std::size_t step_size; // How many bits of a parameter space bitset is needed to get from one targe value to another
+		std::vector<bool> transitive_values; // Which values from the original set does not allow a trasition and therefore removes bits from the mask.
+
+		Transition(const std::size_t _target_ID, const std::size_t _step_size, const std::vector<bool>& _transitive_values)
+			: target_ID(_target_ID), step_size(_step_size), transitive_values(_transitive_values) {}
 	};
 	
+	// State of the product - same as the state of parametrized structure but together with BA state
 	struct State {
-		std::size_t ID;
-		std::size_t BA_ID;
-		std::size_t KS_ID;
-
-		std::vector<Transition> transitions;
+		StateID ID; // unique ID of the state
+		StateID KS_ID; // ID of original KS state this one is built from
+		StateID BA_ID; // ID of original BA state this one is built from
+		Levels species_level; // species_level[i] = activation level of specie i
+		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
+	
+		State(const StateID _ID, const StateID _KS_ID, const StateID _BA_ID, const  Levels & _species_level)
+			: ID(_ID), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) { }
 	};
 	
 	// References to data structures
@@ -44,15 +55,33 @@ class ProductStructure {
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 
-	// Information about states
-	std::vector<std::size_t> initial_states;
-	std::vector<std::size_t> final_states;
-
+	// DATA STORAGE
 	std::vector<State> states;
+	std::size_t state_count;
+
+	// Information about states
+	std::vector<StateID> initial_states;
+	std::vector<StateID> final_states;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Add a new state, only with ID and levels
+	 */
+	inline void addState(const StateID KS_ID, const StateID BA_ID, const Levels & species_level) {
+		states.push_back(State(getProductID(KS_ID, BA_ID), KS_ID, BA_ID, species_level));
+	}
+
+	/**
+	 * @param ID	add data to the state with this IS
+	 *
+	 * Add a new transition with all its values
+	 */
+	inline void addTransition(const StateID ID, const StateID target_ID, const std::size_t step_size, const std::vector<bool> & transitive_values) {
+		states[ID].transitions.push_back(Transition(target_ID, step_size, transitive_values));
+	}
+	
 	ProductStructure(const ProductStructure & other);            // Forbidden copy constructor.
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
@@ -67,22 +96,22 @@ public:
 	 * @return	number of states of the product structure
 	 */
 	inline const std::size_t getStatesCount() const {
-		return states.size();
+		return state_count;
 	}
 
 	/**
-	 * @param state_ID	ID of the state to get the data from
+	 * @param ID	ID of the state to get the data from
 	 *
 	 * @return	give state as a string
 	 */
-	const std::string getString(const std::size_t state_ID) const {
+	const std::string getString(const StateID ID) const {
 		// Get states numbers
-		const std::size_t KS_state = getStateIndexes(state_ID).first;
-		const std::size_t BA_state = getStateIndexes(state_ID).second;
+		StateID KS_ID = getKSID(ID);
+		StateID BA_ID = getBAID(ID);
 		// Concat strings of subparts
-		std::string state_string = std::move(structure.getString(KS_state));
+		std::string state_string = std::move(structure.getString(KS_ID));
 		if (user_options.BA())
-			state_string += std::move(automaton.getString(BA_state));
+			state_string += std::move(automaton.getString(BA_ID));
 
 		return std::move(state_string);
 	}
@@ -93,17 +122,22 @@ public:
 	/**
 	 * @return index of this combination of states in the product
 	 */
-	inline const std::size_t getProductIndex(const std::size_t ks_index, const std::size_t ba_index) const {
-		return (ks_index * automaton.getStateCount() + ba_index);
+	inline const StateID getProductID(const StateID KS_ID, const StateID BA_ID) const {
+		return (KS_ID * automaton.getStateCount() + BA_ID);
 	}
 
 	/**
-	 * @return index of this combination of states in the product in the form (KS_state, BA_state)
+	 * @return index of BA state form the product
 	 */
-	const std::pair<std::size_t, std::size_t> getStateIndexes(const std::size_t product_index) const {
-		const std::size_t KS_state = product_index / automaton.getStateCount();
-		const std::size_t BA_state = product_index % automaton.getStateCount();
-		return std::make_pair(KS_state, BA_state);
+	inline const StateID getBAID(const StateID ID) const {
+		return states[ID].BA_ID;
+	}
+
+	/**
+	 * @return index of BA state form the product
+	 */
+	inline const StateID getKSID(const StateID ID) const {
+		return states[ID].KS_ID;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,22 +167,22 @@ public:
 	/**
 	 * @return vector of the initial states
 	 */
-	inline const std::vector<std::size_t> & getInitialStates() const {
+	inline const std::vector<StateID> & getInitialStates() const {
 		return initial_states;
 	}
 
 	/**
 	 * @return set of final states
 	 */ 
-	inline const std::vector<std::size_t> & getFinalStates() const {
+	inline const std::vector<StateID> & getFinalStates() const {
 		return final_states;
 	}
 
 	/**
 	 * @return set with initial states (instead of vector)
 	 */
-	std::set<std::size_t> getInitialUpdates() const {
-		return std::set<std::size_t>(initial_states.begin(), initial_states.end());
+	std::set<StateID> getInitialUpdates() const {
+		return std::set<StateID>(initial_states.begin(), initial_states.end());
 	}
 };
 
