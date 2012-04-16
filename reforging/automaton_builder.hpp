@@ -201,10 +201,10 @@ public:
 	 */
 	void buildAutomaton() {
 		output_streamer.output(stats_str, "Costructing Buchi automaton structure states, total number of states: ", OutputStreamer::no_newl)
-			           .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
+			           .output(model.getStateCount(), OutputStreamer::no_newl).output(".");
 		
 		// List throught all the automaton states
-		for (StateID ID = 0; ID < model.getStatesCount(); ID++) {
+		for (StateID ID = 0; ID < model.getStateCount(); ID++) {
 			// Fill auxiliary data
 			automaton.addState(ID, model.isFinal(ID));
 			// Add transitions for this state

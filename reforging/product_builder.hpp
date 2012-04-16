@@ -59,9 +59,6 @@ class ProductBuilder {
 	 * @param states_count	how many states the product will have
 	 */ 
 	void createEmptyStorage (const std::size_t states_count) {
-		// TODO: REMOVE
-		product.state_count = states_count;
-
 		// add empty states to storage
 		for (std::size_t state_num = 0; state_num < states_count; state_num++) {
 			storage.addState(std::move(std::vector<std::size_t>()));
@@ -99,7 +96,7 @@ class ProductBuilder {
 	 */
 	void createProductStates(const StateID KS_ID, const StateID BA_ID) {
 		// Add this state
-		product.addState(KS_ID, BA_ID, structure.getStateLevels(KS_ID));
+		product.addState(KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID));
 		const StateID ID = product.getProductID(KS_ID, BA_ID); 
 
 		// Get all possible BA targets

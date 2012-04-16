@@ -151,7 +151,7 @@ public:
 	/**
 	 * @return	number of the states
 	 */
-	inline const std::size_t getStatesCount() const {
+	inline const std::size_t getStateCount() const {
 		return states.size();
 	}
 

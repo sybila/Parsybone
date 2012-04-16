@@ -23,7 +23,7 @@
 #include "../reforging/functions_structure.hpp"
 #include "../reforging/parametrized_structure.hpp"
 
-class ProductStructure {
+class ProductStructure : public AutomatonInterface {
 	friend class ProductBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
@@ -43,11 +43,13 @@ class ProductStructure {
 		StateID ID; // unique ID of the state
 		StateID KS_ID; // ID of original KS state this one is built from
 		StateID BA_ID; // ID of original BA state this one is built from
+		bool initial; // True if the state is initial
+		bool final; // True if the state is final
 		Levels species_level; // species_level[i] = activation level of specie i
 		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
 	
-		State(const StateID _ID, const StateID _KS_ID, const StateID _BA_ID, const  Levels & _species_level)
-			: ID(_ID), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) { }
+		State(const StateID _ID, const StateID _KS_ID, const StateID _BA_ID, const bool _initial, const bool _final, const  Levels & _species_level)
+			: ID(_ID), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) { }
 	};
 	
 	// References to data structures
@@ -57,20 +59,19 @@ class ProductStructure {
 
 	// DATA STORAGE
 	std::vector<State> states;
-	std::size_t state_count;
 
 	// Information about states
 	std::vector<StateID> initial_states;
 	std::vector<StateID> final_states;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION FUNCTIONS
+// FILLING FUNCTIONS (can be used only from ProductBuilder)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Add a new state, only with ID and levels
 	 */
-	inline void addState(const StateID KS_ID, const StateID BA_ID, const Levels & species_level) {
-		states.push_back(State(getProductID(KS_ID, BA_ID), KS_ID, BA_ID, species_level));
+	inline void addState(const StateID KS_ID, const StateID BA_ID, const bool initial, const bool final, const Levels & species_level) {
+		states.push_back(State(getProductID(KS_ID, BA_ID), KS_ID, BA_ID, initial, final, species_level));
 	}
 
 	/**
@@ -82,6 +83,9 @@ class ProductStructure {
 		states[ID].transitions.push_back(Transition(target_ID, step_size, transitive_values));
 	}
 	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// OTHER FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	ProductStructure(const ProductStructure & other);            // Forbidden copy constructor.
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
@@ -93,16 +97,29 @@ public:
 // KRIPKE STRUCTURE FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @return	number of states of the product structure
+	 * @override
 	 */
-	inline const std::size_t getStatesCount() const {
-		return state_count;
+	inline const std::size_t getStateCount() const {
+		return states.size();
 	}
 
 	/**
-	 * @param ID	ID of the state to get the data from
-	 *
-	 * @return	give state as a string
+	 * @override
+	 */
+	const std::size_t getTransitionCount(const StateID ID) const { 
+		return states[ID].transitions.size(); 
+	}
+
+	/**
+	 * @override
+	 */
+	const std::size_t getTargetID(const StateID ID, const std::size_t trans_number) const {
+		return states[ID].transitions[trans_number].target_ID;
+	}
+
+	/**
+	 * Create string in the form KSstateBAstate or KSstate based on if user requests BA as well
+	 * @override
 	 */
 	const std::string getString(const StateID ID) const {
 		// Get states numbers
@@ -114,6 +131,37 @@ public:
 			state_string += std::move(automaton.getString(BA_ID));
 
 		return std::move(state_string);
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BUCHI AUTOMATON FUNCTIONS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * @override
+	 */
+	virtual inline const bool isFinal(const StateID ID) const {
+		return states[ID].final;
+	}
+
+	/**
+	 * @override
+	 */
+	virtual inline const bool isInitial(const StateID ID) const {
+		return states[ID].initial;
+	}
+
+	/**
+	 * @override
+	 */
+	virtual inline const std::vector<StateID> & getFinalStates() const {
+		return final_states;
+	}
+
+	/**
+	 * @override
+	 */
+	virtual inline const std::vector<StateID> & getInitialStates() const {
+		return initial_states;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +189,7 @@ public:
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS 
+// REFERENCE GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * @return constant reference to Kripke structure stored within the product
@@ -162,27 +210,6 @@ public:
 	 */
 	const FunctionsStructure & getFunc() const {
 		return functions;
-	}
-
-	/**
-	 * @return vector of the initial states
-	 */
-	inline const std::vector<StateID> & getInitialStates() const {
-		return initial_states;
-	}
-
-	/**
-	 * @return set of final states
-	 */ 
-	inline const std::vector<StateID> & getFinalStates() const {
-		return final_states;
-	}
-
-	/**
-	 * @return set with initial states (instead of vector)
-	 */
-	std::set<StateID> getInitialUpdates() const {
-		return std::set<StateID>(initial_states.begin(), initial_states.end());
 	}
 };
 

@@ -129,7 +129,7 @@ class SynthesisManager {
 		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
 			storage.update(starting, *init_it);
 		// Schedule all initial states for updates
-		model_checker->setUpdates(std::move(product.getInitialUpdates()));
+		model_checker->setUpdates(std::set<StateID>(product.getInitialStates().begin(), product.getInitialStates().end()));
 
 		// Start coloring procedure
 		model_checker->doColoring();
