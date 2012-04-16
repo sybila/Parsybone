@@ -50,16 +50,16 @@ class ProductBuilder {
 	 * Create position set of final states and initial states in the product
 	 */
 	void markStates() {
-		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStatesCount(); ba_state_num++) {
+		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStateCount(); ba_state_num++) {
 			// Insert the state if it is an initial state
 			if (ba_state_num == 0) {
-				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++) {
+				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStateCount(); ks_state_num++) {
 					product.initial_states.push_back(product.getProductIndex(ks_state_num, ba_state_num));
 				}
 			}
 			// Insert the state if it is a final state
 			if (automaton.isFinal(ba_state_num)) {
-				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStatesCount(); ks_state_num++)  {
+				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStateCount(); ks_state_num++)  {
 					product.final_states.push_back(product.getProductIndex(ks_state_num, ba_state_num));
 				}
 			}
@@ -80,7 +80,7 @@ public:
 	 * Create the the product from BA and KS together.
 	 */
 	void buildProduct() {
-		const std::size_t states_count = structure.getStatesCount() * automaton.getStatesCount();
+		const std::size_t states_count = structure.getStateCount() * automaton.getStateCount();
 		createEmptyProduct(states_count);
 		markStates();
 	}

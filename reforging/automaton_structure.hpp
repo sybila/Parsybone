@@ -18,10 +18,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/output_streamer.hpp"
+#include "automaton_interface.hpp"
 
 class AutomatonBuilder;
 
-class AutomatonStructure {
+class AutomatonStructure : public AutomatonInterface {
 	friend class AutomatonBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
@@ -45,6 +46,9 @@ class AutomatonStructure {
 	};
 
 	std::vector<State> states;
+	// Information
+	std::vector<std::size_t> initial_states;
+	std::vector<std::size_t> final_states;
 		
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from AutomatonStructureBuilder)
@@ -61,6 +65,10 @@ class AutomatonStructure {
 	 */
 	inline void addState(const std::size_t ID, const bool final) {
 		states.push_back(std::move(State(ID, final)));
+		if (ID == 0) 
+			initial_states.push_back(ID);
+		if (final)
+			final_states.push_back(ID);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,38 +95,34 @@ public:
 		}
 		return true;
 	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KRIPKE STRUCTURE FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @return	number of the states
+	 * @override
 	 */
-	inline const std::size_t getStatesCount() const {
+	inline const std::size_t getStateCount() const {
 		return states.size();
 	}
 
 	/**
-	 * @param state_ID	ID of the state to get the data from
-	 *
-	 * @return	number of the transitions
+	 * @override
 	 */
-	inline const std::size_t getTransitionsCount(const std::size_t state_ID) const {
+	inline const std::size_t getTransitionCount(const std::size_t state_ID) const {
 		return states[state_ID].transitions.size();
 	}
 	
 	/**
-	 * @param transition_num	number of transition to get the data from
-	 *
-	 * @return	ID of the target state of this transition
+	 * @override
 	 */
-	inline const std::size_t getTarget(const std::size_t state_ID, const std::size_t transition_num) const {
+	inline const std::size_t getTargetID(const std::size_t state_ID, const std::size_t transition_num) const {
 		return states[state_ID].transitions[transition_num].target_state;
 	}
 
 	/**
-	 * @param state_ID	ID of the state to get the data from
-	 *
-	 * @return	give state as a string
+	 * Return string representing the state in the form: (state_ID).
+	 * @override
 	 */
 	const std::string getString(const std::size_t state_ID) const {
 		std::string state_string;
@@ -129,17 +133,41 @@ public:
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OTHER CONSTANT GETTERS 
+// BUCHI AUTOMATON FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @param state_ID	ID of the state to get the data from
-	 *
-	 * @return	true if the state is final
+	 * @override
 	 */
-	inline const bool isFinal(const std::size_t state_ID) const {
-		return states[state_ID].final;
+	virtual inline const bool isFinal(const std::size_t ID) const {
+		return states[ID].final;
 	}
 
+	/**
+	 * Only the first state is considered initial.
+	 * @override
+	 */
+	virtual inline const bool isInitial(const std::size_t ID) const {
+		return (ID == 0);
+	}
+
+	/**
+	 * @override
+	 */
+	virtual inline const std::vector<std::size_t> & getFinalStates() const {
+		return final_states;
+	}
+
+	/**
+	 * Only the first state is considered initial.
+	 * @override
+	 */
+	virtual inline const std::vector<std::size_t> & getInitialStates() const {
+		return initial_states;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// OTHER CONSTANT GETTERS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * @param transition_num	number of transition to get the data from
 	 *

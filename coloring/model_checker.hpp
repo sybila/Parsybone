@@ -121,10 +121,10 @@ class ModelChecker {
 		// Vector to store them
 		std::vector<std::size_t> reachable;
 		// Cycle through all the transitions
-		for (std::size_t trans_num = 0; trans_num < automaton.getTransitionsCount(BA_source); trans_num++) {
+		for (std::size_t trans_num = 0; trans_num < automaton.getTransitionCount(BA_source); trans_num++) {
 			// Check the transitibility
 			if (automaton.isTransitionFeasible(BA_source, trans_num, structure.getStateLevels(KS_source)))
-				reachable.push_back(automaton.getTarget(BA_source, trans_num));
+				reachable.push_back(automaton.getTargetID(BA_source, trans_num));
 		}
 		return reachable;
 	}
@@ -177,7 +177,7 @@ public:
 		// Push updates for each BA transition times each KS transition
 		for (auto state_it = reach_BA.begin(); state_it != reach_BA.end(); state_it++) {	
 			// Combine BA transition with all KS transitions and update those
-			for (std::size_t KS_trans = 0; KS_trans < structure.getTransitionsCount(KS_source); KS_trans++) {
+			for (std::size_t KS_trans = 0; KS_trans < structure.getTransitionCount(KS_source); KS_trans++) {
 				// Send an update to the given target
 				updateTarget(parameters, product_source, KS_trans, *state_it);
 			}

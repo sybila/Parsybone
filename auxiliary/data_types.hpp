@@ -46,6 +46,8 @@ enum UnspecifiedRegulations {error_reg, basal_reg, param_reg};
 // To store the way a specie value has changed
 enum Direction {up_dir, stay_dir, down_dir};
 
+typedef std::size_t StateID; // Not used now
+
 // vector of activation levels of species used for labelling of states of KS
 typedef std::vector<std::size_t> Levels;
 

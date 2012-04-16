@@ -126,6 +126,9 @@
     <ClInclude Include="..\reforging\graph_interface.hpp">
       <Filter>reforging</Filter>
     </ClInclude>
+    <ClInclude Include="..\reforging\automaton_interface.hpp">
+      <Filter>reforging</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">

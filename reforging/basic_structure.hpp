@@ -91,7 +91,7 @@ public:
 	 *
 	 * @return	levels of the state
 	 */
-	const std::size_t getTransitionsCount(const std::size_t ID) const { 
+	const std::size_t getTransitionCount(const std::size_t ID) const { 
 		return states[ID].transitions.size(); 
 	}
 

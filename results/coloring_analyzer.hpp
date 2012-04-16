@@ -195,7 +195,7 @@ public:
 		std::vector<Coloring> final_colorings; 
 
 		// Get the states and their colors
-		std::for_each(product.getFinals().begin(), product.getFinals().end(), [&](std::size_t state_index) {
+		std::for_each(product.getFinalStates().begin(), product.getFinalStates().end(), [&](std::size_t state_index) {
 			final_colorings.push_back(Coloring(state_index, storage.getParameters(state_index)));
 		});
 

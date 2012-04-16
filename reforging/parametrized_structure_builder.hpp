@@ -171,7 +171,7 @@ class ParametrizedStructureBuilder {
 	 */
 	void addTransitions(const std::size_t state_ID, const Levels & state_levels) {
 		// Go through all the original transitions
-		for (std::size_t trans_num = 0; trans_num < basic_structure.getTransitionsCount(state_ID); trans_num++) {
+		for (std::size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(state_ID); trans_num++) {
 			
 			// Data to fill
 			std::size_t target_ID = basic_structure.getTargetID(state_ID, trans_num); // ID of the state the transition leads to

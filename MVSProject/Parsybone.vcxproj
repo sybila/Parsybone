@@ -87,6 +87,7 @@
     <ClInclude Include="..\rapidxml-1.13\rapidxml_print.hpp" />
     <ClInclude Include="..\rapidxml-1.13\rapidxml_utils.hpp" />
     <ClInclude Include="..\reforging\automaton_builder.hpp" />
+    <ClInclude Include="..\reforging\automaton_interface.hpp" />
     <ClInclude Include="..\reforging\automaton_structure.hpp" />
     <ClInclude Include="..\reforging\basic_structure.hpp" />
     <ClInclude Include="..\reforging\basic_structure_builder.hpp" />

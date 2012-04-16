@@ -19,10 +19,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/output_streamer.hpp"
+#include "../reforging/graph_interface.hpp"
 
 class ParametrizedStructureBuilder;
 
-class ParametrizedStructure {
+class ParametrizedStructure : public GraphInterface {
 	friend class ParametrizedStructureBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
@@ -83,35 +84,29 @@ public:
 // KRIPKE STRUCTURE FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @return	number of the states
+	 * @override
 	 */
-	inline const std::size_t getStatesCount() const {
+	inline const std::size_t getStateCount() const {
 		return states.size();
 	}
 
 	/**
-	 * @param state_ID	ID of the state to get the data from
-	 *
-	 * @return	number of the transitions of the state
+	 * @override
 	 */
-	inline const std::size_t getTransitionsCount(const std::size_t state_ID) const {
+	inline const std::size_t getTransitionCount(const std::size_t state_ID) const {
 		return states[state_ID].transitions.size();
 	}
 
 	/**
-	 * @param state_ID	ID of the state to get the data from
-	 * @param transition_num index of the transition to get the data from
-	 *
-	 * @return	ID of the target of the transition
+	 * @override
 	 */
 	inline const std::size_t getTargetID(const std::size_t state_ID, const std::size_t transtion_num) const {
 		return states[state_ID].transitions[transtion_num].target_ID;
 	}
 
 	/**
-	 * @param state_ID	ID of the state to get the data from
-	 *
-	 * @return	give state as a string
+	 * @override
+	 * Return string representing given state in the form (specie1_val, specie2_val, ...)
 	 */
 	const std::string getString(const std::size_t state_ID) const {
 		std::string state_string = "(";

@@ -44,7 +44,7 @@ class ProductStructure {
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 
-	// Information
+	// Information about states
 	std::vector<std::size_t> initial_states;
 	std::vector<std::size_t> final_states;
 
@@ -94,15 +94,15 @@ public:
 	 * @return index of this combination of states in the product
 	 */
 	inline const std::size_t getProductIndex(const std::size_t ks_index, const std::size_t ba_index) const {
-		return (ks_index * automaton.getStatesCount() + ba_index);
+		return (ks_index * automaton.getStateCount() + ba_index);
 	}
 
 	/**
 	 * @return index of this combination of states in the product in the form (KS_state, BA_state)
 	 */
 	const std::pair<std::size_t, std::size_t> getStateIndexes(const std::size_t product_index) const {
-		const std::size_t KS_state = product_index / automaton.getStatesCount();
-		const std::size_t BA_state = product_index % automaton.getStatesCount();
+		const std::size_t KS_state = product_index / automaton.getStateCount();
+		const std::size_t BA_state = product_index % automaton.getStateCount();
 		return std::make_pair(KS_state, BA_state);
 	}
 
@@ -131,16 +131,16 @@ public:
 	}
 
 	/**
-	 * @return set of the initial states
+	 * @return vector of the initial states
 	 */
-	inline const std::vector<std::size_t> & getInitials() const {
+	inline const std::vector<std::size_t> & getInitialStates() const {
 		return initial_states;
 	}
 
 	/**
 	 * @return set of final states
 	 */ 
-	inline const std::vector<std::size_t> & getFinals() const {
+	inline const std::vector<std::size_t> & getFinalStates() const {
 		return final_states;
 	}
 

@@ -11,38 +11,39 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Interface for all the classes that represent a directed graph.
+// Transitions are stored with their source state.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class GraphInterface {
 public:
 	/**
-	 * Obtains number of states of the graph
+	 * Obtains number of states of the graph.
 	 *
 	 * @return integer with size of the graph
 	 */
-	inline const std::size_t getStateCount() const;
+	virtual inline const std::size_t getStateCount() const = 0;
 
 	/**
-	 * Obtains number of transitions for given state
+	 * Obtains number of transitions for given state.
 	 *
 	 * @param ID	ID of the state to get the number from
 	 *
 	 * @return	integer with number of outcoming transitions 
 	 */
-	inline const std::size_t getTransitionsCount(const std::size_t ID) const;
+	virtual inline const std::size_t getTransitionCount(const std::size_t ID) const = 0;
 
 	/**
-	 * Obtains ID of the target of given transition for given state
+	 * Obtains ID of the target of given transition for given state.
 	 *
 	 * @param ID	ID of the state to get the neighbour from
 	 * @param trans_number	index in the vector of transitions
 	 *
 	 * @return	ID of the requested target
 	 */
-	inline const std::size_t getTargetID(const std::size_t ID, const std::size_t transition_number) const;
+	virtual inline const std::size_t getTargetID(const std::size_t ID, const std::size_t transition_number) const = 0;
 
 	/**
-	 * Returns given state as a string
+	 * Returns given state as a string.
 	 *
 	 * @param state_ID	ID of the state to turn into the string
 	 *
