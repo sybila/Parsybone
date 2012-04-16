@@ -211,6 +211,38 @@ public:
 	const FunctionsStructure & getFunc() const {
 		return functions;
 	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DATA GETTERS 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * @param ID	ID of the state to get the data from
+	 *
+	 * @return	species level 
+	 */
+	inline const Levels & getStateLevels(const StateID ID) const {
+		return states[ID].species_level;
+	}
+
+	/**
+	 * @param ID	ID of the state to get the data from
+	 * @param transition_num index of the transition to get the data from
+	 *
+	 * @return	number of neighbour parameters that share the same value of the function
+	 */
+	inline const std::size_t getStepSize(const StateID ID, const std::size_t transtion_num) const {
+		return states[ID].transitions[transtion_num].step_size;
+	}
+
+	/**
+	 * @param ID	ID of the state to get the data from
+	 * @param transition_num index of the transition to get the data from
+	 *
+	 * @return	target values that are includete in non-transitive parameters that have to be removed
+	 */
+	inline const std::vector<bool> & getTransitive(const StateID ID, const std::size_t transtion_num) const {
+		return states[ID].transitions[transtion_num].transitive_values;
+	}
 };
 
 #endif

@@ -89,44 +89,18 @@ class ModelChecker {
 	 * @param source_KS_state	this KS state - target_KS is obtained from the transition index
 	 * @param BA_target	target state of the BA
 	 */
-	void updateTarget(Parameters parameters, const StateID product_source, const StateID KS_trans, const StateID BA_target) {
-		// Obtain parts of source
-		StateID KS_source = product.getKSID(product_source);
-		StateID BA_source = product.getBAID(product_source);
+	void updateTarget(Parameters parameters, const StateID ID, const std::size_t trans_num) {
 		// From an update strip all the parameters that can not pass through the transition - color intersection on the transition
-		passParameters(parameters, structure.getStepSize(KS_source, KS_trans), structure.getTransitive(KS_source, KS_trans));
+		passParameters(parameters, product.getStepSize(ID, trans_num), product.getTransitive(ID, trans_num));
 		// If some parameters get passed
 		if (!none(parameters)) {
 			// Compute and update target state of product
-			StateID KS_target = structure.getTargetID(KS_source, KS_trans);
-			StateID product_target = product.getProductID(KS_target, BA_target);
+			StateID target = product.getTargetID(ID, trans_num);
 			// If there is something new, schedule the target for an update
-			if (storage.update(parameters, product_target)) {
-				updates.insert(product_target);
+			if (storage.update(parameters, target)) {
+				updates.insert(target);
 			}
 		}
-	}
-
-	/**
-	 * Given this source BA state, find out all the target BA that are reachable under this KS state
-	 *
-	 * @param source_state	source state in the product
-	 *
-	 * @return	vector of all the reachable BA states
-	 */
-	std::vector<StateID> getReachableBA(const StateID product_source) const {
-		// From where 
-		StateID KS_source = product.getKSID(product_source);
-		StateID BA_source = product.getBAID(product_source);
-		// Vector to store them
-		std::vector<StateID> reachable;
-		// Cycle through all the transitions
-		for (std::size_t trans_num = 0; trans_num < automaton.getTransitionCount(BA_source); trans_num++) {
-			// Check the transitibility
-			if (automaton.isTransitionFeasible(BA_source, trans_num, structure.getStateLevels(KS_source)))
-				reachable.push_back(automaton.getTargetID(BA_source, trans_num));
-		}
-		return reachable;
 	}
 
 	/**
@@ -168,19 +142,11 @@ public:
 	 * @param souce_state	ID of the source state in the product
 	 * @param parameters	parameters that will be distributed
 	 */
-	void transferUpdates(const StateID product_source, const Parameters parameters) {
-		// Get current KS state
-		StateID KS_source = product.getKSID(product_source);
-		// For each feasible transition of BA store its ID in the queue
-		std::vector<StateID> reach_BA = getReachableBA(product_source);
-
+	void transferUpdates(const StateID ID, const Parameters parameters) {
 		// Push updates for each BA transition times each KS transition
-		for (auto BA_ID = reach_BA.begin(); BA_ID != reach_BA.end(); BA_ID++) {	
-			// Combine BA transition with all KS transitions and update those
-			for (std::size_t KS_trans = 0; KS_trans < structure.getTransitionCount(KS_source); KS_trans++) {
-				// Send an update to the given target
-				updateTarget(parameters, product_source, KS_trans, *BA_ID);
-			}
+		for (std::size_t transition_num = 0; transition_num < product.getTransitionCount(ID); transition_num++) {
+			// Send an update to the given target
+			updateTarget(parameters, ID, transition_num);
 		}
 	}
 
