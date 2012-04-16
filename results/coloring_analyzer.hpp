@@ -17,7 +17,7 @@
 #include "../reforging/color_storage.hpp"
 #include "../results/result_storage.hpp"
 
-class ProductAnalyzer {
+class ColoringAnalyzer {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,6 +113,7 @@ class ProductAnalyzer {
 	 */
 	const std::vector<std::vector<std::size_t>> getValues() const {
 		std::vector<std::vector<std::size_t>> parameter_values;
+		// Cycle through all functions
 		for (std::size_t specie_num = 0; specie_num != functions.getSpeciesCount(); specie_num++) {
 			for (std::size_t function_num = 0; function_num < functions.getRegulationsCount(specie_num); function_num++) {
 				// Get all the values for a function
@@ -129,6 +130,7 @@ class ProductAnalyzer {
 	 */
 	std::vector<std::size_t> getBottomValues() const {
 		std::vector<std::size_t> bottom_values;
+		// Cycle through all functions
 		for (std::size_t specie_num = 0; specie_num != functions.getSpeciesCount(); specie_num++) {
 			for (std::size_t function_num = 0; function_num < functions.getRegulationsCount(specie_num); function_num++) {
 				// Get the lowes value for the function
@@ -138,14 +140,14 @@ class ProductAnalyzer {
 		return bottom_values;
 	}	
 	
-	ProductAnalyzer(const ProductAnalyzer & other);            // Forbidden copy constructor.
-	ProductAnalyzer& operator=(const ProductAnalyzer & other); // Forbidden assignment operator.
+	ColoringAnalyzer(const ColoringAnalyzer & other);            // Forbidden copy constructor.
+	ColoringAnalyzer& operator=(const ColoringAnalyzer & other); // Forbidden assignment operator.
 
 public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	ProductAnalyzer(const ProductStructure & _product, const ColorStorage & _storage, ResultStorage & _results) 
+	ColoringAnalyzer(const ProductStructure & _product, const ColorStorage & _storage, ResultStorage & _results) 
 		           : product(_product), storage(_storage), structure(_product.getKS()), automaton(_product.getBA()), functions(_product.getFunc()), results(_results)  {
 		functions_values = std::move(getValues());
 		current_color = std::move(getBottomValues());
@@ -160,6 +162,7 @@ public:
 	void setRange(const Range & round_range) {
 		if (round_range.first < parameter_begin)
 			throw std::runtime_error("Round start value is lower than start of previous round.");
+		// Iterate reference values for the state up till first state of this round
 		parameter_end = round_range.second;
 		for (; parameter_begin < round_range.first; parameter_begin++) {
 			iterateColor(current_color);

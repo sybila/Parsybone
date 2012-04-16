@@ -102,9 +102,6 @@
     <ClInclude Include="..\coloring\split_manager.hpp">
       <Filter>coloring</Filter>
     </ClInclude>
-    <ClInclude Include="..\results\product_analyzer.hpp">
-      <Filter>results</Filter>
-    </ClInclude>
     <ClInclude Include="..\results\result_storage.hpp">
       <Filter>results</Filter>
     </ClInclude>
@@ -121,6 +118,12 @@
       <Filter>results</Filter>
     </ClInclude>
     <ClInclude Include="..\reforging\color_storage.hpp">
+      <Filter>reforging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\results\coloring_analyzer.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\graph_interface.hpp">
       <Filter>reforging</Filter>
     </ClInclude>
   </ItemGroup>

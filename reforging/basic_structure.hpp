@@ -17,10 +17,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/output_streamer.hpp"
+#include "../reforging/graph_interface.hpp"
 
 class BasicStructureBuilder;
 
-class BasicStructure {
+class BasicStructure : public GraphInterface {
 	friend class BasicStructureBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
@@ -81,7 +82,7 @@ public:
 	/**
 	 * @return	size of the state space
 	 */
-	inline const std::size_t getStateCount() const { 
+	const std::size_t getStateCount() const { 
 		return states.size(); 
 	}
 
@@ -90,7 +91,7 @@ public:
 	 *
 	 * @return	levels of the state
 	 */
-	inline const std::size_t getTransitionsCount(const std::size_t ID) const { 
+	const std::size_t getTransitionsCount(const std::size_t ID) const { 
 		return states[ID].transitions.size(); 
 	}
 
@@ -100,8 +101,12 @@ public:
 	 *
 	 * @return	ID of the requested neighbour
 	 */
-	inline const std::size_t getTargetID(const std::size_t this_ID, const std::size_t trans_number) const {
+	const std::size_t getTargetID(const std::size_t this_ID, const std::size_t trans_number) const {
 		return states[this_ID].transitions[trans_number].target_ID;
+	}
+
+	const std::string getString(const std::size_t state_ID) const {
+		return "";
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

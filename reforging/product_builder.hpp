@@ -25,7 +25,7 @@ class ProductBuilder {
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	ProductStructure & product; // Product to build
-	ColorStorage & storage; // Auxiliary product storage
+	ColorStorage & storage; // Auxiliary product storage to build
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:

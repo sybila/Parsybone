@@ -17,7 +17,7 @@
 #include "parameters_functions.hpp"
 #include "model_checker.hpp"
 #include "../results/output_manager.hpp"
-#include "../results/product_analyzer.hpp"
+#include "../results/coloring_analyzer.hpp"
 #include "../results/witness_searcher.hpp"
 
 class SynthesisManager {
@@ -34,7 +34,7 @@ class SynthesisManager {
 	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
 	std::unique_ptr<OutputManager> output; // Class for output
 	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
-	std::unique_ptr<ProductAnalyzer> analyzer; // Class for analysis
+	std::unique_ptr<ColoringAnalyzer> analyzer; // Class for analysis
 	std::unique_ptr<ResultStorage> results; // Class to store results
 	//std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
 	//std::unique_ptr<WitnessStorage> witnesses; // Class to store witnesses
@@ -169,7 +169,7 @@ public:
 		split_manager.reset(new SplitManager(product.getFunc().getParametersCount()));
 		model_checker.reset(new ModelChecker(product, storage));
 		results.reset(new ResultStorage(product));
-		analyzer.reset(new ProductAnalyzer(product, storage, *results));
+		analyzer.reset(new ColoringAnalyzer(product, storage, *results));
 		//witnesses.reset(new WitnessStorage(product));
 		//searcher.reset(new WitnessSearcher(product, *witnesses));
 		output.reset(new OutputManager(product, *split_manager, *results));
