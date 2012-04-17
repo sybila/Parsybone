@@ -6,16 +6,14 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_PRODUCT_ANALYZER_INCLUDED
-#define PARSYBONE_PRODUCT_ANALYZER_INCLUDED
+#ifndef PARSYBONE_COLORING_ANALYZER_INCLUDED
+#define PARSYBONE_COLORING_ANALYZER_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Product analyzer is used to get polished and formatted data from the product.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../reforging/product_structure.hpp"
-#include "../reforging/color_storage.hpp"
-#include "../results/result_storage.hpp"
 
 class ColoringAnalyzer {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,32 +75,6 @@ class ColoringAnalyzer {
 		return color_str;
 	}
 	
-	/**
-	 * obtain colors given parameters in the form [fun1, fun2, ...]
-	 * this function also causes current_color to change (iterate)
-	 *
-	 * @return vector of strings with colors
-	 */
-	std::vector<std::string> getColors(Parameters result_parameters) const {	
-		// Vector to fill
-		std::vector<std::string> colors;
-		std::vector<std::size_t> work_color = current_color;
-		// Change the order of values to: from right to left
-		result_parameters = swap(result_parameters, (parameter_end - parameter_begin));
-
-		// Cycle through all round colors
-		for (std::size_t col_num = parameter_begin; col_num < parameter_end; col_num++) {
-			// Output current values
-			if (result_parameters % 2) 
-				colors.push_back(createColorString(work_color));
-
-			// Increase values
-			result_parameters >>= 1;
-			iterateColor(work_color);
-		}
-		return colors;
-	}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
@@ -194,6 +166,31 @@ public:
 		return all;
 	}
 
+	/**
+	 * Obtain colors given parameters in the form [fun1, fun2, ...]
+	 * this function also causes current_color to change (iterate).
+	 *
+	 * @return vector of strings with colors
+	 */
+	std::vector<std::string> getColors(Parameters result_parameters) const {	
+		// Vector to fill
+		std::vector<std::string> colors;
+		std::vector<std::size_t> work_color = current_color;
+		// Change the order of values to: from right to left
+		result_parameters = swap(result_parameters, (parameter_end - parameter_begin));
+
+		// Cycle through all round colors
+		for (std::size_t col_num = parameter_begin; col_num < parameter_end; col_num++) {
+			// Output current values
+			if (result_parameters % 2) 
+				colors.push_back(createColorString(work_color));
+
+			// Increase values
+			result_parameters >>= 1;
+			iterateColor(work_color);
+		}
+		return colors;
+	}
 };
 
 #endif

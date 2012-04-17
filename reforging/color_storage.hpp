@@ -23,15 +23,11 @@ class ColorStorage {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	struct State {
+		StateID ID;
 		Parameters parameters; // 32 bits for each color in this round marking its presence or absence
-		std::vector<std::pair<StateID, Parameters> > predecessors; // Stores a predeccesor in the form (product_ID, parameters)
+		std::map<StateID, Parameters> predecessors; // Stores a predeccesor in the form (product_ID, parameters)
 
-		State(const std::vector<StateID> _predecessors) {
-			parameters = 0;
-			for (auto pred_it = _predecessors.begin(); pred_it != _predecessors.end(); pred_it++) {
-				predecessors.push_back(std::make_pair(*pred_it, 0));
-			}
-		}
+		State(const StateID _ID) : ID(_ID), parameters(0) { }
 	};
 	
 	WitnessUse current_mode; // If set to none_wit, stores only parameters
@@ -47,10 +43,14 @@ class ColorStorage {
 	 *
 	 * @param predecessors	vector with IDs of all predecessors of this state
 	 */
-	void addState(const std::vector<StateID> && predecessors) {
-		states.push_back(State(std::move(predecessors)));
+	void addState(const StateID ID) {
+		states.push_back(State(ID));
 	}
 
+
+	void addPredecessor(const StateID ID, const StateID source) {
+		states[ID].predecessors.insert(std::make_pair(source, 0));
+	}
 
 	ColorStorage(const ColorStorage & other);            // Forbidden copy constructor.
 	ColorStorage& operator=(const ColorStorage & other); // Forbidden assignment operator.
@@ -103,6 +103,20 @@ public:
 		// Add new parameters and return true
 		states[ID].parameters |= parameters;
 		return true;
+	}
+
+	/**
+	 * @param source_ID	index of the state that passed this update
+	 * @param ID	index of the state to fill
+	 * @param parameters to add - if empty, add all, otherwise use bitwise or
+	 * 
+	 * @return true if there was an actuall update
+	 */
+	inline bool update(const StateID source_ID, const Parameters parameters, const StateID ID) {
+		// Mark parameters source
+		states[ID].predecessors.find(source_ID)->second |= parameters;
+		// Make an actuall update
+		return update(parameters, ID);
 	}
 
 

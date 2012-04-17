@@ -47,7 +47,7 @@ class ProductStructure : public AutomatonInterface {
 		bool final; // True if the state is final
 		Levels species_level; // species_level[i] = activation level of specie i
 		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
-	
+
 		State(const StateID _ID, const StateID _KS_ID, const StateID _BA_ID, const bool _initial, const bool _final, const  Levels & _species_level)
 			: ID(_ID), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) { }
 	};

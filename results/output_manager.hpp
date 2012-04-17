@@ -80,7 +80,8 @@ public:
 	 * Display colors synthetized during current round
 	 */
 	void outputRound() const {
-		analyzer.display();
+		if (user_options.coloring())
+			analyzer.display();
 	}
 };
 

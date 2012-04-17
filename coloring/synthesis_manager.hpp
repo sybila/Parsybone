@@ -18,6 +18,7 @@
 #include "model_checker.hpp"
 #include "split_manager.hpp"
 #include "../results/coloring_analyzer.hpp"
+#include "../results/witness_searcher.hpp"
 #include "../results/output_manager.hpp"
 
 class SynthesisManager {
@@ -35,9 +36,7 @@ class SynthesisManager {
 	std::unique_ptr<OutputManager> output; // Class for output
 	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
 	std::unique_ptr<ColoringAnalyzer> analyzer; // Class for analysis
-	//std::unique_ptr<ResultStorage> results; // Class to store results
-	//std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
-	//std::unique_ptr<WitnessStorage> witnesses; // Class to store witnesses
+	std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
 
 	// Overall statistics
 	std::size_t total_colors;
@@ -74,10 +73,6 @@ class SynthesisManager {
 		total_colors += count(analyzer->getUnion());
 		// Output what has been synthetized (colors, witnesses)
 		analyzer->display();
-		// Do finishing changes and reset results in this round
-		//results->finishRound();
-		// Do finishing changes and reset witnesses in this round
-		//witnesses->finishRound();
 	}
 	
 	/**
@@ -106,8 +101,6 @@ class SynthesisManager {
 			// For the round without witnesses, store only coloring, for the other, store only witnesses
 			if (witness_use == none_wit) 
 				analyzer->storeResults(Coloring(final_it->first, storage.getColor(final_it->first)));
-			//else if (!user_options.timeSerie())
-			//	searcher->storeWitnesses(final_it->first, false);
 		}
 	}
 
@@ -172,10 +165,8 @@ public:
 		// Create classes that help with the synthesis
 		split_manager.reset(new SplitManager(product.getFunc().getParametersCount()));
 		model_checker.reset(new ModelChecker(product, storage));
-		//results.reset(new ResultStorage(product));
 		analyzer.reset(new ColoringAnalyzer(product));
-		//witnesses.reset(new WitnessStorage(product));
-		//searcher.reset(new WitnessSearcher(product, *witnesses));
+		searcher.reset(new WitnessSearcher(product, storage));
 		output.reset(new OutputManager(*analyzer, product, *split_manager));
 
 		total_colors = 0;
@@ -198,6 +189,7 @@ public:
 		}
 
 		time_manager.ouputClock("coloring");
+
 		// Output final numbers
 		output->outputSummary(total_colors);
 	}

@@ -174,8 +174,15 @@ public:
 		for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
 			if (!none(update_it->second)) {
 				// If something new is added to the target, schedule it for an update
-				if (storage.update(update_it->second, update_it->first)) {
-					updates.insert(update_it->first);
+				if (witness_use == none_wit) {
+					if (storage.update(update_it->second, update_it->first)) {
+						updates.insert(update_it->first);
+					}
+				}
+				else {
+					if (storage.update(ID, update_it->second, update_it->first)) {
+						updates.insert(update_it->first);
+					}
 				}
 			}
 		}

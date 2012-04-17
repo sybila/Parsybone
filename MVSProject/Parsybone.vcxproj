@@ -101,10 +101,7 @@
     <ClInclude Include="..\reforging\product_structure.hpp" />
     <ClInclude Include="..\results\coloring_analyzer.hpp" />
     <ClInclude Include="..\results\output_manager.hpp" />
-    <ClInclude Include="..\results\result_storage.hpp" />
-    <ClInclude Include="..\results\tree_node.hpp" />
     <ClInclude Include="..\results\witness_searcher.hpp" />
-    <ClInclude Include="..\results\witness_storage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />

@@ -60,8 +60,8 @@ class ProductBuilder {
 	 */ 
 	void createEmptyStorage (const std::size_t states_count) {
 		// add empty states to storage
-		for (std::size_t state_num = 0; state_num < states_count; state_num++) {
-			storage.addState(std::move(std::vector<std::size_t>()));
+		for (StateID ID = 0; ID < states_count; ID++) {
+			storage.addState(ID);
 		}
 
 		// Set all to zero
@@ -115,6 +115,7 @@ class ProductBuilder {
 				const StateID target = product.getProductID(KS_target_ID, *BA_traget_it);
 				// Store the transition
 				product.addTransition(ID, target, step_size, transitive_values);
+				storage.addPredecessor(target, ID);
 			}
 		}
 	}
@@ -136,14 +137,17 @@ public:
 		// count product states
 		const std::size_t states_count = structure.getStateCount() * automaton.getStateCount();
 		
+		// Start storage
+		createEmptyStorage(states_count);
 
+		// Add transitions
 		for (std::size_t KS_ID = 0; KS_ID < structure.getStateCount(); KS_ID++) {
 			for (std::size_t BA_ID = 0; BA_ID < automaton.getStateCount(); BA_ID++) {
 				createProductStates(KS_ID, BA_ID);
 			}
 		}
 
-		createEmptyStorage(states_count);
+		// Create final and intial states vectors
 		markStates();
 	}
 };
