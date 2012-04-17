@@ -26,7 +26,7 @@ class OutputManager {
 	const ColoringAnalyzer & analyzer;
 	const ProductStructure & product;
 	const SplitManager & split_manager;
-	const WitnessSearcher & searcher;
+	WitnessSearcher & searcher;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -35,7 +35,7 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const ColoringAnalyzer & _analyzer, const ProductStructure & _product, const SplitManager & _split_manager, const WitnessSearcher & _searcher) 
+	OutputManager(const ColoringAnalyzer & _analyzer, const ProductStructure & _product, const SplitManager & _split_manager, WitnessSearcher & _searcher) 
 		         : analyzer(_analyzer), product(_product), split_manager(_split_manager), searcher(_searcher) { } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

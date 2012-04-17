@@ -129,13 +129,17 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/*
+	 * Output all colors from this round.
+	 */
 	void display() const {
 		// Get strings for all the colors
-		auto colors = getColors(getUnion());
+		auto colors = getColors();
 
 		// Output colors
 		for (auto color_it = colors.begin(); color_it != colors.end(); color_it++) {
-			output_streamer.output(results_str, *color_it);
+			output_streamer.output(results_str, color_it->second);
 		}
 	}
 
@@ -167,29 +171,41 @@ public:
 	}
 
 	/**
-	 * Obtain colors given parameters in the form [fun1, fun2, ...]
-	 * this function also causes current_color to change (iterate).
+	 * Obtain colors given parameters in the form [fun1, fun2, ...] for specified parameters
 	 *
-	 * @return vector of strings with colors
+	 * @param result_parameters	parameters to use
+	 * 
+	 * @return vector of masks and strings of feasible colors
 	 */
-	std::vector<std::string> getColors(Parameters result_parameters) const {	
+	std::vector<std::pair<std::size_t, std::string> > getColors(Parameters result_parameters) const {	
 		// Vector to fill
-		std::vector<std::string> colors;
+		std::vector<std::pair<std::size_t, std::string> > colors;
 		std::vector<std::size_t> work_color = current_color;
 		// Change the order of values to: from right to left
 		result_parameters = swap(result_parameters, (parameter_end - parameter_begin));
+		Parameters color_mask = (1 << (getParamsetSize() - (parameter_end - parameter_begin)));
 
 		// Cycle through all round colors
 		for (std::size_t col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
-			if (result_parameters % 2) 
-				colors.push_back(createColorString(work_color));
+			if (result_parameters % 2)
+				colors.push_back(std::make_pair(color_mask, createColorString(work_color)));
 
 			// Increase values
 			result_parameters >>= 1;
+			color_mask >>= 1;
 			iterateColor(work_color);
 		}
 		return colors;
+	}
+
+	/**
+	 * Obtain colors given parameters in the form [fun1, fun2, ...] for all parameters in this round
+	 *
+	 * @return vector of numbers and strings of colors
+	 */
+	std::vector<std::pair<std::size_t, std::string> > getColors() const {	
+		return getColors(getUnion());
 	}
 };
 

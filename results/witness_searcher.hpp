@@ -23,6 +23,11 @@ class WitnessSearcher {
 	const ColoringAnalyzer & analyzer;
 	const ColorStorage & storage;
 	const ProductStructure & product;
+
+	// Witness counting related auxiliary variables:
+	std::vector<std::size_t> path; // IDs of states alongside the path
+	std::size_t lengh; // Lenght of the path
+	std::size_t last_transit; // Number steps since last change of BA state
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SEARCH FUNCTIONS
@@ -38,12 +43,45 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	WitnessSearcher(const ColoringAnalyzer & _analyzer, const ColorStorage & _storage, const ProductStructure & _product) : analyzer(_analyzer), product(_product), storage(_storage) { } 
+	WitnessSearcher(const ColoringAnalyzer & _analyzer, const ColorStorage & _storage, const ProductStructure & _product) 
+		           : analyzer(_analyzer), product(_product), storage(_storage) {
+		// Resize path for maximal possible lenght
+		path.resize(_product.getStateCount() - _product.getBA().getStateCount() * 2 + 2);
+		lengh = last_transit = 0;
+	} 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void display() const {
+private:
+	/**
+	 * Display witnesses for given color
+	 *
+	 * @color_num index in current round for this color
+	 */
+	void displayWitnesses(const std::size_t color_num, const std::size_t) {
+		
+	}
+
+public:
+	/**
+	 * Output all witnesses for all colors, might be together with the colors as well.
+	 */
+	void display() {
+		// Get synthetized colors
+		auto colors = analyzer.getColors();
+
+		// Go through colors
+		for (auto color_it = colors.begin(); color_it != colors.end(); color_it++) {
+			// Display color if requested
+			if (user_options.coloring())
+				output_streamer.output(results_str, color_it->second);
+
+			// Display witnesses for given color from each final state
+			for (auto final_it = product.getFinalStates().begin(); final_it != product.getFinalStates().begin(); final_it++) {
+				displayWitnesses(color_it->first, *final_it);
+			}
+		}
 	}
 };
 
