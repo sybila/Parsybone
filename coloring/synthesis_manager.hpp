@@ -60,10 +60,7 @@ class SynthesisManager {
 	 */
 	void doComputation() {
 		// Do the synthesis, storing all feasible parameters
-		synthetizeParameters(none_wit);
-		// Compute witnesses
-		//if (user_options.witnesses() && count(results->getAllParameters()))
-		//	synthetizeParameters(all_wit);
+		synthetizeParameters();
 	}
 
 	/**
@@ -72,7 +69,7 @@ class SynthesisManager {
 	void doConclusion() {
 		total_colors += count(analyzer->getUnion());
 		// Output what has been synthetized (colors, witnesses)
-		analyzer->display();
+		output->outputRound();
 	}
 	
 	/**
@@ -82,25 +79,20 @@ class SynthesisManager {
 	 *
 	 * @param witness_use - how to handle witnesses
 	 */
-	void synthetizeParameters(WitnessUse witness_use) {
-		// FIRST PART: // 
+	void synthetizeParameters() {
 		// Basic (initial) coloring
-		colorProduct(witness_use);
-		// Store witnesses for basic coloring
-		//if (witness_use != none_wit)
-		//	searcher->storeWitnesses(product.getFinals(), true);
+		colorProduct();
 
-		// SECOND PART: //
 		// Store colored final vertices
 		std::vector<Coloring> final_states = std::move(storage.getColor(product.getFinalStates()));
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
-			// Restart the coloring using coloring of the first final state if there are at least some parameters
+			// For general property, there must be new coloring for each final state!
  			if (!none(final_it->second) && !user_options.timeSerie())
 				detectCycle(*final_it);
-			// For the round without witnesses, store only coloring, for the other, store only witnesses
-			if (witness_use == none_wit) 
-				analyzer->storeResults(Coloring(final_it->first, storage.getColor(final_it->first)));
+
+			// Store results from this final state
+			analyzer->storeResults(Coloring(final_it->first, storage.getColor(final_it->first)));
 		}
 	}
 
@@ -109,18 +101,19 @@ class SynthesisManager {
 	 *
 	 * @param witness_use - how to handle witnesses
 	 */
-	void colorProduct(WitnessUse witness_use) {
+	void colorProduct() {
 		// Assure emptyness
 		storage.reset();
+
 		// Pass the information about witness usage
-		model_checker->setWitnessUse(witness_use);
+		if (user_options.witnesses())
+			model_checker->setWitnessUse(all_wit);
+		else
+			model_checker->setWitnessUse(none_wit);
 
 		// Get initial coloring
-		Parameters starting = 0;
-		if (witness_use == none_wit)
-			starting = split_manager->createStartingParameters();
-		//else 
-		//	starting = results->getAllParameters();
+		Parameters starting = split_manager->createStartingParameters();
+
 
 		// Set all the initial states to initial color
 		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
@@ -140,6 +133,10 @@ class SynthesisManager {
 	void detectCycle(const Coloring & init_coloring) {
 		// Assure emptyness
 		storage.reset();
+
+		// Pass the information about witness usage
+		model_checker->setWitnessUse(none_wit);
+
 		// Sechedule nothing for updates (will be done during transfer in the next step)
 		model_checker->setUpdates();
 
@@ -166,8 +163,8 @@ public:
 		split_manager.reset(new SplitManager(product.getFunc().getParametersCount()));
 		model_checker.reset(new ModelChecker(product, storage));
 		analyzer.reset(new ColoringAnalyzer(product));
-		searcher.reset(new WitnessSearcher(product, storage));
-		output.reset(new OutputManager(*analyzer, product, *split_manager));
+		searcher.reset(new WitnessSearcher(*analyzer, storage, product));
+		output.reset(new OutputManager(*analyzer, product, *split_manager, *searcher));
 
 		total_colors = 0;
 	}

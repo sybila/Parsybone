@@ -172,6 +172,11 @@ public:
 
 		// For all passed values make update on target
 		for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
+			if (user_options.timeSerie()) {
+				// Do not allow to pass between initial states and final states
+				if (product.isInitial(update_it->first) || product.isFinal(ID))
+					continue;
+			}
 			if (!none(update_it->second)) {
 				// If something new is added to the target, schedule it for an update
 				if (witness_use == none_wit) {

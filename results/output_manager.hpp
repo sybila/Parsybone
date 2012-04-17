@@ -26,6 +26,7 @@ class OutputManager {
 	const ColoringAnalyzer & analyzer;
 	const ProductStructure & product;
 	const SplitManager & split_manager;
+	const WitnessSearcher & searcher;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -34,8 +35,8 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const ColoringAnalyzer & _analyzer, const ProductStructure & _product, const SplitManager & _split_manager) 
-		         : analyzer(_analyzer), product(_product), split_manager(_split_manager) { } 
+	OutputManager(const ColoringAnalyzer & _analyzer, const ProductStructure & _product, const SplitManager & _split_manager, const WitnessSearcher & _searcher) 
+		         : analyzer(_analyzer), product(_product), split_manager(_split_manager), searcher(_searcher) { } 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
@@ -75,12 +76,13 @@ public:
 		output_streamer.flush();
 	}
 
-
 	/**
 	 * Display colors synthetized during current round
 	 */
 	void outputRound() const {
-		if (user_options.coloring())
+		if (user_options.witnesses()) 
+			searcher.display();
+		else if (user_options.coloring())
 			analyzer.display();
 	}
 };
