@@ -26,7 +26,6 @@ class ColoringAnalyzer {
 
 	// DATA STORAGE
 	std::vector<Coloring> colorings;
-	std::size_t color_count;
 
 	// Used throughout full computation - values for each function
 	std::vector<std::size_t> bottom_values;
@@ -38,7 +37,7 @@ class ColoringAnalyzer {
 	std::size_t parameter_end;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION FUNCTIONS
+// COLOR BASED FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Increment values in curren_color so we get next color in the ordering
@@ -132,7 +131,7 @@ public:
 	ColoringAnalyzer(const ProductStructure & _product) 
 		           : functions(_product.getFunc())  {
 		computeBoundaries();
-		parameter_begin = parameter_end = color_count = 0;
+		parameter_begin = parameter_end = 0;
 	} 
 
 	/**
@@ -144,7 +143,8 @@ public:
 		// Error check
 		if (round_range.first < parameter_begin)
 			throw std::runtime_error("Round start value is lower than start of previous round.");
-
+		
+		// Clear storage
 		colorings.clear();
 
 		// Iterate reference values for the state up till first state of this round
@@ -152,22 +152,14 @@ public:
 		for (; parameter_begin < round_range.first; parameter_begin++) {
 			iterateColor(current_color);
 		}
-
-		// Results
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void display() {
-		// Merge all finals
-		Parameters all = 0;
-		for (auto coloring_it = colorings.begin(); coloring_it != colorings.end(); coloring_it++) {
-			all |= coloring_it->second;
-		}
-
+	void display() const {
 		// Get strings for all the colors
-		auto colors = getColors(all);
+		auto colors = getColors(getUnion());
 
 		// Output colors
 		for (auto color_it = colors.begin(); color_it != colors.end(); color_it++) {
@@ -185,6 +177,23 @@ public:
 		// Store state and its parameters
 		colorings.push_back(results);
 	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTANT GETTERS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
+	/**
+	 * Compute merge of all final colors creating a coloring with all feasible colors
+	 *
+	 * @return all feasible colors in this round
+	 */
+	const Parameters getUnion() const {
+		Parameters all = 0;
+		for (auto coloring_it = colorings.begin(); coloring_it != colorings.end(); coloring_it++) {
+			all |= coloring_it->second;
+		}
+		return all;
+	}
+
 };
 
 #endif

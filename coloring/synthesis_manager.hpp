@@ -16,9 +16,9 @@
 #include "../auxiliary/time_manager.hpp"
 #include "parameters_functions.hpp"
 #include "model_checker.hpp"
-#include "../results/output_manager.hpp"
+#include "split_manager.hpp"
 #include "../results/coloring_analyzer.hpp"
-#include "../results/witness_searcher.hpp"
+#include "../results/output_manager.hpp"
 
 class SynthesisManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,9 +35,12 @@ class SynthesisManager {
 	std::unique_ptr<OutputManager> output; // Class for output
 	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
 	std::unique_ptr<ColoringAnalyzer> analyzer; // Class for analysis
-	std::unique_ptr<ResultStorage> results; // Class to store results
+	//std::unique_ptr<ResultStorage> results; // Class to store results
 	//std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
 	//std::unique_ptr<WitnessStorage> witnesses; // Class to store witnesses
+
+	// Overall statistics
+	std::size_t total_colors;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -68,10 +71,11 @@ class SynthesisManager {
 	 * Store results that have not been stored yet and finalize the round where needed
 	 */
 	void doConclusion() {
+		total_colors += count(analyzer->getUnion());
 		// Output what has been synthetized (colors, witnesses)
 		analyzer->display();
 		// Do finishing changes and reset results in this round
-		results->finishRound();
+		//results->finishRound();
 		// Do finishing changes and reset witnesses in this round
 		//witnesses->finishRound();
 	}
@@ -122,8 +126,8 @@ class SynthesisManager {
 		Parameters starting = 0;
 		if (witness_use == none_wit)
 			starting = split_manager->createStartingParameters();
-		else 
-			starting = results->getAllParameters();
+		//else 
+		//	starting = results->getAllParameters();
 
 		// Set all the initial states to initial color
 		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
@@ -168,11 +172,13 @@ public:
 		// Create classes that help with the synthesis
 		split_manager.reset(new SplitManager(product.getFunc().getParametersCount()));
 		model_checker.reset(new ModelChecker(product, storage));
-		results.reset(new ResultStorage(product));
+		//results.reset(new ResultStorage(product));
 		analyzer.reset(new ColoringAnalyzer(product));
 		//witnesses.reset(new WitnessStorage(product));
 		//searcher.reset(new WitnessSearcher(product, *witnesses));
-		output.reset(new OutputManager(product, *split_manager, *results));
+		output.reset(new OutputManager(*analyzer, product, *split_manager));
+
+		total_colors = 0;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -193,7 +199,7 @@ public:
 
 		time_manager.ouputClock("coloring");
 		// Output final numbers
-		output->outputSummary();
+		output->outputSummary(total_colors);
 	}
 };
 
