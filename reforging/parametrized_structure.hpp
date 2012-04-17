@@ -58,8 +58,8 @@ class ParametrizedStructure : public GraphInterface {
 	/**
 	 * Add a new state, only with ID and levels
 	 */
-	inline void addState(const StateID _ID, const Levels& _species_level) {
-		states.push_back(State(_ID, _species_level));
+	inline void addState(const StateID ID, const Levels& species_level) {
+		states.push_back(State(ID, species_level));
 	}
 
 	/**
@@ -67,8 +67,8 @@ class ParametrizedStructure : public GraphInterface {
 	 *
 	 * Add a new transition with all its values
 	 */
-	inline void addTransition(const StateID ID, const StateID _target_ID, const std::size_t _step_size, std::vector<bool>&& _transitive_values) {
-		states[ID].transitions.push_back(Transition(_target_ID, _step_size, std::move(_transitive_values)));
+	inline void addTransition(const StateID ID, const StateID target_ID, const std::size_t step_size, std::vector<bool>&& transitive_values) {
+		states[ID].transitions.push_back(Transition(target_ID, step_size, std::move(transitive_values)));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ModelChecker class solves the parameter synthesis problem by iterative transfer parameters from initial states to final ones.
+// Functions in model checker use many supporting variables and therefore are quite long, it would not make sense to split them, though.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../reforging/product_structure.hpp"
@@ -37,11 +38,11 @@ class ModelChecker {
 	/**
 	 * Main function of coloring - creates intersection of passing and transition colors to create and update color.
 	 *
-	 * @param target_param	paramters that are passed through the transition
+	 * @param passed	parameters that are passed through the transition
 	 * @param step_size	how many parameters share the same value for given function
 	 * @param transitive_values	mask of all values from which those that have false are non-transitive
 	 */
-	void passParameters(Parameters & target_param, const std::size_t step_size, const std::vector<bool> & transitive_values) const {
+	void passParameters(Parameters & passed, const std::size_t step_size, const std::vector<bool> & transitive_values) const {
 		// INITIALIZATION OF VALUES FOR POSITIONING
 		// Number of the first parameter
 		std::size_t param_num = synthesis_range.first;
@@ -70,7 +71,7 @@ class ModelChecker {
 				// If we went throught the whole size, end
 				if ((param_num += bits_in_step) == synthesis_range.second) {
 					// Create interection of source parameters and transition parameters
-					target_param &= temporary;
+					passed &= temporary;
 					return;
 				}
 				// Reset steps for the value
@@ -82,25 +83,45 @@ class ModelChecker {
 	}
 
 	/**
-	 * Update target of the transition with transitible parameters
+	 * Get stripped parameters for each unique edge (if there are multi-edges, intersect their values)
 	 *
+	 * @param ID	ID of the source state in the product
 	 * @param parameters	parameters that will be distributed
-	 * @param KS_transition_num		index of transition for this KS state
-	 * @param source_KS_state	this KS state - target_KS is obtained from the transition index
-	 * @param BA_target	target state of the BA
 	 */
-	void updateTarget(Parameters parameters, const StateID ID, const std::size_t trans_num) {
-		// From an update strip all the parameters that can not pass through the transition - color intersection on the transition
-		passParameters(parameters, product.getStepSize(ID, trans_num), product.getTransitive(ID, trans_num));
-		// If some parameters get passed
-		if (!none(parameters)) {
-			// Compute and update target state of product
-			StateID target = product.getTargetID(ID, trans_num);
-			// If there is something new, schedule the target for an update
-			if (storage.update(parameters, target)) {
-				updates.insert(target);
+	std::vector<Coloring> broadcastParameters(const StateID ID, const Parameters parameters) const {
+		// To store parameters that passed the transition but were not yet added to the target
+		std::vector<Coloring> update(product.getTransitionCount(ID));
+		// Number of unique updates
+		std::size_t updates_count = 0;
+
+		// Cycle through all the transition
+		for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
+			// Parameters to pass through the transition
+			Parameters passed = parameters;
+			// From an update strip all the parameters that can not pass through the transition - color intersection on the transition
+			passParameters(passed, product.getStepSize(ID, trans_num), product.getTransitive(ID, trans_num));
+
+			// If the update is already present for this state (only for self-loops), do an intersection
+			StateID target_ID = product.getTargetID(ID, trans_num);
+			// Remains true if no update for this state has been found
+			bool is_new = true;
+			// Test all currently known updates for equivalence on states
+			for (std::size_t update_num = 0; update_num < updates_count; update_num++) {
+				// If they are the same
+				if (update[update_num].first == target_ID) {
+					update[update_num].second &= passed;
+					is_new = false;
+					break;
+				}
 			}
-		}
+			// If it not found, add it
+			if (is_new) {
+				update[updates_count++] = std::make_pair(target_ID, passed);
+			}
+		}	
+
+		// Return all filled updates
+		return std::vector<Coloring>(update.begin(), update.begin() + updates_count);
 	}
 
 	/**
@@ -136,17 +157,27 @@ public:
 	 */
 	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) { }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// COLORING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * From the source distribute its parameters and newly colored neighbours shedule for update.
 	 *
-	 * @param souce_state	ID of the source state in the product
+	 * @param ID	ID of the source state in the product
 	 * @param parameters	parameters that will be distributed
 	 */
 	void transferUpdates(const StateID ID, const Parameters parameters) {
-		// Push updates for each BA transition times each KS transition
-		for (std::size_t transition_num = 0; transition_num < product.getTransitionCount(ID); transition_num++) {
-			// Send an update to the given target
-			updateTarget(parameters, ID, transition_num);
+		// Get passed colors, unique for each sucessor
+		std::vector<Coloring> update = std::move(broadcastParameters(ID, parameters));
+
+		// For all passed values make update on target
+		for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
+			if (!none(update_it->second)) {
+				// If something new is added to the target, schedule it for an update
+				if (storage.update(update_it->second, update_it->first)) {
+					updates.insert(update_it->first);
+				}
+			}
 		}
 	}
 
