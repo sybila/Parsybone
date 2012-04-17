@@ -136,9 +136,9 @@ class ModelChecker {
 		// Cycle throught the updates
 		for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
 			// Compapre with current data - if better, replace
-			if (storage.getParameters(*update_it) == (current_par | storage.getParameters(*update_it))) {
+			if (storage.getColor(*update_it) == (current_par | storage.getColor(*update_it))) {
 				ID = *update_it;
-				current_par = storage.getParameters(ID);
+				current_par = storage.getColor(ID);
 			}
 		}
 		return ID;
@@ -190,7 +190,7 @@ public:
 			// Within updates, find the one with most bits
 			StateID ID = getStrongestUpdate();
 			// Pass data from updated vertex to its succesors
-			transferUpdates(ID, storage.getParameters(ID));
+			transferUpdates(ID, storage.getColor(ID));
 			// Erase completed update from the set
 			updates.erase(ID);
 		}
@@ -209,7 +209,7 @@ public:
 	/**
 	 * Set first and last parameters for this round.
 	 */
-	void setRange(const Range & _range) {
+	void strartNewRound(const Range & _range) {
 		synthesis_range = _range;
 	}
 

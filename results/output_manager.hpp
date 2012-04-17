@@ -76,7 +76,7 @@ public:
 	 */
 	void outputColor(const std::string & color) const {
 		// Output color
-		output_streamer.output(results_str, color, OutputStreamer::no_newl).output("____________________________________________________________________________________________");
+		output_streamer.output(results_str, color);
 	}
 
 	///**

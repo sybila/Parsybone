@@ -114,8 +114,26 @@ public:
 	 * 
 	 * @return parameters assigned to the state
 	 */
-	inline const Parameters & getParameters(const StateID ID) const {
+	inline const Parameters & getColor(const StateID ID) const {
 		return states[ID].parameters;
+	}
+
+	/**
+	 * @param states	indexes of states to ask for parameters
+	 *
+	 * @return queue with all colorings of states
+	 */
+	const std::vector<Coloring> getColor(const std::vector<StateID> & states) const {
+		// Queue tates colored in basic coloring
+		std::vector<Coloring> colors; 
+
+		// Get the states and their colors
+		std::for_each(states.begin(), states.end(), [&](const StateID ID) {
+			colors.push_back(Coloring(ID, getColor(ID)));
+		});
+
+		// Return final vertices with their positions
+		return colors;
 	}
 
 	///** 

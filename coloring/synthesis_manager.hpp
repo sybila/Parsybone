@@ -49,8 +49,8 @@ class SynthesisManager {
 		// Output round number
 		output->outputRoundNum();
 		// Pass information about round (necessary for setup of those classes)
-		model_checker->setRange(split_manager->getRoundRange());
-		analyzer->setRange(split_manager->getRoundRange());	
+		model_checker->strartNewRound(split_manager->getRoundRange());
+		analyzer->strartNewRound(split_manager->getRoundRange());	
 	}
 
 	/**
@@ -69,7 +69,7 @@ class SynthesisManager {
 	 */
 	void doConclusion() {
 		// Output what has been synthetized (colors, witnesses)
-		output->outputData();
+		analyzer->display();
 		// Do finishing changes and reset results in this round
 		results->finishRound();
 		// Do finishing changes and reset witnesses in this round
@@ -93,7 +93,7 @@ class SynthesisManager {
 
 		// SECOND PART: //
 		// Store colored final vertices
-		std::vector<Coloring> final_states = std::move(analyzer->getFinalColoring());
+		std::vector<Coloring> final_states = std::move(storage.getColor(product.getFinalStates()));
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// Restart the coloring using coloring of the first final state if there are at least some parameters
@@ -101,7 +101,7 @@ class SynthesisManager {
 				detectCycle(*final_it);
 			// For the round without witnesses, store only coloring, for the other, store only witnesses
 			if (witness_use == none_wit) 
-				analyzer->storeResults(final_it->first, user_options.coloring());
+				analyzer->storeResults(Coloring(final_it->first, storage.getColor(final_it->first)));
 			//else if (!user_options.timeSerie())
 			//	searcher->storeWitnesses(final_it->first, false);
 		}
@@ -169,7 +169,7 @@ public:
 		split_manager.reset(new SplitManager(product.getFunc().getParametersCount()));
 		model_checker.reset(new ModelChecker(product, storage));
 		results.reset(new ResultStorage(product));
-		analyzer.reset(new ColoringAnalyzer(product, storage, *results));
+		analyzer.reset(new ColoringAnalyzer(product));
 		//witnesses.reset(new WitnessStorage(product));
 		//searcher.reset(new WitnessSearcher(product, *witnesses));
 		output.reset(new OutputManager(product, *split_manager, *results));
