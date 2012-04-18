@@ -55,24 +55,37 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
+	/**
+	 * Outputs a witness path as a sequence of states.
+	 */
 	void displayWit() const {
-		for (std::size_t state_index = 0; state_index < lenght; state_index++) {
-			output_streamer.output(product.getString(path[state_index]), OutputStreamer::no_newl);
+		// Cycle through states
+		for (std::size_t state_index = lenght; state_index > 0; state_index--) {
+			output_streamer.output(product.getString(path[state_index-1]), OutputStreamer::no_newl);
 		}
+		// Endline
 		output_streamer.output("");
 	}
 
+	/**
+	 * Recursive DFS search function for the witness path
+	 */
 	void DFS(const StateID ID) {
+		// Add yourself to the path
 		path[lenght++] = ID;
 
+		// If you are initial, print this path
 		if (product.isInitial(ID)) {
 			displayWit();
 		}
 		else { 
+			// Get predecessors
 			const Predecessors preds = storage.getPredecessors(ID, color_num);
 		
+			// List through predecessors
 			for (auto pred_it = preds.begin(); pred_it != preds.end(); pred_it++) {
 
+				// Use only unique predecessors in this path
 				bool used = false;
 				for (std::size_t state_index = 0; state_index < lenght; state_index++) {
 					if (path[state_index] == *pred_it) {
@@ -83,25 +96,13 @@ private:
 
 				if (used)
 					continue;
-
+				// If it was not used yet, continue in DFS
 				DFS(*pred_it);
 			}
 		}
 
+		// Return
 		--lenght;
-	}
-
-	/**
-	 * Display witnesses for given color form give state
-	 *
-	 * @color_num index in current round for this color
-	 */
-	void displayWitnesses(const Parameters _color_num, const StateID start) {
-		// Set starting values
-		lenght = 0;
-		color_num = _color_num;
-		
-		DFS(start);
 	}
 
 public:
@@ -120,7 +121,12 @@ public:
 
 			// Display witnesses for given color from each final state
 			for (auto final_it = product.getFinalStates().begin(); final_it != product.getFinalStates().end(); final_it++) {
-				displayWitnesses(color_it->first, *final_it);
+				// Restart values
+				lenght = 0;
+				color_num = color_it->first;
+
+				// Start search 
+				DFS(*final_it);
 			}
 		}
 	}

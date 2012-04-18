@@ -10,7 +10,7 @@
 #define PARSYBONE_COLORING_ANALYZER_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Product analyzer is used to get polished and formatted data from the product.
+// ColoringAnalyzer is used to get polished and formatted data from the product.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../reforging/product_structure.hpp"
@@ -183,7 +183,8 @@ public:
 		std::vector<std::size_t> work_color = current_color;
 		// Change the order of values to: from right to left
 		result_parameters = swap(result_parameters, (parameter_end - parameter_begin));
-		Parameters color_mask = (1 << (getParamsetSize() - (parameter_end - parameter_begin)));
+		// Store a mask for each color with just its bit on, other off
+		Parameters color_mask = 1 << ((parameter_end - parameter_begin) - 1);
 
 		// Cycle through all round colors
 		for (std::size_t col_num = parameter_begin; col_num < parameter_end; col_num++) {
@@ -192,8 +193,8 @@ public:
 				colors.push_back(std::make_pair(color_mask, createColorString(work_color)));
 
 			// Increase values
+			color_mask >>= 1;	
 			result_parameters >>= 1;
-			color_mask >>= 1;
 			iterateColor(work_color);
 		}
 		return colors;
