@@ -65,7 +65,7 @@ typedef std::vector<std::set<std::size_t> > AllowedValues;
 typedef unsigned int Parameters;
 
 // IDs of predecessors of a state
-typedef std::set<StateID> Predecessors;
+typedef std::vector<StateID> Predecessors;
 
 // State number and its coloring
 typedef std::pair<StateID, Parameters> Coloring;

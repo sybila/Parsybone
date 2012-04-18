@@ -150,24 +150,41 @@ public:
 		return colors;
 	}
 
-	///** 
-	// * @param state_num	index of the state to ask for predecessors
-	// * @param color_index	index of the color in this round (0 .. sizeof(Parameters)*8)
-	// *
-	// * @return predecessors for given state and color
-	// */
-	//inline const Predecessors & getPredecessors(const std::size_t state_num, const std::size_t color_index) const {
-	//	return states[state_num].predecessors[color_index];
-	//}
+	/** 
+	 * Get all the predecessors for this color from this state.
+	 *
+	 * @param ID	index of the state to ask for predecessors
+	 * @param color_mask	bitmask for a given color
+	 *
+	 * @return predecessors for given state and color
+	 */
+	inline const Predecessors getPredecessors(const StateID ID, const Parameters color_mask) const {
+		// Data to fill
+		Predecessors color_preds;
+		for (auto pred_it = states[ID].predecessors.begin(); pred_it != states[ID].predecessors.end(); pred_it++) {
+			// Test if the color is present
+			if ((pred_it->second & color_mask) != 0)
+				color_preds.push_back(pred_it->first);
+		}
+		return color_preds;
+	}
 
-	///** 
-	// * @param state_num	index of the state to ask for predecessors
-	// *
-	// * @return predecessors for given state
-	// */
-	//inline const std::vector<Predecessors> & getPredecessors(const std::size_t state_num) const {
-	//	return states[state_num].predecessors;
-	//}
+	/** 
+	 * Get all the predecessors from this state.
+	 *
+	 * @param ID	index of the state to ask for predecessors
+	 *
+	 * @return predecessors for given state and color
+	 */
+	inline const Predecessors getPredecessors(const StateID ID) const {
+		// Data to fill
+		Predecessors color_preds;
+		// Add all 
+		for (auto pred_it = states[ID].predecessors.begin(); pred_it != states[ID].predecessors.end(); pred_it++) {
+				color_preds.push_back(pred_it->first);
+		}
+		return color_preds;
+	}
 };
 
 #endif

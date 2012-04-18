@@ -10,7 +10,7 @@
 #define PARSYBONE_WITNESS_SEARCHER_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Description
+// Class for display of witnesses for all colors in current round.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../reforging/product_structure.hpp"
@@ -18,7 +18,7 @@
 
 class WitnessSearcher {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DATA AND NEW TYPES
+// DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	const ColoringAnalyzer & analyzer;
 	const ColorStorage & storage;
@@ -26,8 +26,8 @@ class WitnessSearcher {
 
 	// Witness counting related auxiliary variables:
 	std::vector<std::size_t> path; // IDs of states alongside the path
-	std::size_t lengh; // Lenght of the path
-	std::size_t last_transit; // Number steps since last change of BA state
+	std::size_t lenght; // Lenght of the path
+	Parameters color_num;
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SEARCH FUNCTIONS
@@ -47,20 +47,61 @@ public:
 		           : analyzer(_analyzer), product(_product), storage(_storage) {
 		// Resize path for maximal possible lenght
 		path.resize(_product.getStateCount() - _product.getBA().getStateCount() * 2 + 2);
-		lengh = last_transit = 0;
+		lenght = color_num = 0;
 	} 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 private:
+
+	void displayWit() const {
+		for (std::size_t state_index = 0; state_index < lenght; state_index++) {
+			output_streamer.output(product.getString(path[state_index]), OutputStreamer::no_newl);
+		}
+		output_streamer.output("");
+	}
+
+	void DFS(const StateID ID) {
+		path[lenght++] = ID;
+
+		if (product.isInitial(ID)) {
+			displayWit();
+		}
+		else { 
+			const Predecessors preds = storage.getPredecessors(ID, color_num);
+		
+			for (auto pred_it = preds.begin(); pred_it != preds.end(); pred_it++) {
+
+				bool used = false;
+				for (std::size_t state_index = 0; state_index < lenght; state_index++) {
+					if (path[state_index] == *pred_it) {
+						used = true;
+						break;
+					}
+				}
+
+				if (used)
+					continue;
+
+				DFS(*pred_it);
+			}
+		}
+
+		--lenght;
+	}
+
 	/**
-	 * Display witnesses for given color
+	 * Display witnesses for given color form give state
 	 *
 	 * @color_num index in current round for this color
 	 */
-	void displayWitnesses(const std::size_t color_num, const std::size_t) {
+	void displayWitnesses(const Parameters _color_num, const StateID start) {
+		// Set starting values
+		lenght = 0;
+		color_num = _color_num;
 		
+		DFS(start);
 	}
 
 public:
@@ -78,7 +119,7 @@ public:
 				output_streamer.output(results_str, color_it->second);
 
 			// Display witnesses for given color from each final state
-			for (auto final_it = product.getFinalStates().begin(); final_it != product.getFinalStates().begin(); final_it++) {
+			for (auto final_it = product.getFinalStates().begin(); final_it != product.getFinalStates().end(); final_it++) {
 				displayWitnesses(color_it->first, *final_it);
 			}
 		}
