@@ -39,6 +39,9 @@ int main(int argc, char* argv[]) {
 
 		ArgumentParser parser;
 		parser.parseArguments(user_options, argc, argv);
+
+		if (coloring_parser.isUsed())
+			coloring_parser.parseMask();
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while parsing arguments: ").append(e.what()));

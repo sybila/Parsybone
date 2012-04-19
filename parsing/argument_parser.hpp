@@ -15,6 +15,7 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../auxiliary/user_options.hpp"
+#include "coloring_parser.hpp"
 
 /**
 	* Parses arguments on the input and changes switches accordingly. If there is a file on the input, it is created.
@@ -91,6 +92,13 @@ public:
 
 					case 'W':
 						user_options.witness_use = all_wit;
+						break;
+
+					// Open file with color mask
+					case 'm':
+						if (switch_num + 1 < arg.size())
+							throw(std::runtime_error(std::string("There are forbidden characters after m switch: ").append(arg.begin() + switch_num + 1, arg.end())));
+						coloring_parser.openFile(argv[++arg_n]);
 						break;
 
 					// Get data for distributed computation

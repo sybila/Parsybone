@@ -120,6 +120,9 @@
     <ClInclude Include="..\reforging\automaton_interface.hpp">
       <Filter>reforging</Filter>
     </ClInclude>
+    <ClInclude Include="..\parsing\coloring_parser.hpp">
+      <Filter>parsing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">

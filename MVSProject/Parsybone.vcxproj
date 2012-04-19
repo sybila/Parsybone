@@ -80,6 +80,7 @@
     <ClInclude Include="..\coloring\split_manager.hpp" />
     <ClInclude Include="..\coloring\synthesis_manager.hpp" />
     <ClInclude Include="..\parsing\argument_parser.hpp" />
+    <ClInclude Include="..\parsing\coloring_parser.hpp" />
     <ClInclude Include="..\parsing\model.hpp" />
     <ClInclude Include="..\parsing\model_parser.hpp" />
     <ClInclude Include="..\rapidxml-1.13\rapidxml.hpp" />
