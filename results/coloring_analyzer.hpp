@@ -182,7 +182,7 @@ public:
 		std::vector<std::pair<std::size_t, std::string> > colors;
 		std::vector<std::size_t> work_color = current_color;
 		// Change the order of values to: from right to left
-		result_parameters = swap(result_parameters, (parameter_end - parameter_begin));
+		result_parameters = swap(result_parameters, getParamsetSize() - (parameter_end - parameter_begin));
 		// Store a mask for each color with just its bit on, other off
 		Parameters color_mask = 1 << ((parameter_end - parameter_begin) - 1);
 
