@@ -101,7 +101,11 @@ class SynthesisManager {
 		WitnessUse wits_use = user_options.witnesses();
 
 		// Get initial coloring
-		Parameters starting = split_manager->createStartingParameters();
+		Parameters starting;
+		if(coloring_parser.isUsed())
+			starting = coloring_parser.getColors()[split_manager->getRoundNum()];
+		else
+			starting = split_manager->createStartingParameters();
 
 		// Set all the initial states to initial color
 		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
