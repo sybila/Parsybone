@@ -50,8 +50,7 @@ class SynthesisManager {
 	void doPreparation() {
 		// Output round number
 		output->outputRoundNum();
-		// Pass information about round (necessary for setup of those classes)
-		model_checker->strartNewRound(split_manager->getRoundRange());
+		// Pass information about round (necessary for setup)
 		analyzer->strartNewRound(split_manager->getRoundRange());	
 	}
 
@@ -105,11 +104,8 @@ class SynthesisManager {
 		// Assure emptyness
 		storage.reset();
 
-		// Pass the information about witness usage
-		if (user_options.witnesses())
-			model_checker->setWitnessUse(all_wit);
-		else
-			model_checker->setWitnessUse(none_wit);
+		// Get witness usage info
+		WitnessUse wits_use = user_options.witnesses() ? all_wit : none_wit;
 
 		// Get initial coloring
 		Parameters starting = split_manager->createStartingParameters();
@@ -117,11 +113,12 @@ class SynthesisManager {
 		// Set all the initial states to initial color
 		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
 			storage.update(starting, *init_it);
+
 		// Schedule all initial states for updates
-		model_checker->setUpdates(std::set<StateID>(product.getInitialStates().begin(), product.getInitialStates().end()));
+		std::set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
 		// Start coloring procedure
-		model_checker->doColoring();
+		model_checker->startColoring(updates, split_manager->getRoundRange(), wits_use);
 	}
 
 	/**
@@ -133,17 +130,8 @@ class SynthesisManager {
 		// Assure emptyness
 		storage.reset();
 
-		// Pass the information about witness usage
-		model_checker->setWitnessUse(none_wit);
-
 		// Sechedule nothing for updates (will be done during transfer in the next step)
-		model_checker->setUpdates();
-
-		// Send updates from the initial state
-		model_checker->transferUpdates(init_coloring.first, init_coloring.second);
-
-		// Start coloring procedure
-		model_checker->doColoring();
+		model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange());
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

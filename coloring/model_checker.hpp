@@ -29,6 +29,9 @@ class ModelChecker {
 
 	// Used for computation
 	std::set<StateID> updates; // Set of states that need to spread their updates
+	std::set<StateID> next_updates; // Set of states that will be scheduled for update during next BFS level
+	std::size_t BFS_level; // Number of current BFS level during coloring
+	bool witness_found; // True when final state is reached
 	Range synthesis_range; // First and one beyond last color to be computed in this round
 	WitnessUse witness_use; // How wintesses will be held in this computation
 
@@ -83,6 +86,29 @@ class ModelChecker {
 	}
 
 	/**
+	 * From all the updates pick the one from the state with most bits
+	 *
+	 * @return index of the state to start an update from
+	 */
+	const StateID getStrongestUpdate() const {
+		// Reference value
+		StateID ID = 0;
+		Parameters current_par = 0;
+		// Cycle throught the updates
+		for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
+			// Compapre with current data - if better, replace
+			if (storage.getColor(*update_it) == (current_par | storage.getColor(*update_it))) {
+				ID = *update_it;
+				current_par = storage.getColor(ID);
+			}
+		}
+		return ID;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// COLORING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
 	 * Get stripped parameters for each unique edge (if there are multi-edges, intersect their values)
 	 *
 	 * @param ID	ID of the source state in the product
@@ -123,43 +149,7 @@ class ModelChecker {
 		// Return all filled updates
 		return std::vector<Coloring>(update.begin(), update.begin() + updates_count);
 	}
-
-	/**
-	 * From all the updates pick the one from the state with most bits
-	 *
-	 * @return index of the state to start an update from
-	 */
-	const StateID getStrongestUpdate() const {
-		// Reference value
-		StateID ID = 0;
-		Parameters current_par = 0;
-		// Cycle throught the updates
-		for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
-			// Compapre with current data - if better, replace
-			if (storage.getColor(*update_it) == (current_par | storage.getColor(*update_it))) {
-				ID = *update_it;
-				current_par = storage.getColor(ID);
-			}
-		}
-		return ID;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
-	ModelChecker& operator=(const ModelChecker & other); // Forbidden assignment operator.
-
-public:
-	/**
-	 * Constructor, passes the data
-	 */
-	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) { }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COLORING FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * From the source distribute its parameters and newly colored neighbours shedule for update.
 	 *
@@ -209,27 +199,61 @@ public:
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SETTERS:
+// CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Assign provided set as current updates.
+	 * Sets/resets all coloring reference values;
+	 *
+	 * @param _range	range of parameters for this coloring round
+	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	void setUpdates(const std::set<StateID> & _updates = std::set<StateID>()) {
-		updates = _updates;
+	void prepareCheck(const Range & _range, const WitnessUse _witness_use) {
+		witness_use = _witness_use;
+		synthesis_range = _range;
+		BFS_level = 0;
+		witness_found = false;	
+	}
+
+	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
+	ModelChecker& operator=(const ModelChecker & other); // Forbidden assignment operator.
+
+public:
+	/**
+	 * Constructor, passes the data
+	 */
+	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) { }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// STARTERS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Start a new coloring round for cycle detection from a single state.
+	 *
+	 * @param ID	ID of the state to start cycle detection from
+	 * @param parameters	starting parameters for the cycle detection
+	 * @param _range	range of parameters for this coloring round
+	 * @param _witness_use	how to manage witnesses in this coloring round
+	 */
+	const std::size_t startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit) {
+		prepareCheck(_range, _witness_use);
+		updates.clear();
+		transferUpdates(ID, parameters);
+		doColoring();
+		return BFS_level;
 	}
 
 	/**
-	 * Set first and last parameters for this round.
+	 * Start a new coloring round for cycle detection from a single state.
+	 *
+	 * @param _updates	states that are will be scheduled for an update in this round
+	 * @param _range	range of parameters for this coloring round
+	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	void strartNewRound(const Range & _range) {
-		synthesis_range = _range;
-	}
-
-	/** 
-	 * Set how wintesses will be used in this round
-	 */
-	void setWitnessUse(const WitnessUse _witness_use) {
-		witness_use = _witness_use;
+	const std::size_t startColoring(const std::set<StateID> & _updates, const Range & _range, const WitnessUse _witness_use = none_wit) {
+		prepareCheck(_range, _witness_use);
+		updates = _updates;
+		doColoring();
+		return BFS_level;
 	}
 };
 
