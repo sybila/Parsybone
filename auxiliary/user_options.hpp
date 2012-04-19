@@ -23,13 +23,12 @@ class UserOptions {
 // OPTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool show_coloring;
-	bool show_witnesses;
 	bool be_verbose;
 	bool display_stats;
 	bool negation_check;
 	bool time_serie;
 	bool add_BA_to_witness;
-	bool single_witness;
+	WitnessUse witness_use;
 	std::size_t process_number;
 	std::size_t processes_count;
 
@@ -44,8 +43,9 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-		show_witnesses = show_coloring = be_verbose = display_stats = negation_check = time_serie = single_witness = add_BA_to_witness = false;
+		show_coloring = be_verbose = display_stats = negation_check = time_serie = add_BA_to_witness = false;
 		process_number = processes_count = 1;
+		witness_use = none_wit;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,17 +59,10 @@ public:
 	}
 	
 	/**
-	 * @return	true if show_witnesses is set (displaying a path from initial to final states)
+	 * @return	how to manage witnesses
 	 */
-	inline const bool witnesses() const {
-		return show_witnesses;
-	}
-
-	/**
-	 * @return	true if single_witness is set (displaying only a single witness per color)
-	 */
-	inline const bool single() const {
-		return single_witness;
+	inline const WitnessUse witnesses() const {
+		return witness_use;
 	}
 
 	/**

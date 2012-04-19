@@ -58,7 +58,7 @@ public:
 	 */ 
 	void outputRoundNum() {
 		// Erase the line if outputting to file or not at all
-		if (output_streamer.isResultInFile() || (!user_options.coloring() && !user_options.witnesses())) 
+		if (output_streamer.isResultInFile() || (!user_options.coloring() && (user_options.witnesses() == none_wit))) 
 			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 		else 
 			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl);
@@ -68,7 +68,7 @@ public:
 			           .output(split_manager.getRoundCount(), OutputStreamer::no_newl);
 
 		// Add white space if outputting to file or not at all, otherwise add a new line
-		if (output_streamer.isResultInFile() || (!user_options.coloring() && !user_options.witnesses())) 
+		if (output_streamer.isResultInFile() || (!user_options.coloring() && (user_options.witnesses() == none_wit))) 
 			output_streamer.output("         ", OutputStreamer::no_newl);
 		else
 			output_streamer.output("");
@@ -79,9 +79,9 @@ public:
 	/**
 	 * Display colors synthetized during current round
 	 */
-	void outputRound() const {
-		if (user_options.witnesses()) 
-			searcher.display();
+	void outputRound(const std::size_t shortest_path_lenght) const {
+		if (user_options.witnesses() != none_wit) 
+			searcher.display(shortest_path_lenght);
 		else if (user_options.coloring())
 			analyzer.display();
 	}

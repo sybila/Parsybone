@@ -27,7 +27,8 @@ class WitnessSearcher {
 	// Witness counting related auxiliary variables:
 	std::vector<std::size_t> path; // IDs of states alongside the path
 	std::size_t lenght; // Lenght of the path
-	Parameters color_num;
+	Parameters color_num; // Mask for color used for this ouput
+	std::size_t shortest_path_lenght; // Reference value for output of shortest paths only
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SEARCH FUNCTIONS
@@ -78,7 +79,7 @@ private:
 		if (product.isInitial(ID)) {
 			displayWit();
 		}
-		else { 
+		else if (lenght < shortest_path_lenght) { // Continue DFS only if witness has still allowed lenght
 			// Get predecessors
 			const Predecessors preds = storage.getPredecessors(ID, color_num);
 		
@@ -109,7 +110,9 @@ public:
 	/**
 	 * Output all witnesses for all colors, might be together with the colors as well.
 	 */
-	void display() {
+	void display(const std::size_t _shortest_path_lenght) {
+		shortest_path_lenght = (user_options.witnesses() == short_wit) ? _shortest_path_lenght : ~0;
+
 		// Get synthetized colors
 		auto colors = analyzer.getColors();
 

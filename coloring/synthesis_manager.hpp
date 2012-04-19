@@ -40,6 +40,7 @@ class SynthesisManager {
 
 	// Overall statistics
 	std::size_t total_colors;
+	std::size_t shortest_path_lenght; 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -55,20 +56,12 @@ class SynthesisManager {
 	}
 
 	/**
-	 * Compute data that are requested
-	 */
-	void doComputation() {
-		// Do the synthesis, storing all feasible parameters
-		synthetizeParameters();
-	}
-
-	/**
 	 * Store results that have not been stored yet and finalize the round where needed
 	 */
 	void doConclusion() {
 		total_colors += count(analyzer->getUnion());
 		// Output what has been synthetized (colors, witnesses)
-		output->outputRound();
+		output->outputRound(shortest_path_lenght);
 	}
 	
 	/**
@@ -78,7 +71,7 @@ class SynthesisManager {
 	 *
 	 * @param witness_use - how to handle witnesses
 	 */
-	void synthetizeParameters() {
+	void doComputation() {
 		// Basic (initial) coloring
 		colorProduct();
 
@@ -105,7 +98,7 @@ class SynthesisManager {
 		storage.reset();
 
 		// Get witness usage info
-		WitnessUse wits_use = user_options.witnesses() ? all_wit : none_wit;
+		WitnessUse wits_use = user_options.witnesses();
 
 		// Get initial coloring
 		Parameters starting = split_manager->createStartingParameters();
@@ -118,7 +111,7 @@ class SynthesisManager {
 		std::set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
 		// Start coloring procedure
-		model_checker->startColoring(updates, split_manager->getRoundRange(), wits_use);
+		shortest_path_lenght = model_checker->startColoring(updates, split_manager->getRoundRange(), wits_use);
 	}
 
 	/**

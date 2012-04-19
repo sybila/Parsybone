@@ -169,16 +169,9 @@ class ModelChecker {
 			}
 			if (!none(update_it->second)) {
 				// If something new is added to the target, schedule it for an update
-				if (witness_use == none_wit) {
-					if (storage.update(update_it->second, update_it->first)) {
-						updates.insert(update_it->first);
-					}
-				}
-				else {
-					if (storage.update(ID, update_it->second, update_it->first)) {
-						updates.insert(update_it->first);
-					}
-				}
+				if ((witness_use == none_wit && storage.update(update_it->second, update_it->first)) || storage.update(ID, update_it->second, update_it->first)) {
+					next_updates.insert(update_it->first);
+				}		
 			}
 		}
 	}
@@ -188,14 +181,22 @@ class ModelChecker {
 	 */
 	void doColoring() {
 		// While there are updates, pass them to succesing vertices
-		while (!updates.empty()) {
+		do  {
 			// Within updates, find the one with most bits
 			StateID ID = getStrongestUpdate();
+			// Check if this is not the last round
+			if (user_options.witnesses() == short_wit && product.isFinal(ID))
+				witness_found = true;
 			// Pass data from updated vertex to its succesors
 			transferUpdates(ID, storage.getColor(ID));
 			// Erase completed update from the set
 			updates.erase(ID);
-		}
+			// If witness has not been found and 
+			if (updates.empty() && (!witness_found)) {
+				updates = std::move(next_updates);
+				BFS_level++;
+			}
+		} while (!updates.empty());
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -210,7 +211,7 @@ class ModelChecker {
 	void prepareCheck(const Range & _range, const WitnessUse _witness_use) {
 		witness_use = _witness_use;
 		synthesis_range = _range;
-		BFS_level = 0;
+		BFS_level = 1;
 		witness_found = false;	
 	}
 

@@ -61,16 +61,16 @@ public:
 				for (std::size_t switch_num = 1; switch_num < arg.size(); switch_num++) {
 					switch (arg[switch_num]) {
 
+					case 'b':
+						user_options.add_BA_to_witness = true;
+						break;
+
 					case 'c':
 						user_options.show_coloring = true;
 						break;
 
 					case 'n':
 						user_options.negation_check = true;
-						break;
-
-					case 'o':
-						user_options.single_witness = true;
 						break;
 
 					case 's':
@@ -86,12 +86,11 @@ public:
 						break;
 
 					case 'w':
-						user_options.show_witnesses = true;
+						user_options.witness_use = short_wit;
 						break;
 
 					case 'W':
-						user_options.show_witnesses = true;
-						user_options.add_BA_to_witness = true;
+						user_options.witness_use = all_wit;
 						break;
 
 					// Get data for distributed computation
