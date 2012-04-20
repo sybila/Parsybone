@@ -26,10 +26,12 @@ class ColoringParser {
 
 	// File-based values
 	std::ifstream::pos_type file_size;
-	std::ifstream colors_file;
+	std::ifstream input_file;
+	std::ofstream output_file;
 
 	// Info
-	bool mask_used;
+	bool input_mask;
+	bool output_mask;
 
 public:
 
@@ -39,7 +41,7 @@ public:
 	/**
 	 * Basic constructor - should be used only for the single object shared throught the program
 	 */
-	ColoringParser() : mask_used(false) { }
+	ColoringParser() : input_mask(false), output_mask(false) { }
 
 	/**
 	 * Only opens the file with the data stream.
@@ -47,14 +49,26 @@ public:
 	 * @param filename	path to the file to read from 
 	 */
 	void openFile(const std::string filename) {
-		colors_file.open(filename, std::ios::in | std::ios::binary|std::ios::ate);
-		if (colors_file.fail()) 
-			throw std::runtime_error(std::string("Failed to open coloring mask file: ").append(filename).c_str());
-		file_size = colors_file.tellg();
+		input_file.open(filename, std::ios::in | std::ios::binary | std::ios::ate);
+		if (input_file.fail()) 
+			throw std::runtime_error(std::string("Failed to open input coloring mask file: ").append(filename).c_str());
+		file_size = input_file.tellg();
 		if (file_size % sizeof(Parameters) != 0)
 			throw std::runtime_error("Bitmask file has incorrect number of bits - it must be dividable by the size of Paramset.");
-		colors_file.seekg(0, std::ios::beg);
-		mask_used = true;
+		input_file.seekg(0, std::ios::beg);
+		input_mask = true;
+	}
+
+	/**
+	 * Create a file to output bitmasks to.
+	 *
+	 * @param filename	path to the file to read from 
+	 */
+	void createOutput(const std::string filename) {
+		output_file.open(filename, std::ios::out | std::ios::binary);
+		if (output_file.fail()) 
+			throw std::runtime_error(std::string("Failed to open output coloring mask file: ").append(filename).c_str());
+		output_mask = true;
 	}
 
 	/**
@@ -63,7 +77,7 @@ public:
 	void parseMask() {
 		// Read bytemaks
 		char * byteblock = new char [file_size];
-		colors_file.read(byteblock, file_size);
+		input_file.read(byteblock, file_size);
 
 		// Cycle through bytemasks and reforge them into Parameters
 		for (std::size_t shade_num = 0; shade_num < file_size / sizeof(Parameters); shade_num++) {
@@ -75,7 +89,18 @@ public:
 			colors_sets.push_back(temp);
 		}
 
-		colors_file.close();
+		input_file.close();
+	}
+
+	/**
+	 * Send computed data on the ouput
+	 *
+	 * @param parameters	bitmask of computed feasible colors
+	 */
+	void outputComputed(const Parameters parameters) {
+		for (std::size_t byte_num = sizeof(parameters); byte_num > 0; byte_num--) {
+			output_file << static_cast<unsigned char>(parameters >> (byte_num-1)*8);
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,8 +109,15 @@ public:
 	/**
 	 * @return	true if the mask was provided on the input
 	 */
-	inline const bool isUsed() const {
-		return mask_used;
+	inline const bool input() const {
+		return input_mask;
+	}
+
+    /**
+	 * @return	true if the mask is requested on the output
+	 */
+	inline const bool output() const {
+		return output_mask;
 	}
 
 	/**

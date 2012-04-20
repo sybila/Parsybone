@@ -56,7 +56,7 @@ class SplitManager {
 		// Compute number of full rounds
 		rounds_count = parameters_per_process / bits_per_round;
 		// Check if it fits together with number from mask
-		if (coloring_parser.isUsed())
+		if (coloring_parser.input())
 			if (coloring_parser.getParamNum() != rounds_count+1)
 				throw std::runtime_error(std::string("Rounds computed from bitmask: ").append(boost::lexical_cast<std::string>(coloring_parser.getParamNum()))
 				                         .append(" does not equal round count computed from model: ").append(boost::lexical_cast<std::string>(rounds_count+1)).c_str());

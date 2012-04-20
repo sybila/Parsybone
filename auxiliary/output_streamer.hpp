@@ -29,7 +29,7 @@ class OutputStreamer {
 	std::ostream * stats_stream;
 	// Stream to output results of coloring
 	std::ostream * result_stream;
-	
+
 	// True if these streams are assigned a file
 	bool error_file, verbose_file, stats_file, result_file;
 

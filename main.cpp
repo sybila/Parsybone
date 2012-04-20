@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 		ArgumentParser parser;
 		parser.parseArguments(user_options, argc, argv);
 
-		if (coloring_parser.isUsed())
+		if (coloring_parser.input())
 			coloring_parser.parseMask();
 	} 
 	catch (std::exception & e) {

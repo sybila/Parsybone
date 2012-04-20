@@ -96,7 +96,4 @@ inline Parameters swap(Parameters parameters, std::size_t shift) {
 	return parameters;
 }
 
-
-
-
 #endif

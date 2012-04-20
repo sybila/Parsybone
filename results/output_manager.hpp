@@ -84,6 +84,8 @@ public:
 			searcher.display(shortest_path_lenght);
 		else if (user_options.coloring())
 			analyzer.display();
+		if (coloring_parser.output())
+			coloring_parser.outputComputed(analyzer.getUnion());
 	}
 };
 

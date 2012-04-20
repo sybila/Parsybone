@@ -101,6 +101,13 @@ public:
 						coloring_parser.openFile(argv[++arg_n]);
 						break;
 
+										// Open file with color mask
+					case 'M':
+						if (switch_num + 1 < arg.size())
+							throw(std::runtime_error(std::string("There are forbidden characters after M switch: ").append(arg.begin() + switch_num + 1, arg.end())));
+						coloring_parser.createOutput(argv[++arg_n]);
+						break;
+
 					// Get data for distributed computation
 					case 'D':
 						// After d there must be a white space (to distinct requsted numbers)
