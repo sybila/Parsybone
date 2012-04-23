@@ -28,10 +28,10 @@ public:
 	struct Interaction { // Interaction between species
 		StateID source;
 		std::size_t threshold;
-		std::string label;
+		EdgeConstrain constrain;
 
-		Interaction(const StateID _source, const std::size_t _threshold, const std::string _label) 
-			: source(_source), threshold(_threshold), label(_label) { }
+		Interaction(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain) 
+			: source(_source), threshold(_threshold), constrain(_constrain) { }
 	};
 	typedef std::pair<std::vector<bool>, int> Regulation; // Regulatory context of the specie (bitmask of active incoming interactions, target value)
 	typedef std::pair<StateID, std::string> Egde; // Edge in Buchi Automaton (Target ID, edge label)
@@ -97,8 +97,8 @@ private:
 	/**
 	 * Add a new interaction to the specie. Interaction is stored with the target, not the source.
 	 */
-	inline void addInteraction(size_t source_ID, size_t target_ID, size_t threshold, std::string label) {
-		species[target_ID].interactions.push_back(std::move(Interaction(source_ID, threshold, label)));
+	inline void addInteraction(size_t source_ID, size_t target_ID, size_t threshold, EdgeConstrain constrain) {
+		species[target_ID].interactions.push_back(std::move(Interaction(source_ID, threshold, constrain)));
 	}
 
 	/**
@@ -179,6 +179,13 @@ public:
 	 */
 	inline const std::string & getName(const std::size_t ID) const {
 		return species[ID].name;
+	}
+
+	/**
+	 * @return	minimal value of the specie (always 0)
+	 */
+	inline const std::size_t getMin(const std::size_t ID) const {
+		return 0;
 	}
 
 	/**

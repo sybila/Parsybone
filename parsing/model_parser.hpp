@@ -161,7 +161,7 @@ class ModelParser {
 	void parseInteractions(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		rapidxml::xml_node<>      *interaction;
 		// Interaction data
-		std::size_t source; std::size_t threshold; std::string label;
+		std::size_t source; std::size_t threshold; std::string label; EdgeConstrain constrain;
 
 		// Step into INTERACTIONS tag
 		interaction = getChildNode(specie_node, "INTERACTIONS");
@@ -176,11 +176,16 @@ class ModelParser {
 			getAttribute(threshold, interaction, "threshold");
 			// Get an edge label
 			if (!getAttribute(label, interaction, "label", false))
-				label = "";
-
+				constrain = none_cons;
+			else if (label.compare("+") == 0)
+				constrain = pos_cons;
+			else if (label.compare("-") == 0)
+				constrain = neg_cons;
+			else
+				throw std::runtime_error("Wrong sing in interaction label.");
 
 			// Add a new interaction to the specified target
-			model.addInteraction(source, specie_ID, threshold, label);
+			model.addInteraction(source, specie_ID, threshold, constrain);
 
 			// Continue stepping into INTER tags while possible
 			if (interaction->next_sibling("INTER"))

@@ -88,10 +88,10 @@ class FunctionsBuilder {
 	/**
 	 * Creates the functions in explicit form from the model information.
 	 */
-	void addRegulations(const std::size_t specie_ID, std::size_t & step_size) const {
+	void addRegulations(const SpecieID ID, std::size_t & step_size) const {
 		// get referecnces to Specie data
-		const std::vector<Model::Interaction> & interactions = model.getInteractions(specie_ID);
-		const std::vector<Model::Regulation> & regulations = model.getRegulations(specie_ID);
+		const std::vector<Model::Interaction> & interactions = model.getInteractions(ID);
+		const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
 
 		// Go through regulations of a specie - each represents a single function
 		for (auto regul_it = regulations.begin(); regul_it != regulations.end(); regul_it++) {
@@ -99,11 +99,11 @@ class FunctionsBuilder {
 			std::vector<std::vector<std::size_t> > source_values = std::move(getSourceValues(interactions, regul_it->first));
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
-			std::vector<std::size_t> possible_values = std::move(computePossibleValues(regul_it->second, specie_ID));
+			std::vector<std::size_t> possible_values = std::move(computePossibleValues(regul_it->second, ID));
 			const std::size_t values_count = possible_values.size();
 
 			// pass the function to the holder.
-			functions_structure.addRegulatoryFunction(specie_ID, step_size, std::move(possible_values), std::move(source_values));
+			functions_structure.addRegulatoryFunction(ID, step_size, std::move(possible_values), std::move(source_values));
 
 			// Increase step size for the next function
 			step_size *= values_count;

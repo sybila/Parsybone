@@ -123,6 +123,9 @@
     <ClInclude Include="..\parsing\coloring_parser.hpp">
       <Filter>parsing</Filter>
     </ClInclude>
+    <ClInclude Include="..\parsing\constrains_parser.hpp">
+      <Filter>parsing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MODELS\GS_cell_cycle.dbm">
@@ -184,6 +187,9 @@
       <Filter>Models</Filter>
     </None>
     <None Include="..\Models\Test.cbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Test_labels.dbm">
       <Filter>Models</Filter>
     </None>
   </ItemGroup>

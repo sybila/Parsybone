@@ -14,6 +14,7 @@
 #include "auxiliary/output_streamer.hpp"
 #include "auxiliary/user_options.hpp"
 #include "parsing/argument_parser.hpp"
+#include "parsing/constrains_parser.hpp"
 #include "parsing/model_parser.hpp"
 #include "reforging/basic_structure_builder.hpp"
 #include "reforging/functions_builder.hpp"
@@ -69,8 +70,11 @@ int main(int argc, char* argv[]) {
 // Create Functions (implicit reprezentation of regulatory contexts of species)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	FunctionsStructure functions_structure;
+	ConstrainsParser constrains_parser(model);
 	try {
 		output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
+
+		constrains_parser.parseConstrains();
 
 		FunctionsBuilder functions_builder(model, functions_structure);
 		functions_builder.buildFunctions();

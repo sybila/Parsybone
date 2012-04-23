@@ -81,6 +81,7 @@
     <ClInclude Include="..\coloring\synthesis_manager.hpp" />
     <ClInclude Include="..\parsing\argument_parser.hpp" />
     <ClInclude Include="..\parsing\coloring_parser.hpp" />
+    <ClInclude Include="..\parsing\constrains_parser.hpp" />
     <ClInclude Include="..\parsing\model.hpp" />
     <ClInclude Include="..\parsing\model_parser.hpp" />
     <ClInclude Include="..\rapidxml-1.13\rapidxml.hpp" />
@@ -123,6 +124,7 @@
     <None Include="..\Models\IRMA_simple.dbm" />
     <None Include="..\Models\K4.dbm" />
     <None Include="..\Models\Test.cbm" />
+    <None Include="..\Models\Test_labels.dbm" />
     <None Include="..\Models\Test_LTL.dbm" />
     <None Include="..\Models\Test_multitresh.dbm" />
     <None Include="..\Models\Test_multival.dbm" />
