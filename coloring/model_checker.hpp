@@ -108,19 +108,22 @@ class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COLORING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * Get stripped parameters for each unique edge (if there are multi-edges, intersect their values)
 	 *
 	 * @param ID	ID of the source state in the product
 	 * @param parameters	parameters that will be distributed
+	 *
+	 * @return vector of passed parameters together with their targets
 	 */
 	std::vector<Coloring> broadcastParameters(const StateID ID, const Parameters parameters) const {
 		// To store parameters that passed the transition but were not yet added to the target
-		std::vector<Coloring> self_loop;
-		std::vector<Coloring> others;
-
-		// Number of unique updates
-		std::size_t updates_count = 0;
+		std::vector<Coloring> updates;
+		updates.reserve(product.getTransitionCount(ID));
+		// To store info about self-loops
+		std::set<StateID> BA_set;
+		Parameters self_loop = ~0;
 
 		// Cycle through all the transition
 		for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
@@ -129,35 +132,29 @@ class ModelChecker {
 			// From an update strip all the parameters that can not pass through the transition - color intersection on the transition
 			passParameters(passed, product.getStepSize(ID, trans_num), product.getTransitive(ID, trans_num));
 
-			// If the update is already present for this state (only for self-loops), do an intersection
 			StateID target_ID = product.getTargetID(ID, trans_num);
-			// Test if it is a self_loop
-			if (product.getKSID(ID) == product.getKSID(target_ID)) {
-				// Remains true if no update for this state has been found
-				bool is_new = true;
-				// Test all currently known updates for equivalence on states
-				for (std::size_t update_num = 0; update_num < updates_count; update_num++) {
-					// If they are the same
-					if (self_loop[update_num].first == target_ID) {
-						self_loop[update_num].second &= passed;
-						is_new = false;
-						break;
-					}
-				}
-				// If it not found, add it
-				if (is_new) {
-					self_loop.push_back(std::make_pair(target_ID, passed));
-					updates_count++;
-				}
+
+			// Test if it is a self loop, if there is nothing outcoming, add to self-loop (if it is still possible)
+			if (product.getKSID(ID) == product.getKSID(target_ID) && self_loop) {
+				self_loop &= passed;
+				BA_set.insert(target_ID);
 			}
-			else others.push_back(std::make_pair(target_ID, passed));
+			// Else add normally and remove from the self_loop
+			else if (passed) {
+				self_loop &= ~passed;
+				updates.push_back(std::make_pair(target_ID, passed));
+			}
 		}	
 
+		// If there is a self-loop, add it for all the BA_states
+		if (self_loop) {
+			for (auto BA_it = BA_set.begin(); BA_it != BA_set.end(); BA_it++) {
+				updates.push_back(std::make_pair(*BA_it, self_loop));
+			}
+		}
+
 		// Return all filled updates
-		if (others.empty()) 
-			return self_loop;
-		else
-			return others;
+		return updates;
 	}
 	
 	/**
