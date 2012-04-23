@@ -25,9 +25,16 @@ class Model {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-	typedef std::pair<std::size_t, std::size_t> Interaction; // Interaction between species (Source ID, threshold)
+	struct Interaction { // Interaction between species
+		StateID source;
+		std::size_t threshold;
+		std::string label;
+
+		Interaction(const StateID _source, const std::size_t _threshold, const std::string _label) 
+			: source(_source), threshold(_threshold), label(_label) { }
+	};
 	typedef std::pair<std::vector<bool>, int> Regulation; // Regulatory context of the specie (bitmask of active incoming interactions, target value)
-	typedef std::pair<std::size_t, std::string> Egde; // Edge in Buchi Automaton (Target ID, edge label)
+	typedef std::pair<StateID, std::string> Egde; // Edge in Buchi Automaton (Target ID, edge label)
 
 private:
 	// Structure that holds data about a single specie.
@@ -90,8 +97,8 @@ private:
 	/**
 	 * Add a new interaction to the specie. Interaction is stored with the target, not the source.
 	 */
-	inline void addInteraction(size_t source_ID, size_t target_ID, size_t threshold) {
-		species[target_ID].interactions.push_back(std::move(Interaction(source_ID, threshold)));
+	inline void addInteraction(size_t source_ID, size_t target_ID, size_t threshold, std::string label) {
+		species[target_ID].interactions.push_back(std::move(Interaction(source_ID, threshold, label)));
 	}
 
 	/**

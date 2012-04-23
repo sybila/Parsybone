@@ -49,11 +49,11 @@ class FunctionsBuilder {
 			
 			// If regulation has to be active, store values from treshold above
 			if (mask[interaction_num] == true) 
-				for (std::size_t possible_level = interactions[interaction_num].second; possible_level <= model.getMax(interactions[interaction_num].first); possible_level++)
+				for (std::size_t possible_level = interactions[interaction_num].threshold; possible_level <= model.getMax(interactions[interaction_num].source); possible_level++)
 					possible_levels.push_back(possible_level);
 			// Otherwise store levels below the treshold
 			else
-				for (std::size_t possible_level = 0; possible_level < interactions[interaction_num].second; possible_level++)
+				for (std::size_t possible_level = 0; possible_level < interactions[interaction_num].threshold; possible_level++)
 					possible_levels.push_back(possible_level);
 
 			// Store computed values
@@ -141,7 +141,7 @@ class FunctionsBuilder {
 		const std::vector<Model::Interaction> & interactions = model.getInteractions(specie_ID);
 		// Add all the values between 0 and max
 		for (auto inter_it = interactions.begin(); inter_it != interactions.end(); inter_it++) 
-			source_species.push_back(inter_it->first);
+			source_species.push_back(inter_it->source);
 
 		return source_species;
 	}

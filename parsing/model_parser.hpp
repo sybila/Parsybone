@@ -125,15 +125,21 @@ class ModelParser {
 	 * @param requested_data	variable that will be filled with requested value
 	 * @param current_node	pointer to the node holding requested attribute
 	 * @param attribute_name	string with the name of the attribute
+	 *
+	 * @return true if the argument was present, false otherwise
 	 */
 	template <class returnType>
-	void getAttribute(returnType & requested_data, const rapidxml::xml_node<> * const current_node, const char* attribute_name) const {
+	bool getAttribute(returnType & requested_data, const rapidxml::xml_node<> * const current_node, const char* attribute_name, bool mandatory = true) const {
 		rapidxml::xml_attribute<> *temp_attr = 0;
 		// Try to get the attribute
 		temp_attr = current_node->first_attribute(attribute_name);
 		// Check if the attribute has been required
-		if (temp_attr == 0)
-			throw std::runtime_error(std::string("Parser did not found the mandatory attribute ").append(attribute_name));
+		if (temp_attr == 0) {
+			if (mandatory)
+				throw std::runtime_error(std::string("Parser did not found the mandatory attribute ").append(attribute_name));
+			else 
+				return false;
+		}
 		else { 
 			// Try to convert attribute into requested data type
 			try {
@@ -143,6 +149,7 @@ class ModelParser {
 				throw std::runtime_error("boost::lexical_cast<returnType, char*>(temp_attr->value()) failed");
 			}
 		}
+		return true;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +161,7 @@ class ModelParser {
 	void parseInteractions(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		rapidxml::xml_node<>      *interaction;
 		// Interaction data
-		std::size_t source; std::size_t threshold;
+		std::size_t source; std::size_t threshold; std::string label;
 
 		// Step into INTERACTIONS tag
 		interaction = getChildNode(specie_node, "INTERACTIONS");
@@ -167,9 +174,13 @@ class ModelParser {
 			getAttribute(source, interaction, "source");
 			// Get threshold and conver to integer.
 			getAttribute(threshold, interaction, "threshold");
+			// Get an edge label
+			if (!getAttribute(label, interaction, "label", false))
+				label = "";
+
 
 			// Add a new interaction to the specified target
-			model.addInteraction(source, specie_ID, threshold);
+			model.addInteraction(source, specie_ID, threshold, label);
 
 			// Continue stepping into INTER tags while possible
 			if (interaction->next_sibling("INTER"))

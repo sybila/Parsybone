@@ -131,15 +131,6 @@
     <None Include="..\MODELS\IRMA.dbm">
       <Filter>Models</Filter>
     </None>
-    <None Include="..\MODELS\Simple.dbm">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="..\MODELS\Template.dbm">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="..\MODELS\Template2.dbm">
-      <Filter>Models</Filter>
-    </None>
     <None Include="..\README" />
     <None Include="..\Models\3node.dbm">
       <Filter>Models</Filter>
@@ -160,6 +151,39 @@
       <Filter>Models</Filter>
     </None>
     <None Include="..\Models\K4.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\4node.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Bacteriophage_lambda.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Bacteriophage_lambda_valued.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\fifo2.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Test_LTL.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Test_multitresh.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Test_multival.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Test_sink.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Test_TS.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\IRMA_mask.cbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Test.cbm">
       <Filter>Models</Filter>
     </None>
   </ItemGroup>
