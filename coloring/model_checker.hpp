@@ -116,7 +116,9 @@ class ModelChecker {
 	 */
 	std::vector<Coloring> broadcastParameters(const StateID ID, const Parameters parameters) const {
 		// To store parameters that passed the transition but were not yet added to the target
-		std::vector<Coloring> update(product.getTransitionCount(ID));
+		std::vector<Coloring> self_loop;
+		std::vector<Coloring> others;
+
 		// Number of unique updates
 		std::size_t updates_count = 0;
 
@@ -129,25 +131,33 @@ class ModelChecker {
 
 			// If the update is already present for this state (only for self-loops), do an intersection
 			StateID target_ID = product.getTargetID(ID, trans_num);
-			// Remains true if no update for this state has been found
-			bool is_new = true;
-			// Test all currently known updates for equivalence on states
-			for (std::size_t update_num = 0; update_num < updates_count; update_num++) {
-				// If they are the same
-				if (update[update_num].first == target_ID) {
-					update[update_num].second &= passed;
-					is_new = false;
-					break;
+			// Test if it is a self_loop
+			if (product.getKSID(ID) == product.getKSID(target_ID)) {
+				// Remains true if no update for this state has been found
+				bool is_new = true;
+				// Test all currently known updates for equivalence on states
+				for (std::size_t update_num = 0; update_num < updates_count; update_num++) {
+					// If they are the same
+					if (self_loop[update_num].first == target_ID) {
+						self_loop[update_num].second &= passed;
+						is_new = false;
+						break;
+					}
+				}
+				// If it not found, add it
+				if (is_new) {
+					self_loop.push_back(std::make_pair(target_ID, passed));
+					updates_count++;
 				}
 			}
-			// If it not found, add it
-			if (is_new) {
-				update[updates_count++] = std::make_pair(target_ID, passed);
-			}
+			else others.push_back(std::make_pair(target_ID, passed));
 		}	
 
 		// Return all filled updates
-		return std::vector<Coloring>(update.begin(), update.begin() + updates_count);
+		if (others.empty()) 
+			return self_loop;
+		else
+			return others;
 	}
 	
 	/**
