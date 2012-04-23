@@ -67,11 +67,28 @@ class ModelParser {
 	}
 
 	/**
+	 * @param label	label on the edge for some arbitrary interaction - can be + or - or nothing
+	 *
+	 * @return	enumeration item with given specification
+	 */
+	const EdgeConstrain readConstrain(const std::string & label) const {
+		// Test possible options
+		if (label.compare("") == 0)
+			return none_cons;
+		else if (label.compare("+") == 0)
+			return pos_cons;
+		else if (label.compare("-") == 0)
+			return neg_cons;
+		else
+			throw std::runtime_error("Wrong sing in interaction label.");
+	}
+
+	/**
 	 * @param uspec_type	what to do with usnpecified regulations
 	 *
 	 * @return	enumeration item with given specification
 	 */
-	UnspecifiedRegulations getUnspecType(std::string unspec_type) {
+	const UnspecifiedRegulations getUnspecType(std::string unspec_type) const {
 		if      (unspec_type.compare("error"))
 			return error_reg;
 		else if (unspec_type.compare("basal"))
@@ -176,13 +193,9 @@ class ModelParser {
 			getAttribute(threshold, interaction, "threshold");
 			// Get an edge label
 			if (!getAttribute(label, interaction, "label", false))
-				constrain = none_cons;
-			else if (label.compare("+") == 0)
-				constrain = pos_cons;
-			else if (label.compare("-") == 0)
-				constrain = neg_cons;
-			else
-				throw std::runtime_error("Wrong sing in interaction label.");
+				label = "";
+			// Convert label into an edge constrain
+			constrain = readConstrain(label);
 
 			// Add a new interaction to the specified target
 			model.addInteraction(source, specie_ID, threshold, constrain);
