@@ -112,12 +112,11 @@
     <None Include="..\Models\3node.dbm" />
     <None Include="..\Models\4node.dbm" />
     <None Include="..\Models\Bacteriophage_lambda.dbm" />
+    <None Include="..\Models\Bacteriophage_lambda_labelled.dbm" />
+    <None Include="..\Models\Bacteriophage_lambda_labelled_observable.dbm" />
     <None Include="..\Models\Bacteriophage_lambda_valued.dbm" />
-    <None Include="..\Models\Complex.dbm" />
-    <None Include="..\Models\Complex_short.dbm" />
     <None Include="..\Models\fifo2.dbm" />
-    <None Include="..\MODELS\GS_cell_cycle.dbm" />
-    <None Include="..\MODELS\IRMA.dbm" />
+    <None Include="..\Models\GS_cell_cycle.dbm" />
     <None Include="..\Models\IRMA_hard.dbm" />
     <None Include="..\Models\IRMA_mask.cbm" />
     <None Include="..\Models\IRMA_medium.dbm" />

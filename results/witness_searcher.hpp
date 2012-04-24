@@ -62,7 +62,7 @@ private:
 	void displayWit() const {
 		// Cycle through states
 		for (std::size_t state_index = lenght; state_index > 1; state_index--) {
-			output_streamer.output(product.getString(path[state_index-1]), OutputStreamer::no_newl);
+			output_streamer.output(results_str, product.getString(path[state_index-1]), OutputStreamer::no_newl);
 		}
 		// Endline
 		output_streamer.output("");

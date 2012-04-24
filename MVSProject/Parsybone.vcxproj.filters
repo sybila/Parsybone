@@ -128,23 +128,35 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\MODELS\GS_cell_cycle.dbm">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="..\MODELS\IRMA.dbm">
-      <Filter>Models</Filter>
-    </None>
     <None Include="..\README" />
     <None Include="..\Models\3node.dbm">
       <Filter>Models</Filter>
     </None>
-    <None Include="..\Models\Complex.dbm">
+    <None Include="..\Models\4node.dbm">
       <Filter>Models</Filter>
     </None>
-    <None Include="..\Models\Complex_short.dbm">
+    <None Include="..\Models\Bacteriophage_lambda.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Bacteriophage_lambda_labelled.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Bacteriophage_lambda_labelled_observable.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\Bacteriophage_lambda_valued.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\fifo2.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\GS_cell_cycle.dbm">
       <Filter>Models</Filter>
     </None>
     <None Include="..\Models\IRMA_hard.dbm">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\Models\IRMA_mask.cbm">
       <Filter>Models</Filter>
     </None>
     <None Include="..\Models\IRMA_medium.dbm">
@@ -156,16 +168,10 @@
     <None Include="..\Models\K4.dbm">
       <Filter>Models</Filter>
     </None>
-    <None Include="..\Models\4node.dbm">
+    <None Include="..\Models\Test.cbm">
       <Filter>Models</Filter>
     </None>
-    <None Include="..\Models\Bacteriophage_lambda.dbm">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="..\Models\Bacteriophage_lambda_valued.dbm">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="..\Models\fifo2.dbm">
+    <None Include="..\Models\Test_labels.dbm">
       <Filter>Models</Filter>
     </None>
     <None Include="..\Models\Test_LTL.dbm">
@@ -181,15 +187,6 @@
       <Filter>Models</Filter>
     </None>
     <None Include="..\Models\Test_TS.dbm">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="..\Models\IRMA_mask.cbm">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="..\Models\Test.cbm">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="..\Models\Test_labels.dbm">
       <Filter>Models</Filter>
     </None>
   </ItemGroup>
