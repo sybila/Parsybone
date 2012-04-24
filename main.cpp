@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 
 		constrains_parser.parseConstrains();
 
-		FunctionsBuilder functions_builder(model, functions_structure);
+		FunctionsBuilder functions_builder(model, constrains_parser, functions_structure);
 		functions_builder.buildFunctions();
 	} 
 	catch (std::exception & e) {

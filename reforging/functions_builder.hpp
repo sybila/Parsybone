@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../parsing/model.hpp"
+#include "../parsing/constrains_parser.hpp"
 #include "functions_structure.hpp"
 
 class FunctionsBuilder {
@@ -24,6 +25,7 @@ class FunctionsBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	const Model & model; // Model that holds the data
+	const ConstrainsParser & constrains; // Information about edge constrains
 	FunctionsStructure & functions_structure; // FunctionsStructure class to fill
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,20 +96,20 @@ class FunctionsBuilder {
 		const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
 
 		// Go through regulations of a specie - each represents a single function
-		for (auto regul_it = regulations.begin(); regul_it != regulations.end(); regul_it++) {
+		std::size_t regul_num = 0;
+		for (auto regul_it = regulations.begin(); regul_it != regulations.end(); regul_it++, regul_num++) {
 			// Compute allowed values for each regulating specie for this function to be active
 			std::vector<std::vector<std::size_t> > source_values = std::move(getSourceValues(interactions, regul_it->first));
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
-			std::vector<std::size_t> possible_values = std::move(computePossibleValues(regul_it->second, ID));
-			const std::size_t values_count = possible_values.size();
+			std::vector<std::size_t> possible_values = std::move(constrains.getTargetVals(ID, regul_num));
+			// std::vector<std::size_t> possible_values = std::move(computePossibleValues(regul_it->second, ID));
 
 			// pass the function to the holder.
-			functions_structure.addRegulatoryFunction(ID, step_size, std::move(possible_values), std::move(source_values));
-
-			// Increase step size for the next function
-			step_size *= values_count;
+			functions_structure.addRegulatoryFunction(ID, step_size, std::move(possible_values), std::move(source_values));	
 		}
+		// Increase step size for the next function
+		step_size *= constrains.getTargetVals(ID, 0).size();
 	}
 
 	/**
@@ -156,8 +158,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	FunctionsBuilder(const Model & _model, FunctionsStructure & _functions_structure) 
-		: model(_model), functions_structure(_functions_structure)  { }
+	FunctionsBuilder(const Model & _model, const ConstrainsParser & _constrains, FunctionsStructure & _functions_structure) 
+		: model(_model), constrains(_constrains), functions_structure(_functions_structure)  { }
 
 	/**
 	 * For each specie recreate all its regulatory functions

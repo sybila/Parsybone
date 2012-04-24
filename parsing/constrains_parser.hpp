@@ -152,6 +152,39 @@ public:
 			createContexts(ID);
 		}
 	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTANT GETTERS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	/**
+	 * @return	total number of subcolors this specie could have (all regulatory contexts' combinations)
+	 */
+	inline const std::size_t getAllColorsNum(const SpecieID ID) const {
+		return colors[ID].colors_num;
+	}
+
+	/**
+	 * @return	total number of subcolors this specie has (allowed regulatory contexts' combinations)
+	 */
+	inline const std::size_t getColorsNum(const SpecieID ID) const {
+		return colors[ID].subcolors.size();
+	}
+
+	/**
+	 * @return	total number of subcolors this specie has (allowed regulatory contexts' combinations)
+	 */
+	inline const std::vector<std::size_t> getTargetVals(const SpecieID ID, const std::size_t regul_num) const {
+		//Data to fill
+		std::vector<std::size_t> all_target_vals;
+		all_target_vals.reserve(colors[ID].subcolors.size());
+
+		// Store values for given regulation
+		for (auto color_it = colors[ID].subcolors.begin(); color_it != colors[ID].subcolors.end(); color_it++) {
+			all_target_vals.push_back((*color_it)[regul_num]);
+		}
+
+		return all_target_vals;
+	}
 };
 
 #endif
