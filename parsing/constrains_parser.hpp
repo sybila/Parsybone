@@ -157,6 +157,13 @@ public:
 // CONSTANT GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	/**
+	 * @return	total number of species
+	 */
+	inline const std::size_t getSpecieNum() const {
+		return colors.size();
+	}	
+	
+	/**
 	 * @return	total number of subcolors this specie could have (all regulatory contexts' combinations)
 	 */
 	inline const std::size_t getAllColorsNum(const SpecieID ID) const {
@@ -168,6 +175,13 @@ public:
 	 */
 	inline const std::size_t getColorsNum(const SpecieID ID) const {
 		return colors[ID].subcolors.size();
+	}
+
+	/**
+	 * @return	requested subcolor from the vector of subcolors of given specie
+	 */
+	inline const std::vector<std::size_t> & getColor(const SpecieID ID, const std::size_t color_num) const {
+		return colors[ID].subcolors[color_num];
 	}
 
 	/**

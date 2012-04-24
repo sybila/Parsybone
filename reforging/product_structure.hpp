@@ -54,6 +54,7 @@ class ProductStructure : public AutomatonInterface {
 	
 	// References to data structures
 	const FunctionsStructure & functions; // Implicit reprezentation of functions - used as reference
+	const ConstrainsParser & constrains; // Constrains on functions taken from the model
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 
@@ -90,8 +91,8 @@ class ProductStructure : public AutomatonInterface {
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	ProductStructure(const FunctionsStructure & _functions, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
-		: functions(_functions), structure(_structure), automaton(_automaton) { }
+	ProductStructure(const FunctionsStructure & _functions, const ConstrainsParser & _constrains, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
+		: functions(_functions), constrains(_constrains), structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KRIPKE STRUCTURE FUNCTIONS 
@@ -210,6 +211,13 @@ public:
 	 */
 	const FunctionsStructure & getFunc() const {
 		return functions;
+	}
+
+	/**
+	 * @return constant reference to structure with interactions constrains
+	 */
+	const ConstrainsParser & getCons() const {
+		return constrains;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

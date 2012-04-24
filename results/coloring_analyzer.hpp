@@ -21,16 +21,21 @@ class ColoringAnalyzer {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// References
 	const FunctionsStructure & functions; // Functions from the product
+	const ConstrainsParser & constrains; // Constrains on functions
 
 	// DATA STORAGE
 	std::vector<Coloring> colorings;
 
-	// Used throughout full computation - values for each function
-	std::vector<std::size_t> bottom_values;
-	std::vector<std::size_t> top_values;
+	// Numbers of currently used colors
+	std::vector<std::size_t> subcolor_nums;
+	std::vector<std::size_t> max_colors;
 
-	// Used only for a single round
-	std::vector<std::size_t> current_color;
+	//// Used throughout full computation - values for each function
+	//std::vector<std::size_t> bottom_values;
+	//std::vector<std::size_t> top_values;
+
+	//// Used only for a single round
+	//std::vector<std::size_t> current_color;
 	std::size_t parameter_begin;
 	std::size_t parameter_end;
 
@@ -46,15 +51,28 @@ class ColoringAnalyzer {
 		// If there is a posibility to increaset the value (from left to right), increase it and end, otherwise null it and continue
 		for (std::size_t value_num = 0; value_num < color.size(); value_num++) {
 			// Increase and end
-			if (color[value_num] < top_values[value_num]) {
+			if (color[value_num] < max_colors[value_num]) {
 				color[value_num]++;
 				return;
 			}
 			// Null 
 			else { 
-				color[value_num] = bottom_values[value_num];
+				color[value_num] = 0;
 			}
 		}
+
+		//// If there is a posibility to increaset the value (from left to right), increase it and end, otherwise null it and continue
+		//for (std::size_t value_num = 0; value_num < color.size(); value_num++) {
+		//	// Increase and end
+		//	if (color[value_num] < top_values[value_num]) {
+		//		color[value_num]++;
+		//		return;
+		//	}
+		//	// Null 
+		//	else { 
+		//		color[value_num] = bottom_values[value_num];
+		//	}
+		//}
 	}
 	
 	/**
@@ -62,16 +80,29 @@ class ColoringAnalyzer {
 	 *
 	 * @param color	vector of contexts for the color
 	 */
-	const std::string createColorString(std::vector<std::size_t> color) const {
+	const std::string createColorString(std::vector<std::size_t> color_parts) const {
 		std::string color_str = "[";
 		// Cycle through all values except last
-		for (auto it = color.begin(); it != color.end() - 1; it++) {
-			color_str += boost::lexical_cast<std::string, std::size_t>(*it);
-			color_str += ",";
+		for (SpecieID ID = 0; ID < constrains.getSpecieNum(); ID++) {
+			auto color = constrains.getColor(ID, color_parts[ID]);
+			for (auto it = color.begin(); it != color.end(); it++) {
+				color_str += boost::lexical_cast<std::string, std::size_t>(*it);
+				color_str += ",";
+			}
 		}
 		// Add the last one
-		color_str += boost::lexical_cast<std::string, std::size_t>(color.back());
 		color_str += "]";
+		
+		//std::string color_str = "[";
+		//// Cycle through all values except last
+		//for (auto it = color.begin(); it != color.end() - 1; it++) {
+		//	color_str += boost::lexical_cast<std::string, std::size_t>(*it);
+		//	color_str += ",";
+		//}
+		//// Add the last one
+		//color_str += boost::lexical_cast<std::string, std::size_t>(color.back());
+		//color_str += "]";
+
 		return color_str;
 	}
 	
@@ -83,14 +114,20 @@ class ColoringAnalyzer {
 	 */
 	void computeBoundaries() {
 		// Cycle through all functions
-		for (std::size_t specie_num = 0; specie_num != functions.getSpeciesCount(); specie_num++) {
-			for (std::size_t function_num = 0; function_num < functions.getRegulationsCount(specie_num); function_num++) {
-				// Get bottom and top values for a function
-				bottom_values.push_back(functions.getPossibleValues(specie_num, function_num).front());
-				top_values.push_back(functions.getPossibleValues(specie_num, function_num).back());
-			}
+		for (SpecieID ID = 0; ID < constrains.getSpecieNum(); ID++) {
+			subcolor_nums.push_back(0);
+			max_colors.push_back(constrains.getColorsNum(ID) - 1);
 		}
-		current_color = bottom_values;
+
+		//// Cycle through all functions
+		//for (SpecieID specie_num = 0; specie_num < functions.getSpeciesCount(); specie_num++) {
+		//	for (std::size_t function_num = 0; function_num < functions.getRegulationsCount(specie_num); function_num++) {
+		//		// Get bottom and top values for a function
+		//		bottom_values.push_back(functions.getPossibleValues(specie_num, function_num).front());
+		//		top_values.push_back(functions.getPossibleValues(specie_num, function_num).back());
+		//	}
+		//}
+		//current_color = bottom_values;
 	}
 	
 	ColoringAnalyzer(const ColoringAnalyzer & other);            // Forbidden copy constructor.
@@ -101,7 +138,7 @@ public:
 	 * Get reference data and create final states that will hold all the computed data
 	 */
 	ColoringAnalyzer(const ProductStructure & _product) 
-		           : functions(_product.getFunc())  {
+		           : functions(_product.getFunc()), constrains(_product.getCons())  {
 		computeBoundaries();
 		parameter_begin = parameter_end = 0;
 	} 
@@ -122,7 +159,7 @@ public:
 		// Iterate reference values for the state up till first state of this round
 		parameter_end = round_range.second;
 		for (; parameter_begin < round_range.first; parameter_begin++) {
-			iterateColor(current_color);
+			iterateColor(subcolor_nums);
 		}
 	}
 
@@ -180,7 +217,7 @@ public:
 	std::vector<std::pair<std::size_t, std::string> > getColors(Parameters result_parameters) const {	
 		// Vector to fill
 		std::vector<std::pair<std::size_t, std::string> > colors;
-		std::vector<std::size_t> work_color = current_color;
+		std::vector<std::size_t> work_color = subcolor_nums;
 		// Change the order of values to: from right to left
 		result_parameters = swap(result_parameters, getParamsetSize() - (parameter_end - parameter_begin));
 		// Store a mask for each color with just its bit on, other off

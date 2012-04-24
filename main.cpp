@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
 // STEP SIX:
 // Create the product - splitted into two parts
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure product_structure(functions_structure, parametrized_structure, automaton);
+	ProductStructure product_structure(functions_structure, constrains_parser, parametrized_structure, automaton);
 	ColorStorage color_storage;
 	try {
 		output_streamer.output(verbose_str, "Product building started.", OutputStreamer::important);
