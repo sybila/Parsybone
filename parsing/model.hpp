@@ -25,20 +25,20 @@ class Model {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-	struct Interaction { // Interaction between species
-		StateID source;
-		std::size_t threshold;
-		EdgeConstrain constrain;
+	struct Interaction {
+		StateID source; // Regulator
+		std::size_t threshold; // Level of the regulator requested for the function to work
+		EdgeConstrain constrain; // What is requested behaviour
+		bool observable; // Must the interaction be observable
 
-		Interaction(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain) 
-			: source(_source), threshold(_threshold), constrain(_constrain) { }
+		Interaction(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain, const bool _observable) 
+			: source(_source), threshold(_threshold), constrain(_constrain), observable(_observable) { }
 	};
 	typedef std::pair<std::vector<bool>, int> Regulation; // Regulatory context of the specie (bitmask of active incoming interactions, target value)
 	typedef std::pair<StateID, std::string> Egde; // Edge in Buchi Automaton (Target ID, edge label)
 
 private:
-	// Structure that holds data about a single specie.
-	// Most of the data is equal to that in the model file
+	// Structure that holds data about a single specie. Most of the data is equal to that in the model file
 	struct ModelSpecie {
 	private:
 		// Data are accesible from within the model class but not from the Model objects
@@ -53,8 +53,8 @@ private:
 
 		std::string name; // Actuall name of the specie
 		std::size_t ID; // Numerical constant used to distinguish the specie. Starts from 0!
-		std::size_t basal_value;
-		std::size_t max_value;
+		std::size_t basal_value; // Value the specie tends to if unregulated, currently unused
+		std::size_t max_value; // Maximal activation level of the specie
 	};
 
 	// Structure that holds data about a single state.
@@ -97,8 +97,8 @@ private:
 	/**
 	 * Add a new interaction to the specie. Interaction is stored with the target, not the source.
 	 */
-	inline void addInteraction(size_t source_ID, size_t target_ID, size_t threshold, EdgeConstrain constrain) {
-		species[target_ID].interactions.push_back(std::move(Interaction(source_ID, threshold, constrain)));
+	inline void addInteraction(size_t source_ID, size_t target_ID, size_t threshold, EdgeConstrain constrain, const bool observable) {
+		species[target_ID].interactions.push_back(std::move(Interaction(source_ID, threshold, constrain, observable)));
 	}
 
 	/**

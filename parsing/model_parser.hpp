@@ -178,7 +178,7 @@ class ModelParser {
 	void parseInteractions(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		rapidxml::xml_node<>      *interaction;
 		// Interaction data
-		std::size_t source; std::size_t threshold; std::string label; EdgeConstrain constrain;
+		std::size_t source; std::size_t threshold; std::string label; EdgeConstrain constrain; bool observable;
 
 		// Step into INTERACTIONS tag
 		interaction = getChildNode(specie_node, "INTERACTIONS");
@@ -196,9 +196,11 @@ class ModelParser {
 				label = "";
 			// Convert label into an edge constrain
 			constrain = readConstrain(label);
+			// Get observable attribute
+			getAttribute(observable, interaction, "observ", false);
 
 			// Add a new interaction to the specified target
-			model.addInteraction(source, specie_ID, threshold, constrain);
+			model.addInteraction(source, specie_ID, threshold, constrain, observable);
 
 			// Continue stepping into INTER tags while possible
 			if (interaction->next_sibling("INTER"))

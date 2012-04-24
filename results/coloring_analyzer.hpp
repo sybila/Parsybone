@@ -90,19 +90,8 @@ class ColoringAnalyzer {
 				color_str += ",";
 			}
 		}
-		// Add the last one
-		color_str += "]";
+		*(color_str.end() - 1) = ']';
 		
-		//std::string color_str = "[";
-		//// Cycle through all values except last
-		//for (auto it = color.begin(); it != color.end() - 1; it++) {
-		//	color_str += boost::lexical_cast<std::string, std::size_t>(*it);
-		//	color_str += ",";
-		//}
-		//// Add the last one
-		//color_str += boost::lexical_cast<std::string, std::size_t>(color.back());
-		//color_str += "]";
-
 		return color_str;
 	}
 	
@@ -118,16 +107,6 @@ class ColoringAnalyzer {
 			subcolor_nums.push_back(0);
 			max_colors.push_back(constrains.getColorsNum(ID) - 1);
 		}
-
-		//// Cycle through all functions
-		//for (SpecieID specie_num = 0; specie_num < functions.getSpeciesCount(); specie_num++) {
-		//	for (std::size_t function_num = 0; function_num < functions.getRegulationsCount(specie_num); function_num++) {
-		//		// Get bottom and top values for a function
-		//		bottom_values.push_back(functions.getPossibleValues(specie_num, function_num).front());
-		//		top_values.push_back(functions.getPossibleValues(specie_num, function_num).back());
-		//	}
-		//}
-		//current_color = bottom_values;
 	}
 	
 	ColoringAnalyzer(const ColoringAnalyzer & other);            // Forbidden copy constructor.

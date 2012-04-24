@@ -59,6 +59,7 @@ class ConstrainsParser {
 			// Skip if there are no requirements
 			if (interactions[inter_num].constrain == none_cons)
 				continue;
+			bool is_observable = false;
 
 			// Cycle through regulations
 			for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
@@ -88,8 +89,15 @@ class ConstrainsParser {
 						|| 
 						((interactions[inter_num].constrain == neg_cons) && (subcolor[regul_num] > subcolor[regul_comp])))
 						return false;
+
+					// Test observability
+					if (subcolor[regul_num] != subcolor[regul_comp])
+						is_observable = true;
 				}
 			}
+
+			if (!is_observable && interactions[inter_num].observable)
+				return false;
 		}
 		return true;
 	}
