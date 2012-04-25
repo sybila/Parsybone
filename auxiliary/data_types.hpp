@@ -68,6 +68,9 @@ enum EdgeConstrain {pos_cons, neg_cons, none_cons};
 // mask of parameters - each bit represents single combination of target values for each function
 typedef unsigned int Parameters;
 
+// Index of the color - may be a big number
+typedef long long ColorNum;
+
 // IDs of predecessors of a state
 typedef std::vector<StateID> Predecessors;
 

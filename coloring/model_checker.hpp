@@ -34,6 +34,9 @@ class ModelChecker {
 	Range synthesis_range; // First and one beyond last color to be computed in this round
 	WitnessUse witness_use; // How wintesses will be held in this computation
 
+	// Used for self loops
+	std::vector<bool> BA_presence;
+
 	// Bounded check variables
 	Parameters to_find;
 	std::vector<std::size_t> BFS_reach; // In which round this color was found
@@ -146,12 +149,12 @@ class ModelChecker {
 	 *
 	 * @return vector of passed parameters together with their targets
 	 */
-	std::vector<Coloring> broadcastParameters(const StateID ID, const Parameters parameters) const {
+	std::vector<Coloring> broadcastParameters(const StateID ID, const Parameters parameters) {
 		// To store parameters that passed the transition but were not yet added to the target
 		std::vector<Coloring> updates;
 		updates.reserve(product.getTransitionCount(ID));
-		// To store info about self-loops
-		std::set<StateID> BA_set;
+
+		std::size_t KS_state = product.getKSID(ID);
 		Parameters self_loop = ~0;
 
 		// Cycle through all the transition
@@ -164,9 +167,10 @@ class ModelChecker {
 			StateID target_ID = product.getTargetID(ID, trans_num);
 
 			// Test if it is a self loop, if there is nothing outcoming, add to self-loop (if it is still possible)
-			if (product.getKSID(ID) == product.getKSID(target_ID) && self_loop) {
+			if (self_loop && (KS_state == product.getKSID(target_ID)) ) {
 				self_loop &= passed;
-				BA_set.insert(target_ID);
+				StateID BA_ID = product.getBAID(target_ID);
+				BA_presence[BA_ID] = true;
 			}
 			// Else add normally and remove from the self_loop
 			else if (passed) {
@@ -176,9 +180,13 @@ class ModelChecker {
 		}	
 
 		// If there is a self-loop, add it for all the BA_states
-		if (self_loop) {
-			for (auto BA_it = BA_set.begin(); BA_it != BA_set.end(); BA_it++) {
-				updates.push_back(std::make_pair(*BA_it, self_loop));
+		for(StateID BA_state = 0; BA_state < BA_presence.size(); BA_state++) {
+			if (BA_presence[BA_state]) {
+				if (self_loop) {
+					StateID target = product.getProductID(KS_state, BA_state) ;
+					updates.push_back(Coloring(target, self_loop));
+				}
+				BA_presence[BA_state] = false;
 			}
 		}
 
@@ -198,17 +206,20 @@ class ModelChecker {
 
 		// For all passed values make update on target
 		for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
-			if (user_options.timeSerie()) {
-				// Do not allow to pass between initial states and final states
+			// Skip empty updates
+			if (none(update_it->second))
+				continue;
+
+			// Do not allow to pass between initial states and final states in the time serie
+			if (user_options.timeSerie()) {	
 				if (product.isInitial(update_it->first) || product.isFinal(ID))
 					continue;
 			}
-			if (!none(update_it->second)) {
-				// If something new is added to the target, schedule it for an update
-				if ((witness_use == none_wit && storage.update(update_it->second, update_it->first)) || storage.update(ID, update_it->second, update_it->first)) {
-					next_updates.insert(update_it->first);
-				}		
-			}
+
+			// If something new is added to the target, schedule it for an update
+			if ((witness_use == none_wit && storage.update(update_it->second, update_it->first)) || storage.update(ID, update_it->second, update_it->first)) {
+				next_updates.insert(update_it->first);
+			}		
 		}
 	}
 
@@ -227,6 +238,7 @@ class ModelChecker {
 			transferUpdates(ID, storage.getColor(ID));
 			// Erase completed update from the set
 			updates.erase(ID);
+
 			// If witness has not been found and 
 			if ((updates.empty()) && (to_find || (witness_use != short_wit))) {
 				updates = std::move(next_updates);
@@ -245,13 +257,13 @@ class ModelChecker {
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
 	void prepareCheck(const Parameters parameters, const Range & _range, const WitnessUse _witness_use, std::set<StateID> start_updates = std::set<StateID>()) {
-		to_find = parameters;
-		next_updates.clear();
-		updates = start_updates;
-		witness_use = _witness_use;
-		BFS_reach.resize(getParamsetSize(), ~0);
-		synthesis_range = _range;
-		BFS_level = 1;
+		to_find = parameters; // Store which parameters are we searching for
+		next_updates.clear(); // Ensure emptiness of the next round
+		updates = start_updates; // Copy starting updates
+		witness_use = _witness_use; // Store witness use info
+		BFS_reach.resize(getParamsetSize(), ~0); // Recreate reach values
+		synthesis_range = _range; // Copy range of this round
+		BFS_level = 1; // Set sterting number of BFS
 	}
 
 	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
@@ -261,7 +273,9 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) {	}
+	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) {	
+		BA_presence.resize(automaton.getStateCount(), false);
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STARTERS
@@ -276,7 +290,7 @@ public:
 	 */
 	const std::vector<std::size_t> startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit) {
 		prepareCheck(parameters, _range, _witness_use);
-		transferUpdates(ID, parameters);
+		transferUpdates(ID, parameters); // Transfer updates from the start of the detection
 		doColoring();
 		return std::move(BFS_reach);
 	}

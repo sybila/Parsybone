@@ -30,9 +30,8 @@ class ParametrizedStructureBuilder {
 	ParametrizedStructure & structure; // KipkeStructure to fill
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTING FUNCTIONS:
+// TESTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	/**
 	 * Test wheather the current state corresponds to the requirements put on values of the specified species.
 	 * 
@@ -89,6 +88,13 @@ class ParametrizedStructureBuilder {
 		throw std::runtime_error("Active function in same state not found.");
 	}
 
+	const ColorNum getLoopColor(const Levels & state_levels) {
+		
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FILLING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Creates a mask of transitivity for all the target values of the current function.
 	 * 
@@ -140,11 +146,12 @@ class ParametrizedStructureBuilder {
 	 * @return true if there is a possibility of transition, false otherwise
 	 */
 	const bool fillFunctions(const StateID ID, const std::size_t neighbour_index, const Levels & state_levels, 
-		                     std::size_t & function_num, std::size_t & step_size, std::vector<bool> & transitive_values) {
+		                     std::size_t & step_size, std::vector<bool> & transitive_values) {
+		// Get ID of the regulated specie
 		const std::size_t specie_ID = basic_structure.getSpecieID(ID, neighbour_index);
 
 		// Find out which function is currently active
-		function_num = getActiveFunction(specie_ID, state_levels);
+		std::size_t function_num = getActiveFunction(specie_ID, state_levels);
 
 		// Fill step size
 		step_size = regulatory_functions.getStepSize(specie_ID, function_num);
@@ -173,11 +180,10 @@ class ParametrizedStructureBuilder {
 			// Data to fill
 			StateID target_ID = basic_structure.getTargetID(ID, trans_num); // ID of the state the transition leads to
 			std::size_t step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
-			std::size_t function_num = ~0; // ID of the active function - if ~0, no function is active
 			std::vector<bool> transitive_values; // Which of possible are used (in this case)
 
 			// Fill data about the transition and check if it is even feasible
-			if (fillFunctions(ID, trans_num, state_levels, function_num, step_size, transitive_values)) {
+			if (fillFunctions(ID, trans_num, state_levels, step_size, transitive_values)) {
 				// Add the transition
 				structure.addTransition(ID, target_ID, step_size, std::move(transitive_values));
 			}
