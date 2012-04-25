@@ -106,6 +106,9 @@ class SynthesisManager {
 		else
 			starting = split_manager->createStartingParameters();
 
+		if (none(starting))
+			return;
+
 		// Set all the initial states to initial color
 		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
 			storage.update(starting, *init_it);

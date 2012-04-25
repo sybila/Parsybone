@@ -88,10 +88,12 @@ public:
 
 					case 'w':
 						user_options.witness_use = short_wit;
+						user_options.time_serie = true;
 						break;
 
 					case 'W':
 						user_options.witness_use = all_wit;
+						user_options.time_serie = true;
 						break;
 
 					// Open file with color mask
