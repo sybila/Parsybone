@@ -76,12 +76,13 @@ public:
 	 */
 	void parseMask() {
 		// Read bytemaks
-		char * byteblock = new char [file_size];
+		char * byteblock = new char [static_cast<std::size_t>(file_size)];
 		input_file.read(byteblock, file_size);
 
 		// Cycle through bytemasks and reforge them into Parameters
 		for (std::size_t shade_num = 0; shade_num < file_size / sizeof(Parameters); shade_num++) {
 			Parameters temp = 0;
+			// Read bytes and move them to the front of the Parameters, when possible
 			for (std::size_t byte_num = 0; byte_num < sizeof(Parameters); byte_num++) {
 				temp <<= 8;
 				temp |= byteblock[shade_num*sizeof(Parameters) + byte_num];
@@ -93,12 +94,14 @@ public:
 	}
 
 	/**
-	 * Send computed data on the ouput
+	 * Send computed data for this round on the ouput
 	 *
 	 * @param parameters	bitmask of computed feasible colors
 	 */
 	void outputComputed(const Parameters parameters) {
+		// Cycle through bytes
 		for (std::size_t byte_num = sizeof(parameters); byte_num > 0; byte_num--) {
+			// Take last 8 bits - to save the form, it is needed to shift up till last round 
 			output_file << static_cast<unsigned char>(parameters >> (byte_num-1)*8);
 		}
 	}
