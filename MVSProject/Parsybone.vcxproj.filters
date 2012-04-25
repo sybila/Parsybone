@@ -126,6 +126,9 @@
     <ClInclude Include="..\parsing\constrains_parser.hpp">
       <Filter>parsing</Filter>
     </ClInclude>
+    <ClInclude Include="..\auxiliary\common_functions.hpp">
+      <Filter>auxiliary</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README" />

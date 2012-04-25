@@ -14,6 +14,7 @@
 // Functions in model checker use many supporting variables and therefore are quite long, it would not make sense to split them, though.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "../auxiliary/common_functions.hpp"
 #include "../reforging/product_structure.hpp"
 #include "parameters_functions.hpp"
 
@@ -30,10 +31,14 @@ class ModelChecker {
 	// Used for computation
 	std::set<StateID> updates; // Set of states that need to spread their updates
 	std::set<StateID> next_updates; // Set of states that will be scheduled for update during next BFS level
-	std::size_t BFS_level; // Number of current BFS level during coloring
-	std::size_t max_level; // Maximal allowed BFS level
 	Range synthesis_range; // First and one beyond last color to be computed in this round
 	WitnessUse witness_use; // How wintesses will be held in this computation
+
+	// Bounded check variables
+	Parameters to_find;
+	std::vector<std::size_t> BFS_reach; // In which round this color was found
+	std::size_t BFS_level; // Number of current BFS level during coloring
+	std::size_t max_level; // Maximal allowed BFS level
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
@@ -199,7 +204,7 @@ class ModelChecker {
 			// Erase completed update from the set
 			updates.erase(ID);
 			// If witness has not been found and 
-			if (updates.empty() && (max_level != BFS_level)) {
+			if ((updates.empty()) && ((max_level != BFS_level) || (witness_use != short_wit))) {
 				updates = std::move(next_updates);
 				BFS_level++;
 			}
@@ -215,11 +220,14 @@ class ModelChecker {
 	 * @param _range	range of parameters for this coloring round
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	void prepareCheck(const Range & _range, const WitnessUse _witness_use, const std::size_t max_BFS) {
+	void prepareCheck(const Parameters parameters, const Range & _range, const WitnessUse _witness_use, std::set<StateID> start_updates = std::set<StateID>()) {
+		to_find = parameters;
+		next_updates.clear();
+		updates = start_updates;
 		witness_use = _witness_use;
+		forEach(BFS_reach, [](std::size_t & val) { val = 0; });
 		synthesis_range = _range;
 		BFS_level = 1;
-		max_level = max_BFS;
 	}
 
 	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
@@ -229,7 +237,9 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) { }
+	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) {
+		BFS_reach.resize(getParamsetSize());
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STARTERS
@@ -242,9 +252,8 @@ public:
 	 * @param _range	range of parameters for this coloring round
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	const std::size_t startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit, const std::size_t max_BFS = ~0) {
-		prepareCheck(_range, _witness_use, max_BFS);
-		updates.clear();
+	const std::size_t startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit) {
+		prepareCheck(parameters, _range, _witness_use);
 		transferUpdates(ID, parameters);
 		doColoring();
 		return BFS_level;
@@ -257,9 +266,8 @@ public:
 	 * @param _range	range of parameters for this coloring round
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	const std::size_t startColoring(const std::set<StateID> & _updates, const Range & _range, const WitnessUse _witness_use = none_wit, const std::size_t max_BFS = ~0){
-		prepareCheck(_range, _witness_use, max_BFS);
-		updates = _updates;
+	const std::size_t startColoring(const Parameters parameters, const std::set<StateID> & _updates, const Range & _range, const WitnessUse _witness_use = none_wit){
+		prepareCheck(parameters, _range, _witness_use, _updates);
 		doColoring();
 		return BFS_level;
 	}

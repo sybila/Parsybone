@@ -135,7 +135,7 @@ class ConstrainsParser {
 			}
 		}
 
-		std::vector<std::size_t>  subcolor(bottom_color);
+		std::vector<std::size_t> subcolor(bottom_color);
 		valid.colors_num = colors_num;
 
 		// Cycle through all possible subcolors for this specie

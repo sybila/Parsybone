@@ -73,7 +73,7 @@ class SynthesisManager {
 	 */
 	void doComputation() {
 		// Basic (initial) coloring
-		colorProduct(*split_manager, user_options.witnesses());
+		shortest_path_lenght = colorProduct(user_options.witnesses());
 
 		// Store colored final vertices
 		std::vector<Coloring> final_states = std::move(storage.getColor(product.getFinalStates()));
@@ -93,7 +93,7 @@ class SynthesisManager {
 	 *
 	 * @param witness_use - how to handle witnesses
 	 */
-	const std::size_t colorProduct(const SplitManager & split_man, const WitnessUse wits_use) {
+	const std::size_t colorProduct(const WitnessUse wits_use) {
 		// Assure emptyness
 		storage.reset();
 
@@ -102,7 +102,7 @@ class SynthesisManager {
 		if(coloring_parser.input())
 			starting = coloring_parser.getColors()[split_manager->getRoundNum()];
 		else
-			starting = split_man.createStartingParameters();
+			starting = split_manager->createStartingParameters();
 
 		// Set all the initial states to initial color
 		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
@@ -112,7 +112,7 @@ class SynthesisManager {
 		std::set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
 		// Start coloring procedure
-		return model_checker->startColoring(updates, split_man.getRoundRange(), wits_use, shortest_path_lenght);
+		return model_checker->startColoring(starting, updates, split_manager->getRoundRange(), wits_use);
 	}
 
 	/**

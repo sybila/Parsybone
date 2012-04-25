@@ -70,6 +70,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\auxiliary\common_functions.hpp" />
     <ClInclude Include="..\auxiliary\data_types.hpp" />
     <ClInclude Include="..\auxiliary\output_streamer.hpp" />
     <ClInclude Include="..\auxiliary\template.hpp" />
