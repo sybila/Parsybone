@@ -73,8 +73,8 @@ class ConstrainsParser {
 			regul_comp++;
 		}
 
-		// Test observability
-		is_observable = subcolor[regul_num] != subcolor[regul_comp];
+		// Test observabilit
+		is_observable = is_observable | (subcolor[regul_num] != subcolor[regul_comp]);
 
 		// Test if the requirements are satisfied, if not, return false
 		if (((interactions[inter_num].constrain == pos_cons) && (subcolor[regul_num] < subcolor[regul_comp]))
