@@ -186,6 +186,7 @@ class ModelChecker {
 					StateID target = product.getProductID(KS_state, BA_state) ;
 					updates.push_back(Coloring(target, self_loop));
 				}
+				// Null the value
 				BA_presence[BA_state] = false;
 			}
 		}
@@ -217,9 +218,12 @@ class ModelChecker {
 			}
 
 			// If something new is added to the target, schedule it for an update
-			if ((witness_use == none_wit && storage.update(update_it->second, update_it->first)) || storage.update(ID, update_it->second, update_it->first)) {
-				next_updates.insert(update_it->first);
-			}		
+			if ((witness_use == none_wit && storage.update(update_it->second, update_it->first)))
+				updates.insert(update_it->first);
+			else if (witness_use == all_wit && storage.update(ID, update_it->second, update_it->first))
+				updates.insert(update_it->first);
+			else if (witness_use == short_wit && storage.update(ID, update_it->second, update_it->first))
+				next_updates.insert(update_it->first);		
 		}
 	}
 
@@ -240,7 +244,7 @@ class ModelChecker {
 			updates.erase(ID);
 
 			// If witness has not been found and 
-			if ((updates.empty()) && (to_find || (witness_use != short_wit))) {
+			if (updates.empty() && witness_use == short_wit && to_find) {
 				updates = std::move(next_updates);
 				BFS_level++;
 			}
@@ -258,12 +262,15 @@ class ModelChecker {
 	 */
 	void prepareCheck(const Parameters parameters, const Range & _range, const WitnessUse _witness_use, std::set<StateID> start_updates = std::set<StateID>()) {
 		to_find = parameters; // Store which parameters are we searching for
-		next_updates.clear(); // Ensure emptiness of the next round
 		updates = start_updates; // Copy starting updates
 		witness_use = _witness_use; // Store witness use info
-		BFS_reach.resize(getParamsetSize(), ~0); // Recreate reach values
 		synthesis_range = _range; // Copy range of this round
-		BFS_level = 1; // Set sterting number of BFS
+
+		if (witness_use == short_wit) {
+			BFS_level = 1; // Set sterting number of BFS
+			next_updates.clear(); // Ensure emptiness of the next round
+			BFS_reach.resize(getParamsetSize(), ~0); // Recreate reach values
+		}
 	}
 
 	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
