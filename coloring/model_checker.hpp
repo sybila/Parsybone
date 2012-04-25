@@ -92,18 +92,21 @@ class ModelChecker {
 	/**
 	 * From all the updates pick the one from the state with most bits
 	 *
-	 * @return index of the state to start an update from
+	 * @return	index of the state to start an update from
 	 */
 	const StateID getStrongestUpdate() const {
 		// Reference value
 		StateID ID = 0;
-		Parameters current_par = 0;
+		Parameters current_color = 0;
 		// Cycle throught the updates
 		for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
-			// Compapre with current data - if better, replace
-			if (storage.getColor(*update_it) == (current_par | storage.getColor(*update_it))) {
-				ID = *update_it;
-				current_par = storage.getColor(ID);
+			Parameters test_color = storage.getColor(*update_it);
+			// Compare with current data - if better, replace
+			if (test_color != current_color) {
+				if (test_color == (current_color | test_color)) {
+					ID = *update_it;
+					current_color = test_color;
+				}
 			}
 		}
 		return ID;
@@ -114,19 +117,20 @@ class ModelChecker {
 	 *
 	 * @param colors	current coloring
 	 */
-	void markLevels(Parameters colors) {
+	void markLevels(const Parameters colors) {
+		// If all is found, end
 		if (!to_find)
 			return;
+
+		// Which are new
+		Parameters store = to_find & colors;
 		// Remove currently found
 		to_find &= ~colors;
 
-		std::size_t color_pos = getParamsetSize() - 1;
-		while (color_pos < (synthesis_range.second - synthesis_range.first)) {
-			if (colors % 2)
-				BFS_reach[color_pos] = my_min(BFS_reach[color_pos], BFS_level);
-			
-			colors >>= 1;
-			color_pos--;
+		// Store those that were found in this round
+		for (std::size_t color_pos = getParamsetSize() - 1; color_pos < (synthesis_range.second - synthesis_range.first); store >>= 1, color_pos--) {
+			if (store % 2)
+				BFS_reach[color_pos] = BFS_level;		
 		}
 	}
 
