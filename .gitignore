@@ -1,4 +1,6 @@
 GCCProject/*
+Computed/*
+!Manual/Manual.tex
 MVSProject/Release/*
 MVSProject/Debug/*
 MVSProject/ipch/*
@@ -6,5 +8,5 @@ MVSProject/Parsybone.sdf
 MVSProject/Parsybone.suo
 MVSProject/Parsybone.opensdf
 MVSProject/Parsybone.exe
-Computed/*
-GCCProject/*
+
+

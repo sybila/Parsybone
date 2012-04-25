@@ -20,8 +20,8 @@ Arguments:
 	-s show satistics
 	-t test against time serie (or another property that can be checked by Final Buchi automaton)
 	-v use verbose output
-	-w show only shortest witnesses
-	-W show all witnesses
+	-w show only shortest witnesses, automatically enforces time serie
+	-W show all witnesses, automatically enforces time serie
 	-o show only one witness for each color
 	-m #filename	Name of the file that holds bitmask for used colors
 	-M #filename	Name of the file to ouput bitmask from this computation
