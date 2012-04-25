@@ -173,7 +173,7 @@ public:
 	/**
 	 * @return All the parameters of the current round.
 	 */
-	inline Parameters createStartingParameters() {
+	inline Parameters createStartingParameters() const {
 		if (!lastRound())
 			return getAll();
 		else

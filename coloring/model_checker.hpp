@@ -31,7 +31,7 @@ class ModelChecker {
 	std::set<StateID> updates; // Set of states that need to spread their updates
 	std::set<StateID> next_updates; // Set of states that will be scheduled for update during next BFS level
 	std::size_t BFS_level; // Number of current BFS level during coloring
-	bool witness_found; // True when final state is reached
+	std::size_t max_level; // Maximal allowed BFS level
 	Range synthesis_range; // First and one beyond last color to be computed in this round
 	WitnessUse witness_use; // How wintesses will be held in this computation
 
@@ -193,13 +193,13 @@ class ModelChecker {
 			StateID ID = getStrongestUpdate();
 			// Check if this is not the last round
 			if (user_options.witnesses() == short_wit && product.isFinal(ID))
-				witness_found = true;
+				max_level = BFS_level;
 			// Pass data from updated vertex to its succesors
 			transferUpdates(ID, storage.getColor(ID));
 			// Erase completed update from the set
 			updates.erase(ID);
 			// If witness has not been found and 
-			if (updates.empty() && (!witness_found)) {
+			if (updates.empty() && (max_level != BFS_level)) {
 				updates = std::move(next_updates);
 				BFS_level++;
 			}
@@ -215,11 +215,11 @@ class ModelChecker {
 	 * @param _range	range of parameters for this coloring round
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	void prepareCheck(const Range & _range, const WitnessUse _witness_use) {
+	void prepareCheck(const Range & _range, const WitnessUse _witness_use, const std::size_t max_BFS) {
 		witness_use = _witness_use;
 		synthesis_range = _range;
 		BFS_level = 1;
-		witness_found = false;	
+		max_level = max_BFS;
 	}
 
 	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
@@ -242,8 +242,8 @@ public:
 	 * @param _range	range of parameters for this coloring round
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	const std::size_t startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit) {
-		prepareCheck(_range, _witness_use);
+	const std::size_t startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit, const std::size_t max_BFS = ~0) {
+		prepareCheck(_range, _witness_use, max_BFS);
 		updates.clear();
 		transferUpdates(ID, parameters);
 		doColoring();
@@ -257,8 +257,8 @@ public:
 	 * @param _range	range of parameters for this coloring round
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	const std::size_t startColoring(const std::set<StateID> & _updates, const Range & _range, const WitnessUse _witness_use = none_wit) {
-		prepareCheck(_range, _witness_use);
+	const std::size_t startColoring(const std::set<StateID> & _updates, const Range & _range, const WitnessUse _witness_use = none_wit, const std::size_t max_BFS = ~0){
+		prepareCheck(_range, _witness_use, max_BFS);
 		updates = _updates;
 		doColoring();
 		return BFS_level;

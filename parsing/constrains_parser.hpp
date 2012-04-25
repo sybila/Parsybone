@@ -66,6 +66,7 @@ class ConstrainsParser {
 				// Skip if the regulation does not contain requested interaction
 				if (!regulations[regul_num].first[inter_num])
 					continue;
+
 				else {
 					// Copy mask of the regulation
 					std::vector<bool> other(regulations[regul_num].first);
@@ -96,6 +97,7 @@ class ConstrainsParser {
 				}
 			}
 
+			// Check observability
 			if (!is_observable && interactions[inter_num].observable)
 				return false;
 		}
@@ -109,17 +111,32 @@ class ConstrainsParser {
 	 */
 	void createContexts(const SpecieID ID) {
 		// Data to fill
+		auto regulations = model.getRegulations(ID);
 		SpecieColors valid;
 		valid.ID = ID;
 
 		// How many to test
-		double size = static_cast<double>(model.getRegulations(ID).size());
-		double max_val = static_cast<double>(model.getMax(ID) + 1);
-		std::size_t colors_num = pow(max_val, size);
-		valid.colors_num = colors_num;
+		double max_val = static_cast<double>( + 1);
+		std::size_t colors_num = 1;
 
 		// Create subcolor with zero values
-		std::vector<std::size_t> subcolor(model.getRegulations(ID).size(), 0);
+		std::vector<std::size_t> bottom_color(regulations.size());
+		std::vector<std::size_t> top_color(regulations.size());
+
+		for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
+			if (regulations[regul_num].second < 0) {
+				bottom_color[regul_num] = model.getMin(ID);
+				top_color[regul_num] = model.getMax(ID);
+				colors_num *= (model.getMax(ID) + 1);
+			}
+			else  {
+				bottom_color[regul_num] = top_color[regul_num] = regulations[regul_num].second;
+				colors_num *= 1;
+			}
+		}
+
+		std::vector<std::size_t>  subcolor(bottom_color);
+		valid.colors_num = colors_num;
 
 		// Cycle through all possible subcolors for this specie
 		for (std::size_t subcolor_num = 0; subcolor_num < colors_num; subcolor_num++) {
@@ -128,15 +145,15 @@ class ConstrainsParser {
 				valid.push_back(subcolor);
 
 			// Iterate subcolor
-			for (std::size_t context_num = 0; context_num < subcolor.size(); context_num++) {
+			for (std::size_t regul_num = 0; regul_num < subcolor.size(); regul_num++) {
 				// Increase and end
-				if (subcolor[context_num] < model.getMax(ID)) {
-					subcolor[context_num]++;
+				if (subcolor[regul_num] < top_color[regul_num]) {
+					subcolor[regul_num]++;
 					break;
 				}
-				// Null 
+				// Null and continue
 				else { 
-					subcolor[context_num] = model.getMin(ID);
+					subcolor[regul_num] = bottom_color[regul_num];
 				}
 			}
 		}

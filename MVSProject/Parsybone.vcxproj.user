@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments> -twsv &lt; ../Models/Test_labels.dbm -F test.out</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments> -csv &lt; ../Models/Test_LTL.dbm</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommandArguments>&lt; ../MODELS/IRMA_hard.dbm -cstv</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments> -ctwsv &lt; ../Models/Bacteriophage_lambda_valued.dbm</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

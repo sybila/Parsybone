@@ -73,7 +73,7 @@ class SynthesisManager {
 	 */
 	void doComputation() {
 		// Basic (initial) coloring
-		colorProduct();
+		colorProduct(*split_manager, user_options.witnesses());
 
 		// Store colored final vertices
 		std::vector<Coloring> final_states = std::move(storage.getColor(product.getFinalStates()));
@@ -93,19 +93,16 @@ class SynthesisManager {
 	 *
 	 * @param witness_use - how to handle witnesses
 	 */
-	void colorProduct() {
+	const std::size_t colorProduct(const SplitManager & split_man, const WitnessUse wits_use) {
 		// Assure emptyness
 		storage.reset();
-
-		// Get witness usage info
-		WitnessUse wits_use = user_options.witnesses();
 
 		// Get initial coloring
 		Parameters starting;
 		if(coloring_parser.input())
 			starting = coloring_parser.getColors()[split_manager->getRoundNum()];
 		else
-			starting = split_manager->createStartingParameters();
+			starting = split_man.createStartingParameters();
 
 		// Set all the initial states to initial color
 		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
@@ -115,7 +112,7 @@ class SynthesisManager {
 		std::set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
 		// Start coloring procedure
-		shortest_path_lenght = model_checker->startColoring(updates, split_manager->getRoundRange(), wits_use);
+		return model_checker->startColoring(updates, split_man.getRoundRange(), wits_use, shortest_path_lenght);
 	}
 
 	/**
@@ -151,6 +148,7 @@ public:
 		output.reset(new OutputManager(*analyzer, product, *split_manager, *searcher));
 
 		total_colors = 0;
+		shortest_path_lenght = ~0;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +159,7 @@ public:
 	 */
 	void doSynthesis() {
 		time_manager.startClock("coloring");
-		
+
 		// Do the computation for all the rounds
 		for (;split_manager->valid(); split_manager->increaseRound()) {
 			doPreparation();

@@ -37,7 +37,7 @@
 		<SPECIE name="cro" max="3" basal="0">
 			<INTERACTIONS>
 				<INTER source="0" threshold ="2" label="-" observ="1" />
-				<INTER source="2" threshold ="3" label="+" observ="1" />
+				<INTER source="2" threshold ="3" label="-" observ="1" />
 			</INTERACTIONS>
 			<REGULATIONS>
 				<REGUL mask="00" t_value="-1" />
