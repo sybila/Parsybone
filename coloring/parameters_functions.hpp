@@ -107,12 +107,15 @@ inline const std::size_t getBitNum(Parameters color) {
 	if (count(color) != 1)
 		throw std::runtime_error("getBitNum called on colorset with different number of on bits than one.");
 
-	for (std::size_t bit_num = 0; bit_num < getParamsetSize(); bit_num++, color >>= 1) {
-		if (color % 2 == 0)
-			continue;
-		
-		return ((getParamsetSize() - 1) - bit_num);
+	// Shift bits until you reach the one that is on
+	std::size_t bit_num = 0;
+	for (; bit_num < getParamsetSize(); bit_num++, color >>= 1) {
+		if (color % 2)
+			break;
 	}
+
+	// Return the bit position
+	return ((getParamsetSize() - 1) - bit_num);
 }
 
 #endif
