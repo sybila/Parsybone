@@ -79,9 +79,9 @@ public:
 	/**
 	 * Display colors synthetized during current round
 	 */
-	void outputRound(const std::size_t shortest_path_lenght) const {
+	void outputRound(const std::vector<std::size_t> & BFS_reach) const {
 		if (user_options.witnesses() != none_wit) 
-			searcher.display(shortest_path_lenght);
+			searcher.display(BFS_reach);
 		else if (user_options.coloring())
 			analyzer.display();
 		if (coloring_parser.output())

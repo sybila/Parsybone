@@ -96,4 +96,23 @@ inline Parameters swap(Parameters parameters, std::size_t shift) {
 	return parameters;
 }
 
+/**
+ * Get number of the on bit.
+ *
+ * @param color	bitmask that is required to have just one bit on
+ *
+ * @return position of the bit in the mask (from the left)
+ */
+inline const std::size_t getBitNum(Parameters color) {
+	if (count(color) != 1)
+		throw std::runtime_error("getBitNum called on colorset with different number of on bits than one.");
+
+	for (std::size_t bit_num = 0; bit_num < getParamsetSize(); bit_num++, color >>= 1) {
+		if (color % 2 == 0)
+			continue;
+		
+		return ((getParamsetSize() - 1) - bit_num);
+	}
+}
+
 #endif

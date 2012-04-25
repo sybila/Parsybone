@@ -38,9 +38,11 @@ class SynthesisManager {
 	std::unique_ptr<ColoringAnalyzer> analyzer; // Class for analysis
 	std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
 
+	// Round data 
+	std::vector<std::size_t> BFS_reach;
+
 	// Overall statistics
 	std::size_t total_colors;
-	std::size_t shortest_path_lenght; 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -61,7 +63,7 @@ class SynthesisManager {
 	void doConclusion() {
 		total_colors += count(analyzer->getUnion());
 		// Output what has been synthetized (colors, witnesses)
-		output->outputRound(shortest_path_lenght);
+		output->outputRound(BFS_reach);
 	}
 	
 	/**
@@ -73,7 +75,7 @@ class SynthesisManager {
 	 */
 	void doComputation() {
 		// Basic (initial) coloring
-		shortest_path_lenght = colorProduct(user_options.witnesses());
+		colorProduct(user_options.witnesses());
 
 		// Store colored final vertices
 		std::vector<Coloring> final_states = std::move(storage.getColor(product.getFinalStates()));
@@ -93,7 +95,7 @@ class SynthesisManager {
 	 *
 	 * @param witness_use - how to handle witnesses
 	 */
-	const std::size_t colorProduct(const WitnessUse wits_use) {
+	void colorProduct(const WitnessUse wits_use) {
 		// Assure emptyness
 		storage.reset();
 
@@ -112,7 +114,7 @@ class SynthesisManager {
 		std::set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
 		// Start coloring procedure
-		return model_checker->startColoring(starting, updates, split_manager->getRoundRange(), wits_use);
+		BFS_reach = std::move(model_checker->startColoring(starting, updates, split_manager->getRoundRange(), wits_use));
 	}
 
 	/**
@@ -148,7 +150,7 @@ public:
 		output.reset(new OutputManager(*analyzer, product, *split_manager, *searcher));
 
 		total_colors = 0;
-		shortest_path_lenght = ~0;
+		BFS_reach.resize(getParamsetSize());
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

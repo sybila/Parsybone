@@ -38,7 +38,6 @@ class ModelChecker {
 	Parameters to_find;
 	std::vector<std::size_t> BFS_reach; // In which round this color was found
 	std::size_t BFS_level; // Number of current BFS level during coloring
-	std::size_t max_level; // Maximal allowed BFS level
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
@@ -108,6 +107,27 @@ class ModelChecker {
 			}
 		}
 		return ID;
+	}
+
+	/**
+	 * For each found color add this BFS level as a first when the state was updated, if it was not already found.
+	 *
+	 * @param colors	current coloring
+	 */
+	void markLevels(Parameters colors) {
+		if (!to_find)
+			return;
+		// Remove currently found
+		to_find &= ~colors;
+
+		std::size_t color_pos = getParamsetSize() - 1;
+		while (color_pos < (synthesis_range.second - synthesis_range.first)) {
+			if (colors % 2)
+				BFS_reach[color_pos] = my_min(BFS_reach[color_pos], BFS_level);
+			
+			colors >>= 1;
+			color_pos--;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,14 +217,14 @@ class ModelChecker {
 			// Within updates, find the one with most bits
 			StateID ID = getStrongestUpdate();
 			// Check if this is not the last round
-			if (user_options.witnesses() == short_wit && product.isFinal(ID))
-				max_level = BFS_level;
+			if (user_options.witnesses() == short_wit && product.isFinal(ID)) 
+				markLevels(storage.getColor(ID));
 			// Pass data from updated vertex to its succesors
 			transferUpdates(ID, storage.getColor(ID));
 			// Erase completed update from the set
 			updates.erase(ID);
 			// If witness has not been found and 
-			if ((updates.empty()) && ((max_level != BFS_level) || (witness_use != short_wit))) {
+			if ((updates.empty()) && (to_find || (witness_use != short_wit))) {
 				updates = std::move(next_updates);
 				BFS_level++;
 			}
@@ -225,7 +245,7 @@ class ModelChecker {
 		next_updates.clear();
 		updates = start_updates;
 		witness_use = _witness_use;
-		forEach(BFS_reach, [](std::size_t & val) { val = 0; });
+		BFS_reach.resize(getParamsetSize(), ~0);
 		synthesis_range = _range;
 		BFS_level = 1;
 	}
@@ -237,9 +257,7 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) {
-		BFS_reach.resize(getParamsetSize());
-	}
+	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) {	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STARTERS
@@ -252,11 +270,11 @@ public:
 	 * @param _range	range of parameters for this coloring round
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	const std::size_t startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit) {
+	const std::vector<std::size_t> startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit) {
 		prepareCheck(parameters, _range, _witness_use);
 		transferUpdates(ID, parameters);
 		doColoring();
-		return BFS_level;
+		return std::move(BFS_reach);
 	}
 
 	/**
@@ -266,10 +284,10 @@ public:
 	 * @param _range	range of parameters for this coloring round
 	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	const std::size_t startColoring(const Parameters parameters, const std::set<StateID> & _updates, const Range & _range, const WitnessUse _witness_use = none_wit){
+	const std::vector<std::size_t> startColoring(const Parameters parameters, const std::set<StateID> & _updates, const Range & _range, const WitnessUse _witness_use = none_wit){
 		prepareCheck(parameters, _range, _witness_use, _updates);
 		doColoring();
-		return BFS_level;
+		return std::move(BFS_reach);
 	}
 };
 

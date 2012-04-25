@@ -13,6 +13,7 @@
 // Class for display of witnesses for all colors in current round.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "../coloring/parameters_functions.hpp"
 #include "../reforging/product_structure.hpp"
 #include "../reforging/color_storage.hpp"
 
@@ -110,9 +111,7 @@ public:
 	/**
 	 * Output all witnesses for all colors, might be together with the colors as well.
 	 */
-	void display(const std::size_t _shortest_path_lenght) {
-		max_path_lenght = (user_options.witnesses() == short_wit) ? _shortest_path_lenght : ~0;
-
+	void display(const std::vector<std::size_t> & BFS_reach) {
 		// Get synthetized colors
 		auto colors = analyzer.getColors();
 
@@ -121,6 +120,10 @@ public:
 			// Display color if requested
 			if (user_options.coloring())
 				output_streamer.output(results_str, color_it->second);
+
+			// Get path lenght
+			std::size_t bit_num = getBitNum(color_it->first);
+			max_path_lenght = (user_options.witnesses() == short_wit) ? BFS_reach[bit_num] : ~0;
 
 			// Display witnesses for given color from each final state
 			for (auto final_it = product.getFinalStates().begin(); final_it != product.getFinalStates().end(); final_it++) {
