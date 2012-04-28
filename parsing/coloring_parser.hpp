@@ -16,6 +16,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
+#include "../coloring/parameters_functions.hpp"
 
 class ColoringParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,8 +134,8 @@ public:
 	/**
 	 * @return number of Parameters e.g. number of rounds of computation
 	 */
-	inline const std::size_t getParamNum() {
-		return colors_sets.size();
+	inline const std::size_t getColorsCount() {
+		return colors_sets.size() * getParamsetSize();
 	}
 
 } coloring_parser; // Single program-shared output file

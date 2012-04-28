@@ -22,15 +22,13 @@ class SplitManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::size_t all_parameters_count; // All the parameters
-	std::size_t parameters_begin; // Position to start a synthesis for this process (absolute position w.r.t. all the parameters)
-	std::size_t parameters_end; // Position one behind the last parameter for this process (absolute position w.r.t. all the parameters)
-	std::size_t bits_per_round; // Nuber of bits per round
+	ColorNum all_colors_count; // All the parameters
+	ColorNum process_color_count; // All the parameters
 	std::size_t last_round_bits; // Number of bits for the absolutelly last round of this process
-	std::size_t rounds_count; // Number of rounds totally
-	std::size_t round_number; // Number of this round (starting from 0)
-	std::size_t round_begin; // Position to start a synthesis for this round (absolute position w.r.t. all the parameters)
-	std::size_t round_end; // Position one behind the last parameter for this round (absolute position w.r.t. all the parameters)
+	long long rounds_count; // Number of rounds totally
+	long long round_number; // Number of this round (starting from 0)
+	ColorNum round_begin; // Position to start a synthesis for this round (absolute position w.r.t. all the parameters)
+	ColorNum round_end; // Position one behind the last parameter for this round (absolute position w.r.t. all the parameters)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS
@@ -40,35 +38,32 @@ class SplitManager {
 	 * This function computes index of the first parameter, size of a single round, number of rounds and other auxiliary data members used for splitting.
 	 */
 	void computeSubspace() {
-		// Split parameter space rounded down, this number may not be precise
-		std::size_t parameters_per_process = all_parameters_count / user_options.procCount();
-		// Compute start and end positions
-		parameters_begin = parameters_per_process * (user_options.procNum() - 1);
-		if (user_options.procNum() == user_options.procCount()) {
-			parameters_end = all_parameters_count;
+		// Number of full rounds for all processes
+		rounds_count = all_colors_count / (user_options.procCount() * getParamsetSize());
+		ColorNum rest_bits = all_colors_count % (user_options.procCount() * getParamsetSize());
+		last_round_bits = getParamsetSize();
+
+		// If there is some leftover, add a round
+		if (std::ceil(static_cast<double>(rest_bits) / static_cast<double>(getParamsetSize())) >= user_options.procNum()) {
+			rounds_count++;
+			// Pad last round
+			if ((rest_bits / getParamsetSize()) == (user_options.procNum() - 1))
+				last_round_bits = rest_bits % getParamsetSize();
 		}
-		else {
-			parameters_end = parameters_per_process * user_options.procNum();
-		}
-		std::size_t parameters_count = parameters_end - parameters_begin;
+		
+		// Get colors num for this process
+		process_color_count = (rounds_count - 1) * getParamsetSize() + last_round_bits;
+
 		// Set positions for the round
 		setStartPositions();
 		// Compute number of full rounds
-		rounds_count = parameters_per_process / bits_per_round;
+
 		// Check if it fits together with number from mask
 		if (coloring_parser.input())
-			if (coloring_parser.getParamNum() != rounds_count + (parameters_count % bits_per_round != 0) )
-				throw std::runtime_error(std::string("Rounds computed from bitmask: ").append(boost::lexical_cast<std::string>(coloring_parser.getParamNum()))
+			if (coloring_parser.getColorsCount() != process_color_count)
+				throw std::runtime_error(std::string("Rounds computed from bitmask: ").append(boost::lexical_cast<std::string>(coloring_parser.getColorsCount()))
 				                         .append(" does not equal round count computed from model: ")
-										 .append(boost::lexical_cast<std::string>(rounds_count + (parameters_count % bits_per_round != 0))).c_str());
-		// Compute size of the last round, if its not full-sized, add another round
-		if (parameters_count % bits_per_round == 0) {
-			last_round_bits = bits_per_round;
-		}
-		else {
-			last_round_bits = parameters_count % bits_per_round;
-			rounds_count++;
-		}
+										 .append(boost::lexical_cast<std::string>(process_color_count).c_str()));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,10 +77,8 @@ public:
 	 * @param _process_number	index of this process
 	 * @param _parameters_count	complete number of parameters that have to be tested by all the processes
 	 */
-	SplitManager(const std::size_t _parameters_count) {
-		all_parameters_count = _parameters_count;
-		// Set the main size of the loop
-		bits_per_round = sizeof(Parameters) * 8;
+	SplitManager(ColorNum _all_colors_count) {
+		all_colors_count = _all_colors_count;
 		// Compute the rest
 		computeSubspace();
 	}
@@ -94,8 +87,13 @@ public:
 	 * Set values for the first round of computation.
 	 */
 	void setStartPositions() {
-		round_begin = parameters_begin;
-		round_end = std::min<std::size_t>(round_begin + bits_per_round, parameters_end);
+		round_begin = (user_options.procNum() - 1) * getParamsetSize();
+		if (rounds_count > 0) {
+			if (rounds_count > 1)
+				round_end = round_begin + getParamsetSize();
+			else
+				round_end = round_begin + last_round_bits;
+		}
 		round_number = 0;
 	}
 
@@ -104,12 +102,12 @@ public:
 	 */
 	void increaseRound() {
 		round_number++;
-		round_begin = round_end;
+		round_begin += (getParamsetSize() * user_options.procCount());
 		// For the last round we have to use a shorter range, if necessary, otherwise we use whole
 		if (lastRound())
-			round_end += last_round_bits;
+			round_end = round_begin + last_round_bits;
 		else
-			round_end += bits_per_round;
+			round_end = round_begin + getParamsetSize();
 	}
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,8 +116,8 @@ public:
 	/**
 	 * @return	total number of parameters for all the processes
 	 */ 
-	inline const std::size_t getAllParametersCount() const {
-		return all_parameters_count;
+	inline const ColorNum getAllColorsCount() const {
+		return all_colors_count;
 	}
 
 	/**
@@ -132,15 +130,15 @@ public:
 	/**
 	 * @return	number of bits in current round
 	 */
-	inline const std::size_t getRoundSize() const {
+	inline const ColorNum getRoundSize() const {
 		return round_end - round_begin;
 	}
 
 	/**
 	 * @return	range with first and one before last parameter to compute for this process
 	 */ 
-	inline const Range getProcessRange() const {
-		return Range(parameters_begin, parameters_end);
+	inline const ColorNum getProcColorsCount() const {
+		return process_color_count;
 	}
 
 	/**
@@ -160,14 +158,14 @@ public:
 	/**
 	 * @return	number of this round
 	 */ 
-	inline const std::size_t getRoundNum() const {
+	inline const long long getRoundNum() const {
 		return round_number;
 	}
 
 	/**
 	 * @return	total number of rounds
 	 */ 
-	inline const std::size_t getRoundCount() const {
+	inline const long long getRoundCount() const {
 		return rounds_count;
 	}
 
@@ -178,7 +176,7 @@ public:
 		if (!lastRound())
 			return getAll();
 		else
-			return getAll() >> (bits_per_round - last_round_bits);	
+			return getAll() >> (getParamsetSize() - last_round_bits);	
 	}
 };
 

@@ -55,7 +55,7 @@ class ModelChecker {
 	void passParameters(Parameters & passed, const std::size_t step_size, const std::vector<bool> & transitive_values) const {
 		// INITIALIZATION OF VALUES FOR POSITIONING
 		// Number of the first parameter
-		std::size_t param_num = synthesis_range.first;
+		ColorNum param_num = synthesis_range.first;
 		// First value might not bet 0 - get it from current parameter position
 		std::size_t value_num = (param_num / step_size) % transitive_values.size();
 		// As well current value step might not be the first one, it is also necessary to get it from current parameter position
@@ -69,7 +69,7 @@ class ModelChecker {
 			// List through ALL the target values
 			for (; value_num < transitive_values.size(); value_num++) {
 				// Get size of the step for current value 
-				std::size_t bits_in_step = std::min<std::size_t>(step_size, synthesis_range.second - param_num);
+				std::size_t bits_in_step = std::min<std::size_t>(step_size, static_cast<std::size_t>(synthesis_range.second - param_num));
 				// Move the mask so new value data can be add
 				temporary <<= bits_in_step;
 				// If transitive, add ones for the width of the step

@@ -50,7 +50,7 @@ public:
 	 */
 	void outputSummary(const std::size_t total_count) {
 		output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(total_count, OutputStreamer::no_newl)
-			.output("/", OutputStreamer::no_newl).output(split_manager.getProcessRange().second - split_manager.getProcessRange().first);
+			.output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount());
 	}
 
 	/**
