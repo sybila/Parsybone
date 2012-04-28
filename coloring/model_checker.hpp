@@ -131,7 +131,7 @@ class ModelChecker {
 		to_find &= ~colors;
 
 		// Store those that were found in this round
-		for (std::size_t color_pos = getParamsetSize() - 1; color_pos < (synthesis_range.second - synthesis_range.first); store >>= 1, color_pos--) {
+		for (int color_pos = static_cast<int>(getParamsetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
 			if (store % 2)
 				BFS_reach[color_pos] = BFS_level;		
 		}
