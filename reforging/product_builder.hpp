@@ -116,6 +116,7 @@ class ProductBuilder {
 				// Store the transition
 				product.addTransition(ID, target, step_size, transitive_values);
 				storage.addPredecessor(target, ID);
+				storage.addSuccessor(ID, target);
 			}
 		}
 	}

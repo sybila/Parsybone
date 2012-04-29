@@ -26,7 +26,8 @@ class WitnessSearcher {
 	const ProductStructure & product;
 
 	// Witness counting related auxiliary variables:
-	std::vector<std::size_t> path; // IDs of states alongside the path
+	std::vector<StateID> path; // IDs of states alongside the path
+	std::vector<double> probability; // Probability of stepping into each consecutive state
 	std::size_t lenght; // Lenght of the path
 	Parameters color_num; // Mask for color used for this ouput
 	std::size_t max_path_lenght; // Reference value for output of shortest paths only

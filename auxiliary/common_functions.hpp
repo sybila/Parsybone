@@ -15,7 +15,7 @@
 
 #include "../auxiliary/data_types.hpp"
 
-// Platform dependent functions
+// Platform dependent min or max
 #ifdef __GNUC__
 #define my_max std::max
 #define my_min std::min

@@ -22,10 +22,17 @@ class ColorStorage {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	struct ColorData {
+		std::size_t color_num; // Relative number of the color in this round
+		std::vector<StateID> predecessors; // Predecessors only for this color
+		std::vector<StateID> succesors; // Succesors only for this color
+	};
+	
 	struct State {
 		StateID ID;
 		Parameters parameters; // 32 bits for each color in this round marking its presence or absence
 		std::map<StateID, Parameters> predecessors; // Stores a predeccesor in the form (product_ID, parameters)
+		std::map<StateID, Parameters> successors; // Stores succesors in the same form
 
 		State(const StateID _ID) : ID(_ID), parameters(0) { }
 	};
@@ -48,8 +55,24 @@ class ColorStorage {
 	}
 
 
+	/**
+	 * Add a new predecessor to the state
+	 *
+	 * @param ID	target of the transition that will be upgraded
+	 * @param source	source of the transition
+	 */
 	void addPredecessor(const StateID ID, const StateID source) {
 		states[ID].predecessors.insert(std::make_pair(source, 0));
+	}
+
+	/**
+	 * Add a new successor to the state
+	 *
+	 * @param ID	source of the transition that will be upgraded
+	 * @param target	target of the transition
+	 */
+	void addSuccessor(const StateID ID, const StateID target) {
+		states[ID].successors.insert(std::make_pair(target, 0));
 	}
 
 	ColorStorage(const ColorStorage & other);            // Forbidden copy constructor.
@@ -91,6 +114,8 @@ public:
 // PARAMTERS HANDLING
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
+	 * Add passed colors to the state
+	 *
 	 * @param ID	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
 	 * 
@@ -106,17 +131,20 @@ public:
 	}
 
 	/**
+	 * Add passed colors to the state
+	 *
 	 * @param source_ID	index of the state that passed this update
-	 * @param ID	index of the state to fill
+	 * @param target_ID	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
 	 * 
 	 * @return true if there was an actuall update
 	 */
-	inline bool update(const StateID source_ID, const Parameters parameters, const StateID ID) {
-		// Mark parameters source
-		states[ID].predecessors.find(source_ID)->second |= parameters;
+	inline bool update(const StateID source_ID, const Parameters parameters, const StateID target_ID) {
+		// Mark parameters source and target
+		states[target_ID].predecessors.find(source_ID)->second |= parameters;
+		states[source_ID].successors.find(target_ID)->second |= parameters;
 		// Make an actuall update
-		return update(parameters, ID);
+		return update(parameters, target_ID);
 	}
 
 
