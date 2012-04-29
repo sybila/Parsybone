@@ -72,7 +72,7 @@ typedef unsigned int Parameters;
 typedef long long ColorNum;
 
 // IDs of predecessors of a state
-typedef std::vector<StateID> Predecessors;
+typedef std::vector<StateID> Neighbours;
 
 // State number and its coloring
 typedef std::pair<StateID, Parameters> Coloring;

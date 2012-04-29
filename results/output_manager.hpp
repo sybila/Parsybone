@@ -80,7 +80,7 @@ public:
 	 * Display colors synthetized during current round
 	 */
 	void outputRound(const std::vector<std::size_t> & BFS_reach) const {
-		if (user_options.witnesses() != none_wit) 
+		if (user_options.witnesses() != none_wit ) 
 			searcher.display(BFS_reach);
 		else if (user_options.coloring())
 			analyzer.display();

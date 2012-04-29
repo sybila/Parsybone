@@ -28,6 +28,8 @@ class UserOptions {
 	bool negation_check;
 	bool time_serie;
 	bool add_BA_to_witness;
+	bool compute_robustness;
+	bool display_wintess;
 	WitnessUse witness_use;
 	std::size_t process_number;
 	std::size_t processes_count;
@@ -43,7 +45,7 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-		show_coloring = be_verbose = display_stats = negation_check = time_serie = add_BA_to_witness = false;
+		display_wintess = show_coloring = be_verbose = display_stats = negation_check = time_serie = add_BA_to_witness = compute_robustness = false;
 		process_number = processes_count = 1;
 		witness_use = none_wit;
 	}
@@ -112,6 +114,20 @@ public:
 	 */
 	inline const std::size_t procCount() const {
 		return processes_count;
+	}
+	
+	/**
+	 * @return	true if compute_robustness (robustness output is requested)
+	 */
+	inline const bool robustness() const {
+		return compute_robustness;
+	}
+
+	/**
+	 * @return	true if display_wintess (witness output is requested)
+	 */
+	inline const bool displayWintess() const {
+		return display_wintess;
 	}
 	
 } user_options;

@@ -74,6 +74,12 @@ public:
 						user_options.negation_check = true;
 						break;
 
+					case 'r':
+						if (user_options.witness_use == none_wit)
+							user_options.witness_use = short_wit;	
+						user_options.compute_robustness = true;
+						break;
+
 					case 's':
 						user_options.display_stats = true;
 						break;
@@ -88,11 +94,13 @@ public:
 
 					case 'w':
 						user_options.witness_use = short_wit;
+						user_options.display_wintess = true;
 						user_options.time_serie = true;
 						break;
 
 					case 'W':
 						user_options.witness_use = all_wit;
+						user_options.display_wintess = true;
 						user_options.time_serie = true;
 						break;
 

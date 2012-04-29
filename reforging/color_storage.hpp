@@ -14,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/data_types.hpp"
+#include "../auxiliary/common_functions.hpp"
 
 class ProductBuilder;
 
@@ -182,36 +183,25 @@ public:
 	 * Get all the predecessors for this color from this state.
 	 *
 	 * @param ID	index of the state to ask for predecessors
-	 * @param color_mask	bitmask for a given color
+	 * @param successors	true if successors are required, false if predecessors
+	 * @param color_mask	bitmask for a given color, if it is not specified, all colors are required
 	 *
 	 * @return predecessors for given state and color
 	 */
-	inline const Predecessors getPredecessors(const StateID ID, const Parameters color_mask) const {
+	inline const Neighbours getNeighbours(const StateID ID, const bool successors, const Parameters color_mask = ~0) const {
+		// reference
+		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 		// Data to fill
-		Predecessors color_preds;
-		for (auto pred_it = states[ID].predecessors.begin(); pred_it != states[ID].predecessors.end(); pred_it++) {
-			// Test if the color is present
-			if ((pred_it->second & color_mask) != 0)
-				color_preds.push_back(pred_it->first);
-		}
-		return color_preds;
-	}
+		Neighbours color_neigh;
 
-	/** 
-	 * Get all the predecessors from this state.
-	 *
-	 * @param ID	index of the state to ask for predecessors
-	 *
-	 * @return predecessors for given state and color
-	 */
-	inline const Predecessors getPredecessors(const StateID ID) const {
-		// Data to fill
-		Predecessors color_preds;
-		// Add all 
-		for (auto pred_it = states[ID].predecessors.begin(); pred_it != states[ID].predecessors.end(); pred_it++) {
-				color_preds.push_back(pred_it->first);
-		}
-		return color_preds;
+		// Add these from the color
+		forEach(neigbours, [&color_neigh, color_mask](const std::pair<StateID, Parameters> & neighbour) {
+			// Test if the color is present
+			if ((neighbour.second & color_mask) != 0)
+				color_neigh.push_back(neighbour.first);
+		});
+
+		return color_neigh;
 	}
 };
 
