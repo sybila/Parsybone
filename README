@@ -17,6 +17,7 @@ Arguments:
 	Parsybone [-cstvw] [-D process_ID number_of_processes] [-F results_file]
 	-b add BA state to witness
 	-c show permitted colors
+	-r display robustness of a color
 	-s show satistics
 	-t test against time serie (or another property that can be checked by Final Buchi automaton)
 	-v use verbose output

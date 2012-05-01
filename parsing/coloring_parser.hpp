@@ -138,6 +138,8 @@ public:
 		return colors_sets.size() * getParamsetSize();
 	}
 
+
+
 } coloring_parser; // Single program-shared output file
 
 #endif
