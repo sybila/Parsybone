@@ -157,6 +157,7 @@ class ModelChecker {
 		std::size_t KS_state = product.getKSID(ID);
 		Parameters self_loop = ~0;
 
+
 		// Cycle through all the transition
 		for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
 			// Parameters to pass through the transition
@@ -244,7 +245,7 @@ class ModelChecker {
 			updates.erase(ID);
 
 			// If witness has not been found and 
-			if (updates.empty() && witness_use == short_wit && to_find) {
+			if (updates.empty() && witness_use == short_wit) {
 				updates = std::move(next_updates);
 				BFS_level++;
 			}
