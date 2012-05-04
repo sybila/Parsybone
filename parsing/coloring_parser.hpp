@@ -86,7 +86,8 @@ public:
 			// Read bytes and move them to the front of the Parameters, when possible
 			for (std::size_t byte_num = 0; byte_num < sizeof(Parameters); byte_num++) {
 				temp <<= 8;
-				temp |= byteblock[shade_num*sizeof(Parameters) + byte_num];
+				char val = byteblock[shade_num*sizeof(Parameters) + byte_num];
+				temp += static_cast<unsigned char>(val);
 			}
 			colors_sets.push_back(temp);
 		}
