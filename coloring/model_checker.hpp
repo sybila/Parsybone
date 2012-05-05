@@ -27,10 +27,11 @@ class ModelChecker {
 	const AutomatonStructure & automaton; // Stores info about BA states
 	const ProductStructure & product; // Product on which the computation will be conducted
 	ColorStorage & storage; // Auxiliary product storage
+	ColorStorage next_round_storage; // Storing values passed in this round
 
 	// Used for computation
 	std::set<StateID> updates; // Set of states that need to spread their updates
-	std::set<StateID> next_updates; // Set of states that will be scheduled for update during next BFS level
+	std::set<StateID> next_updates;
 	Range synthesis_range; // First and one beyond last color to be computed in this round
 	WitnessUse witness_use; // How wintesses will be held in this computation
 
@@ -151,8 +152,8 @@ class ModelChecker {
 	 */
 	std::vector<Coloring> broadcastParameters(const StateID ID, const Parameters parameters) {
 		// To store parameters that passed the transition but were not yet added to the target
-		std::vector<Coloring> updates;
-		updates.reserve(product.getTransitionCount(ID));
+		std::vector<Coloring> param_updates;
+		param_updates.reserve(product.getTransitionCount(ID));
 
 		std::size_t KS_state = product.getKSID(ID);
 		Parameters self_loop = ~0;
@@ -176,7 +177,7 @@ class ModelChecker {
 			// Else add normally and remove from the self_loop
 			else if (passed) {
 				self_loop &= ~passed;
-				updates.push_back(std::make_pair(target_ID, passed));
+				param_updates.push_back(std::make_pair(target_ID, passed));
 			}
 		}	
 
@@ -185,7 +186,7 @@ class ModelChecker {
 			if (BA_presence[BA_state]) {
 				if (self_loop) {
 					StateID target = product.getProductID(KS_state, BA_state) ;
-					updates.push_back(Coloring(target, self_loop));
+					param_updates.push_back(Coloring(target, self_loop));
 				}
 				// Null the value
 				BA_presence[BA_state] = false;
@@ -193,7 +194,7 @@ class ModelChecker {
 		}
 
 		// Return all filled updates
-		return updates;
+		return param_updates;
 	}
 	
 	/**
@@ -223,8 +224,8 @@ class ModelChecker {
 				updates.insert(update_it->first);
 			else if (witness_use == all_wit && storage.update(ID, update_it->second, update_it->first))
 				updates.insert(update_it->first);
-			else if (witness_use == short_wit && storage.update(ID, update_it->second, update_it->first))
-				next_updates.insert(update_it->first);		
+			else if (witness_use == short_wit && storage.soft_update(update_it->second, update_it->first))
+				next_round_storage.update(ID, update_it->second, update_it->first);
 		}
 	}
 
@@ -245,8 +246,10 @@ class ModelChecker {
 			updates.erase(ID);
 
 			// If witness has not been found and 
-			if (updates.empty() && witness_use == short_wit) {
-				updates = std::move(next_updates);
+			if (updates.empty() && witness_use == short_wit && to_find && (BFS_level < 4)) {
+				updates = std::move(next_round_storage.getColored());
+				storage.addFrom(next_round_storage);
+				next_round_storage.reset();
 				BFS_level++;
 			}
 		} while (!updates.empty());
@@ -270,7 +273,8 @@ class ModelChecker {
 		if (witness_use == short_wit) {
 			BFS_level = 1; // Set sterting number of BFS
 			next_updates.clear(); // Ensure emptiness of the next round
-			BFS_reach.resize(getParamsetSize(), ~0); // Recreate reach values
+			BFS_reach.resize(getParamsetSize(), 0); // Recreate reach values
+			next_round_storage = storage;
 		}
 	}
 

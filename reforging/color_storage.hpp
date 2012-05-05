@@ -23,11 +23,11 @@ class ColorStorage {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	struct ColorData {
-		std::size_t color_num; // Relative number of the color in this round
-		std::vector<StateID> predecessors; // Predecessors only for this color
-		std::vector<StateID> succesors; // Succesors only for this color
-	};
+	//struct ColorData {
+	//	std::size_t color_num; // Relative number of the color in this round
+	//	std::vector<StateID> predecessors; // Predecessors only for this color
+	//	std::vector<StateID> succesors; // Succesors only for this color
+	//};
 	
 	struct State {
 		StateID ID;
@@ -38,8 +38,6 @@ class ColorStorage {
 		State(const StateID _ID) : ID(_ID), parameters(0) { }
 	};
 	
-	WitnessUse current_mode; // If set to none_wit, stores only parameters
-
 	// DATA STORAGE
 	std::vector<State> states;
 
@@ -76,14 +74,8 @@ class ColorStorage {
 		states[ID].successors.insert(std::make_pair(target, 0));
 	}
 
-	ColorStorage(const ColorStorage & other);            // Forbidden copy constructor.
-	ColorStorage& operator=(const ColorStorage & other); // Forbidden assignment operator.
-
 public:
-	ColorStorage() {
-		// Set to all for the beginning - needed for clean reset
-		current_mode = all_wit;
-	}
+	ColorStorage() { }
 
 	/**
 	 * Sets all values for all the states to zero
@@ -94,7 +86,7 @@ public:
 			// Reset merged parameters
 			state.parameters = 0;
 			// Reset parameters from predecessors, if there were new values
-			if (current_mode == all_wit) {
+			if (user_options.witnesses()) {
 				for(auto pred_it = state.predecessors.begin(); pred_it != state.predecessors.end(); pred_it++) {
 					pred_it->second = 0;
 				}
@@ -103,12 +95,27 @@ public:
 	}
 
 	/**
-	 * Set mode in which data will be stored in this round
+	 * Add all values from one coloring structure to another
 	 *
-	 * @param new_mode	mode to use - either store only all parameters or store them together with their sources
+	 * @param other	structure to copy from
 	 */
-	void setMode(const WitnessUse new_mode) {
-		current_mode = new_mode;
+	void addFrom(const ColorStorage & other) {
+		auto this_state_it = states.begin();
+		for (StateID ID = 0; ID < states.size(); ID++, this_state_it++) {
+			this_state_it->parameters |= other.getColor(ID);
+
+			auto this_succ_it = this_state_it->successors.begin();
+			std::map<StateID, Parameters> other_succs = other.getMarking(ID, true);
+			for (auto other_succ_it = other_succs.begin(); other_succ_it != other_succs.end(); this_succ_it++, other_succ_it++) {
+				this_succ_it->second |= other_succ_it->second;
+			}
+
+			auto this_pred_it = this_state_it->predecessors.begin();
+			std::map<StateID, Parameters> other_preds = other.getMarking(ID, false);
+			for (auto other_pred_it = other_preds.begin(); other_pred_it != other_preds.end(); this_pred_it++, other_pred_it++) {
+				this_pred_it->second |= other_pred_it->second;
+			}
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,6 +136,13 @@ public:
 		// Add new parameters and return true
 		states[ID].parameters |= parameters;
 		return true;
+	}
+
+	inline bool soft_update(const Parameters parameters, const StateID ID) {
+		if (states[ID].parameters == (parameters | states[ID].parameters))
+			return false;
+		else
+			return true;
 	}
 
 	/**
@@ -179,14 +193,24 @@ public:
 		return colors;
 	}
 
+	std::set<StateID> getColored() const {
+		std::set<StateID> new_updates;
+		for (auto state_it = states.begin(); state_it != states.end(); state_it++) {
+			if (!none(state_it->parameters)) {
+				new_updates.insert(state_it->ID);
+			}
+		}
+		return new_updates;
+	}
+
 	/** 
-	 * Get all the predecessors for this color from this state.
+	 * Get all the neigbours for this color from this state.
 	 *
 	 * @param ID	index of the state to ask for predecessors
 	 * @param successors	true if successors are required, false if predecessors
 	 * @param color_mask	bitmask for a given color, if it is not specified, all colors are required
 	 *
-	 * @return predecessors for given state and color
+	 * @return neigbours for given state
 	 */
 	inline const Neighbours getNeighbours(const StateID ID, const bool successors, const Parameters color_mask = ~0) const {
 		// reference
@@ -202,6 +226,21 @@ public:
 		});
 
 		return color_neigh;
+	}
+
+	/** 
+	 * Get all the neigbours for this color from this state.
+	 *
+	 * @param ID	index of the state to ask for predecessors
+	 * @param successors	true if successors are required, false if predecessors
+	 *
+	 * @return neigbours for given state and their color
+	 */
+	inline const std::map<StateID, Parameters> getMarking(const StateID ID, const bool successors) const {
+		// reference
+		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
+
+		return neigbours;
 	}
 };
 

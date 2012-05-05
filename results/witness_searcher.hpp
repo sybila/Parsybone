@@ -84,8 +84,8 @@ private:
 	 */
 	void displayWit() const {
 		// Cycle through states
-		for (std::size_t state_index = (lenght - 1); state_index > 0; state_index--) {
-			output_streamer.output(results_str, product.getString(path[state_index]), OutputStreamer::no_newl);
+		for (std::size_t state_index = lenght; state_index > 0; state_index--) {
+			output_streamer.output(results_str, product.getString(path[state_index- 1]), OutputStreamer::no_newl);
 		}
 		// Endline
 		output_streamer.output("");
@@ -116,17 +116,6 @@ private:
 			// List through predecessors
 			for (auto pred_it = preds.begin(); pred_it != preds.end(); pred_it++) {
 
-				// Use only unique predecessors in this path
-				bool used = false;
-				for (std::size_t state_index = 0; state_index < lenght; state_index++) {
-					if (path[state_index] == *pred_it) {
-						used = true;
-						break;
-					}
-				}
-
-				if (used)
-					continue;
 				// If it was not used yet, continue in DFS
 				DFS(*pred_it);
 			}
