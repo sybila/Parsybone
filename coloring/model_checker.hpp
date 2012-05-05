@@ -246,7 +246,7 @@ class ModelChecker {
 			updates.erase(ID);
 
 			// If witness has not been found and 
-			if (updates.empty() && witness_use == short_wit && to_find && (BFS_level < 4)) {
+			if (updates.empty() && witness_use == short_wit && to_find ) {
 				updates = std::move(next_round_storage.getColored());
 				storage.addFrom(next_round_storage);
 				next_round_storage.reset();
