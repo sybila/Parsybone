@@ -31,6 +31,7 @@ const float program_version = 1.0;
  * Linear execution of succesive parts of the parameter synthesis
  */
 int main(int argc, char* argv[]) {
+	time_manager.startClock("runtime");
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
 // Parse input information.
@@ -153,5 +154,6 @@ int main(int argc, char* argv[]) {
 		return 7;
 	}
 
+	time_manager.ouputClock("runtime");
 	return 0;
 }

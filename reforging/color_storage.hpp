@@ -90,6 +90,9 @@ public:
 				for(auto pred_it = state.predecessors.begin(); pred_it != state.predecessors.end(); pred_it++) {
 					pred_it->second = 0;
 				}
+				for(auto succ_it = state.successors.begin(); succ_it != state.successors.end(); succ_it++) {
+					succ_it->second = 0;
+				}
 			}
 		});
 	}
@@ -100,16 +103,20 @@ public:
 	 * @param other	structure to copy from
 	 */
 	void addFrom(const ColorStorage & other) {
+		// For all states
 		auto this_state_it = states.begin();
 		for (StateID ID = 0; ID < states.size(); ID++, this_state_it++) {
+			// Copy params
 			this_state_it->parameters |= other.getColor(ID);
 
+			// Copy succesors parameters
 			auto this_succ_it = this_state_it->successors.begin();
 			std::map<StateID, Parameters> other_succs = other.getMarking(ID, true);
 			for (auto other_succ_it = other_succs.begin(); other_succ_it != other_succs.end(); this_succ_it++, other_succ_it++) {
 				this_succ_it->second |= other_succ_it->second;
 			}
 
+			// Copy predecessors parameters
 			auto this_pred_it = this_state_it->predecessors.begin();
 			std::map<StateID, Parameters> other_preds = other.getMarking(ID, false);
 			for (auto other_pred_it = other_preds.begin(); other_pred_it != other_preds.end(); this_pred_it++, other_pred_it++) {

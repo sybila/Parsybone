@@ -28,7 +28,7 @@ class WitnessSearcher {
 	// Witness counting related auxiliary variables:
 	std::vector<StateID> path; // IDs of states alongside the path
 	std::map<StateID, long double> state_robustness;
-	std::set<std::vector<StateID>> used_paths;
+	std::set<StateID> used_paths;
 	std::vector<double> probability; // Probability of stepping into each consecutive state
 	std::size_t lenght; // Lenght of the path, non-zero value
 	Parameters color_num; // Mask for color used for this ouput
@@ -100,14 +100,11 @@ private:
 
 		// If you are initial, print this path
 		if (product.isInitial(ID)) {
-			std::vector<StateID> this_path(path.begin()+1, path.end());
-			if (used_paths.find(this_path) == used_paths.end()) {
-				if (user_options.displayWintess())
-					displayWit();
-				if (user_options.robustness())
-					countProb();
-				used_paths.insert(std::move(this_path));
-			}
+			used_paths.insert(path[1]);
+			if (user_options.displayWintess())
+				displayWit();
+			if (user_options.robustness())
+				countProb();
 		}
 		else if (lenght < max_path_lenght) { // Continue DFS only if witness has still allowed lenght
 			// Get predecessors
@@ -115,7 +112,9 @@ private:
 		
 			// List through predecessors
 			for (auto pred_it = preds.begin(); pred_it != preds.end(); pred_it++) {
-
+				// Do not reuse paths
+				if (used_paths.find(*pred_it) != used_paths.end())
+					continue;
 				// If it was not used yet, continue in DFS
 				DFS(*pred_it);
 			}

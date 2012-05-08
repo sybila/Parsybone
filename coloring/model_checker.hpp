@@ -224,8 +224,8 @@ class ModelChecker {
 				updates.insert(update_it->first);
 			else if (witness_use == all_wit && storage.update(ID, update_it->second, update_it->first))
 				updates.insert(update_it->first);
-			else if (witness_use == short_wit && storage.soft_update(update_it->second, update_it->first))
-				next_round_storage.update(ID, update_it->second, update_it->first);
+			else if (witness_use == short_wit && storage.soft_update(update_it->second, update_it->first)) // Only test
+				next_round_storage.update(ID, update_it->second, update_it->first); // If something is present, schedule it for next round
 		}
 	}
 
@@ -247,10 +247,10 @@ class ModelChecker {
 
 			// If witness has not been found and 
 			if (updates.empty() && witness_use == short_wit && to_find ) {
-				updates = std::move(next_round_storage.getColored());
-				storage.addFrom(next_round_storage);
-				next_round_storage.reset();
-				BFS_level++;
+				updates = std::move(next_round_storage.getColored()); // Get updates from this level coloring
+				storage.addFrom(next_round_storage); // Copy updated
+				next_round_storage.reset(); // Clean storage
+				BFS_level++; // Increase level
 			}
 		} while (!updates.empty());
 	}
@@ -274,7 +274,7 @@ class ModelChecker {
 			BFS_level = 1; // Set sterting number of BFS
 			next_updates.clear(); // Ensure emptiness of the next round
 			BFS_reach.resize(getParamsetSize(), 0); // Recreate reach values
-			next_round_storage = storage;
+			next_round_storage = storage; // Copy starting values
 		}
 	}
 

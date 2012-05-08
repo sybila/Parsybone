@@ -108,9 +108,6 @@
     <ClInclude Include="..\results\witness_searcher.hpp">
       <Filter>results</Filter>
     </ClInclude>
-    <ClInclude Include="..\reforging\color_storage.hpp">
-      <Filter>reforging</Filter>
-    </ClInclude>
     <ClInclude Include="..\results\coloring_analyzer.hpp">
       <Filter>results</Filter>
     </ClInclude>
@@ -128,6 +125,9 @@
     </ClInclude>
     <ClInclude Include="..\auxiliary\common_functions.hpp">
       <Filter>auxiliary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\reforging\color_storage.hpp">
+      <Filter>results</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
