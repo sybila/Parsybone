@@ -60,19 +60,6 @@ class ColoringAnalyzer {
 				color[value_num] = 0;
 			}
 		}
-
-		//// If there is a posibility to increaset the value (from left to right), increase it and end, otherwise null it and continue
-		//for (std::size_t value_num = 0; value_num < color.size(); value_num++) {
-		//	// Increase and end
-		//	if (color[value_num] < top_values[value_num]) {
-		//		color[value_num]++;
-		//		return;
-		//	}
-		//	// Null 
-		//	else { 
-		//		color[value_num] = bottom_values[value_num];
-		//	}
-		//}
 	}
 	
 	/**

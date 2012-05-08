@@ -61,11 +61,8 @@ class ProductBuilder {
 	void createEmptyStorage (const std::size_t states_count) {
 		// add empty states to storage
 		for (StateID ID = 0; ID < states_count; ID++) {
-			storage.addState(ID);
+			storage.addState(ID, states_count);
 		}
-
-		// Set all to zero
-		storage.reset();
 	}
 
 	/**
@@ -115,8 +112,6 @@ class ProductBuilder {
 				const StateID target = product.getProductID(KS_target_ID, *BA_traget_it);
 				// Store the transition
 				product.addTransition(ID, target, step_size, transitive_values);
-				storage.addPredecessor(target, ID);
-				storage.addSuccessor(ID, target);
 			}
 		}
 	}

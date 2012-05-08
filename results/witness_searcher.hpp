@@ -16,6 +16,7 @@
 #include "../coloring/parameters_functions.hpp"
 #include "../reforging/product_structure.hpp"
 #include "../reforging/color_storage.hpp"
+#include "../results/per_color_storage.hpp"
 
 class WitnessSearcher {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +25,7 @@ class WitnessSearcher {
 	const ColoringAnalyzer & analyzer;
 	const ColorStorage & storage;
 	const ProductStructure & product;
+	std::unique_ptr<PerColorStorage>(per_color_storage);
 
 	// Witness counting related auxiliary variables:
 	std::vector<StateID> path; // IDs of states alongside the path
@@ -31,7 +33,7 @@ class WitnessSearcher {
 	std::set<StateID> used_paths;
 	std::vector<double> probability; // Probability of stepping into each consecutive state
 	std::size_t lenght; // Lenght of the path, non-zero value
-	Parameters color_num; // Mask for color used for this ouput
+	std::size_t color_num; // Ordinal of the color
 	std::size_t max_path_lenght; // Reference value for output of shortest paths only
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +70,7 @@ private:
 		long double probability = 1.0;
 		// For each state divide probability by all its successors
 		for (std::size_t state_index = (lenght - 1); state_index > 1; state_index--) {
-			probability /= storage.getNeighbours(path[state_index], true, color_num).size();
+			probability /= per_color_storage->getNeighbours(path[state_index], true, color_num).size();
 		}
 
 		// Check if this initial state is already included, if so, add probability, otherwise create new state with probability of this path
@@ -108,16 +110,17 @@ private:
 		}
 		else if (lenght < max_path_lenght) { // Continue DFS only if witness has still allowed lenght
 			// Get predecessors
-			const Neighbours preds = storage.getNeighbours(ID, false, color_num);
+			const Neighbours & preds = per_color_storage->getNeighbours(ID, false, color_num);
 		
 			// List through predecessors
-			for (auto pred_it = preds.begin(); pred_it != preds.end(); pred_it++) {
-				// Do not reuse paths
-				if (used_paths.find(*pred_it) != used_paths.end())
-					continue;
-				// If it was not used yet, continue in DFS
-				DFS(*pred_it);
-			}
+			if (preds.size()) 
+				for (Neighbours::const_iterator pred_it = preds.begin(); pred_it != preds.end(); pred_it++) {
+					// Do not reuse paths
+					if (used_paths.find(*pred_it) != used_paths.end())
+						continue;
+					// If it was not used yet, continue in DFS
+					DFS(*pred_it);
+				}
 		}
 
 		// Return
@@ -131,23 +134,23 @@ public:
 	void display(const std::vector<std::size_t> & BFS_reach) {
 		// Get synthetized colors
 		auto colors = analyzer.getColors();
+		per_color_storage.reset(new PerColorStorage(analyzer, storage, product));
 
 		// Go through colors
-		for (auto color_it = colors.begin(); color_it != colors.end(); color_it++) {
+		for (color_num = 0; color_num < colors.size(); color_num++) {
 			// Display color if requested
 			if (user_options.coloring())
-				output_streamer.output(results_str, color_it->second);
+				output_streamer.output(results_str, colors[color_num].second);
 
-			// Get path lenght
-			std::size_t bit_num = getBitNum(color_it->first);
+			// Get round values
+			std::size_t bit_num = getBitNum(colors[color_num].first);
 			max_path_lenght = (user_options.witnesses() == short_wit) ? BFS_reach[bit_num] : ~0;
 
 			// Compute witnesses for given color from each final state, they are also displayed, if requested
 			for (auto final_it = product.getFinalStates().begin(); final_it != product.getFinalStates().end(); final_it++) {
 				// Restart values
 				lenght = 0;
-				color_num = color_it->first;
-
+				
 				// Start search 
 				DFS(*final_it);
 			}

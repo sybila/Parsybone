@@ -104,6 +104,7 @@
     <ClInclude Include="..\reforging\product_structure.hpp" />
     <ClInclude Include="..\results\coloring_analyzer.hpp" />
     <ClInclude Include="..\results\output_manager.hpp" />
+    <ClInclude Include="..\results\per_color_storage.hpp" />
     <ClInclude Include="..\results\witness_searcher.hpp" />
   </ItemGroup>
   <ItemGroup>

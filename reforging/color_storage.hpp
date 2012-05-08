@@ -22,20 +22,18 @@ class ColorStorage {
 	friend class ProductBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	//struct ColorData {
-	//	std::size_t color_num; // Relative number of the color in this round
-	//	std::vector<StateID> predecessors; // Predecessors only for this color
-	//	std::vector<StateID> succesors; // Succesors only for this color
-	//};
-	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
 	struct State {
 		StateID ID;
 		Parameters parameters; // 32 bits for each color in this round marking its presence or absence
-		std::map<StateID, Parameters> predecessors; // Stores a predeccesor in the form (product_ID, parameters)
-		std::map<StateID, Parameters> successors; // Stores succesors in the same form
+		std::vector<Parameters> predecessors; // Stores a predeccesor in the form (product_ID, parameters)
+		std::vector<Parameters> successors; // Stores succesors in the same form
 
-		State(const StateID _ID) : ID(_ID), parameters(0) { }
+		State(const StateID _ID, const std::size_t states_num) : ID(_ID), parameters(0) {
+			parameters = 0;
+			predecessors.resize(states_num, 0);
+			successors.resize(states_num, 0);
+		}
 	};
 	
 	// DATA STORAGE
@@ -49,30 +47,10 @@ class ColorStorage {
 	 *
 	 * @param predecessors	vector with IDs of all predecessors of this state
 	 */
-	void addState(const StateID ID) {
-		states.push_back(State(ID));
+	void addState(const StateID ID, const std::size_t states_num) {
+		states.push_back(State(ID, states_num));
 	}
 
-
-	/**
-	 * Add a new predecessor to the state
-	 *
-	 * @param ID	target of the transition that will be upgraded
-	 * @param source	source of the transition
-	 */
-	void addPredecessor(const StateID ID, const StateID source) {
-		states[ID].predecessors.insert(std::make_pair(source, 0));
-	}
-
-	/**
-	 * Add a new successor to the state
-	 *
-	 * @param ID	source of the transition that will be upgraded
-	 * @param target	target of the transition
-	 */
-	void addSuccessor(const StateID ID, const StateID target) {
-		states[ID].successors.insert(std::make_pair(target, 0));
-	}
 
 public:
 	ColorStorage() { }
@@ -88,10 +66,10 @@ public:
 			// Reset parameters from predecessors, if there were new values
 			if (user_options.witnesses()) {
 				for(auto pred_it = state.predecessors.begin(); pred_it != state.predecessors.end(); pred_it++) {
-					pred_it->second = 0;
+					*pred_it = 0;
 				}
 				for(auto succ_it = state.successors.begin(); succ_it != state.successors.end(); succ_it++) {
-					succ_it->second = 0;
+					*succ_it = 0;
 				}
 			}
 		});
@@ -111,16 +89,16 @@ public:
 
 			// Copy succesors parameters
 			auto this_succ_it = this_state_it->successors.begin();
-			std::map<StateID, Parameters> other_succs = other.getMarking(ID, true);
+			std::vector<Parameters> other_succs = std::move(other.getMarking(ID, true));
 			for (auto other_succ_it = other_succs.begin(); other_succ_it != other_succs.end(); this_succ_it++, other_succ_it++) {
-				this_succ_it->second |= other_succ_it->second;
+				*this_succ_it |= *other_succ_it;
 			}
 
 			// Copy predecessors parameters
 			auto this_pred_it = this_state_it->predecessors.begin();
-			std::map<StateID, Parameters> other_preds = other.getMarking(ID, false);
+			std::vector<Parameters> other_preds = std::move(other.getMarking(ID, false));
 			for (auto other_pred_it = other_preds.begin(); other_pred_it != other_preds.end(); this_pred_it++, other_pred_it++) {
-				this_pred_it->second |= other_pred_it->second;
+				*this_pred_it |= *other_pred_it;
 			}
 		}
 	}
@@ -163,8 +141,8 @@ public:
 	 */
 	inline bool update(const StateID source_ID, const Parameters parameters, const StateID target_ID) {
 		// Mark parameters source and target
-		states[target_ID].predecessors.find(source_ID)->second |= parameters;
-		states[source_ID].successors.find(target_ID)->second |= parameters;
+		states[target_ID].predecessors[source_ID] |= parameters;
+		states[source_ID].successors[target_ID] |= parameters;
 		// Make an actuall update
 		return update(parameters, target_ID);
 	}
@@ -226,10 +204,12 @@ public:
 		Neighbours color_neigh;
 
 		// Add these from the color
-		forEach(neigbours, [&color_neigh, color_mask](const std::pair<StateID, Parameters> & neighbour) {
+		StateID neigh_num = 0;
+		forEach(neigbours, [&neigh_num, &color_neigh, color_mask](const Parameters neighbour) {
 			// Test if the color is present
-			if ((neighbour.second & color_mask) != 0)
-				color_neigh.push_back(neighbour.first);
+			if ((neighbour & color_mask) != 0)
+				color_neigh.push_back(neigh_num);
+			neigh_num++;
 		});
 
 		return color_neigh;
@@ -243,7 +223,7 @@ public:
 	 *
 	 * @return neigbours for given state and their color
 	 */
-	inline const std::map<StateID, Parameters> getMarking(const StateID ID, const bool successors) const {
+	inline const std::vector<Parameters> getMarking(const StateID ID, const bool successors) const {
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 

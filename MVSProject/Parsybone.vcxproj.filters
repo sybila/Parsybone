@@ -129,6 +129,9 @@
     <ClInclude Include="..\reforging\color_storage.hpp">
       <Filter>results</Filter>
     </ClInclude>
+    <ClInclude Include="..\results\per_color_storage.hpp">
+      <Filter>results</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README" />
