@@ -1,0 +1,141 @@
+\hypertarget{class_parametrized_structure}{\section{Parametrized\-Structure Class Reference}
+\label{class_parametrized_structure}\index{Parametrized\-Structure@{Parametrized\-Structure}}
+}
+
+
+Inherits \hyperlink{class_graph_interface}{Graph\-Interface}.
+
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bfseries State}
+\item 
+struct {\bfseries Transition}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+const std\-::size\-\_\-t \hyperlink{class_parametrized_structure_a399360e838de958d3ba86e5c4866b76e}{get\-State\-Count} () const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_parametrized_structure_a813291746782f1e1e1a11afaf7bf8133}{get\-Transition\-Count} (const State\-I\-D I\-D) const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_parametrized_structure_ab2752cca4fb6821cb797a61d5d09735c}{get\-Target\-I\-D} (const State\-I\-D I\-D, const std\-::size\-\_\-t transtion\-\_\-num) const 
+\item 
+const std\-::string \hyperlink{class_parametrized_structure_a3c3c0bf6d17d97d68ee72324c6ea5b07}{get\-String} (const State\-I\-D I\-D) const 
+\item 
+const Levels \& \hyperlink{class_parametrized_structure_ab344a7d530e957c2ef93325863ce23a9}{get\-State\-Levels} (const State\-I\-D I\-D) const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_parametrized_structure_a12bd0d9dd633bd94a04232d546b28972}{get\-Step\-Size} (const State\-I\-D I\-D, const std\-::size\-\_\-t transtion\-\_\-num) const 
+\item 
+const std\-::vector$<$ bool $>$ \& \hyperlink{class_parametrized_structure_aea25bb7c6e52090936ba18b45a169f24}{get\-Transitive} (const State\-I\-D I\-D, const std\-::size\-\_\-t transtion\-\_\-num) const 
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_parametrized_structure_a6e0c14c900b776a7c27099612cffe54d}{class {\bfseries Parametrized\-Structure\-Builder}}\label{class_parametrized_structure_a6e0c14c900b776a7c27099612cffe54d}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_parametrized_structure_a399360e838de958d3ba86e5c4866b76e}{\index{Parametrized\-Structure@{Parametrized\-Structure}!get\-State\-Count@{get\-State\-Count}}
+\index{get\-State\-Count@{get\-State\-Count}!ParametrizedStructure@{Parametrized\-Structure}}
+\subsubsection[{get\-State\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Parametrized\-Structure\-::get\-State\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_parametrized_structure_a399360e838de958d3ba86e5c4866b76e}
+
+
+Implements \hyperlink{class_graph_interface_af1451d51753aeb985b9786abd3acc4da}{Graph\-Interface}.
+
+\hypertarget{class_parametrized_structure_ab344a7d530e957c2ef93325863ce23a9}{\index{Parametrized\-Structure@{Parametrized\-Structure}!get\-State\-Levels@{get\-State\-Levels}}
+\index{get\-State\-Levels@{get\-State\-Levels}!ParametrizedStructure@{Parametrized\-Structure}}
+\subsubsection[{get\-State\-Levels}]{\setlength{\rightskip}{0pt plus 5cm}const Levels\& Parametrized\-Structure\-::get\-State\-Levels (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_parametrized_structure_ab344a7d530e957c2ef93325863ce23a9}
+
+\begin{DoxyParams}{Parameters}
+{\em I\-D} & I\-D of the state to get the data from\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+species level 
+\end{DoxyReturn}
+\hypertarget{class_parametrized_structure_a12bd0d9dd633bd94a04232d546b28972}{\index{Parametrized\-Structure@{Parametrized\-Structure}!get\-Step\-Size@{get\-Step\-Size}}
+\index{get\-Step\-Size@{get\-Step\-Size}!ParametrizedStructure@{Parametrized\-Structure}}
+\subsubsection[{get\-Step\-Size}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Parametrized\-Structure\-::get\-Step\-Size (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D, }
+\item[{const std\-::size\-\_\-t}]{transtion\-\_\-num}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_parametrized_structure_a12bd0d9dd633bd94a04232d546b28972}
+
+\begin{DoxyParams}{Parameters}
+{\em I\-D} & I\-D of the state to get the data from \\
+\hline
+{\em transition\-\_\-num} & index of the transition to get the data from\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+number of neighbour parameters that share the same value of the function 
+\end{DoxyReturn}
+\hypertarget{class_parametrized_structure_a3c3c0bf6d17d97d68ee72324c6ea5b07}{\index{Parametrized\-Structure@{Parametrized\-Structure}!get\-String@{get\-String}}
+\index{get\-String@{get\-String}!ParametrizedStructure@{Parametrized\-Structure}}
+\subsubsection[{get\-String}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::string Parametrized\-Structure\-::get\-String (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_parametrized_structure_a3c3c0bf6d17d97d68ee72324c6ea5b07}
+Return string representing given state in the form (specie1\-\_\-val, specie2\-\_\-val, ...) 
+
+Implements \hyperlink{class_graph_interface_adc263054e00abecce3327418a383f387}{Graph\-Interface}.
+
+\hypertarget{class_parametrized_structure_ab2752cca4fb6821cb797a61d5d09735c}{\index{Parametrized\-Structure@{Parametrized\-Structure}!get\-Target\-I\-D@{get\-Target\-I\-D}}
+\index{get\-Target\-I\-D@{get\-Target\-I\-D}!ParametrizedStructure@{Parametrized\-Structure}}
+\subsubsection[{get\-Target\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Parametrized\-Structure\-::get\-Target\-I\-D (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D, }
+\item[{const std\-::size\-\_\-t}]{transtion\-\_\-num}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_parametrized_structure_ab2752cca4fb6821cb797a61d5d09735c}
+
+
+Implements \hyperlink{class_graph_interface_a327ef34c0a7b7bef91c1ec55a0610a5b}{Graph\-Interface}.
+
+\hypertarget{class_parametrized_structure_a813291746782f1e1e1a11afaf7bf8133}{\index{Parametrized\-Structure@{Parametrized\-Structure}!get\-Transition\-Count@{get\-Transition\-Count}}
+\index{get\-Transition\-Count@{get\-Transition\-Count}!ParametrizedStructure@{Parametrized\-Structure}}
+\subsubsection[{get\-Transition\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Parametrized\-Structure\-::get\-Transition\-Count (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_parametrized_structure_a813291746782f1e1e1a11afaf7bf8133}
+
+
+Implements \hyperlink{class_graph_interface_af34e16aa42701de6ca8d0c9a361ffc56}{Graph\-Interface}.
+
+\hypertarget{class_parametrized_structure_aea25bb7c6e52090936ba18b45a169f24}{\index{Parametrized\-Structure@{Parametrized\-Structure}!get\-Transitive@{get\-Transitive}}
+\index{get\-Transitive@{get\-Transitive}!ParametrizedStructure@{Parametrized\-Structure}}
+\subsubsection[{get\-Transitive}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$bool$>$\& Parametrized\-Structure\-::get\-Transitive (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D, }
+\item[{const std\-::size\-\_\-t}]{transtion\-\_\-num}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_parametrized_structure_aea25bb7c6e52090936ba18b45a169f24}
+
+\begin{DoxyParams}{Parameters}
+{\em I\-D} & I\-D of the state to get the data from \\
+\hline
+{\em transition\-\_\-num} & index of the transition to get the data from\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+target values that are includete in non-\/transitive parameters that have to be removed 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+reforging/parametrized\-\_\-structure.\-hpp\end{DoxyCompactItemize}

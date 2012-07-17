@@ -1,0 +1,131 @@
+\hypertarget{class_coloring_parser}{\section{Coloring\-Parser Class Reference}
+\label{class_coloring_parser}\index{Coloring\-Parser@{Coloring\-Parser}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_coloring_parser_a4d741a7e828ea56737c90c5e0bef3397}{Coloring\-Parser} ()
+\item 
+void \hyperlink{class_coloring_parser_ade0d6f3c6e50b90cdc94f9d0debb86c0}{open\-File} (const std\-::string filename)
+\item 
+void \hyperlink{class_coloring_parser_a8f08d87f82c952f814fef8cbd8f670ee}{create\-Output} (const std\-::string filename)
+\item 
+void \hyperlink{class_coloring_parser_a2de61114bb7c1491df9597be18cfa466}{parse\-Mask} ()
+\item 
+void \hyperlink{class_coloring_parser_a604092dbecb99420ce63666fffb2edc4}{output\-Computed} (const Parameters parameters)
+\item 
+const bool \hyperlink{class_coloring_parser_a5c8d857b9296db6758e003fc1cbbaa52}{input} () const 
+\item 
+const bool \hyperlink{class_coloring_parser_a29f2691f394b9944f844f4b2e003e882}{output} () const 
+\item 
+const std\-::vector$<$ Parameters $>$ \& \hyperlink{class_coloring_parser_a4cf55e0e842e9a87064895e8b8e0b1e6}{get\-Colors} () const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_coloring_parser_ac112280b6a0ef6133219a51598b39176}{get\-Colors\-Count} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_coloring_parser_a4d741a7e828ea56737c90c5e0bef3397}{\index{Coloring\-Parser@{Coloring\-Parser}!Coloring\-Parser@{Coloring\-Parser}}
+\index{Coloring\-Parser@{Coloring\-Parser}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{Coloring\-Parser}]{\setlength{\rightskip}{0pt plus 5cm}Coloring\-Parser\-::\-Coloring\-Parser (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_a4d741a7e828ea56737c90c5e0bef3397}
+Basic constructor -\/ should be used only for the single object shared throught the program 
+
+\subsection{Member Function Documentation}
+\hypertarget{class_coloring_parser_a8f08d87f82c952f814fef8cbd8f670ee}{\index{Coloring\-Parser@{Coloring\-Parser}!create\-Output@{create\-Output}}
+\index{create\-Output@{create\-Output}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{create\-Output}]{\setlength{\rightskip}{0pt plus 5cm}void Coloring\-Parser\-::create\-Output (
+\begin{DoxyParamCaption}
+\item[{const std\-::string}]{filename}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_a8f08d87f82c952f814fef8cbd8f670ee}
+Create a file to output bitmasks to.
+
+
+\begin{DoxyParams}{Parameters}
+{\em filename} & path to the file to read from \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_coloring_parser_a4cf55e0e842e9a87064895e8b8e0b1e6}{\index{Coloring\-Parser@{Coloring\-Parser}!get\-Colors@{get\-Colors}}
+\index{get\-Colors@{get\-Colors}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{get\-Colors}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$Parameters$>$\& Coloring\-Parser\-::get\-Colors (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_a4cf55e0e842e9a87064895e8b8e0b1e6}
+\begin{DoxyReturn}{Returns}
+masks for all colors that can be used 
+\end{DoxyReturn}
+\hypertarget{class_coloring_parser_ac112280b6a0ef6133219a51598b39176}{\index{Coloring\-Parser@{Coloring\-Parser}!get\-Colors\-Count@{get\-Colors\-Count}}
+\index{get\-Colors\-Count@{get\-Colors\-Count}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{get\-Colors\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Coloring\-Parser\-::get\-Colors\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_ac112280b6a0ef6133219a51598b39176}
+\begin{DoxyReturn}{Returns}
+number of Parameters e.\-g. number of rounds of computation 
+\end{DoxyReturn}
+\hypertarget{class_coloring_parser_a5c8d857b9296db6758e003fc1cbbaa52}{\index{Coloring\-Parser@{Coloring\-Parser}!input@{input}}
+\index{input@{input}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{input}]{\setlength{\rightskip}{0pt plus 5cm}const bool Coloring\-Parser\-::input (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_a5c8d857b9296db6758e003fc1cbbaa52}
+\begin{DoxyReturn}{Returns}
+true if the mask was provided on the input 
+\end{DoxyReturn}
+\hypertarget{class_coloring_parser_ade0d6f3c6e50b90cdc94f9d0debb86c0}{\index{Coloring\-Parser@{Coloring\-Parser}!open\-File@{open\-File}}
+\index{open\-File@{open\-File}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{open\-File}]{\setlength{\rightskip}{0pt plus 5cm}void Coloring\-Parser\-::open\-File (
+\begin{DoxyParamCaption}
+\item[{const std\-::string}]{filename}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_ade0d6f3c6e50b90cdc94f9d0debb86c0}
+Only opens the file with the data stream.
+
+
+\begin{DoxyParams}{Parameters}
+{\em filename} & path to the file to read from \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_coloring_parser_a29f2691f394b9944f844f4b2e003e882}{\index{Coloring\-Parser@{Coloring\-Parser}!output@{output}}
+\index{output@{output}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{output}]{\setlength{\rightskip}{0pt plus 5cm}const bool Coloring\-Parser\-::output (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_a29f2691f394b9944f844f4b2e003e882}
+\begin{DoxyReturn}{Returns}
+true if the mask is requested on the output 
+\end{DoxyReturn}
+\hypertarget{class_coloring_parser_a604092dbecb99420ce63666fffb2edc4}{\index{Coloring\-Parser@{Coloring\-Parser}!output\-Computed@{output\-Computed}}
+\index{output\-Computed@{output\-Computed}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{output\-Computed}]{\setlength{\rightskip}{0pt plus 5cm}void Coloring\-Parser\-::output\-Computed (
+\begin{DoxyParamCaption}
+\item[{const Parameters}]{parameters}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_a604092dbecb99420ce63666fffb2edc4}
+Send computed data for this round on the ouput
+
+
+\begin{DoxyParams}{Parameters}
+{\em parameters} & bitmask of computed feasible colors \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_coloring_parser_a2de61114bb7c1491df9597be18cfa466}{\index{Coloring\-Parser@{Coloring\-Parser}!parse\-Mask@{parse\-Mask}}
+\index{parse\-Mask@{parse\-Mask}!ColoringParser@{Coloring\-Parser}}
+\subsubsection[{parse\-Mask}]{\setlength{\rightskip}{0pt plus 5cm}void Coloring\-Parser\-::parse\-Mask (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_coloring_parser_a2de61114bb7c1491df9597be18cfa466}
+Main parsing function that creates parameters vector. 
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+parsing/coloring\-\_\-parser.\-hpp\end{DoxyCompactItemize}

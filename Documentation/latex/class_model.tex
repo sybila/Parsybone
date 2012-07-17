@@ -1,0 +1,162 @@
+\hypertarget{class_model}{\section{Model Class Reference}
+\label{class_model}\index{Model@{Model}}
+}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bfseries Additional\-Information}
+\item 
+struct {\bfseries Buchi\-Automaton\-State}
+\item 
+struct \hyperlink{struct_model_1_1_interaction}{Interaction}
+\item 
+struct {\bfseries Model\-Specie}
+\end{DoxyCompactItemize}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_model_a419db40262b04731de6c47c4aaf101ed}{typedef std\-::pair$<$ std\-::vector\\*
+$<$ bool $>$, int $>$ {\bfseries Regulation}}\label{class_model_a419db40262b04731de6c47c4aaf101ed}
+
+\item 
+\hypertarget{class_model_a20d1a8ad1917da40f12e7ceb1f87d707}{typedef std\-::pair$<$ State\-I\-D, \\*
+std\-::string $>$ {\bfseries Egde}}\label{class_model_a20d1a8ad1917da40f12e7ceb1f87d707}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+const std\-::size\-\_\-t \hyperlink{class_model_ae85881ab9e7e6ed301ee3119bb77f4a2}{get\-Species\-Count} () const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_model_a215555b2d34d4af35a825db275ff9934}{get\-State\-Count} () const 
+\item 
+const int \hyperlink{class_model_ac011a583a9499842f4f88177778fc9e7}{find\-I\-D} (const std\-::string name) const 
+\item 
+const std\-::string \& \hyperlink{class_model_a80f0c690cc256c060b235e3a8ba819a1}{get\-Name} (const std\-::size\-\_\-t I\-D) const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_model_a44b7e43f2b539d051bb8c51a220a9e93}{get\-Min} (const std\-::size\-\_\-t I\-D) const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_model_a11f26c6383852928c361019f0ca07b19}{get\-Max} (const std\-::size\-\_\-t I\-D) const 
+\item 
+const std\-::vector$<$ \hyperlink{struct_model_1_1_interaction}{Interaction} $>$ \& \hyperlink{class_model_a2ee1c6459fdb69c9c754f77e15c1cf71}{get\-Interactions} (const std\-::size\-\_\-t I\-D) const 
+\item 
+const std\-::vector$<$ Regulation $>$ \& \hyperlink{class_model_af9cab24dce8973a2e9e510eae848cbd9}{get\-Regulations} (const std\-::size\-\_\-t I\-D) const 
+\item 
+const bool \hyperlink{class_model_a25f07417a98514d45c48f3a8d0c6fb24}{is\-Final} (const std\-::size\-\_\-t I\-D) const 
+\item 
+const std\-::vector$<$ Egde $>$ \& \hyperlink{class_model_abb52df1a8ca9abfddf430f43d2b674d7}{get\-Edges} (const std\-::size\-\_\-t I\-D) const 
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_model_a2759f637c8f028a9ed4256db41bf34ac}{class {\bfseries Model\-Parser}}\label{class_model_a2759f637c8f028a9ed4256db41bf34ac}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_model_ac011a583a9499842f4f88177778fc9e7}{\index{Model@{Model}!find\-I\-D@{find\-I\-D}}
+\index{find\-I\-D@{find\-I\-D}!Model@{Model}}
+\subsubsection[{find\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}const int Model\-::find\-I\-D (
+\begin{DoxyParamCaption}
+\item[{const std\-::string}]{name}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_ac011a583a9499842f4f88177778fc9e7}
+\begin{DoxyReturn}{Returns}
+I\-D of the specie with the specified name if there is such, otherwise -\/1 
+\end{DoxyReturn}
+\hypertarget{class_model_abb52df1a8ca9abfddf430f43d2b674d7}{\index{Model@{Model}!get\-Edges@{get\-Edges}}
+\index{get\-Edges@{get\-Edges}!Model@{Model}}
+\subsubsection[{get\-Edges}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$Egde$>$\& Model\-::get\-Edges (
+\begin{DoxyParamCaption}
+\item[{const std\-::size\-\_\-t}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_abb52df1a8ca9abfddf430f43d2b674d7}
+\begin{DoxyReturn}{Returns}
+edges of the state 
+\end{DoxyReturn}
+\hypertarget{class_model_a2ee1c6459fdb69c9c754f77e15c1cf71}{\index{Model@{Model}!get\-Interactions@{get\-Interactions}}
+\index{get\-Interactions@{get\-Interactions}!Model@{Model}}
+\subsubsection[{get\-Interactions}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<${\bf Interaction}$>$\& Model\-::get\-Interactions (
+\begin{DoxyParamCaption}
+\item[{const std\-::size\-\_\-t}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_a2ee1c6459fdb69c9c754f77e15c1cf71}
+\begin{DoxyReturn}{Returns}
+interactions of the specie 
+\end{DoxyReturn}
+\hypertarget{class_model_a11f26c6383852928c361019f0ca07b19}{\index{Model@{Model}!get\-Max@{get\-Max}}
+\index{get\-Max@{get\-Max}!Model@{Model}}
+\subsubsection[{get\-Max}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Model\-::get\-Max (
+\begin{DoxyParamCaption}
+\item[{const std\-::size\-\_\-t}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_a11f26c6383852928c361019f0ca07b19}
+\begin{DoxyReturn}{Returns}
+maximal value of the specie 
+\end{DoxyReturn}
+\hypertarget{class_model_a44b7e43f2b539d051bb8c51a220a9e93}{\index{Model@{Model}!get\-Min@{get\-Min}}
+\index{get\-Min@{get\-Min}!Model@{Model}}
+\subsubsection[{get\-Min}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Model\-::get\-Min (
+\begin{DoxyParamCaption}
+\item[{const std\-::size\-\_\-t}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_a44b7e43f2b539d051bb8c51a220a9e93}
+\begin{DoxyReturn}{Returns}
+minimal value of the specie (always 0) 
+\end{DoxyReturn}
+\hypertarget{class_model_a80f0c690cc256c060b235e3a8ba819a1}{\index{Model@{Model}!get\-Name@{get\-Name}}
+\index{get\-Name@{get\-Name}!Model@{Model}}
+\subsubsection[{get\-Name}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::string\& Model\-::get\-Name (
+\begin{DoxyParamCaption}
+\item[{const std\-::size\-\_\-t}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_a80f0c690cc256c060b235e3a8ba819a1}
+\begin{DoxyReturn}{Returns}
+name of the specie 
+\end{DoxyReturn}
+\hypertarget{class_model_af9cab24dce8973a2e9e510eae848cbd9}{\index{Model@{Model}!get\-Regulations@{get\-Regulations}}
+\index{get\-Regulations@{get\-Regulations}!Model@{Model}}
+\subsubsection[{get\-Regulations}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$Regulation$>$\& Model\-::get\-Regulations (
+\begin{DoxyParamCaption}
+\item[{const std\-::size\-\_\-t}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_af9cab24dce8973a2e9e510eae848cbd9}
+\begin{DoxyReturn}{Returns}
+regulations of the specie 
+\end{DoxyReturn}
+\hypertarget{class_model_ae85881ab9e7e6ed301ee3119bb77f4a2}{\index{Model@{Model}!get\-Species\-Count@{get\-Species\-Count}}
+\index{get\-Species\-Count@{get\-Species\-Count}!Model@{Model}}
+\subsubsection[{get\-Species\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Model\-::get\-Species\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_ae85881ab9e7e6ed301ee3119bb77f4a2}
+\begin{DoxyReturn}{Returns}
+number of the species 
+\end{DoxyReturn}
+\hypertarget{class_model_a215555b2d34d4af35a825db275ff9934}{\index{Model@{Model}!get\-State\-Count@{get\-State\-Count}}
+\index{get\-State\-Count@{get\-State\-Count}!Model@{Model}}
+\subsubsection[{get\-State\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Model\-::get\-State\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_a215555b2d34d4af35a825db275ff9934}
+\begin{DoxyReturn}{Returns}
+number of the states 
+\end{DoxyReturn}
+\hypertarget{class_model_a25f07417a98514d45c48f3a8d0c6fb24}{\index{Model@{Model}!is\-Final@{is\-Final}}
+\index{is\-Final@{is\-Final}!Model@{Model}}
+\subsubsection[{is\-Final}]{\setlength{\rightskip}{0pt plus 5cm}const bool Model\-::is\-Final (
+\begin{DoxyParamCaption}
+\item[{const std\-::size\-\_\-t}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_model_a25f07417a98514d45c48f3a8d0c6fb24}
+\begin{DoxyReturn}{Returns}
+true if the state is final 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+parsing/model.\-hpp\end{DoxyCompactItemize}

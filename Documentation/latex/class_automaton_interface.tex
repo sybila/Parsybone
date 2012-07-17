@@ -1,0 +1,118 @@
+\hypertarget{class_automaton_interface}{\section{Automaton\-Interface Class Reference}
+\label{class_automaton_interface}\index{Automaton\-Interface@{Automaton\-Interface}}
+}
+
+
+Inherits \hyperlink{class_graph_interface}{Graph\-Interface}.
+
+
+
+Inherited by \hyperlink{class_automaton_structure}{Automaton\-Structure}, and \hyperlink{class_product_structure}{Product\-Structure}.
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual const bool \hyperlink{class_automaton_interface_a3f232df3031200a8018fc72caf12e719}{is\-Final} (const State\-I\-D I\-D) const =0
+\item 
+virtual const bool \hyperlink{class_automaton_interface_a7c3a5ac826e676ab192b119351602ea1}{is\-Initial} (const State\-I\-D I\-D) const =0
+\item 
+virtual const std\-::vector\\*
+$<$ State\-I\-D $>$ \& \hyperlink{class_automaton_interface_af6c72ef6e1d1aedc6be2042543bf2341}{get\-Final\-States} () const =0
+\item 
+virtual const std\-::vector\\*
+$<$ State\-I\-D $>$ \& \hyperlink{class_automaton_interface_a7c0d2ebf1acd974ddf263f00f60cb4b2}{get\-Initial\-States} () const =0
+\item 
+virtual \hyperlink{class_automaton_interface_a86dda946b5d98e3ee3cc92a596755877}{$\sim$\-Automaton\-Interface} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_automaton_interface_a86dda946b5d98e3ee3cc92a596755877}{\index{Automaton\-Interface@{Automaton\-Interface}!$\sim$\-Automaton\-Interface@{$\sim$\-Automaton\-Interface}}
+\index{$\sim$\-Automaton\-Interface@{$\sim$\-Automaton\-Interface}!AutomatonInterface@{Automaton\-Interface}}
+\subsubsection[{$\sim$\-Automaton\-Interface}]{\setlength{\rightskip}{0pt plus 5cm}virtual Automaton\-Interface\-::$\sim$\-Automaton\-Interface (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_automaton_interface_a86dda946b5d98e3ee3cc92a596755877}
+Virtual destructor. 
+
+\subsection{Member Function Documentation}
+\hypertarget{class_automaton_interface_af6c72ef6e1d1aedc6be2042543bf2341}{\index{Automaton\-Interface@{Automaton\-Interface}!get\-Final\-States@{get\-Final\-States}}
+\index{get\-Final\-States@{get\-Final\-States}!AutomatonInterface@{Automaton\-Interface}}
+\subsubsection[{get\-Final\-States}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\-::vector$<$State\-I\-D$>$\& Automaton\-Interface\-::get\-Final\-States (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [pure virtual]}}}\label{class_automaton_interface_af6c72ef6e1d1aedc6be2042543bf2341}
+Get I\-Ds of all states that are marked as final.
+
+\begin{DoxyReturn}{Returns}
+vector of final states' I\-Ds 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{class_automaton_structure_a3abac2abd6655525dc4a23a6d8f9163d}{Automaton\-Structure}, and \hyperlink{class_product_structure_a0bbd0af5cc060a17fb5dbba279b93f47}{Product\-Structure}.
+
+\hypertarget{class_automaton_interface_a7c0d2ebf1acd974ddf263f00f60cb4b2}{\index{Automaton\-Interface@{Automaton\-Interface}!get\-Initial\-States@{get\-Initial\-States}}
+\index{get\-Initial\-States@{get\-Initial\-States}!AutomatonInterface@{Automaton\-Interface}}
+\subsubsection[{get\-Initial\-States}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\-::vector$<$State\-I\-D$>$\& Automaton\-Interface\-::get\-Initial\-States (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [pure virtual]}}}\label{class_automaton_interface_a7c0d2ebf1acd974ddf263f00f60cb4b2}
+Get I\-Ds of all states that are marked as initial.
+
+\begin{DoxyReturn}{Returns}
+vector of initial states' I\-Ds 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{class_automaton_structure_ad8a7299f02b49311d847ffc065980b7e}{Automaton\-Structure}, and \hyperlink{class_product_structure_ad1aeec291cf9951d2a9a003c4620b7ff}{Product\-Structure}.
+
+\hypertarget{class_automaton_interface_a3f232df3031200a8018fc72caf12e719}{\index{Automaton\-Interface@{Automaton\-Interface}!is\-Final@{is\-Final}}
+\index{is\-Final@{is\-Final}!AutomatonInterface@{Automaton\-Interface}}
+\subsubsection[{is\-Final}]{\setlength{\rightskip}{0pt plus 5cm}virtual const bool Automaton\-Interface\-::is\-Final (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [pure virtual]}}}\label{class_automaton_interface_a3f232df3031200a8018fc72caf12e719}
+For given state find out if it is marked as final.
+
+
+\begin{DoxyParams}{Parameters}
+{\em I\-D} & state to test\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the state is final 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{class_automaton_structure_ab78811554076d892276a623c579a2b8b}{Automaton\-Structure}, and \hyperlink{class_product_structure_af856dfb18ae32620357e49a2aeaaf882}{Product\-Structure}.
+
+\hypertarget{class_automaton_interface_a7c3a5ac826e676ab192b119351602ea1}{\index{Automaton\-Interface@{Automaton\-Interface}!is\-Initial@{is\-Initial}}
+\index{is\-Initial@{is\-Initial}!AutomatonInterface@{Automaton\-Interface}}
+\subsubsection[{is\-Initial}]{\setlength{\rightskip}{0pt plus 5cm}virtual const bool Automaton\-Interface\-::is\-Initial (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [pure virtual]}}}\label{class_automaton_interface_a7c3a5ac826e676ab192b119351602ea1}
+For given state find out if it is marked as initial.
+
+
+\begin{DoxyParams}{Parameters}
+{\em I\-D} & state to test\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the state is initial 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{class_automaton_structure_ac5aded68ef2f70ad78412b3e0e6cd6f2}{Automaton\-Structure}, and \hyperlink{class_product_structure_ab72b9e2ee9dc047e9ae20b7ea0057db2}{Product\-Structure}.
+
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+reforging/automaton\-\_\-interface.\-hpp\end{DoxyCompactItemize}

@@ -1,0 +1,808 @@
+\begin{theindex}
+
+  \item {$\sim $\discretionary {-}{}{}Automaton\discretionary {-}{}{}Interface}
+    \subitem {Automaton\discretionary {-}{}{}Interface}, \hyperpage{9}
+  \item {$\sim $\discretionary {-}{}{}Graph\discretionary {-}{}{}Interface}
+    \subitem {Graph\discretionary {-}{}{}Interface}, \hyperpage{24}
+  \item {$\sim $\discretionary {-}{}{}Output\discretionary {-}{}{}Streamer}
+    \subitem {Output\discretionary {-}{}{}Streamer}, \hyperpage{34}
+  \item {$\sim $memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}
+    \subitem {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}, 
+		\hyperpage{27}
+
+  \indexspace
+
+  \item {add\discretionary {-}{}{}From}
+    \subitem {Color\discretionary {-}{}{}Storage}, \hyperpage{17}
+  \item {allocate\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}, 
+		\hyperpage{27}
+  \item {allocate\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}, 
+		\hyperpage{27}
+  \item {allocate\discretionary {-}{}{}\_\discretionary {-}{}{}string}
+    \subitem {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}, 
+		\hyperpage{27}
+  \item {append\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{55}
+  \item {append\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{55}
+  \item {Argument\discretionary {-}{}{}Parser}, \hyperpage{7}
+    \subitem {parse\discretionary {-}{}{}Arguments}, \hyperpage{7}
+  \item {Automaton\discretionary {-}{}{}Builder}, \hyperpage{8}
+    \subitem {Automaton\discretionary {-}{}{}Builder}, \hyperpage{8}
+    \subitem {Automaton\discretionary {-}{}{}Builder}, \hyperpage{8}
+    \subitem {build\discretionary {-}{}{}Automaton}, \hyperpage{9}
+  \item {Automaton\discretionary {-}{}{}Interface}, \hyperpage{9}
+    \subitem {$\sim $\discretionary {-}{}{}Automaton\discretionary {-}{}{}Interface}, 
+		\hyperpage{9}
+    \subitem {get\discretionary {-}{}{}Final\discretionary {-}{}{}States}, 
+		\hyperpage{9}
+    \subitem {get\discretionary {-}{}{}Initial\discretionary {-}{}{}States}, 
+		\hyperpage{9}
+    \subitem {is\discretionary {-}{}{}Final}, \hyperpage{9}
+    \subitem {is\discretionary {-}{}{}Initial}, \hyperpage{10}
+  \item {Automaton\discretionary {-}{}{}Structure}, \hyperpage{10}
+    \subitem {get\discretionary {-}{}{}Allowed\discretionary {-}{}{}Values}, 
+		\hyperpage{11}
+    \subitem {get\discretionary {-}{}{}Final\discretionary {-}{}{}States}, 
+		\hyperpage{11}
+    \subitem {get\discretionary {-}{}{}Initial\discretionary {-}{}{}States}, 
+		\hyperpage{11}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Count}, 
+		\hyperpage{11}
+    \subitem {get\discretionary {-}{}{}String}, \hyperpage{11}
+    \subitem {get\discretionary {-}{}{}Target\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{11}
+    \subitem {get\discretionary {-}{}{}Transition\discretionary {-}{}{}Count}, 
+		\hyperpage{11}
+    \subitem {is\discretionary {-}{}{}Final}, \hyperpage{11}
+    \subitem {is\discretionary {-}{}{}Initial}, \hyperpage{12}
+    \subitem {is\discretionary {-}{}{}Transition\discretionary {-}{}{}Feasible}, 
+		\hyperpage{12}
+
+  \indexspace
+
+  \item {B\discretionary {-}{}{}A}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+  \item {Basic\discretionary {-}{}{}Structure}, \hyperpage{12}
+    \subitem {get\discretionary {-}{}{}Direction}, \hyperpage{12}
+    \subitem {get\discretionary {-}{}{}Specie\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{13}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Count}, 
+		\hyperpage{13}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Levels}, 
+		\hyperpage{13}
+    \subitem {get\discretionary {-}{}{}String}, \hyperpage{13}
+    \subitem {get\discretionary {-}{}{}Target\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{13}
+    \subitem {get\discretionary {-}{}{}Transition\discretionary {-}{}{}Count}, 
+		\hyperpage{13}
+  \item {Basic\discretionary {-}{}{}Structure\discretionary {-}{}{}Builder}, 
+		\hyperpage{14}
+    \subitem {Basic\discretionary {-}{}{}Structure\discretionary {-}{}{}Builder}, 
+		\hyperpage{14}
+    \subitem {Basic\discretionary {-}{}{}Structure\discretionary {-}{}{}Builder}, 
+		\hyperpage{14}
+    \subitem {build\discretionary {-}{}{}Structure}, \hyperpage{14}
+  \item {build\discretionary {-}{}{}Automaton}
+    \subitem {Automaton\discretionary {-}{}{}Builder}, \hyperpage{9}
+  \item {build\discretionary {-}{}{}Functions}
+    \subitem {Functions\discretionary {-}{}{}Builder}, \hyperpage{22}
+  \item {build\discretionary {-}{}{}Product}
+    \subitem {Product\discretionary {-}{}{}Builder}, \hyperpage{39}
+  \item {build\discretionary {-}{}{}Structure}
+    \subitem {Basic\discretionary {-}{}{}Structure\discretionary {-}{}{}Builder}, 
+		\hyperpage{14}
+    \subitem {Parametrized\discretionary {-}{}{}Structure\discretionary {-}{}{}Builder}, 
+		\hyperpage{37}
+
+  \indexspace
+
+  \item {Class\discretionary {-}{}{}Name}, \hyperpage{14}
+  \item {clear}
+    \subitem {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}, 
+		\hyperpage{28}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}document}, 
+		\hyperpage{53}
+  \item {clone\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}, 
+		\hyperpage{28}
+  \item {Color\discretionary {-}{}{}Storage}, \hyperpage{17}
+    \subitem {add\discretionary {-}{}{}From}, \hyperpage{17}
+    \subitem {get\discretionary {-}{}{}Color}, \hyperpage{18}
+    \subitem {get\discretionary {-}{}{}Marking}, \hyperpage{18}
+    \subitem {get\discretionary {-}{}{}Neighbours}, \hyperpage{18}
+    \subitem {reset}, \hyperpage{18}
+    \subitem {update}, \hyperpage{19}
+  \item {coloring}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+  \item {Coloring\discretionary {-}{}{}Analyzer}, \hyperpage{14}
+    \subitem {Coloring\discretionary {-}{}{}Analyzer}, \hyperpage{14}
+    \subitem {Coloring\discretionary {-}{}{}Analyzer}, \hyperpage{14}
+    \subitem {get\discretionary {-}{}{}Colors}, \hyperpage{15}
+    \subitem {get\discretionary {-}{}{}Union}, \hyperpage{15}
+    \subitem {store\discretionary {-}{}{}Results}, \hyperpage{15}
+    \subitem {strart\discretionary {-}{}{}New\discretionary {-}{}{}Round}, 
+		\hyperpage{15}
+  \item {Coloring\discretionary {-}{}{}Parser}, \hyperpage{15}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{16}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{16}
+    \subitem {create\discretionary {-}{}{}Output}, \hyperpage{16}
+    \subitem {get\discretionary {-}{}{}Colors}, \hyperpage{16}
+    \subitem {get\discretionary {-}{}{}Colors\discretionary {-}{}{}Count}, 
+		\hyperpage{16}
+    \subitem {input}, \hyperpage{16}
+    \subitem {open\discretionary {-}{}{}File}, \hyperpage{16}
+    \subitem {output}, \hyperpage{17}
+    \subitem {output\discretionary {-}{}{}Computed}, \hyperpage{17}
+    \subitem {parse\discretionary {-}{}{}Mask}, \hyperpage{17}
+  \item {Constrains\discretionary {-}{}{}Parser}, \hyperpage{19}
+    \subitem {get\discretionary {-}{}{}All\discretionary {-}{}{}Colors\discretionary {-}{}{}Num}, 
+		\hyperpage{20}
+    \subitem {get\discretionary {-}{}{}Color}, \hyperpage{20}
+    \subitem {get\discretionary {-}{}{}Colors\discretionary {-}{}{}Num}, 
+		\hyperpage{20}
+    \subitem {get\discretionary {-}{}{}Specie\discretionary {-}{}{}Num}, 
+		\hyperpage{20}
+    \subitem {get\discretionary {-}{}{}Target\discretionary {-}{}{}Vals}, 
+		\hyperpage{20}
+    \subitem {parse\discretionary {-}{}{}Constrains}, \hyperpage{20}
+  \item {create\discretionary {-}{}{}Output}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{16}
+  \item {create\discretionary {-}{}{}Starting\discretionary {-}{}{}Parameters}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+  \item {create\discretionary {-}{}{}Stream\discretionary {-}{}{}File}
+    \subitem {Output\discretionary {-}{}{}Streamer}, \hyperpage{34}
+
+  \indexspace
+
+  \item {data}
+    \subitem {rapidxml\discretionary {-}{}{}::file}, \hyperpage{21}
+  \item {display}
+    \subitem {Witness\discretionary {-}{}{}Searcher}, \hyperpage{47}
+  \item {display\discretionary {-}{}{}Wintess}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+  \item {do\discretionary {-}{}{}Synthesis}
+    \subitem {Synthesis\discretionary {-}{}{}Manager}, \hyperpage{44}
+  \item {document}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{48}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{55}
+
+  \indexspace
+
+  \item {file}
+    \subitem {rapidxml\discretionary {-}{}{}::file}, \hyperpage{21}
+  \item {find\discretionary {-}{}{}I\discretionary {-}{}{}D}
+    \subitem {Model}, \hyperpage{29}
+  \item {first\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{55}
+  \item {first\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{55}
+  \item {Functions\discretionary {-}{}{}Builder}, \hyperpage{22}
+    \subitem {build\discretionary {-}{}{}Functions}, \hyperpage{22}
+    \subitem {Functions\discretionary {-}{}{}Builder}, \hyperpage{22}
+    \subitem {Functions\discretionary {-}{}{}Builder}, \hyperpage{22}
+  \item {Functions\discretionary {-}{}{}Structure}, \hyperpage{22}
+    \subitem {get\discretionary {-}{}{}Parameters\discretionary {-}{}{}Count}, 
+		\hyperpage{23}
+    \subitem {get\discretionary {-}{}{}Possible\discretionary {-}{}{}Values}, 
+		\hyperpage{23}
+    \subitem {get\discretionary {-}{}{}Regulations\discretionary {-}{}{}Count}, 
+		\hyperpage{23}
+    \subitem {get\discretionary {-}{}{}Source\discretionary {-}{}{}Species}, 
+		\hyperpage{23}
+    \subitem {get\discretionary {-}{}{}Source\discretionary {-}{}{}Values}, 
+		\hyperpage{23}
+    \subitem {get\discretionary {-}{}{}Specie\discretionary {-}{}{}Name}, 
+		\hyperpage{23}
+    \subitem {get\discretionary {-}{}{}Specie\discretionary {-}{}{}Values}, 
+		\hyperpage{23}
+    \subitem {get\discretionary {-}{}{}Species\discretionary {-}{}{}Count}, 
+		\hyperpage{23}
+    \subitem {get\discretionary {-}{}{}Step\discretionary {-}{}{}Size}, 
+		\hyperpage{23}
+
+  \indexspace
+
+  \item {get\discretionary {-}{}{}All\discretionary {-}{}{}Colors\discretionary {-}{}{}Count}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+  \item {get\discretionary {-}{}{}All\discretionary {-}{}{}Colors\discretionary {-}{}{}Num}
+    \subitem {Constrains\discretionary {-}{}{}Parser}, \hyperpage{20}
+  \item {get\discretionary {-}{}{}Allowed\discretionary {-}{}{}Values}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{11}
+  \item {get\discretionary {-}{}{}B\discretionary {-}{}{}A}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{40}
+  \item {get\discretionary {-}{}{}B\discretionary {-}{}{}A\discretionary {-}{}{}I\discretionary {-}{}{}D}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{40}
+  \item {get\discretionary {-}{}{}Color}
+    \subitem {Color\discretionary {-}{}{}Storage}, \hyperpage{18}
+    \subitem {Constrains\discretionary {-}{}{}Parser}, \hyperpage{20}
+  \item {get\discretionary {-}{}{}Colors}
+    \subitem {Coloring\discretionary {-}{}{}Analyzer}, \hyperpage{15}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{16}
+  \item {get\discretionary {-}{}{}Colors\discretionary {-}{}{}Count}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{16}
+  \item {get\discretionary {-}{}{}Colors\discretionary {-}{}{}Num}
+    \subitem {Constrains\discretionary {-}{}{}Parser}, \hyperpage{20}
+  \item {get\discretionary {-}{}{}Cons}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{40}
+  \item {get\discretionary {-}{}{}Direction}
+    \subitem {Basic\discretionary {-}{}{}Structure}, \hyperpage{12}
+  \item {get\discretionary {-}{}{}Edges}
+    \subitem {Model}, \hyperpage{29}
+  \item {get\discretionary {-}{}{}Final\discretionary {-}{}{}States}
+    \subitem {Automaton\discretionary {-}{}{}Interface}, \hyperpage{9}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{11}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{40}
+  \item {get\discretionary {-}{}{}Func}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{40}
+  \item {get\discretionary {-}{}{}Initial\discretionary {-}{}{}States}
+    \subitem {Automaton\discretionary {-}{}{}Interface}, \hyperpage{9}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{11}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{40}
+  \item {get\discretionary {-}{}{}Interactions}
+    \subitem {Model}, \hyperpage{30}
+  \item {get\discretionary {-}{}{}K\discretionary {-}{}{}S}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{41}
+  \item {get\discretionary {-}{}{}K\discretionary {-}{}{}S\discretionary {-}{}{}I\discretionary {-}{}{}D}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{41}
+  \item {get\discretionary {-}{}{}Marking}
+    \subitem {Color\discretionary {-}{}{}Storage}, \hyperpage{18}
+  \item {get\discretionary {-}{}{}Max}
+    \subitem {Model}, \hyperpage{30}
+  \item {get\discretionary {-}{}{}Min}
+    \subitem {Model}, \hyperpage{30}
+  \item {get\discretionary {-}{}{}Name}
+    \subitem {Model}, \hyperpage{30}
+  \item {get\discretionary {-}{}{}Neighbours}
+    \subitem {Color\discretionary {-}{}{}Storage}, \hyperpage{18}
+    \subitem {Per\discretionary {-}{}{}Color\discretionary {-}{}{}Storage}, 
+		\hyperpage{38}
+  \item {get\discretionary {-}{}{}Parameters\discretionary {-}{}{}Count}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+  \item {get\discretionary {-}{}{}Possible\discretionary {-}{}{}Values}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+  \item {get\discretionary {-}{}{}Proc\discretionary {-}{}{}Colors\discretionary {-}{}{}Count}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+  \item {get\discretionary {-}{}{}Product\discretionary {-}{}{}I\discretionary {-}{}{}D}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{41}
+  \item {get\discretionary {-}{}{}Regulations}
+    \subitem {Model}, \hyperpage{30}
+  \item {get\discretionary {-}{}{}Regulations\discretionary {-}{}{}Count}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+  \item {get\discretionary {-}{}{}Round\discretionary {-}{}{}Count}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+  \item {get\discretionary {-}{}{}Round\discretionary {-}{}{}Num}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+  \item {get\discretionary {-}{}{}Round\discretionary {-}{}{}Range}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+  \item {get\discretionary {-}{}{}Round\discretionary {-}{}{}Size}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+  \item {get\discretionary {-}{}{}Source\discretionary {-}{}{}Species}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+  \item {get\discretionary {-}{}{}Source\discretionary {-}{}{}Values}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+  \item {get\discretionary {-}{}{}Specie\discretionary {-}{}{}I\discretionary {-}{}{}D}
+    \subitem {Basic\discretionary {-}{}{}Structure}, \hyperpage{13}
+  \item {get\discretionary {-}{}{}Specie\discretionary {-}{}{}Name}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+  \item {get\discretionary {-}{}{}Specie\discretionary {-}{}{}Num}
+    \subitem {Constrains\discretionary {-}{}{}Parser}, \hyperpage{20}
+  \item {get\discretionary {-}{}{}Specie\discretionary {-}{}{}Values}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+  \item {get\discretionary {-}{}{}Species\discretionary {-}{}{}Count}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+    \subitem {Model}, \hyperpage{30}
+  \item {get\discretionary {-}{}{}State\discretionary {-}{}{}Count}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{11}
+    \subitem {Basic\discretionary {-}{}{}Structure}, \hyperpage{13}
+    \subitem {Graph\discretionary {-}{}{}Interface}, \hyperpage{24}
+    \subitem {Model}, \hyperpage{30}
+    \subitem {Parametrized\discretionary {-}{}{}Structure}, 
+		\hyperpage{36}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{41}
+  \item {get\discretionary {-}{}{}State\discretionary {-}{}{}Levels}
+    \subitem {Basic\discretionary {-}{}{}Structure}, \hyperpage{13}
+    \subitem {Parametrized\discretionary {-}{}{}Structure}, 
+		\hyperpage{36}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{41}
+  \item {get\discretionary {-}{}{}Step\discretionary {-}{}{}Size}
+    \subitem {Functions\discretionary {-}{}{}Structure}, \hyperpage{23}
+    \subitem {Parametrized\discretionary {-}{}{}Structure}, 
+		\hyperpage{36}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{41}
+  \item {get\discretionary {-}{}{}String}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{11}
+    \subitem {Basic\discretionary {-}{}{}Structure}, \hyperpage{13}
+    \subitem {Graph\discretionary {-}{}{}Interface}, \hyperpage{24}
+    \subitem {Parametrized\discretionary {-}{}{}Structure}, 
+		\hyperpage{36}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{41}
+  \item {get\discretionary {-}{}{}Target\discretionary {-}{}{}I\discretionary {-}{}{}D}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{11}
+    \subitem {Basic\discretionary {-}{}{}Structure}, \hyperpage{13}
+    \subitem {Graph\discretionary {-}{}{}Interface}, \hyperpage{25}
+    \subitem {Parametrized\discretionary {-}{}{}Structure}, 
+		\hyperpage{36}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{41}
+  \item {get\discretionary {-}{}{}Target\discretionary {-}{}{}Vals}
+    \subitem {Constrains\discretionary {-}{}{}Parser}, \hyperpage{20}
+  \item {get\discretionary {-}{}{}Transition\discretionary {-}{}{}Count}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{11}
+    \subitem {Basic\discretionary {-}{}{}Structure}, \hyperpage{13}
+    \subitem {Graph\discretionary {-}{}{}Interface}, \hyperpage{25}
+    \subitem {Parametrized\discretionary {-}{}{}Structure}, 
+		\hyperpage{36}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{42}
+  \item {get\discretionary {-}{}{}Transitive}
+    \subitem {Parametrized\discretionary {-}{}{}Structure}, 
+		\hyperpage{36}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{42}
+  \item {get\discretionary {-}{}{}Union}
+    \subitem {Coloring\discretionary {-}{}{}Analyzer}, \hyperpage{15}
+  \item {Graph\discretionary {-}{}{}Interface}, \hyperpage{24}
+    \subitem {$\sim $\discretionary {-}{}{}Graph\discretionary {-}{}{}Interface}, 
+		\hyperpage{24}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Count}, 
+		\hyperpage{24}
+    \subitem {get\discretionary {-}{}{}String}, \hyperpage{24}
+    \subitem {get\discretionary {-}{}{}Target\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{25}
+    \subitem {get\discretionary {-}{}{}Transition\discretionary {-}{}{}Count}, 
+		\hyperpage{25}
+
+  \indexspace
+
+  \item {increase\discretionary {-}{}{}Round}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{44}
+  \item {input}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{16}
+  \item {insert\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{56}
+  \item {insert\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{56}
+  \item {is\discretionary {-}{}{}Final}
+    \subitem {Automaton\discretionary {-}{}{}Interface}, \hyperpage{9}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{11}
+    \subitem {Model}, \hyperpage{30}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{42}
+  \item {is\discretionary {-}{}{}Initial}
+    \subitem {Automaton\discretionary {-}{}{}Interface}, \hyperpage{10}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{12}
+    \subitem {Product\discretionary {-}{}{}Structure}, \hyperpage{42}
+  \item {is\discretionary {-}{}{}Result\discretionary {-}{}{}In\discretionary {-}{}{}File}
+    \subitem {Output\discretionary {-}{}{}Streamer}, \hyperpage{34}
+  \item {is\discretionary {-}{}{}Transition\discretionary {-}{}{}Feasible}
+    \subitem {Automaton\discretionary {-}{}{}Structure}, \hyperpage{12}
+
+  \indexspace
+
+  \item {last\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{56}
+  \item {last\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{57}
+  \item {last\discretionary {-}{}{}Round}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{44}
+
+  \indexspace
+
+  \item {Model}, \hyperpage{29}
+    \subitem {find\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{29}
+    \subitem {get\discretionary {-}{}{}Edges}, \hyperpage{29}
+    \subitem {get\discretionary {-}{}{}Interactions}, \hyperpage{30}
+    \subitem {get\discretionary {-}{}{}Max}, \hyperpage{30}
+    \subitem {get\discretionary {-}{}{}Min}, \hyperpage{30}
+    \subitem {get\discretionary {-}{}{}Name}, \hyperpage{30}
+    \subitem {get\discretionary {-}{}{}Regulations}, \hyperpage{30}
+    \subitem {get\discretionary {-}{}{}Species\discretionary {-}{}{}Count}, 
+		\hyperpage{30}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Count}, 
+		\hyperpage{30}
+    \subitem {is\discretionary {-}{}{}Final}, \hyperpage{30}
+  \item {Model\discretionary {-}{}{}::\discretionary {-}{}{}Interaction}, 
+		\hyperpage{25}
+  \item {Model\discretionary {-}{}{}Checker}, \hyperpage{31}
+    \subitem {Model\discretionary {-}{}{}Checker}, \hyperpage{31}
+    \subitem {Model\discretionary {-}{}{}Checker}, \hyperpage{31}
+    \subitem {start\discretionary {-}{}{}Coloring}, \hyperpage{31}
+  \item {Model\discretionary {-}{}{}Parser}, \hyperpage{32}
+    \subitem {Model\discretionary {-}{}{}Parser}, \hyperpage{32}
+    \subitem {Model\discretionary {-}{}{}Parser}, \hyperpage{32}
+    \subitem {parse\discretionary {-}{}{}Input}, \hyperpage{32}
+
+  \indexspace
+
+  \item {name}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}base}, 
+		\hyperpage{50}
+  \item {name\discretionary {-}{}{}\_\discretionary {-}{}{}size}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}base}, 
+		\hyperpage{51}
+  \item {negation}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+  \item {next\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{48}
+  \item {next\discretionary {-}{}{}\_\discretionary {-}{}{}sibling}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{57}
+
+  \indexspace
+
+  \item {open\discretionary {-}{}{}File}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{16}
+  \item {ouput\discretionary {-}{}{}Clock}
+    \subitem {Time\discretionary {-}{}{}Manager}, \hyperpage{45}
+  \item {output}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{17}
+    \subitem {Output\discretionary {-}{}{}Streamer}, \hyperpage{34, 35}
+  \item {output\discretionary {-}{}{}Computed}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{17}
+  \item {Output\discretionary {-}{}{}Manager}, \hyperpage{33}
+    \subitem {output\discretionary {-}{}{}Round}, \hyperpage{33}
+    \subitem {output\discretionary {-}{}{}Round\discretionary {-}{}{}Num}, 
+		\hyperpage{33}
+    \subitem {output\discretionary {-}{}{}Summary}, \hyperpage{33}
+  \item {output\discretionary {-}{}{}Round}
+    \subitem {Output\discretionary {-}{}{}Manager}, \hyperpage{33}
+  \item {output\discretionary {-}{}{}Round\discretionary {-}{}{}Num}
+    \subitem {Output\discretionary {-}{}{}Manager}, \hyperpage{33}
+  \item {Output\discretionary {-}{}{}Streamer}, \hyperpage{33}
+    \subitem {$\sim $\discretionary {-}{}{}Output\discretionary {-}{}{}Streamer}, 
+		\hyperpage{34}
+    \subitem {create\discretionary {-}{}{}Stream\discretionary {-}{}{}File}, 
+		\hyperpage{34}
+    \subitem {is\discretionary {-}{}{}Result\discretionary {-}{}{}In\discretionary {-}{}{}File}, 
+		\hyperpage{34}
+    \subitem {output}, \hyperpage{34, 35}
+    \subitem {Output\discretionary {-}{}{}Streamer}, \hyperpage{34}
+    \subitem {Output\discretionary {-}{}{}Streamer}, \hyperpage{34}
+    \subitem {test\discretionary {-}{}{}Trait}, \hyperpage{35}
+  \item {output\discretionary {-}{}{}Summary}
+    \subitem {Output\discretionary {-}{}{}Manager}, \hyperpage{33}
+
+  \indexspace
+
+  \item {Parametrized\discretionary {-}{}{}Structure}, \hyperpage{35}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Count}, 
+		\hyperpage{36}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Levels}, 
+		\hyperpage{36}
+    \subitem {get\discretionary {-}{}{}Step\discretionary {-}{}{}Size}, 
+		\hyperpage{36}
+    \subitem {get\discretionary {-}{}{}String}, \hyperpage{36}
+    \subitem {get\discretionary {-}{}{}Target\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{36}
+    \subitem {get\discretionary {-}{}{}Transition\discretionary {-}{}{}Count}, 
+		\hyperpage{36}
+    \subitem {get\discretionary {-}{}{}Transitive}, \hyperpage{36}
+  \item {Parametrized\discretionary {-}{}{}Structure\discretionary {-}{}{}Builder}, 
+		\hyperpage{37}
+    \subitem {build\discretionary {-}{}{}Structure}, \hyperpage{37}
+    \subitem {Parametrized\discretionary {-}{}{}Structure\discretionary {-}{}{}Builder}, 
+		\hyperpage{37}
+    \subitem {Parametrized\discretionary {-}{}{}Structure\discretionary {-}{}{}Builder}, 
+		\hyperpage{37}
+  \item {parent}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}base}, 
+		\hyperpage{51}
+  \item {parse}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}document}, 
+		\hyperpage{53}
+  \item {parse\discretionary {-}{}{}Arguments}
+    \subitem {Argument\discretionary {-}{}{}Parser}, \hyperpage{7}
+  \item {parse\discretionary {-}{}{}Constrains}
+    \subitem {Constrains\discretionary {-}{}{}Parser}, \hyperpage{20}
+  \item {parse\discretionary {-}{}{}Input}
+    \subitem {Model\discretionary {-}{}{}Parser}, \hyperpage{32}
+  \item {parse\discretionary {-}{}{}Mask}
+    \subitem {Coloring\discretionary {-}{}{}Parser}, \hyperpage{17}
+  \item {parsing/rapidxml-\/1.\discretionary {-}{}{}13/rapidxml.\discretionary {-}{}{}hpp}, 
+		\hyperpage{61}
+  \item {parsing/rapidxml-\/1.\discretionary {-}{}{}13/rapidxml\discretionary {-}{}{}\_\discretionary {-}{}{}iterators.\discretionary {-}{}{}hpp}, 
+		\hyperpage{62}
+  \item {parsing/rapidxml-\/1.\discretionary {-}{}{}13/rapidxml\discretionary {-}{}{}\_\discretionary {-}{}{}print.\discretionary {-}{}{}hpp}, 
+		\hyperpage{63}
+  \item {parsing/rapidxml-\/1.\discretionary {-}{}{}13/rapidxml\discretionary {-}{}{}\_\discretionary {-}{}{}utils.\discretionary {-}{}{}hpp}, 
+		\hyperpage{63}
+  \item {Per\discretionary {-}{}{}Color\discretionary {-}{}{}Storage}, 
+		\hyperpage{38}
+    \subitem {get\discretionary {-}{}{}Neighbours}, \hyperpage{38}
+  \item {prepend\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{57}
+  \item {prepend\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{57}
+  \item {previous\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{49}
+  \item {previous\discretionary {-}{}{}\_\discretionary {-}{}{}sibling}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58}
+  \item {proc\discretionary {-}{}{}Count}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+  \item {proc\discretionary {-}{}{}Num}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+  \item {Product\discretionary {-}{}{}Builder}, \hyperpage{39}
+    \subitem {build\discretionary {-}{}{}Product}, \hyperpage{39}
+    \subitem {Product\discretionary {-}{}{}Builder}, \hyperpage{39}
+    \subitem {Product\discretionary {-}{}{}Builder}, \hyperpage{39}
+  \item {Product\discretionary {-}{}{}Structure}, \hyperpage{39}
+    \subitem {get\discretionary {-}{}{}B\discretionary {-}{}{}A}, 
+		\hyperpage{40}
+    \subitem {get\discretionary {-}{}{}B\discretionary {-}{}{}A\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{40}
+    \subitem {get\discretionary {-}{}{}Cons}, \hyperpage{40}
+    \subitem {get\discretionary {-}{}{}Final\discretionary {-}{}{}States}, 
+		\hyperpage{40}
+    \subitem {get\discretionary {-}{}{}Func}, \hyperpage{40}
+    \subitem {get\discretionary {-}{}{}Initial\discretionary {-}{}{}States}, 
+		\hyperpage{40}
+    \subitem {get\discretionary {-}{}{}K\discretionary {-}{}{}S}, 
+		\hyperpage{41}
+    \subitem {get\discretionary {-}{}{}K\discretionary {-}{}{}S\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{41}
+    \subitem {get\discretionary {-}{}{}Product\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{41}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Count}, 
+		\hyperpage{41}
+    \subitem {get\discretionary {-}{}{}State\discretionary {-}{}{}Levels}, 
+		\hyperpage{41}
+    \subitem {get\discretionary {-}{}{}Step\discretionary {-}{}{}Size}, 
+		\hyperpage{41}
+    \subitem {get\discretionary {-}{}{}String}, \hyperpage{41}
+    \subitem {get\discretionary {-}{}{}Target\discretionary {-}{}{}I\discretionary {-}{}{}D}, 
+		\hyperpage{41}
+    \subitem {get\discretionary {-}{}{}Transition\discretionary {-}{}{}Count}, 
+		\hyperpage{42}
+    \subitem {get\discretionary {-}{}{}Transitive}, \hyperpage{42}
+    \subitem {is\discretionary {-}{}{}Final}, \hyperpage{42}
+    \subitem {is\discretionary {-}{}{}Initial}, \hyperpage{42}
+
+  \indexspace
+
+  \item {rapidxml\discretionary {-}{}{}::attribute\discretionary {-}{}{}\_\discretionary {-}{}{}iterator$<$ Ch $>$}, 
+		\hyperpage{7}
+  \item {rapidxml\discretionary {-}{}{}::file}
+    \subitem {data}, \hyperpage{21}
+    \subitem {file}, \hyperpage{21}
+    \subitem {size}, \hyperpage{21}
+  \item {rapidxml\discretionary {-}{}{}::file$<$ Ch $>$}, 
+		\hyperpage{20}
+  \item {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}
+    \subitem {$\sim $memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}, 
+		\hyperpage{27}
+    \subitem {allocate\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{27}
+    \subitem {allocate\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{27}
+    \subitem {allocate\discretionary {-}{}{}\_\discretionary {-}{}{}string}, 
+		\hyperpage{27}
+    \subitem {clear}, \hyperpage{28}
+    \subitem {clone\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{28}
+    \subitem {set\discretionary {-}{}{}\_\discretionary {-}{}{}allocator}, 
+		\hyperpage{28}
+  \item {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool$<$ Ch $>$}, 
+		\hyperpage{26}
+  \item {rapidxml\discretionary {-}{}{}::node\discretionary {-}{}{}\_\discretionary {-}{}{}iterator$<$ Ch $>$}, 
+		\hyperpage{32}
+  \item {rapidxml\discretionary {-}{}{}::parse\discretionary {-}{}{}\_\discretionary {-}{}{}error}, 
+		\hyperpage{37}
+    \subitem {what}, \hyperpage{38}
+    \subitem {where}, \hyperpage{38}
+  \item {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {document}, \hyperpage{48}
+    \subitem {next\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{48}
+    \subitem {previous\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{49}
+    \subitem {xml\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{48}
+  \item {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}attribute$<$ Ch $>$}, 
+		\hyperpage{48}
+  \item {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}base}
+    \subitem {name}, \hyperpage{50}
+    \subitem {name\discretionary {-}{}{}\_\discretionary {-}{}{}size}, 
+		\hyperpage{51}
+    \subitem {parent}, \hyperpage{51}
+    \subitem {value}, \hyperpage{51, 52}
+    \subitem {value\discretionary {-}{}{}\_\discretionary {-}{}{}size}, 
+		\hyperpage{52}
+  \item {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}base$<$ Ch $>$}, 
+		\hyperpage{49}
+  \item {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}document}
+    \subitem {clear}, \hyperpage{53}
+    \subitem {parse}, \hyperpage{53}
+  \item {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}document$<$ Ch $>$}, 
+		\hyperpage{52}
+  \item {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {append\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{55}
+    \subitem {append\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{55}
+    \subitem {document}, \hyperpage{55}
+    \subitem {first\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{55}
+    \subitem {first\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{55}
+    \subitem {insert\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{56}
+    \subitem {insert\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{56}
+    \subitem {last\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{56}
+    \subitem {last\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{57}
+    \subitem {next\discretionary {-}{}{}\_\discretionary {-}{}{}sibling}, 
+		\hyperpage{57}
+    \subitem {prepend\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{57}
+    \subitem {prepend\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{57}
+    \subitem {previous\discretionary {-}{}{}\_\discretionary {-}{}{}sibling}, 
+		\hyperpage{58}
+    \subitem {remove\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{58}
+    \subitem {remove\discretionary {-}{}{}\_\discretionary {-}{}{}first\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{58}
+    \subitem {remove\discretionary {-}{}{}\_\discretionary {-}{}{}first\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58}
+    \subitem {remove\discretionary {-}{}{}\_\discretionary {-}{}{}last\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{58}
+    \subitem {remove\discretionary {-}{}{}\_\discretionary {-}{}{}last\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58}
+    \subitem {type}, \hyperpage{58, 59}
+    \subitem {xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{54}
+  \item {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node$<$ Ch $>$}, 
+		\hyperpage{53}
+  \item {remove\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58}
+  \item {remove\discretionary {-}{}{}\_\discretionary {-}{}{}first\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58}
+  \item {remove\discretionary {-}{}{}\_\discretionary {-}{}{}first\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58}
+  \item {remove\discretionary {-}{}{}\_\discretionary {-}{}{}last\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58}
+  \item {remove\discretionary {-}{}{}\_\discretionary {-}{}{}last\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58}
+  \item {reset}
+    \subitem {Color\discretionary {-}{}{}Storage}, \hyperpage{18}
+  \item {robustness}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+
+  \indexspace
+
+  \item {set\discretionary {-}{}{}\_\discretionary {-}{}{}allocator}
+    \subitem {rapidxml\discretionary {-}{}{}::memory\discretionary {-}{}{}\_\discretionary {-}{}{}pool}, 
+		\hyperpage{28}
+  \item {set\discretionary {-}{}{}Start\discretionary {-}{}{}Positions}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{44}
+  \item {size}
+    \subitem {rapidxml\discretionary {-}{}{}::file}, \hyperpage{21}
+  \item {Split\discretionary {-}{}{}Manager}, \hyperpage{42}
+    \subitem {create\discretionary {-}{}{}Starting\discretionary {-}{}{}Parameters}, 
+		\hyperpage{43}
+    \subitem {get\discretionary {-}{}{}All\discretionary {-}{}{}Colors\discretionary {-}{}{}Count}, 
+		\hyperpage{43}
+    \subitem {get\discretionary {-}{}{}Proc\discretionary {-}{}{}Colors\discretionary {-}{}{}Count}, 
+		\hyperpage{43}
+    \subitem {get\discretionary {-}{}{}Round\discretionary {-}{}{}Count}, 
+		\hyperpage{43}
+    \subitem {get\discretionary {-}{}{}Round\discretionary {-}{}{}Num}, 
+		\hyperpage{43}
+    \subitem {get\discretionary {-}{}{}Round\discretionary {-}{}{}Range}, 
+		\hyperpage{43}
+    \subitem {get\discretionary {-}{}{}Round\discretionary {-}{}{}Size}, 
+		\hyperpage{43}
+    \subitem {increase\discretionary {-}{}{}Round}, \hyperpage{44}
+    \subitem {last\discretionary {-}{}{}Round}, \hyperpage{44}
+    \subitem {set\discretionary {-}{}{}Start\discretionary {-}{}{}Positions}, 
+		\hyperpage{44}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{43}
+    \subitem {valid}, \hyperpage{44}
+  \item {start\discretionary {-}{}{}Clock}
+    \subitem {Time\discretionary {-}{}{}Manager}, \hyperpage{45}
+  \item {start\discretionary {-}{}{}Coloring}
+    \subitem {Model\discretionary {-}{}{}Checker}, \hyperpage{31}
+  \item {stats}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+  \item {store\discretionary {-}{}{}Results}
+    \subitem {Coloring\discretionary {-}{}{}Analyzer}, \hyperpage{15}
+  \item {strart\discretionary {-}{}{}New\discretionary {-}{}{}Round}
+    \subitem {Coloring\discretionary {-}{}{}Analyzer}, \hyperpage{15}
+  \item {Synthesis\discretionary {-}{}{}Manager}, \hyperpage{44}
+    \subitem {do\discretionary {-}{}{}Synthesis}, \hyperpage{44}
+    \subitem {Synthesis\discretionary {-}{}{}Manager}, \hyperpage{44}
+    \subitem {Synthesis\discretionary {-}{}{}Manager}, \hyperpage{44}
+
+  \indexspace
+
+  \item {test\discretionary {-}{}{}Trait}
+    \subitem {Output\discretionary {-}{}{}Streamer}, \hyperpage{35}
+  \item {Time\discretionary {-}{}{}Manager}, \hyperpage{45}
+    \subitem {ouput\discretionary {-}{}{}Clock}, \hyperpage{45}
+    \subitem {start\discretionary {-}{}{}Clock}, \hyperpage{45}
+  \item {time\discretionary {-}{}{}Serie}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{47}
+  \item {type}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{58, 59}
+
+  \indexspace
+
+  \item {update}
+    \subitem {Color\discretionary {-}{}{}Storage}, \hyperpage{19}
+  \item {User\discretionary {-}{}{}Options}, \hyperpage{45}
+    \subitem {B\discretionary {-}{}{}A}, \hyperpage{46}
+    \subitem {coloring}, \hyperpage{46}
+    \subitem {display\discretionary {-}{}{}Wintess}, \hyperpage{46}
+    \subitem {negation}, \hyperpage{46}
+    \subitem {proc\discretionary {-}{}{}Count}, \hyperpage{46}
+    \subitem {proc\discretionary {-}{}{}Num}, \hyperpage{46}
+    \subitem {robustness}, \hyperpage{46}
+    \subitem {stats}, \hyperpage{46}
+    \subitem {time\discretionary {-}{}{}Serie}, \hyperpage{47}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{46}
+    \subitem {verbose}, \hyperpage{47}
+    \subitem {witnesses}, \hyperpage{47}
+
+  \indexspace
+
+  \item {valid}
+    \subitem {Split\discretionary {-}{}{}Manager}, \hyperpage{44}
+  \item {value}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}base}, 
+		\hyperpage{51, 52}
+  \item {value\discretionary {-}{}{}\_\discretionary {-}{}{}size}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}base}, 
+		\hyperpage{52}
+  \item {verbose}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{47}
+
+  \indexspace
+
+  \item {what}
+    \subitem {rapidxml\discretionary {-}{}{}::parse\discretionary {-}{}{}\_\discretionary {-}{}{}error}, 
+		\hyperpage{38}
+  \item {where}
+    \subitem {rapidxml\discretionary {-}{}{}::parse\discretionary {-}{}{}\_\discretionary {-}{}{}error}, 
+		\hyperpage{38}
+  \item {Witness\discretionary {-}{}{}Searcher}, \hyperpage{47}
+    \subitem {display}, \hyperpage{47}
+    \subitem {Witness\discretionary {-}{}{}Searcher}, \hyperpage{47}
+    \subitem {Witness\discretionary {-}{}{}Searcher}, \hyperpage{47}
+  \item {witnesses}
+    \subitem {User\discretionary {-}{}{}Options}, \hyperpage{47}
+
+  \indexspace
+
+  \item {xml\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}attribute}, 
+		\hyperpage{48}
+  \item {xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}
+    \subitem {rapidxml\discretionary {-}{}{}::xml\discretionary {-}{}{}\_\discretionary {-}{}{}node}, 
+		\hyperpage{54}
+
+\end{theindex}

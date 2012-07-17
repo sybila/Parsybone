@@ -1,0 +1,163 @@
+\hypertarget{class_split_manager}{\section{Split\-Manager Class Reference}
+\label{class_split_manager}\index{Split\-Manager@{Split\-Manager}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_split_manager_a43be4ad8687d41b4d5b39930f5647fd3}{Split\-Manager} (Color\-Num \-\_\-all\-\_\-colors\-\_\-count)
+\item 
+void \hyperlink{class_split_manager_aefbe08dc3d1ffc189c71b16ef9d29a2c}{set\-Start\-Positions} ()
+\item 
+void \hyperlink{class_split_manager_a59d545f8e492f00c4dfc37ac5b2f5fa0}{increase\-Round} ()
+\item 
+const Color\-Num \hyperlink{class_split_manager_a29b0ff3eeafec41aa6e5a69598f53e0c}{get\-All\-Colors\-Count} () const 
+\item 
+const Range \hyperlink{class_split_manager_a22b8aa231bc5169b2239427fd6a65a50}{get\-Round\-Range} () const 
+\item 
+const Color\-Num \hyperlink{class_split_manager_a0201cbbb62e2e0a545ff14fd2ec3546e}{get\-Round\-Size} () const 
+\item 
+const Color\-Num \hyperlink{class_split_manager_a6a056c67fc1b475e6ad79a55965b981e}{get\-Proc\-Colors\-Count} () const 
+\item 
+const bool \hyperlink{class_split_manager_a4a1a01702396ccfd7e268eed9967eea1}{last\-Round} () const 
+\item 
+const bool \hyperlink{class_split_manager_a8aa618ec1490e8cea24ae1d9f91e9334}{valid} () const 
+\item 
+const long long \hyperlink{class_split_manager_aa6986e0b62d5cf945ad7fd07599f9b0c}{get\-Round\-Num} () const 
+\item 
+const long long \hyperlink{class_split_manager_a3b27f3ebeadde75b653ae682d42fad92}{get\-Round\-Count} () const 
+\item 
+Parameters \hyperlink{class_split_manager_ab27835493c0bd777569d8b1528667abf}{create\-Starting\-Parameters} () const 
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_split_manager_a43be4ad8687d41b4d5b39930f5647fd3}{\index{Split\-Manager@{Split\-Manager}!Split\-Manager@{Split\-Manager}}
+\index{Split\-Manager@{Split\-Manager}!SplitManager@{Split\-Manager}}
+\subsubsection[{Split\-Manager}]{\setlength{\rightskip}{0pt plus 5cm}Split\-Manager\-::\-Split\-Manager (
+\begin{DoxyParamCaption}
+\item[{Color\-Num}]{\-\_\-all\-\_\-colors\-\_\-count}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a43be4ad8687d41b4d5b39930f5647fd3}
+Computes splitting for both process (in case of a distributed computation) and its rounds that are of a size of the Parameters data type.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \-\_\-processes\-\_\-count} & how many processes compute the coloring \\
+\hline
+{\em \-\_\-process\-\_\-number} & index of this process \\
+\hline
+{\em \-\_\-parameters\-\_\-count} & complete number of parameters that have to be tested by all the processes \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_split_manager_ab27835493c0bd777569d8b1528667abf}{\index{Split\-Manager@{Split\-Manager}!create\-Starting\-Parameters@{create\-Starting\-Parameters}}
+\index{create\-Starting\-Parameters@{create\-Starting\-Parameters}!SplitManager@{Split\-Manager}}
+\subsubsection[{create\-Starting\-Parameters}]{\setlength{\rightskip}{0pt plus 5cm}Parameters Split\-Manager\-::create\-Starting\-Parameters (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_ab27835493c0bd777569d8b1528667abf}
+\begin{DoxyReturn}{Returns}
+All the parameters of the current round. 
+\end{DoxyReturn}
+\hypertarget{class_split_manager_a29b0ff3eeafec41aa6e5a69598f53e0c}{\index{Split\-Manager@{Split\-Manager}!get\-All\-Colors\-Count@{get\-All\-Colors\-Count}}
+\index{get\-All\-Colors\-Count@{get\-All\-Colors\-Count}!SplitManager@{Split\-Manager}}
+\subsubsection[{get\-All\-Colors\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const Color\-Num Split\-Manager\-::get\-All\-Colors\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a29b0ff3eeafec41aa6e5a69598f53e0c}
+\begin{DoxyReturn}{Returns}
+total number of parameters for all the processes 
+\end{DoxyReturn}
+\hypertarget{class_split_manager_a6a056c67fc1b475e6ad79a55965b981e}{\index{Split\-Manager@{Split\-Manager}!get\-Proc\-Colors\-Count@{get\-Proc\-Colors\-Count}}
+\index{get\-Proc\-Colors\-Count@{get\-Proc\-Colors\-Count}!SplitManager@{Split\-Manager}}
+\subsubsection[{get\-Proc\-Colors\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const Color\-Num Split\-Manager\-::get\-Proc\-Colors\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a6a056c67fc1b475e6ad79a55965b981e}
+\begin{DoxyReturn}{Returns}
+range with first and one before last parameter to compute for this process 
+\end{DoxyReturn}
+\hypertarget{class_split_manager_a3b27f3ebeadde75b653ae682d42fad92}{\index{Split\-Manager@{Split\-Manager}!get\-Round\-Count@{get\-Round\-Count}}
+\index{get\-Round\-Count@{get\-Round\-Count}!SplitManager@{Split\-Manager}}
+\subsubsection[{get\-Round\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const long long Split\-Manager\-::get\-Round\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a3b27f3ebeadde75b653ae682d42fad92}
+\begin{DoxyReturn}{Returns}
+total number of rounds 
+\end{DoxyReturn}
+\hypertarget{class_split_manager_aa6986e0b62d5cf945ad7fd07599f9b0c}{\index{Split\-Manager@{Split\-Manager}!get\-Round\-Num@{get\-Round\-Num}}
+\index{get\-Round\-Num@{get\-Round\-Num}!SplitManager@{Split\-Manager}}
+\subsubsection[{get\-Round\-Num}]{\setlength{\rightskip}{0pt plus 5cm}const long long Split\-Manager\-::get\-Round\-Num (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_aa6986e0b62d5cf945ad7fd07599f9b0c}
+\begin{DoxyReturn}{Returns}
+number of this round 
+\end{DoxyReturn}
+\hypertarget{class_split_manager_a22b8aa231bc5169b2239427fd6a65a50}{\index{Split\-Manager@{Split\-Manager}!get\-Round\-Range@{get\-Round\-Range}}
+\index{get\-Round\-Range@{get\-Round\-Range}!SplitManager@{Split\-Manager}}
+\subsubsection[{get\-Round\-Range}]{\setlength{\rightskip}{0pt plus 5cm}const Range Split\-Manager\-::get\-Round\-Range (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a22b8aa231bc5169b2239427fd6a65a50}
+\begin{DoxyReturn}{Returns}
+range with first and one before last parameter to compute this round 
+\end{DoxyReturn}
+\hypertarget{class_split_manager_a0201cbbb62e2e0a545ff14fd2ec3546e}{\index{Split\-Manager@{Split\-Manager}!get\-Round\-Size@{get\-Round\-Size}}
+\index{get\-Round\-Size@{get\-Round\-Size}!SplitManager@{Split\-Manager}}
+\subsubsection[{get\-Round\-Size}]{\setlength{\rightskip}{0pt plus 5cm}const Color\-Num Split\-Manager\-::get\-Round\-Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a0201cbbb62e2e0a545ff14fd2ec3546e}
+\begin{DoxyReturn}{Returns}
+number of bits in current round 
+\end{DoxyReturn}
+\hypertarget{class_split_manager_a59d545f8e492f00c4dfc37ac5b2f5fa0}{\index{Split\-Manager@{Split\-Manager}!increase\-Round@{increase\-Round}}
+\index{increase\-Round@{increase\-Round}!SplitManager@{Split\-Manager}}
+\subsubsection[{increase\-Round}]{\setlength{\rightskip}{0pt plus 5cm}void Split\-Manager\-::increase\-Round (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a59d545f8e492f00c4dfc37ac5b2f5fa0}
+Increase parameter positions so a new round can be computed. \hypertarget{class_split_manager_a4a1a01702396ccfd7e268eed9967eea1}{\index{Split\-Manager@{Split\-Manager}!last\-Round@{last\-Round}}
+\index{last\-Round@{last\-Round}!SplitManager@{Split\-Manager}}
+\subsubsection[{last\-Round}]{\setlength{\rightskip}{0pt plus 5cm}const bool Split\-Manager\-::last\-Round (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a4a1a01702396ccfd7e268eed9967eea1}
+\begin{DoxyReturn}{Returns}
+true if this round is not the last 
+\end{DoxyReturn}
+\hypertarget{class_split_manager_aefbe08dc3d1ffc189c71b16ef9d29a2c}{\index{Split\-Manager@{Split\-Manager}!set\-Start\-Positions@{set\-Start\-Positions}}
+\index{set\-Start\-Positions@{set\-Start\-Positions}!SplitManager@{Split\-Manager}}
+\subsubsection[{set\-Start\-Positions}]{\setlength{\rightskip}{0pt plus 5cm}void Split\-Manager\-::set\-Start\-Positions (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_aefbe08dc3d1ffc189c71b16ef9d29a2c}
+Set values for the first round of computation. \hypertarget{class_split_manager_a8aa618ec1490e8cea24ae1d9f91e9334}{\index{Split\-Manager@{Split\-Manager}!valid@{valid}}
+\index{valid@{valid}!SplitManager@{Split\-Manager}}
+\subsubsection[{valid}]{\setlength{\rightskip}{0pt plus 5cm}const bool Split\-Manager\-::valid (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a8aa618ec1490e8cea24ae1d9f91e9334}
+\begin{DoxyReturn}{Returns}
+true if current round is valid (this round does not correspond to any paramteres) 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+coloring/split\-\_\-manager.\-hpp\end{DoxyCompactItemize}

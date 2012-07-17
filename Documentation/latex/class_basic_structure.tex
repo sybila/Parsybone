@@ -1,0 +1,141 @@
+\hypertarget{class_basic_structure}{\section{Basic\-Structure Class Reference}
+\label{class_basic_structure}\index{Basic\-Structure@{Basic\-Structure}}
+}
+
+
+Inherits \hyperlink{class_graph_interface}{Graph\-Interface}.
+
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bfseries State}
+\item 
+struct {\bfseries Transition}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+const std\-::size\-\_\-t \hyperlink{class_basic_structure_ac1db5f95d7bd7549bce1cad8be6ebabd}{get\-State\-Count} () const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_basic_structure_a556f1075b553d33b4a6bfb542209682b}{get\-Transition\-Count} (const State\-I\-D I\-D) const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_basic_structure_aeca3b25a5be8a4d27f6090485b132dc4}{get\-Target\-I\-D} (const State\-I\-D I\-D, const std\-::size\-\_\-t trans\-\_\-number) const 
+\item 
+const std\-::string \hyperlink{class_basic_structure_a8d416ca7a8aa76a8124b1a077ef67eab}{get\-String} (const State\-I\-D I\-D) const 
+\item 
+const Levels \& \hyperlink{class_basic_structure_a16e4995e8983e3882015158ef3141dba}{get\-State\-Levels} (const State\-I\-D I\-D) const 
+\item 
+const std\-::size\-\_\-t \hyperlink{class_basic_structure_af3766288b7b8d68ab62e650fc261d8de}{get\-Specie\-I\-D} (const State\-I\-D I\-D, const std\-::size\-\_\-t neighbour\-\_\-index) const 
+\item 
+const Direction \hyperlink{class_basic_structure_afff4c3bdb6c95f1bfe8a12a00df3875f}{get\-Direction} (const State\-I\-D I\-D, const std\-::size\-\_\-t neighbour\-\_\-index) const 
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_basic_structure_ad482d25720baca819f24eed850bd41e2}{class {\bfseries Basic\-Structure\-Builder}}\label{class_basic_structure_ad482d25720baca819f24eed850bd41e2}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_basic_structure_afff4c3bdb6c95f1bfe8a12a00df3875f}{\index{Basic\-Structure@{Basic\-Structure}!get\-Direction@{get\-Direction}}
+\index{get\-Direction@{get\-Direction}!BasicStructure@{Basic\-Structure}}
+\subsubsection[{get\-Direction}]{\setlength{\rightskip}{0pt plus 5cm}const Direction Basic\-Structure\-::get\-Direction (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D, }
+\item[{const std\-::size\-\_\-t}]{neighbour\-\_\-index}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_basic_structure_afff4c3bdb6c95f1bfe8a12a00df3875f}
+
+\begin{DoxyParams}{Parameters}
+{\em I\-D} & I\-D of the state to get the neighbour from \\
+\hline
+{\em neighbour\-\_\-index} & index in the vector of neighbours\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Direction in which the specie changes 
+\end{DoxyReturn}
+\hypertarget{class_basic_structure_af3766288b7b8d68ab62e650fc261d8de}{\index{Basic\-Structure@{Basic\-Structure}!get\-Specie\-I\-D@{get\-Specie\-I\-D}}
+\index{get\-Specie\-I\-D@{get\-Specie\-I\-D}!BasicStructure@{Basic\-Structure}}
+\subsubsection[{get\-Specie\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Basic\-Structure\-::get\-Specie\-I\-D (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D, }
+\item[{const std\-::size\-\_\-t}]{neighbour\-\_\-index}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_basic_structure_af3766288b7b8d68ab62e650fc261d8de}
+
+\begin{DoxyParams}{Parameters}
+{\em I\-D} & I\-D of the state to get the neighbour from \\
+\hline
+{\em neighbour\-\_\-index} & index in the vector of neighbours\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+I\-D of the specie that vary between the two states 
+\end{DoxyReturn}
+\hypertarget{class_basic_structure_ac1db5f95d7bd7549bce1cad8be6ebabd}{\index{Basic\-Structure@{Basic\-Structure}!get\-State\-Count@{get\-State\-Count}}
+\index{get\-State\-Count@{get\-State\-Count}!BasicStructure@{Basic\-Structure}}
+\subsubsection[{get\-State\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Basic\-Structure\-::get\-State\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_basic_structure_ac1db5f95d7bd7549bce1cad8be6ebabd}
+
+
+Implements \hyperlink{class_graph_interface_af1451d51753aeb985b9786abd3acc4da}{Graph\-Interface}.
+
+\hypertarget{class_basic_structure_a16e4995e8983e3882015158ef3141dba}{\index{Basic\-Structure@{Basic\-Structure}!get\-State\-Levels@{get\-State\-Levels}}
+\index{get\-State\-Levels@{get\-State\-Levels}!BasicStructure@{Basic\-Structure}}
+\subsubsection[{get\-State\-Levels}]{\setlength{\rightskip}{0pt plus 5cm}const Levels\& Basic\-Structure\-::get\-State\-Levels (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_basic_structure_a16e4995e8983e3882015158ef3141dba}
+
+\begin{DoxyParams}{Parameters}
+{\em I\-D} & I\-D of the state to get\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+levels of the state 
+\end{DoxyReturn}
+\hypertarget{class_basic_structure_a8d416ca7a8aa76a8124b1a077ef67eab}{\index{Basic\-Structure@{Basic\-Structure}!get\-String@{get\-String}}
+\index{get\-String@{get\-String}!BasicStructure@{Basic\-Structure}}
+\subsubsection[{get\-String}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::string Basic\-Structure\-::get\-String (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_basic_structure_a8d416ca7a8aa76a8124b1a077ef67eab}
+Unused, return empty string.  
+
+Implements \hyperlink{class_graph_interface_adc263054e00abecce3327418a383f387}{Graph\-Interface}.
+
+\hypertarget{class_basic_structure_aeca3b25a5be8a4d27f6090485b132dc4}{\index{Basic\-Structure@{Basic\-Structure}!get\-Target\-I\-D@{get\-Target\-I\-D}}
+\index{get\-Target\-I\-D@{get\-Target\-I\-D}!BasicStructure@{Basic\-Structure}}
+\subsubsection[{get\-Target\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Basic\-Structure\-::get\-Target\-I\-D (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D, }
+\item[{const std\-::size\-\_\-t}]{trans\-\_\-number}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_basic_structure_aeca3b25a5be8a4d27f6090485b132dc4}
+
+
+Implements \hyperlink{class_graph_interface_a327ef34c0a7b7bef91c1ec55a0610a5b}{Graph\-Interface}.
+
+\hypertarget{class_basic_structure_a556f1075b553d33b4a6bfb542209682b}{\index{Basic\-Structure@{Basic\-Structure}!get\-Transition\-Count@{get\-Transition\-Count}}
+\index{get\-Transition\-Count@{get\-Transition\-Count}!BasicStructure@{Basic\-Structure}}
+\subsubsection[{get\-Transition\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::size\-\_\-t Basic\-Structure\-::get\-Transition\-Count (
+\begin{DoxyParamCaption}
+\item[{const State\-I\-D}]{I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_basic_structure_a556f1075b553d33b4a6bfb542209682b}
+
+
+Implements \hyperlink{class_graph_interface_af34e16aa42701de6ca8d0c9a361ffc56}{Graph\-Interface}.
+
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+reforging/basic\-\_\-structure.\-hpp\end{DoxyCompactItemize}

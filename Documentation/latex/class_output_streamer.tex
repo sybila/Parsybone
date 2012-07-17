@@ -1,0 +1,150 @@
+\hypertarget{class_output_streamer}{\section{Output\-Streamer Class Reference}
+\label{class_output_streamer}\index{Output\-Streamer@{Output\-Streamer}}
+}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_output_streamer_afde0341c035a66313bc0c473545564df}{typedef const unsigned int {\bfseries Trait}}\label{class_output_streamer_afde0341c035a66313bc0c473545564df}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \hyperlink{class_output_streamer_ac69a0b5740c6789c289f32a847497bcb}{test\-Trait} (const unsigned int tested, const unsigned int traits) const 
+\item 
+const bool \hyperlink{class_output_streamer_aae4a0d57c45e8c315c782c5ce6974497}{is\-Result\-In\-File} () const 
+\item 
+\hyperlink{class_output_streamer_a300cf2cf0796ac9f32fa7706dfe6e3f7}{Output\-Streamer} ()
+\item 
+\hyperlink{class_output_streamer_a2c5b231daa95e75e3d97412bf2825522}{$\sim$\-Output\-Streamer} ()
+\item 
+void \hyperlink{class_output_streamer_a4f9075e1f4d0990da619fc82e648ed3a}{create\-Stream\-File} (Stream\-Type stream\-\_\-type, std\-::string filename)
+\item 
+\hypertarget{class_output_streamer_ab5ba0f1791ea756e826b4fa503420915}{void {\bfseries flush} ()}\label{class_output_streamer_ab5ba0f1791ea756e826b4fa503420915}
+
+\item 
+{\footnotesize template$<$class output\-Type $>$ }\\const \hyperlink{class_output_streamer}{Output\-Streamer} \& \hyperlink{class_output_streamer_aca59f9ceafef1709da0c99b1d381be0a}{output} (Stream\-Type stream\-\_\-type, const output\-Type \&stream\-\_\-data, const unsigned int trait\-\_\-mask=0)
+\item 
+{\footnotesize template$<$class output\-Type $>$ }\\const \hyperlink{class_output_streamer}{Output\-Streamer} \& \hyperlink{class_output_streamer_a0b80cd3ff924882963e7f90bb2cdc1f2}{output} (const output\-Type \&stream\-\_\-data, const unsigned int trait\-\_\-mask=0) const 
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_output_streamer_ac71ea1199278b1d27f8e02961e03324c}{static Trait {\bfseries no\-\_\-newl} = 1}\label{class_output_streamer_ac71ea1199278b1d27f8e02961e03324c}
+
+\item 
+\hypertarget{class_output_streamer_a8c74dcf725523c8c1d310f3bcbebd58d}{static Trait {\bfseries important} = 2}\label{class_output_streamer_a8c74dcf725523c8c1d310f3bcbebd58d}
+
+\item 
+\hypertarget{class_output_streamer_a96c1c4303f014a6eb83ab9635b783419}{static Trait {\bfseries rewrite\-\_\-ln} = 4}\label{class_output_streamer_a96c1c4303f014a6eb83ab9635b783419}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_output_streamer_a300cf2cf0796ac9f32fa7706dfe6e3f7}{\index{Output\-Streamer@{Output\-Streamer}!Output\-Streamer@{Output\-Streamer}}
+\index{Output\-Streamer@{Output\-Streamer}!OutputStreamer@{Output\-Streamer}}
+\subsubsection[{Output\-Streamer}]{\setlength{\rightskip}{0pt plus 5cm}Output\-Streamer\-::\-Output\-Streamer (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_output_streamer_a300cf2cf0796ac9f32fa7706dfe6e3f7}
+Basic constructor -\/ should be used only for the single object shared throught the program \hypertarget{class_output_streamer_a2c5b231daa95e75e3d97412bf2825522}{\index{Output\-Streamer@{Output\-Streamer}!$\sim$\-Output\-Streamer@{$\sim$\-Output\-Streamer}}
+\index{$\sim$\-Output\-Streamer@{$\sim$\-Output\-Streamer}!OutputStreamer@{Output\-Streamer}}
+\subsubsection[{$\sim$\-Output\-Streamer}]{\setlength{\rightskip}{0pt plus 5cm}Output\-Streamer\-::$\sim$\-Output\-Streamer (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_output_streamer_a2c5b231daa95e75e3d97412bf2825522}
+If some of the streams has been assigned a file, delete that file object 
+
+\subsection{Member Function Documentation}
+\hypertarget{class_output_streamer_a4f9075e1f4d0990da619fc82e648ed3a}{\index{Output\-Streamer@{Output\-Streamer}!create\-Stream\-File@{create\-Stream\-File}}
+\index{create\-Stream\-File@{create\-Stream\-File}!OutputStreamer@{Output\-Streamer}}
+\subsubsection[{create\-Stream\-File}]{\setlength{\rightskip}{0pt plus 5cm}void Output\-Streamer\-::create\-Stream\-File (
+\begin{DoxyParamCaption}
+\item[{Stream\-Type}]{stream\-\_\-type, }
+\item[{std\-::string}]{filename}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_output_streamer_a4f9075e1f4d0990da619fc82e648ed3a}
+output on a specified stream
+
+
+\begin{DoxyParams}{Parameters}
+{\em stream\-\_\-type} & enumeration type specifying the type of stream to output to \\
+\hline
+{\em data} & data to output -\/ should be any possible ostream data \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_output_streamer_aae4a0d57c45e8c315c782c5ce6974497}{\index{Output\-Streamer@{Output\-Streamer}!is\-Result\-In\-File@{is\-Result\-In\-File}}
+\index{is\-Result\-In\-File@{is\-Result\-In\-File}!OutputStreamer@{Output\-Streamer}}
+\subsubsection[{is\-Result\-In\-File}]{\setlength{\rightskip}{0pt plus 5cm}const bool Output\-Streamer\-::is\-Result\-In\-File (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_output_streamer_aae4a0d57c45e8c315c782c5ce6974497}
+\begin{DoxyReturn}{Returns}
+true if there is a file to output the results 
+\end{DoxyReturn}
+\hypertarget{class_output_streamer_aca59f9ceafef1709da0c99b1d381be0a}{\index{Output\-Streamer@{Output\-Streamer}!output@{output}}
+\index{output@{output}!OutputStreamer@{Output\-Streamer}}
+\subsubsection[{output}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class output\-Type $>$ const {\bf Output\-Streamer}\& Output\-Streamer\-::output (
+\begin{DoxyParamCaption}
+\item[{Stream\-Type}]{stream\-\_\-type, }
+\item[{const output\-Type \&}]{stream\-\_\-data, }
+\item[{const unsigned int}]{trait\-\_\-mask = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_output_streamer_aca59f9ceafef1709da0c99b1d381be0a}
+output on a specified stream
+
+
+\begin{DoxyParams}{Parameters}
+{\em stream\-\_\-type} & enumeration type specifying the type of stream to output to \\
+\hline
+{\em data} & data to output -\/ should be any possible ostream data \\
+\hline
+{\em trait\-\_\-mask} & bitmask of traits for output \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_output_streamer_a0b80cd3ff924882963e7f90bb2cdc1f2}{\index{Output\-Streamer@{Output\-Streamer}!output@{output}}
+\index{output@{output}!OutputStreamer@{Output\-Streamer}}
+\subsubsection[{output}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class output\-Type $>$ const {\bf Output\-Streamer}\& Output\-Streamer\-::output (
+\begin{DoxyParamCaption}
+\item[{const output\-Type \&}]{stream\-\_\-data, }
+\item[{const unsigned int}]{trait\-\_\-mask = {\ttfamily 0}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_output_streamer_a0b80cd3ff924882963e7f90bb2cdc1f2}
+overloaded method that uses the same stream as the last ouput
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & data to output -\/ should be any possible ostream data \\
+\hline
+{\em trait\-\_\-mask} & bitmask of traits for output \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_output_streamer_ac69a0b5740c6789c289f32a847497bcb}{\index{Output\-Streamer@{Output\-Streamer}!test\-Trait@{test\-Trait}}
+\index{test\-Trait@{test\-Trait}!OutputStreamer@{Output\-Streamer}}
+\subsubsection[{test\-Trait}]{\setlength{\rightskip}{0pt plus 5cm}bool Output\-Streamer\-::test\-Trait (
+\begin{DoxyParamCaption}
+\item[{const unsigned int}]{tested, }
+\item[{const unsigned int}]{traits}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_output_streamer_ac69a0b5740c6789c289f32a847497bcb}
+test if given trait is present
+
+
+\begin{DoxyParams}{Parameters}
+{\em tested} & number of the tested trait \\
+\hline
+{\em traits} & traits given with the function\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+bool if the trait is present 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+auxiliary/output\-\_\-streamer.\-hpp\end{DoxyCompactItemize}
