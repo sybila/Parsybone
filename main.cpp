@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 		output_streamer.output(verbose_str, "Argument parsing started.", OutputStreamer::important);
 
 		ArgumentParser parser;
-		parser.parseArguments(user_options, argc, argv);
+		parser.parseArguments(argc, argv);
 
 		if (coloring_parser.input())
 			coloring_parser.parseMask();

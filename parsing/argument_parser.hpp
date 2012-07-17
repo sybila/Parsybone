@@ -29,6 +29,9 @@ class ArgumentParser {
 
 	/**
 	 * Obtains numbers for distributed synthesis
+	 *
+	 * @param argv	reference to the original array of c-strings
+	 * @param arg_n	ordinary number of the previous argument (D-switch)
 	 */
 	void getDistribution(char * argv [], int & arg_n) {
 		// Get numbers
@@ -49,10 +52,11 @@ class ArgumentParser {
 public:
 	/**
 	 * Take all the arguments on the input and store information from them
+	 *
+	 * @param argc	passed from main function
+	 * @param argv	passed from main function
 	 */
-	void parseArguments (UserOptions & user_options, int argc, char* argv[]) {
-
-		std::string switches;
+	void parseArguments (int argc, char* argv[]) {
 
 		for (int arg_n = 1; arg_n < argc; arg_n++) { 
 			std::string arg = argv[arg_n];

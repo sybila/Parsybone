@@ -14,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
+#include <climits>
 #include <cmath>
 #include <cstring>
 #include <fstream>
@@ -70,6 +71,9 @@ typedef unsigned int Parameters;
 
 // Index of the color - may be a big number
 typedef long long ColorNum;
+
+// Index of the color - may be a big number as well
+typedef unsigned long long RoundNum;
 
 // IDs of predecessors of a state
 typedef std::vector<StateID> Neighbours;

@@ -36,8 +36,8 @@ class ColoringAnalyzer {
 
 	//// Used only for a single round
 	//std::vector<std::size_t> current_color;
-	std::size_t parameter_begin;
-	std::size_t parameter_end;
+	ColorNum parameter_begin;
+	ColorNum parameter_end;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COLOR BASED FUNCTIONS
@@ -185,12 +185,12 @@ public:
 		std::vector<std::pair<std::size_t, std::string> > colors;
 		std::vector<std::size_t> work_color = subcolor_nums;
 		// Change the order of values to: from right to left
-		result_parameters = swap(result_parameters, getParamsetSize() - (parameter_end - parameter_begin));
+		result_parameters = swap(result_parameters, getParamsetSize() - static_cast<std::size_t>(parameter_end - parameter_begin));
 		// Store a mask for each color with just its bit on, other off
 		Parameters color_mask = 1 << ((parameter_end - parameter_begin) - 1);
 
 		// Cycle through all round colors
-		for (std::size_t col_num = parameter_begin; col_num < parameter_end; col_num++) {
+		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters % 2)
 				colors.push_back(std::make_pair(color_mask, createColorString(work_color)));

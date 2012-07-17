@@ -41,7 +41,7 @@ class ParametrizedStructureBuilder {
 	 *
 	 * @return true it the state satisfy the requirments
 	 */
-	const bool testRegulators(const std::vector<StateID> & source_species, const std::vector<std::vector<std::size_t>> & source_values, const Levels & state_levels) {
+	const bool testRegulators(const std::vector<StateID> & source_species, const std::vector<std::vector<std::size_t> > & source_values, const Levels & state_levels) {
 		// List throught regulating species of the function
 		for (std::size_t regulator_num = 0; regulator_num < source_species.size(); regulator_num++) {
 			bool is_included = false; // Remains false if the specie level is not in allowed range
@@ -88,9 +88,9 @@ class ParametrizedStructureBuilder {
 		throw std::runtime_error("Active function in same state not found.");
 	}
 
-	const ColorNum getLoopColor(const Levels & state_levels) {
+	/*const ColorNum getLoopColor(const Levels & state_levels) {
 		
-	}
+	}*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS:
