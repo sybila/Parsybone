@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>Parsybone: coloring/split_manager.hpp Source File</title>
+<title>Parsybone: C:/Adam/Coloring/Parsybone/coloring/split_manager.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Parsybone
    </div>
-   <div id="projectbrief">Parsybone (Parameter Synthetizer for Boolean Networks) project Copyright(C)2012-AdamStreck</div>
+   <div id="projectbrief">Parametrization synthetizer for discrete networks.</div>
   </td>
  </tr>
  </tbody>
@@ -97,9 +97,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#ifndef PARSYBONE_SPLIT_MANAGER_INCLUDED</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define PARSYBONE_SPLIT_MANAGER_INCLUDED</span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">// This class controls splitting of the parameter space both for independent rounds and for distributed synthesis.</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment">// All data in this class are basic type variables.</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &quot;../auxiliary/user_options.hpp&quot;</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;../auxiliary/output_streamer.hpp&quot;</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;../coloring/parameters_functions.hpp&quot;</span></div>
@@ -109,8 +107,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment"></span>        ColorNum all_colors_count; <span class="comment">// All the parameters</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        ColorNum process_color_count; <span class="comment">// All the parameters</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        std::size_t last_round_bits; <span class="comment">// Number of bits for the absolutelly last round of this process</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keywordtype">long</span> <span class="keywordtype">long</span> rounds_count; <span class="comment">// Number of rounds totally</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        <span class="keywordtype">long</span> <span class="keywordtype">long</span> round_number; <span class="comment">// Number of this round (starting from 0)</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        RoundNum rounds_count; <span class="comment">// Number of rounds totally</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        RoundNum round_number; <span class="comment">// Number of this round (starting from 0)</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        ColorNum round_begin; <span class="comment">// Position to start a synthesis for this round (absolute position w.r.t. all the parameters)</span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        ColorNum round_end; <span class="comment">// Position one behind the last parameter for this round (absolute position w.r.t. all the parameters)</span></div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
@@ -200,11 +198,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;                <span class="keywordflow">return</span> round_number &lt; rounds_count;</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        }</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
-<div class="line"><a name="l00161"></a><span class="lineno"><a class="code" href="class_split_manager.html#aa6986e0b62d5cf945ad7fd07599f9b0c">  161</a></span>&#160;        <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code" href="class_split_manager.html#aa6986e0b62d5cf945ad7fd07599f9b0c">getRoundNum</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00161"></a><span class="lineno"><a class="code" href="class_split_manager.html#a85c16ba80eb0441d0dae727485ab5d4d">  161</a></span>&#160;        <span class="keyword">inline</span> <span class="keyword">const</span> RoundNum <a class="code" href="class_split_manager.html#a85c16ba80eb0441d0dae727485ab5d4d">getRoundNum</a>()<span class="keyword"> const </span>{</div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;                <span class="keywordflow">return</span> round_number;</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;        }</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
-<div class="line"><a name="l00168"></a><span class="lineno"><a class="code" href="class_split_manager.html#a3b27f3ebeadde75b653ae682d42fad92">  168</a></span>&#160;        <span class="keyword">inline</span> <span class="keyword">const</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> <a class="code" href="class_split_manager.html#a3b27f3ebeadde75b653ae682d42fad92">getRoundCount</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00168"></a><span class="lineno"><a class="code" href="class_split_manager.html#a8ffd88581974f941817f16d892046da4">  168</a></span>&#160;        <span class="keyword">inline</span> <span class="keyword">const</span> RoundNum <a class="code" href="class_split_manager.html#a8ffd88581974f941817f16d892046da4">getRoundCount</a>()<span class="keyword"> const </span>{</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;                <span class="keywordflow">return</span> rounds_count;</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        }</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;</div>
@@ -220,7 +218,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 17 2012 23:01:17 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jul 18 2012 15:51:37 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.2
 </small></address>

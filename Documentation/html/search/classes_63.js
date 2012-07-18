@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['classname',['ClassName',['../class_class_name.html',1,'']]],
   ['coloringanalyzer',['ColoringAnalyzer',['../class_coloring_analyzer.html',1,'']]],
   ['coloringparser',['ColoringParser',['../class_coloring_parser.html',1,'']]],
   ['colorstorage',['ColorStorage',['../class_color_storage.html',1,'']]],

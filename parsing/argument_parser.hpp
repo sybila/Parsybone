@@ -9,44 +9,125 @@
 #ifndef PARSYBONE_ARGUMENT_PARSER_INCLUDED
 #define PARSYBONE_ARGUMENT_PARSER_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// A sets user options according to the switches provided as arguments at the start of the program.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../auxiliary/output_streamer.hpp"
 #include "../auxiliary/user_options.hpp"
 #include "coloring_parser.hpp"
 
-/**
-	* Parses arguments on the input and changes switches accordingly. If there is a file on the input, it is created.
-	*
-	* @param user_options	parsed data will be saved here
-	* @param argc	same as at main
-	* @param argv	same as at main
-	* @param result_stream	pointer to the stream that will get the output
-	*/
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// A sets user options according to the string provided as arguments at the start of the program.
+/// All values that are not used for direct setup are stored within a UserOptions class.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ArgumentParser {
-
 	/**
 	 * Obtains numbers for distributed synthesis
 	 *
 	 * @param argv	reference to the original array of c-strings
 	 * @param arg_n	ordinary number of the previous argument (D-switch)
 	 */
-	void getDistribution(char * argv [], int & arg_n) {
+	void getDistribution(std::string procn, std::string procv) {
 		// Get numbers
 		try {
-			user_options.process_number = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+1]);
-			user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(argv[arg_n+2]);
+			user_options.process_number = boost::lexical_cast<std::size_t, std::string>(procn);
+			user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(procv);
 		} catch (boost::bad_lexical_cast & e) {
-			std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(argv[arg_n+1]).append(" ").append(argv[arg_n+2]).append(". Should be -d this_ID number_of_parts."));
+			std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(procn).append(" ").append(procv).append(". Should be -d this_ID number_of_parts."));
 			throw(std::runtime_error(std::string("Parameter parsing failed.").append(e.what())));
 		}
 		// Assert that process ID is in the range
 		if (user_options.process_number > user_options.processes_count)
 			throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes."));
 		// Skip arguments that are already read
-		arg_n += 2;
+	}
+
+	/**
+	 * Function that parses switches in the string that starts with a "-" symbol
+	 *
+	 * @param argument	iterator pointer to the string to read
+	 */
+	void parseSwitches(std::vector<std::string>::const_iterator & argument){
+		for (std::size_t switch_num = 1; switch_num < argument->size(); switch_num++) {
+			switch ((*argument)[switch_num]) {
+
+			case 'b':
+				user_options.add_BA_to_witness = true;
+				break;
+
+			case 'c':
+				user_options.show_coloring = true;
+				break;
+
+			case 'n':
+				user_options.negation_check = true;
+				break;
+
+			case 'r':
+				if (user_options.witness_use == none_wit)
+					user_options.witness_use = short_wit;
+				user_options.compute_robustness = true;
+				break;
+
+			case 's':
+				user_options.display_stats = true;
+				break;
+
+			case 't':
+				user_options.time_serie = true;
+				break;
+
+			case 'v':
+				user_options.be_verbose = true;
+				break;
+
+			case 'w':
+				user_options.witness_use = short_wit;
+				user_options.display_wintess = true;
+				user_options.time_serie = true;
+				break;
+
+			case 'W':
+				user_options.witness_use = all_wit;
+				user_options.display_wintess = true;
+				user_options.time_serie = true;
+				break;
+
+			// Open file with color mask
+			case 'm':
+				if (switch_num + 1 < argument->size())
+					throw(std::runtime_error(std::string("There are forbidden characters after m switch: ").append(argument->begin() + switch_num + 1, argument->end())));
+				coloring_parser.openFile(*(++argument));
+				break;
+
+			// Open file with color mask
+			case 'M':
+				if (switch_num + 1 < argument->size())
+					throw(std::runtime_error(std::string("There are forbidden characters after M switch: ").append(argument->begin() + switch_num + 1, argument->end())));
+				coloring_parser.createOutput(*(++argument));
+				break;
+
+			// Get data for distributed computation
+			case 'D':
+				// After d there must be a white space (to distinct requsted numbers)
+				if (switch_num + 1 < argument->size())
+					throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(argument->begin() + switch_num + 1, argument->end())));
+				getDistribution(*(argument+1), *(argument+2));
+				argument += 2;
+				break;
+
+			// Redirecting results output to a file by a parameter
+			case 'F':
+				// After f there must be a white space (to distinct file name)
+				if (switch_num + 1 < argument->size())
+					throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(argument->begin() + switch_num + 1, argument->end())));
+				// Create file for the result output and iterate argument pointer
+				output_streamer.createStreamFile(results_str, *(++argument));
+				break;
+
+			// If the switch is not known.
+			default:
+				throw (std::invalid_argument(std::string("Wrong argument: -").append(*argument).c_str()));
+				break;
+			}
+		}
 	}
 
 public:
@@ -57,108 +138,33 @@ public:
 	 * @param argv	passed from main function
 	 * @param intput_stream	pointer to a file that will be used as an input stream
 	 */
-	void parseArguments (int argc, char* argv[], std::ifstream * const input_stream) {
-
+	void parseArguments (const std::vector<std::string> & arguments, std::ifstream & input_stream) {
 		// Control provision of an input file
 		bool file_parsed = false;
 
-		for (int arg_n = 1; arg_n < argc; arg_n++) { 
-			std::string arg = argv[arg_n];
-			
+		// Cycle through arguments
+		for (auto argument = arguments.begin(); argument != arguments.end(); argument++) {
 			// There can be multiple switches after "-" so go through them in the loop
-			if (arg[0] == '-') {
-				for (std::size_t switch_num = 1; switch_num < arg.size(); switch_num++) {
-					switch (arg[switch_num]) {
-
-					case 'b':
-						user_options.add_BA_to_witness = true;
-						break;
-
-					case 'c':
-						user_options.show_coloring = true;
-						break;
-
-					case 'n':
-						user_options.negation_check = true;
-						break;
-
-					case 'r':
-						if (user_options.witness_use == none_wit)
-							user_options.witness_use = short_wit;	
-						user_options.compute_robustness = true;
-						break;
-
-					case 's':
-						user_options.display_stats = true;
-						break;
-
-					case 't':
-						user_options.time_serie = true;
-						break;
-
-					case 'v':
-						user_options.be_verbose = true;
-						break;
-
-					case 'w':
-						user_options.witness_use = short_wit;
-						user_options.display_wintess = true;
-						user_options.time_serie = true;
-						break;
-
-					case 'W':
-						user_options.witness_use = all_wit;
-						user_options.display_wintess = true;
-						user_options.time_serie = true;
-						break;
-
-					// Open file with color mask
-					case 'm':
-						if (switch_num + 1 < arg.size())
-							throw(std::runtime_error(std::string("There are forbidden characters after m switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-						coloring_parser.openFile(argv[++arg_n]);
-						break;
-
-										// Open file with color mask
-					case 'M':
-						if (switch_num + 1 < arg.size())
-							throw(std::runtime_error(std::string("There are forbidden characters after M switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-						coloring_parser.createOutput(argv[++arg_n]);
-						break;
-
-					// Get data for distributed computation
-					case 'D':
-						// After d there must be a white space (to distinct requsted numbers)
-						if (switch_num + 1 < arg.size())
-							throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-						getDistribution(argv, arg_n);
-						break;
-
-					// Redirecting results output to a file by a parameter
-					case 'F':
-						// After f there must be a white space (to distinct file name)
-						if (switch_num + 1 < arg.size())
-							throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(arg.begin() + switch_num + 1, arg.end())));
-						// Create file for the result output and iterate argument pointer
-						output_streamer.createStreamFile(results_str, argv[++arg_n]);
-						break;
-
-					// If the swich is not known.
-					default:
-						throw (std::invalid_argument(std::string("Wrong argument: -").append(arg).c_str()));
-						break;
-					}
-				}
+			if ((*argument)[0] == '-') {
+				parseSwitches(argument);
 			}
-			// If there is an argument that does not start with "-"
-			else if (!file_parsed){
-				input_stream->open(arg, std::ios::in);
-				if (input_stream->fail())
-					throw std::runtime_error(std::string("Program failed to open an intput stream file: ").append(arg));
+
+			// If it is a model file
+			else if (argument->find(".dbm") != std::string::npos){
+				// If the model is alredy parsed
+				if (file_parsed)
+					throw (std::invalid_argument("Model file (file with a .dbm suffix) occurs multiple times on the input, only a single occurence is allowed."));
+				// Attach the stream to the file
+				input_stream.open(*argument, std::ios::in);
+				if (input_stream.fail())
+					throw std::runtime_error(std::string("Program failed to open an intput stream file: ").append(*argument));
+				file_parsed = true;
 			}
-			else
-				throw (std::invalid_argument(std::string("Wrong run argument: ").append(arg).c_str()));
 		}	
+
+		// Throw an exception if no file was found
+		if (!file_parsed)
+			throw (std::invalid_argument("Model file (file with a .dbm suffix) is missing."));
 	}
 };
 

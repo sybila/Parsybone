@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>Parsybone: reforging/parametrized_structure_builder.hpp Source File</title>
+<title>Parsybone: C:/Adam/Coloring/Parsybone/reforging/parametrized_structure_builder.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Parsybone
    </div>
-   <div id="projectbrief">Parsybone (Parameter Synthetizer for Boolean Networks) project Copyright(C)2012-AdamStreck</div>
+   <div id="projectbrief">Parametrization synthetizer for discrete networks.</div>
   </td>
  </tr>
  </tbody>
@@ -115,7 +115,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">// TESTING FUNCTIONS:</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="keyword">const</span> <span class="keywordtype">bool</span> testRegulators(<span class="keyword">const</span> std::vector&lt;StateID&gt; &amp; source_species, <span class="keyword">const</span> std::vector&lt;std::vector&lt;std::size_t&gt;&gt; &amp; source_values, <span class="keyword">const</span> Levels &amp; state_levels) {</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="keyword">const</span> <span class="keywordtype">bool</span> testRegulators(<span class="keyword">const</span> std::vector&lt;StateID&gt; &amp; source_species, <span class="keyword">const</span> std::vector&lt;std::vector&lt;std::size_t&gt; &gt; &amp; source_values, <span class="keyword">const</span> Levels &amp; state_levels) {</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;                <span class="comment">// List throught regulating species of the function</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;                <span class="keywordflow">for</span> (std::size_t regulator_num = 0; regulator_num &lt; source_species.size(); regulator_num++) {</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;                        <span class="keywordtype">bool</span> is_included = <span class="keyword">false</span>; <span class="comment">// Remains false if the specie level is not in allowed range</span></div>
@@ -154,9 +154,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;Active function in same state not found.&quot;</span>);</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        }</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        <span class="keyword">const</span> ColorNum getLoopColor(<span class="keyword">const</span> Levels &amp; state_levels) {</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                </div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        }</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        <span class="comment">/*const ColorNum getLoopColor(const Levels &amp; state_levels) {</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment">                </span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment">        }*/</span></div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">// FILLING FUNCTIONS:</span></div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment"></span></div>
@@ -257,7 +257,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 17 2012 23:01:18 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jul 18 2012 15:51:37 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.2
 </small></address>

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>Parsybone: results/coloring_analyzer.hpp Source File</title>
+<title>Parsybone: C:/Adam/Coloring/Parsybone/results/coloring_analyzer.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Parsybone
    </div>
-   <div id="projectbrief">Parsybone (Parameter Synthetizer for Boolean Networks) project Copyright(C)2012-AdamStreck</div>
+   <div id="projectbrief">Parametrization synthetizer for discrete networks.</div>
   </td>
  </tr>
  </tbody>
@@ -118,8 +118,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        <span class="comment">//std::vector&lt;std::size_t&gt; top_values;</span></div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        <span class="comment">//std::vector&lt;std::size_t&gt; current_color;</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        std::size_t parameter_begin;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        std::size_t parameter_end;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        ColorNum parameter_begin;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        ColorNum parameter_end;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">// COLOR BASED FUNCTIONS</span></div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"></span></div>
@@ -225,12 +225,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;                std::vector&lt;std::pair&lt;std::size_t, std::string&gt; &gt; colors;</div>
 <div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;                std::vector&lt;std::size_t&gt; work_color = subcolor_nums;</div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;                <span class="comment">// Change the order of values to: from right to left</span></div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;                result_parameters = swap(result_parameters, getParamsetSize() - (parameter_end - parameter_begin));</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;                result_parameters = swap(result_parameters, getParamsetSize() - static_cast&lt;std::size_t&gt;(parameter_end - parameter_begin));</div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;                <span class="comment">// Store a mask for each color with just its bit on, other off</span></div>
 <div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;                Parameters color_mask = 1 &lt;&lt; ((parameter_end - parameter_begin) - 1);</div>
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;</div>
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;                <span class="comment">// Cycle through all round colors</span></div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;                <span class="keywordflow">for</span> (std::size_t col_num = parameter_begin; col_num &lt; parameter_end; col_num++) {</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;                <span class="keywordflow">for</span> (ColorNum col_num = parameter_begin; col_num &lt; parameter_end; col_num++) {</div>
 <div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;                        <span class="comment">// Output current values</span></div>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;                        <span class="keywordflow">if</span> (result_parameters % 2)</div>
 <div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;                                colors.push_back(std::make_pair(color_mask, createColorString(work_color)));</div>
@@ -252,7 +252,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 17 2012 23:01:18 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jul 18 2012 15:51:38 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.2
 </small></address>

@@ -7,12 +7,12 @@
  */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Here are definitions of functions necessary for work with parameters.
-// These functions work only for parameters that are basic data types (namely integer).
-//
-// REMEMBER!
-// Parameters in an Paramset are ordered in an ascending order.
-// Last bit in an Paramset is its sizeof(Paramset)*8-th parameters.
+/// Here are definitions of functions necessary for work with parameters.
+/// These functions work only for parameters that are basic data types (namely integer).
+///
+/// REMEMBER!
+/// Parameters in an Paramset are ordered in an ascending order.
+/// Last bit in an Paramset is its sizeof(Paramset)*8-th parameters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef PARSYBONE_PARAMETERS_FUNCTIONS_INCLUDED

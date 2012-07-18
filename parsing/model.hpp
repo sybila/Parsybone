@@ -9,39 +9,37 @@
 #ifndef PARSYBONE_MODEL_INCLUDED
 #define PARSYBONE_MODEL_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Model stores model data in the raw form, almost the same as in the model file itself.
-// Model data can be set only form the ModelParser object.
-// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../auxiliary/output_streamer.hpp"
 
-class ModelParser;
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Model stores model data in the raw form, almost the same as in the model file itself.
+/// Model data can be set only form the ModelParser object.
+/// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Model {
 	friend class ModelParser;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
+	/// Structure that stores regulation of a specie by another one
 	struct Interaction {
-		StateID source; // Regulator
-		std::size_t threshold; // Level of the regulator requested for the function to work
-		EdgeConstrain constrain; // What is requested behaviour
-		bool observable; // Must the interaction be observable
+		StateID source; ///< Regulator
+		std::size_t threshold; ///< Level of the regulator requested for the function to work
+		EdgeConstrain constrain; ///< What is requested behaviour
+		bool observable; ///< Must the interaction be observable
 
 		Interaction(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain, const bool _observable) 
 			: source(_source), threshold(_threshold), constrain(_constrain), observable(_observable) { }
 	};
-	typedef std::pair<std::vector<bool>, int> Regulation; // Regulatory context of the specie (bitmask of active incoming interactions, target value)
-	typedef std::pair<StateID, std::string> Egde; // Edge in Buchi Automaton (Target ID, edge label)
+	typedef std::pair<std::vector<bool>, int> Regulation; ///< Regulatory context of the specie (bitmask of active incoming interactions, target value)
+	typedef std::pair<StateID, std::string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label)
 
 private:
-	// Structure that holds data about a single specie. Most of the data is equal to that in the model file
+	/// Structure that holds data about a single specie. Most of the data is equal to that in the model file
 	struct ModelSpecie {
 	private:
-		// Data are accesible from within the model class but not from the Model objects
+		// Data are accesible from within the model class
 		friend class Model;
 
 		ModelSpecie(std::string _name, size_t _ID, size_t _max_value, size_t _basal_value) 
@@ -51,33 +49,34 @@ private:
 
 		std::vector<Regulation> regulations;
 
-		std::string name; // Actuall name of the specie
-		std::size_t ID; // Numerical constant used to distinguish the specie. Starts from 0!
-		std::size_t basal_value; // Value the specie tends to if unregulated, currently unused
-		std::size_t max_value; // Maximal activation level of the specie
+		std::string name; ///< Actuall name of the specie
+		std::size_t ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
+		std::size_t basal_value; ///< Value the specie tends to if unregulated, currently unused
+		std::size_t max_value; ///< Maximal activation level of the specie
 	};
 
-	// Structure that holds data about a single state.
+	/// Structure that holds data about a single state.
 	struct BuchiAutomatonState {
 	private:
-		// Data are accesible from within the model class but not from the Model objects
+		// Data are accesible from within the model class
 		friend class Model;
 
 		BuchiAutomatonState(std::size_t _ID, bool _final) : ID(_ID), final(_final) {	}
 
-		bool final;      // stores the information whether the state is final
-		std::size_t ID;  // Numerical constant used to distinguish the state. Starts from 0!
+		bool final; ///< stores the information whether the state is final
+		std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
 
-		std::vector<Egde> edges; // edges in Buchi Automaton (Target ID, edge label)
+		std::vector<Egde> edges; ///< edges in Buchi Automaton (Target ID, edge label)
 	};
 
+	/// Structure that stores additional settings
 	struct AdditionalInformation {
 		UnspecifiedRegulations unspec;
 		float ver_number;
 	};
 
 	// Actuall data holders.
-	std::vector<ModelSpecie>         species;
+	std::vector<ModelSpecie> species;
 	std::vector<BuchiAutomatonState> states;
 	AdditionalInformation additional_information;
 
@@ -139,11 +138,11 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	Model(const Model & other);            // Forbidden copy constructor.
-	Model& operator=(const Model & other); // Forbidden assignment operator.
+	Model(const Model & other); ///< Forbidden copy constructor.
+	Model& operator=(const Model & other); ///< Forbidden assignment operator.
 
 public:
-	Model() {} // Default empty constructor
+	Model() {} ///< Default empty constructor
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 

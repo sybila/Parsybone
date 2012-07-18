@@ -8,12 +8,12 @@
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \hyperlink{class_argument_parser_a42d187859d3580174d3ce887c645d04d}{parse\-Arguments} (\hyperlink{class_user_options}{User\-Options} \&user\-\_\-options, int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+void \hyperlink{class_argument_parser_ad9955c7eca7db6362d41ccbce2f75460}{parse\-Arguments} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]}, std\-::ifstream $\ast$const input\-\_\-stream)
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Parses arguments on the input and changes switches accordingly. If there is a file on the input, it is created.
+A sets user options according to the switches provided as arguments at the start of the program. Parses arguments on the input and changes switches accordingly. If there is a file on the input, it is created.
 
 
 \begin{DoxyParams}{Parameters}
@@ -29,17 +29,28 @@ Parses arguments on the input and changes switches accordingly. If there is a fi
 
 
 \subsection{Member Function Documentation}
-\hypertarget{class_argument_parser_a42d187859d3580174d3ce887c645d04d}{\index{Argument\-Parser@{Argument\-Parser}!parse\-Arguments@{parse\-Arguments}}
+\hypertarget{class_argument_parser_ad9955c7eca7db6362d41ccbce2f75460}{\index{Argument\-Parser@{Argument\-Parser}!parse\-Arguments@{parse\-Arguments}}
 \index{parse\-Arguments@{parse\-Arguments}!ArgumentParser@{Argument\-Parser}}
 \subsubsection[{parse\-Arguments}]{\setlength{\rightskip}{0pt plus 5cm}void Argument\-Parser\-::parse\-Arguments (
 \begin{DoxyParamCaption}
-\item[{{\bf User\-Options} \&}]{user\-\_\-options, }
 \item[{int}]{argc, }
-\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]}}
+\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]}, }
+\item[{std\-::ifstream $\ast$const}]{input\-\_\-stream}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_argument_parser_a42d187859d3580174d3ce887c645d04d}
-Take all the arguments on the input and store information from them 
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_argument_parser_ad9955c7eca7db6362d41ccbce2f75460}
+Take all the arguments on the input and store information from them
+
+
+\begin{DoxyParams}{Parameters}
+{\em argc} & passed from main function \\
+\hline
+{\em argv} & passed from main function \\
+\hline
+{\em intput\-\_\-stream} & pointer to a file that will be used as an input stream \\
+\hline
+\end{DoxyParams}
+
 
 The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
 \item 
-parsing/argument\-\_\-parser.\-hpp\end{DoxyCompactItemize}
+C\-:/\-Adam/\-Coloring/\-Parsybone/parsing/argument\-\_\-parser.\-hpp\end{DoxyCompactItemize}

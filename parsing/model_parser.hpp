@@ -9,15 +9,6 @@
 #ifndef PARSYBONE_MODEL_PARSER_INCLUDED
 #define PARSYBONE_MODEL_PARSER_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ModelParser parses provided input stream and stores data in the provided Model object.
-// Data are mostly kept in the raw form, same as in the model file.
-// Most of the possible mistakes and typos would case an exception and failure of the program.
-// Only syntactic correcntess is checked. Wrong semantics would pass through here!
-// There is only single public functions (apart from the constructor) - parseInput(), that performs the whole process.
-// The functions are rather long, but their meaning is quite straithforward and repetitive. Most of the code are controls of correctness.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../auxiliary/output_streamer.hpp"
 #include "model.hpp"
 
@@ -26,19 +17,25 @@
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
 
-class Model;
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ModelParser parses provided input stream and stores data in the provided Model object.
+/// Data are mostly kept in the raw form, same as in the model file.
+/// Most of the possible mistakes and typos would case an exception and failure of the program.
+/// Only syntactic correcntess is checked. Wrong semantics would pass through here!
+/// There is only single public functions (apart from the constructor) - parseInput(), that performs the whole process.
+/// The functions are rather long, but their meaning is quite straithforward and repetitive. Most of the code are controls of correctness.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Provided with constructor
-	Model & model; // Model that will hold the data
-    std::ifstream * input_stream;
+    // Provided with constructor
+    Model & model; ///< Model that will hold the data
+    std::ifstream * input_stream; ///< File to parse the data from
 
 	// Created with and for parsing
-	rapidxml::xml_document<>  model_xml; // Main parsing node
-	std::unique_ptr<char []>  parsed_data; // Data obtained from the stream
+    rapidxml::xml_document<>  model_xml; ///< Main parsing node
+    std::unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS:

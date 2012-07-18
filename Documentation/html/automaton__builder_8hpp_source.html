@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>Parsybone: reforging/automaton_builder.hpp Source File</title>
+<title>Parsybone: C:/Adam/Coloring/Parsybone/reforging/automaton_builder.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Parsybone
    </div>
-   <div id="projectbrief">Parsybone (Parameter Synthetizer for Boolean Networks) project Copyright(C)2012-AdamStreck</div>
+   <div id="projectbrief">Parametrization synthetizer for discrete networks.</div>
   </td>
  </tr>
  </tbody>
@@ -206,7 +206,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;                <span class="comment">// Get all subparts of dual clause (splitting)</span></div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;                std::vector&lt;std::string&gt; subformulas;</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;                <span class="keywordflow">try</span> {</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;                        boost::split(subformulas, constrains, boost::is_any_of(<span class="stringliteral">&quot;&amp;&quot;</span>));</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;        boost::split(subformulas, constrains, boost::is_any_of(<span class="stringliteral">&quot;&amp;&quot;</span>));</div>
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;                } <span class="keywordflow">catch</span> (std::exception &amp; e) {</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;                        output_streamer.<a class="code" href="class_output_streamer.html#aca59f9ceafef1709da0c99b1d381be0a">output</a>(error_str, std::string(<span class="stringliteral">&quot;Error occured while parsing a label. &quot;</span>).append(e.what()));</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;                        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;boost::split(subformulas, constrains, boost::is_any_of(\&quot;&amp;\&quot;)) failed&quot;</span>);</div>
@@ -259,7 +259,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 17 2012 23:01:18 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jul 18 2012 15:51:37 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.2
 </small></address>

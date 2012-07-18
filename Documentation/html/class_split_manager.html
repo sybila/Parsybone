@@ -23,7 +23,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Parsybone
    </div>
-   <div id="projectbrief">Parsybone (Parameter Synthetizer for Boolean Networks) project Copyright(C)2012-AdamStreck</div>
+   <div id="projectbrief">Parametrization synthetizer for discrete networks.</div>
   </td>
  </tr>
  </tbody>
@@ -88,6 +88,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">SplitManager Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="split__manager_8hpp_source.html">split_manager.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -100,11 +102,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6a056c67fc1b475e6ad79a55965b981e"><td class="memItemLeft" align="right" valign="top">const ColorNum&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_split_manager.html#a6a056c67fc1b475e6ad79a55965b981e">getProcColorsCount</a> () const </td></tr>
 <tr class="memitem:a4a1a01702396ccfd7e268eed9967eea1"><td class="memItemLeft" align="right" valign="top">const bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_split_manager.html#a4a1a01702396ccfd7e268eed9967eea1">lastRound</a> () const </td></tr>
 <tr class="memitem:a8aa618ec1490e8cea24ae1d9f91e9334"><td class="memItemLeft" align="right" valign="top">const bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_split_manager.html#a8aa618ec1490e8cea24ae1d9f91e9334">valid</a> () const </td></tr>
-<tr class="memitem:aa6986e0b62d5cf945ad7fd07599f9b0c"><td class="memItemLeft" align="right" valign="top">const long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_split_manager.html#aa6986e0b62d5cf945ad7fd07599f9b0c">getRoundNum</a> () const </td></tr>
-<tr class="memitem:a3b27f3ebeadde75b653ae682d42fad92"><td class="memItemLeft" align="right" valign="top">const long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_split_manager.html#a3b27f3ebeadde75b653ae682d42fad92">getRoundCount</a> () const </td></tr>
+<tr class="memitem:a85c16ba80eb0441d0dae727485ab5d4d"><td class="memItemLeft" align="right" valign="top">const RoundNum&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_split_manager.html#a85c16ba80eb0441d0dae727485ab5d4d">getRoundNum</a> () const </td></tr>
+<tr class="memitem:a8ffd88581974f941817f16d892046da4"><td class="memItemLeft" align="right" valign="top">const RoundNum&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_split_manager.html#a8ffd88581974f941817f16d892046da4">getRoundCount</a> () const </td></tr>
 <tr class="memitem:ab27835493c0bd777569d8b1528667abf"><td class="memItemLeft" align="right" valign="top">Parameters&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_split_manager.html#ab27835493c0bd777569d8b1528667abf">createStartingParameters</a> () const </td></tr>
 </table>
-<h2>Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>This class controls splitting of the parameter space both for independent rounds and for distributed synthesis. All data in this class are basic type variables. </p>
+</div><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a43be4ad8687d41b4d5b39930f5647fd3"></a>
 <div class="memitem">
 <div class="memproto">
@@ -211,7 +215,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a3b27f3ebeadde75b653ae682d42fad92"></a>
+<a class="anchor" id="a8ffd88581974f941817f16d892046da4"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -219,7 +223,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const long long SplitManager::getRoundCount </td>
+          <td class="memname">const RoundNum SplitManager::getRoundCount </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -235,7 +239,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aa6986e0b62d5cf945ad7fd07599f9b0c"></a>
+<a class="anchor" id="a85c16ba80eb0441d0dae727485ab5d4d"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -243,7 +247,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const long long SplitManager::getRoundNum </td>
+          <td class="memname">const RoundNum SplitManager::getRoundNum </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -404,12 +408,12 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>coloring/<a class="el" href="split__manager_8hpp_source.html">split_manager.hpp</a></li>
+<li>C:/Adam/Coloring/Parsybone/coloring/<a class="el" href="split__manager_8hpp_source.html">split_manager.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 17 2012 23:01:19 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jul 18 2012 15:51:38 for Parsybone by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.2
 </small></address>

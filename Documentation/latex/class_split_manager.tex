@@ -1,6 +1,10 @@
 \hypertarget{class_split_manager}{\section{Split\-Manager Class Reference}
 \label{class_split_manager}\index{Split\-Manager@{Split\-Manager}}
 }
+
+
+{\ttfamily \#include $<$split\-\_\-manager.\-hpp$>$}
+
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
@@ -22,13 +26,16 @@ const bool \hyperlink{class_split_manager_a4a1a01702396ccfd7e268eed9967eea1}{las
 \item 
 const bool \hyperlink{class_split_manager_a8aa618ec1490e8cea24ae1d9f91e9334}{valid} () const 
 \item 
-const long long \hyperlink{class_split_manager_aa6986e0b62d5cf945ad7fd07599f9b0c}{get\-Round\-Num} () const 
+const Round\-Num \hyperlink{class_split_manager_a85c16ba80eb0441d0dae727485ab5d4d}{get\-Round\-Num} () const 
 \item 
-const long long \hyperlink{class_split_manager_a3b27f3ebeadde75b653ae682d42fad92}{get\-Round\-Count} () const 
+const Round\-Num \hyperlink{class_split_manager_a8ffd88581974f941817f16d892046da4}{get\-Round\-Count} () const 
 \item 
 Parameters \hyperlink{class_split_manager_ab27835493c0bd777569d8b1528667abf}{create\-Starting\-Parameters} () const 
 \end{DoxyCompactItemize}
 
+
+\subsection{Detailed Description}
+This class controls splitting of the parameter space both for independent rounds and for distributed synthesis. All data in this class are basic type variables. 
 
 \subsection{Constructor \& Destructor Documentation}
 \hypertarget{class_split_manager_a43be4ad8687d41b4d5b39930f5647fd3}{\index{Split\-Manager@{Split\-Manager}!Split\-Manager@{Split\-Manager}}
@@ -82,23 +89,23 @@ total number of parameters for all the processes
 \begin{DoxyReturn}{Returns}
 range with first and one before last parameter to compute for this process 
 \end{DoxyReturn}
-\hypertarget{class_split_manager_a3b27f3ebeadde75b653ae682d42fad92}{\index{Split\-Manager@{Split\-Manager}!get\-Round\-Count@{get\-Round\-Count}}
+\hypertarget{class_split_manager_a8ffd88581974f941817f16d892046da4}{\index{Split\-Manager@{Split\-Manager}!get\-Round\-Count@{get\-Round\-Count}}
 \index{get\-Round\-Count@{get\-Round\-Count}!SplitManager@{Split\-Manager}}
-\subsubsection[{get\-Round\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const long long Split\-Manager\-::get\-Round\-Count (
+\subsubsection[{get\-Round\-Count}]{\setlength{\rightskip}{0pt plus 5cm}const Round\-Num Split\-Manager\-::get\-Round\-Count (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a3b27f3ebeadde75b653ae682d42fad92}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a8ffd88581974f941817f16d892046da4}
 \begin{DoxyReturn}{Returns}
 total number of rounds 
 \end{DoxyReturn}
-\hypertarget{class_split_manager_aa6986e0b62d5cf945ad7fd07599f9b0c}{\index{Split\-Manager@{Split\-Manager}!get\-Round\-Num@{get\-Round\-Num}}
+\hypertarget{class_split_manager_a85c16ba80eb0441d0dae727485ab5d4d}{\index{Split\-Manager@{Split\-Manager}!get\-Round\-Num@{get\-Round\-Num}}
 \index{get\-Round\-Num@{get\-Round\-Num}!SplitManager@{Split\-Manager}}
-\subsubsection[{get\-Round\-Num}]{\setlength{\rightskip}{0pt plus 5cm}const long long Split\-Manager\-::get\-Round\-Num (
+\subsubsection[{get\-Round\-Num}]{\setlength{\rightskip}{0pt plus 5cm}const Round\-Num Split\-Manager\-::get\-Round\-Num (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_aa6986e0b62d5cf945ad7fd07599f9b0c}
+) const\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_split_manager_a85c16ba80eb0441d0dae727485ab5d4d}
 \begin{DoxyReturn}{Returns}
 number of this round 
 \end{DoxyReturn}
@@ -160,4 +167,4 @@ true if current round is valid (this round does not correspond to any paramteres
 
 The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
 \item 
-coloring/split\-\_\-manager.\-hpp\end{DoxyCompactItemize}
+C\-:/\-Adam/\-Coloring/\-Parsybone/coloring/split\-\_\-manager.\-hpp\end{DoxyCompactItemize}
