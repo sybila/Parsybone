@@ -398,7 +398,7 @@ public:
 
 		// Pass additional information
 		model.addAdditionalInformation(getUnspecType(unspecified_regulations), file_version);
-	};
+    }
 };
 
 #endif

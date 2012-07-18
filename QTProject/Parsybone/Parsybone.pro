@@ -37,12 +37,13 @@ HEADERS += \
     ../../coloring/model_checker.hpp \
     ../../parsing/model_parser.hpp \
     ../../parsing/model.hpp \
-    ../../parsing/constrains_parser.hpp \
     ../../parsing/coloring_parser.hpp \
     ../../parsing/argument_parser.hpp \
     ../../parsing/rapidxml-1.13/rapidxml_utils.hpp \
     ../../parsing/rapidxml-1.13/rapidxml_print.hpp \
     ../../parsing/rapidxml-1.13/rapidxml_iterators.hpp \
     ../../parsing/rapidxml-1.13/rapidxml.hpp \
-    ../../parsing/parsing_manager.hpp
+    ../../parsing/parsing_manager.hpp \
+    ../../reforging/construction_manager.hpp \
+    ../../reforging/constrains_parser.hpp
 
