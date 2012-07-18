@@ -1,5 +1,6 @@
 GCCProject/*
 Computed/*
+Documentation*
 !Manual/Manual.tex
 MVSProject/Release/*
 MVSProject/Debug/*
@@ -8,5 +9,6 @@ MVSProject/Parsybone.sdf
 MVSProject/Parsybone.suo
 MVSProject/Parsybone.opensdf
 MVSProject/Parsybone.exe
+!QTProject/Parsybone/*
 
 
