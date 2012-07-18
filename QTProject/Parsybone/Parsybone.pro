@@ -43,5 +43,6 @@ HEADERS += \
     ../../parsing/rapidxml-1.13/rapidxml_utils.hpp \
     ../../parsing/rapidxml-1.13/rapidxml_print.hpp \
     ../../parsing/rapidxml-1.13/rapidxml_iterators.hpp \
-    ../../parsing/rapidxml-1.13/rapidxml.hpp
+    ../../parsing/rapidxml-1.13/rapidxml.hpp \
+    ../../parsing/parsing_manager.hpp
 
