@@ -9,6 +9,8 @@
 #ifndef CONSTRUCTION_MANAGER_HPP
 #define CONSTRUCTION_MANAGER_HPP
 
+#include "functions_builder.hpp"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ConstructionManager overviews the whole process of construction of structures from information contained within a model file.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +31,17 @@ public:
 
    }
 
+   void construct() {
+      FunctionsStructure functions_structure;
+      ConstrainsParser constrains_parser(model);
+
+      output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
+
+      constrains_parser.parseConstrains();
+
+      FunctionsBuilder functions_builder(model, constrains_parser, functions_structure);
+      functions_builder.buildFunctions();
+   }
 };
 
 

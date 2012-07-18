@@ -18,6 +18,7 @@
 #include "parsing/parsing_manager.hpp"
 #include "reforging/basic_structure_builder.hpp"
 #include "reforging/constrains_parser.hpp"
+#include "reforging/construction_manager.hpp"
 #include "reforging/functions_builder.hpp"
 #include "reforging/parametrized_structure_builder.hpp"
 #include "reforging/automaton_builder.hpp"
@@ -50,6 +51,19 @@ int main(int argc, char* argv[]) {
 	catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while parsing input: ").append(e.what()));
 		return 1;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// STEP ONE:
+// Parse input information.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	try {
+		ConstructionManager construction_manager( model);
+		construction_manager.construct();
+	}
+	catch (std::exception & e) {
+		output_streamer.output(error_str, std::string("Error occured while constructing data structures: ").append(e.what()));
+		return 2;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

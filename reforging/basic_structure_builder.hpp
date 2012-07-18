@@ -9,28 +9,27 @@
 #ifndef PARSYBONE_BASIC_STRUCTURE_BUILDER_INCLUDED
 #define PARSYBONE_BASIC_STRUCTURE_BUILDER_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BasicStructureBuilder creates the BasicStructure (Simple Kripke Structure) from the model data.
-// In each iteration of the creation, a new state is generated as a cartesian product of values of the species. All the combinations are used.
-// Each state is provided with indexes of their neighbours. For each dimension (specie) there are three neighbours base on the change of the specie's value - up, stay or donw.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../parsing/model.hpp"
 #include "basic_structure.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BasicStructureBuilder creates the BasicStructure (Simple Kripke Structure) from the model data.
+/// In each iteration of the creation, a new state is generated as a cartesian product of values of the species. All the combinations are used.
+/// Each state is provided with indexes of their neighbours. For each dimension (specie) there are three neighbours, if possible, base on the change of the specie's value - up, stay or down.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class BasicStructureBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
-	const Model & model; // Model that holds the data
-	BasicStructure & structure; // KipkeStructure to fill
-	std::size_t species_count; // Number of species of the model
+	const Model & model; ///< Model that holds the data
+	BasicStructure & structure; ///< KipkeStructure to fill
+	std::size_t species_count; ///< Number of species of the model
 
 	// Computed
-	std::size_t states_count; // Number of states in this KS (exponential in number of species)
-	std::vector<std::size_t> index_jumps; // Holds index differences between two neighbour states in each direction for each specie
-	Levels maxes; // Maximal activity levels of the species
+	std::size_t states_count; ///< Number of states in this KS (exponential in number of species)
+	std::vector<std::size_t> index_jumps; ///< Holds index differences between two neighbour states in each direction for each specie
+	Levels maxes; ///< Maximal activity levels of the species
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS:

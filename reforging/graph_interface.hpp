@@ -10,10 +10,9 @@
 #define PARSYBONE_GRAPH_INTERFACE_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Interface for all the classes that represent a directed graph.
-// Transitions are stored with their source state.
+/// Interface for all the classes that represent a directed graph.
+/// Transitions are stored with their source state.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class GraphInterface {
 public:
 	/**
@@ -24,7 +23,7 @@ public:
 	virtual inline const std::size_t getStateCount() const = 0;
 
 	/**
-	 * Obtains number of transitions for given state.
+	 * Obtains number of outcoming transitions for given state.
 	 *
 	 * @param ID	ID of the state to get the number from
 	 *
