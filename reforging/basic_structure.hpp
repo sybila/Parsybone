@@ -102,11 +102,11 @@ public:
 	}
 
 	/**
-	 * Unused, return empty string.
+     * Unused, return ID in the form of string.
 	 * @override
 	 */
 	const std::string getString(const StateID ID) const {
-		return "";
+        return boost::lexical_cast<std::string>(ID);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

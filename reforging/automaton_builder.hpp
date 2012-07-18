@@ -150,7 +150,7 @@ class AutomatonBuilder {
 		// Get all subparts of dual clause (splitting)
 		std::vector<std::string> subformulas;
 		try {
-			boost::split(subformulas, constrains, boost::is_any_of("&"));
+        boost::split(subformulas, constrains, boost::is_any_of("&"));
 		} catch (std::exception & e) {
 			output_streamer.output(error_str, std::string("Error occured while parsing a label. ").append(e.what()));
 			throw std::runtime_error("boost::split(subformulas, constrains, boost::is_any_of(\"&\")) failed");

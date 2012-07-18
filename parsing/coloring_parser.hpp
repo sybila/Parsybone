@@ -56,6 +56,8 @@ public:
 		file_size = input_file.tellg();
 		if (file_size % sizeof(Parameters) != 0)
 			throw std::runtime_error("Bitmask file has incorrect number of bits - it must be dividable by the size of Paramset.");
+		if (file_size / sizeof(Parameters) > colors_sets.max_size())
+			throw std::runtime_error("Bitmask is bigger than a possible size of the vector, can not be used due to memory boundaries.");
 		input_file.seekg(0, std::ios::beg);
 		input_mask = true;
 	}

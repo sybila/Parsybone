@@ -101,11 +101,8 @@ class SynthesisManager {
 
 		// Get initial coloring
 		Parameters starting;
-		if(coloring_parser.input()) {
-			if (split_manager->getRoundNum() > UINT_MAX )
-				throw (std::runtime_error("Round number exceeded possible size of the storage."));
-			starting = coloring_parser.getColors()[split_manager->getRoundNum()];
-		}
+        if(coloring_parser.input())
+            starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum())];
 		else
 			starting = split_manager->createStartingParameters();
 

@@ -185,7 +185,7 @@ public:
 	 * @return	minimal value of the specie (always 0)
 	 */
 	inline const std::size_t getMin(const std::size_t ID) const {
-		return 0;
+		return ID ? 0 : 0; // Just to disable a warning
 	}
 
 	/**

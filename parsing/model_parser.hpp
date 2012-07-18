@@ -34,6 +34,7 @@ class ModelParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	Model & model; // Model that will hold the data
+    std::ifstream * input_stream;
 
 	// Created with and for parsing
 	rapidxml::xml_document<>  model_xml; // Main parsing node
@@ -339,7 +340,7 @@ class ModelParser {
 	void createDocument() {
 		// Copy input data from stream into a string line by line
 		std::string input_line, input_data;
-		for (int lineno = 1; std::getline(*input_stream, input_line); ++lineno) {
+        for (int lineno = 1; std::getline(*input_stream, input_line); ++lineno) {
 			input_data += input_line + "\n";
 		}
 
@@ -363,7 +364,7 @@ public:
 	/**
 	 * Constructor has to provide references to an input stream to read from and model object to store parsed information.
 	 */
-	ModelParser(Model & _model) : model( _model) {}
+    ModelParser(Model & _model, std::ifstream * _input_stream) : model( _model), input_stream(_input_stream) {}
 
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.

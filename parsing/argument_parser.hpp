@@ -55,8 +55,12 @@ public:
 	 *
 	 * @param argc	passed from main function
 	 * @param argv	passed from main function
+	 * @param intput_stream	pointer to a file that will be used as an input stream
 	 */
-	void parseArguments (int argc, char* argv[]) {
+	void parseArguments (int argc, char* argv[], std::ifstream * const input_stream) {
+
+		// Control provision of an input file
+		bool file_parsed = false;
 
 		for (int arg_n = 1; arg_n < argc; arg_n++) { 
 			std::string arg = argv[arg_n];
@@ -147,8 +151,13 @@ public:
 				}
 			}
 			// If there is an argument that does not start with "-"
-			else 
-				throw (std::invalid_argument(std::string("Wrong argument: ").append(arg).c_str()));
+			else if (!file_parsed){
+				input_stream->open(arg, std::ios::in);
+				if (input_stream->fail())
+					throw std::runtime_error(std::string("Program failed to open an intput stream file: ").append(arg));
+			}
+			else
+				throw (std::invalid_argument(std::string("Wrong run argument: ").append(arg).c_str()));
 		}	
 	}
 };

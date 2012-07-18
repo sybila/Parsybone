@@ -32,15 +32,20 @@ const float program_version = 1.0;
  */
 int main(int argc, char* argv[]) {
 	time_manager.startClock("runtime");
+	std::ifstream * input_stream;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	try {
+		// Pointer to the input stream
+		input_stream = new std::ifstream();
+
 		output_streamer.output(verbose_str, "Argument parsing started.", OutputStreamer::important);
 
 		ArgumentParser parser;
-		parser.parseArguments(argc, argv);
+		parser.parseArguments(argc, argv, input_stream);
 
 		if (coloring_parser.input())
 			coloring_parser.parseMask();
@@ -58,8 +63,10 @@ int main(int argc, char* argv[]) {
 	try {		
 		output_streamer.output(verbose_str, "Model parsing started.", OutputStreamer::important);
 
-		ModelParser model_parser(model);
+		ModelParser model_parser(model, input_stream);
 		model_parser.parseInput();
+
+		delete input_stream;
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while parsing model: ").append(e.what()));
