@@ -151,7 +151,7 @@ public:
 	/**
 	 * For each specie recreate all its regulatory functions (all possible parametrizations)
 	 */
-	void buildFunctions() {
+	void buildParametrizations() {
 		// Display stats
 		output_streamer.output(stats_str, "Costructing Regulatory functions for ", OutputStreamer::no_newl)
 			           .output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");

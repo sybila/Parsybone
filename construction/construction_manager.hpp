@@ -9,19 +9,21 @@
 #ifndef PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 #define PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 
-#include "parametrizations_builder.hpp".hpp"
+#include "construction_holder.hpp"
+#include "parametrizations_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ConstructionManager overviews the whole process of construction of structures from information contained within a model file.
+/// All the objects constructed are stored within a provided CostructionHolder and further acessible only via constant getters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstructionManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   const Model & model; ///< Model object that will contain all the parsed information from the .dbm file
+   ConstructionHolder & holder; ///< Reference to the object that will finally contain all the constructed objects
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTION FUNCTIONS
+// CONSTRUCTION FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    void constructBasicStructure() {
 
@@ -34,24 +36,23 @@ public:
    /**
     * Constructor
     *
-    * @param _model  model object to read the data from
+    * @param _holder  object that will hold all the constructed objects
     */
-   ConstructionManager(const Model & _model) : model(_model) {
+   ConstructionManager(ConstructionHolder & _holder) : holder(_holder) { }
 
-   }
-
-   void construct() {
-      ParametrizationsHolder parametrizations_holder;
-      ConstrainsParser constrains_parser(model);
+   void construct() {  
+      ParametrizationsHolder * parametrizations_holder = new ParametrizationsHolder;
+      ConstrainsParser * constrains_parser = new ConstrainsParser(holder.getModel());
 
       output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
 
-      constrains_parser.parseConstrains();
+      constrains_parser->parseConstrains();
+      holder.fillConstrains(std::move(constrains_parser));
 
-      ParametrizationsBuilder parametrizations_builder(model, constrains_parser, parametrizations_holder);
-      parametrizations_builder.buildFunctions();
+      ParametrizationsBuilder parametrizations_builder(holder.getModel(), holder.getConstrains(), *parametrizations_holder);
+      parametrizations_builder.buildParametrizations();
 
-
+      holder.fillParametrizations(std::move(parametrizations_holder));
    }
 };
 

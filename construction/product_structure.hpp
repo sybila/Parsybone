@@ -19,9 +19,9 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../coloring/parameters_functions.hpp"
-#include "automaton_structure.hpp"
-#include "parametrizations_holder.hpp"
-#include "parametrized_structure.hpp"
+#include "../construction/automaton_structure.hpp"
+#include "../construction/parametrizations_holder.hpp"
+#include "../construction/parametrized_structure.hpp"
 
 class ProductStructure : public AutomatonInterface {
 	friend class ProductBuilder;
@@ -91,7 +91,7 @@ class ProductStructure : public AutomatonInterface {
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	ProductStructure(const ParametrizationsHolder & _functions, const ConstrainsParser & _constrains, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
+	ProductStructure(const ParametrizationsHolder & _functions, const ConstrainsParser & _constrains, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
 		: functions(_functions), constrains(_constrains), structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -220,8 +220,8 @@ class ConstrainsParser {
 		testColors(std::move(valid), ID, colors_num, bottom_color, top_color);
 	}
 
-	ConstrainsParser(const ConstrainsParser & other);            // Forbidden copy constructor.
-	ConstrainsParser& operator=(const ConstrainsParser & other); // Forbidden assignment operator.
+	ConstrainsParser(const ConstrainsParser & other); ///< Forbidden copy constructor.
+	ConstrainsParser& operator=(const ConstrainsParser & other); ///< Forbidden assignment operator.
 
 public:
 	ConstrainsParser(const Model & _model) : model(_model) { }

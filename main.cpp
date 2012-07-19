@@ -46,10 +46,10 @@ int main(int argc, char* argv[]) {
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		Model model;
-		ParsingManager parsing_manager(argc, argv, model);
+		Model * model = new Model;
+		ParsingManager parsing_manager(argc, argv, *model);
 		parsing_manager.parse();
-		holder.setModel(std::move(model));
+		holder.fillModel(model);
 	}
 	catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while parsing input: ").append(e.what()));
@@ -61,33 +61,12 @@ int main(int argc, char* argv[]) {
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		ConstructionManager construction_manager(holder.getModel());
+		ConstructionManager construction_manager(holder);
 		construction_manager.construct();
 	}
 	catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while constructing data structures: ").append(e.what()));
 		return 2;
-	}
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP THREE:
-// Create Functions (implicit reprezentation of regulatory contexts of species)
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ParametrizationsHolder parametrizations_holder;
-	ConstrainsParser constrains_parser(holder.getModel());
-	try {
-		output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
-
-		constrains_parser.parseConstrains();
-
-		ParametrizationsBuilder parametrizations_builder(holder.getModel(), constrains_parser, parametrizations_holder);
-		parametrizations_builder.buildFunctions();
-	} 
-	catch (std::exception & e) {
-		output_streamer.output(error_str, std::string("Error occured while building Regulatory functions: ").append(e.what()));
-		return 3;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +83,7 @@ int main(int argc, char* argv[]) {
 		basic_structure_builder.buildStructure();
 
 		// Build PKS
-		ParametrizedStructureBuilder parametrized_structure_builder(basic_structure, parametrizations_holder, parametrized_structure);
+		ParametrizedStructureBuilder parametrized_structure_builder(basic_structure, holder.getParametrizations(), parametrized_structure);
 		parametrized_structure_builder.buildStructure();
 	} 
 	catch (std::exception & e) {
@@ -132,7 +111,7 @@ int main(int argc, char* argv[]) {
 // STEP SIX:
 // Create the product - splitted into two parts
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure product_structure(parametrizations_holder, constrains_parser, parametrized_structure, automaton);
+	ProductStructure product_structure(holder.getParametrizations(), holder.getConstrains(), parametrized_structure, automaton);
 	ColorStorage color_storage;
 	try {
 		output_streamer.output(verbose_str, "Product building started.", OutputStreamer::important);
