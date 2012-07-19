@@ -20,7 +20,7 @@ class ColoringAnalyzer {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// References
-	const FunctionsStructure & functions; // Functions from the product
+	const ParametrizationsHolder & parametrizations; // Functions from the product
 	const ConstrainsParser & constrains; // Constrains on functions
 
 	// DATA STORAGE
@@ -104,7 +104,7 @@ public:
 	 * Get reference data and create final states that will hold all the computed data
 	 */
 	ColoringAnalyzer(const ProductStructure & _product) 
-		           : functions(_product.getFunc()), constrains(_product.getCons())  {
+					  : parametrizations(_product.getFunc()), constrains(_product.getCons())  {
 		computeBoundaries();
 		parameter_begin = parameter_end = 0;
 	} 

@@ -18,9 +18,9 @@ HEADERS += \
     ../../reforging/product_builder.hpp \
     ../../reforging/parametrized_structure_builder.hpp \
     ../../reforging/parametrized_structure.hpp \
+    ../../reforging/parametrizations_builder.hpp \
+    ../../reforging/parametrizations_holder.hpp \
     ../../reforging/graph_interface.hpp \
-    ../../reforging/functions_structure.hpp \
-    ../../reforging/functions_builder.hpp \
     ../../reforging/color_storage.hpp \
     ../../reforging/basic_structure_builder.hpp \
     ../../reforging/basic_structure.hpp \
@@ -45,5 +45,7 @@ HEADERS += \
     ../../parsing/rapidxml-1.13/rapidxml.hpp \
     ../../parsing/parsing_manager.hpp \
     ../../reforging/construction_manager.hpp \
-    ../../reforging/constrains_parser.hpp
+    ../../reforging/constrains_parser.hpp \
+    ../../reforging/parametrizations_holder.hpp \
+    ../../reforging/parametrizations_builder.hpp
 

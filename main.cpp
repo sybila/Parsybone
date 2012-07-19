@@ -19,7 +19,7 @@
 #include "reforging/basic_structure_builder.hpp"
 #include "reforging/constrains_parser.hpp"
 #include "reforging/construction_manager.hpp"
-#include "reforging/functions_builder.hpp"
+#include "reforging/parametrizations_builder.hpp"
 #include "reforging/parametrized_structure_builder.hpp"
 #include "reforging/automaton_builder.hpp"
 #include "reforging/product_structure.hpp"
@@ -70,15 +70,15 @@ int main(int argc, char* argv[]) {
 // STEP THREE:
 // Create Functions (implicit reprezentation of regulatory contexts of species)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	FunctionsStructure functions_structure;
+	ParametrizationsHolder parametrizations_holder;
 	ConstrainsParser constrains_parser(model);
 	try {
 		output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
 
 		constrains_parser.parseConstrains();
 
-		FunctionsBuilder functions_builder(model, constrains_parser, functions_structure);
-		functions_builder.buildFunctions();
+		ParametrizationsBuilder parametrizations_builder(model, constrains_parser, parametrizations_holder);
+		parametrizations_builder.buildFunctions();
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while building Regulatory functions: ").append(e.what()));
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 		basic_structure_builder.buildStructure();
 
 		// Build PKS
-		ParametrizedStructureBuilder parametrized_structure_builder(basic_structure, functions_structure, parametrized_structure);
+		ParametrizedStructureBuilder parametrized_structure_builder(basic_structure, parametrizations_holder, parametrized_structure);
 		parametrized_structure_builder.buildStructure();
 	} 
 	catch (std::exception & e) {
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 // STEP SIX:
 // Create the product - splitted into two parts
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure product_structure(functions_structure, constrains_parser, parametrized_structure, automaton);
+	ProductStructure product_structure(parametrizations_holder, constrains_parser, parametrized_structure, automaton);
 	ColorStorage color_storage;
 	try {
 		output_streamer.output(verbose_str, "Product building started.", OutputStreamer::important);

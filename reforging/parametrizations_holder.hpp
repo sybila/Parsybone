@@ -6,53 +6,51 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_FUNCTIONS_STRUCTURE_INCLUDED
-#define PARSYBONE_FUNCTIONS_STRUCTURE_INCLUDED
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FunctionsStructure stores functions in an explicit, but utilizable form.
-// Functions are stored as values that are requested for the function to be active (exact values for given regulatory context).
-// There are auxiliary precomputed data that fasten usage of this structure.
-// FunctionsStructure data can be set only form the FunctionsBuilder object.
-// Rest of the code can access the data only via constant getters.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifndef PARSYBONE_PARAMETRIZATIONS_HOLDER_INCLUDED
+#define PARSYBONE_PARAMETRIZATIONS_HOLDER_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
 
-class FunctionsBuilder;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// FunctionsStructure stores functions in an explicit, but utilizable form.
+/// Functions are stored as values that are requested for the function to be active (exact values for given regulatory context).
+/// There are auxiliary precomputed data that fasten usage of this structure.
+/// FunctionsStructure data can be set only form the FunctionsBuilder object.
+/// Rest of the code can access the data only via constant getters.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class ParametrizationsHolder {
+	friend class ParametrizationsBuilder;
 
-class FunctionsStructure {
-	friend class FunctionsBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Storing a regulatory function in explicit form
+	/// Storing a regulatory function in explicit form
 	struct RegulatoryFunction {
-		std::size_t step_size; // How many neighbour parameters have the same value for this function 
-		std::vector<std::size_t> possible_values; // Levels towards which this function can regulate
-		std::vector<std::vector<std::size_t> > source_values;  // Values at which the regulations are active
+		std::size_t step_size; ///< How many neighbour parameters have the same value for this function
+		std::vector<std::size_t> possible_values; ///< Levels towards which this function can regulate
+		std::vector<std::vector<std::size_t> > source_values;  ///< Values at which the regulations are active
 
 		RegulatoryFunction(const std::size_t _step_size, std::vector<std::size_t> && _possible_values, std::vector<std::vector<std::size_t> > && _source_values)
 			: step_size(_step_size), possible_values(std::move(_possible_values)), source_values(std::move(_source_values)) {}
 	};
 	
-	// Storing a sigle specie with its regulations
+	/// Storing a sigle specie with its regulations
 	struct Specie {
-		std::string name; // Real name of the specie
-		std::size_t ID; // Reference number
-		std::vector<std::size_t> specie_values; // Levels this specie can occur in
-		std::vector<std::size_t> source_species; // IDs of regulators
+		std::string name; ///< Real name of the specie
+		std::size_t ID; ///< Reference number
+		std::vector<std::size_t> specie_values; ///< Levels this specie can occur in
+		std::vector<std::size_t> source_species; ///< IDs of regulators
 
-		std::vector<RegulatoryFunction> functions; // Regulatory functions - values the gene tends to in different regulatory contexts
+		std::vector<RegulatoryFunction> functions; ///< Regulatory functions - set of all possible regulatory kinetics
 	
 		Specie(const std::string _name, const std::size_t _ID, std::vector<std::size_t> && _specie_values, std::vector<std::size_t> && _source_species)
 			  : name(_name), ID(_ID), specie_values(std::move(_specie_values)), source_species(std::move(_source_species)) { }
 	};
 
-	// DATA STORAGE
+	/// DATA STORAGE
 	std::vector<Specie> species;
 
-	// Toatal number of parameters (colors)
+	/// Toatal number of parameters (colors)
 	std::size_t parameter_count;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,11 +77,11 @@ class FunctionsStructure {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	FunctionsStructure(const FunctionsStructure & other);            // Forbidden copy constructor.
-	FunctionsStructure& operator=(const FunctionsStructure & other); // Forbidden assignment operator.
+	ParametrizationsHolder(const ParametrizationsHolder & other); ///< Forbidden copy constructor.
+	ParametrizationsHolder& operator=(const ParametrizationsHolder & other); ///< Forbidden assignment operator.
 
 public:
-	FunctionsStructure() {} // Default empty constructor
+	ParametrizationsHolder() {} ///< Default empty constructor
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,4 +150,4 @@ public:
 	}
 };
 
-#endif
+#endif // PARSYBONE_PARAMETRIZATIONS_HOLDER_INCLUDED

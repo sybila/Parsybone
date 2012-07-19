@@ -20,7 +20,7 @@
 #include "../auxiliary/output_streamer.hpp"
 #include "../coloring/parameters_functions.hpp"
 #include "../reforging/automaton_structure.hpp"
-#include "../reforging/functions_structure.hpp"
+#include "../reforging/parametrizations_holder.hpp"
 #include "../reforging/parametrized_structure.hpp"
 
 class ProductStructure : public AutomatonInterface {
@@ -53,7 +53,7 @@ class ProductStructure : public AutomatonInterface {
 	};
 	
 	// References to data structures
-	const FunctionsStructure & functions; // Implicit reprezentation of functions - used as reference
+	const ParametrizationsHolder & functions; // Implicit reprezentation of functions - used as reference
 	const ConstrainsParser & constrains; // Constrains on functions taken from the model
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
@@ -91,7 +91,7 @@ class ProductStructure : public AutomatonInterface {
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	ProductStructure(const FunctionsStructure & _functions, const ConstrainsParser & _constrains, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
+	ProductStructure(const ParametrizationsHolder & _functions, const ConstrainsParser & _constrains, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton) 
 		: functions(_functions), constrains(_constrains), structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ public:
 	/**
 	 * @return constant reference to structure with regulatory functions
 	 */
-	const FunctionsStructure & getFunc() const {
+	const ParametrizationsHolder & getFunc() const {
 		return functions;
 	}
 

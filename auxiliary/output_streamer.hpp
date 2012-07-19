@@ -45,6 +45,7 @@ public:
 	static Trait no_newl    = 1;
 	static Trait important  = 2;
 	static Trait rewrite_ln = 4;
+	static Trait tab        = 8;
 
 	/**
 	 * test if given trait is present
@@ -218,12 +219,15 @@ private:
 	 */
 	template <class outputType> 
 	void actualOutput(std::ostream & stream, const outputType & stream_data, const unsigned int trait_mask) const {
-		// Add prefix stars
+		// Use 3 spaces tab
+		if (testTrait(tab, trait_mask))
+			stream << "   ";
+		// Add prefix dashes
 		if (testTrait(important, trait_mask))
 			stream << "-- ";
 		// Actuall data
 		stream << stream_data;
-		// Add postfix stars
+		// Add postfix dashes
 		if (testTrait(important, trait_mask))
 			stream << " --";
 		// End of the line if not requested otherwise

@@ -6,31 +6,31 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_FUNCTIONS_BUILDER_INCLUDED
-#define PARSYBONE_FUNCTIONS_BUILDER_INCLUDED
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FunctionsBuilder recreates functions from explicit form of the model into more utilizable apperance.
-// Functions are created from interactions and regulations data by obtaining exact levels of species in which the regulations are active.
-// Functions are built with some auxiliary precomputed data which fasten usage of the functions.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifndef PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
+#define PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
 
 #include "../parsing/model.hpp"
 #include "constrains_parser.hpp"
-#include "functions_structure.hpp"
+#include "parametrizations_holder.hpp"
 
-class FunctionsBuilder {
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// FunctionsBuilder builds forms for all possible parametrizations of a single specie from the implicit form in the model.
+/// Functions are created from interactions and regulations data by obtaining exact levels of species in which the regulations are active.
+/// Functions are built with some auxiliary precomputed data which fasten usage of the functions.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class ParametrizationsBuilder {
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
-	const Model & model; // Model that holds the data
-	const ConstrainsParser & constrains; // Information about edge constrains
-	FunctionsStructure & functions_structure; // FunctionsStructure class to fill
+	const Model & model; ///< Model that holds the data
+	const ConstrainsParser & constrains; ///< Information about edge constrains
+	ParametrizationsHolder & parametrizations_holder; ///< FunctionsStructure class to fill
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Compute values that are required from all the species for regulation to be active
@@ -66,29 +66,11 @@ class FunctionsBuilder {
 	}
 	
 	/**
-	 * Compute values that the function can have as target values.
-	 * 
-	 * @param target_val	target value as specified in the model
-	 * @param specie_ID	ID of the specie that is regulated by the function
+	 * Creates the kinetic parameters in explicit form from the model information.
+	 * All feasible parameters for the specie are then stored in the FunctionsStructure.
 	 *
-	 * @return possible target values for given function
-	 */
-	std::vector<std::size_t> computePossibleValues(const int target_val, const std::size_t specie_ID) const {
-		// Data to return
-		std::vector<std::size_t> possible_values;
-
-		// Add target values (if input negative, add all possibilities), if positive, add current requested value (by creator of the model)
-		if (target_val >= 0 )
-			possible_values.push_back(target_val);
-		else
-			for (std::size_t possible_value = 0; possible_value <= model.getMax(specie_ID); possible_value++) 
-				possible_values.push_back(possible_value);
-
-		return possible_values;
-	}
-
-	/**
-	 * Creates the functions in explicit form from the model information.
+	 * @param ID	ID of the specie to compute the kinetic parameters for
+	 * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
 	 */
 	void addRegulations(const SpecieID ID, std::size_t & step_size) const {
 		// get referecnces to Specie data
@@ -103,17 +85,22 @@ class FunctionsBuilder {
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
 			std::vector<std::size_t> possible_values = std::move(constrains.getTargetVals(ID, regul_num));
-			// std::vector<std::size_t> possible_values = std::move(computePossibleValues(regul_it->second, ID));
 
 			// pass the function to the holder.
-			functions_structure.addRegulatoryFunction(ID, step_size, std::move(possible_values), std::move(source_values));	
+			parametrizations_holder.addRegulatoryFunction(ID, step_size, std::move(possible_values), std::move(source_values));
 		}
+
+		// Display stats
+		std::string specie_stats = "Specie " + model.getName(ID) + " has " + boost::lexical_cast<std::string>(regulations.size())
+				+ " regulators with " + boost::lexical_cast<std::string>(constrains.getTargetVals(ID, 0).size()) + " possible regulatory contexts.";
+		output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
+
 		// Increase step size for the next function
 		step_size *= constrains.getTargetVals(ID, 0).size();
 	}
 
 	/**
-	 * Get all the values possible for given specie
+	 * Get all the values possible for given specie (range [min, max])
 	 *
 	 * @param specie_ID	specie to get the values from
 	 *
@@ -123,7 +110,7 @@ class FunctionsBuilder {
 		// Storage
 		std::vector<std::size_t> possible_values;
 		// Add all the values between 0 and max
-		for (std::size_t possible_value = 0; possible_value <= model.getMax(specie_ID); possible_value++) 
+		for (std::size_t possible_value = model.getMin(specie_ID); possible_value <= model.getMax(specie_ID); possible_value++)
 			possible_values.push_back(possible_value);
 
 		return possible_values;
@@ -151,21 +138,22 @@ class FunctionsBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	FunctionsBuilder(const FunctionsBuilder & other);            // Forbidden copy constructor.
-	FunctionsBuilder& operator=(const FunctionsBuilder & other); // Forbidden assignment operator.
+	ParametrizationsBuilder(const ParametrizationsBuilder & other); ///< Forbidden copy constructor.
+	ParametrizationsBuilder& operator=(const ParametrizationsBuilder & other); ///< Forbidden assignment operator.
 
 public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	FunctionsBuilder(const Model & _model, const ConstrainsParser & _constrains, FunctionsStructure & _functions_structure) 
-		: model(_model), constrains(_constrains), functions_structure(_functions_structure)  { }
+	ParametrizationsBuilder(const Model & _model, const ConstrainsParser & _constrains, ParametrizationsHolder & _parametrizations_holder)
+		: model(_model), constrains(_constrains), parametrizations_holder(_parametrizations_holder)  { }
 
 	/**
-	 * For each specie recreate all its regulatory functions
+	 * For each specie recreate all its regulatory functions (all possible parametrizations)
 	 */
 	void buildFunctions() {
-		output_streamer.output(stats_str, "Costructing Regulatory functions for: ", OutputStreamer::no_newl)
+		// Display stats
+		output_streamer.output(stats_str, "Costructing Regulatory functions for ", OutputStreamer::no_newl)
 			           .output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
 
 		std::size_t step_size = 1; // Variable necessary for encoding of colors 
@@ -178,14 +166,14 @@ public:
 			std::vector<std::size_t> source_species = std::move(getSourceSpecies(specie_num));
 
 			// Add specie
-			functions_structure.addSpecie(model.getName(specie_num), specie_num, std::move(possible_values), std::move(source_species));
+			parametrizations_holder.addSpecie(model.getName(specie_num), specie_num, std::move(possible_values), std::move(source_species));
 			
 			// Add regulations for this specie
 			addRegulations(specie_num, step_size);
 		}
 
 		// Set the number by what would be step size for next function
-		functions_structure.parameter_count = step_size;
+		parametrizations_holder.parameter_count = step_size;
 	}
 };
-#endif
+#endif // PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED

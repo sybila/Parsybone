@@ -6,8 +6,8 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSING_MANAGER_HPP
-#define PARSING_MANAGER_HPP
+#ifndef PARSYBONE_PARSING_MANAGER_INCLUDED
+#define PARSYBONE_PARSING_MANAGER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
 #include "model_parser.hpp"
@@ -63,4 +63,4 @@ public:
 	}
 };
 
-#endif // PARSING_MANAGER_HPP
+#endif // PARSYBONE_PARSING_MANAGER_INCLUDED

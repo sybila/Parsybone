@@ -6,10 +6,10 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef CONSTRUCTION_MANAGER_HPP
-#define CONSTRUCTION_MANAGER_HPP
+#ifndef PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
+#define PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 
-#include "functions_builder.hpp"
+#include "parametrizations_builder.hpp".hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ConstructionManager overviews the whole process of construction of structures from information contained within a model file.
@@ -23,26 +23,35 @@ class ConstructionManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   void constructBasicStructure() {
+
+   }
+
 public:
    /**
     * Constructor
+    *
+    * @param _model  model object to read the data from
     */
    ConstructionManager(const Model & _model) : model(_model) {
 
    }
 
+
    void construct() {
-      FunctionsStructure functions_structure;
+      ParametrizationsHolder parametrizations_holder;
       ConstrainsParser constrains_parser(model);
 
       output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
 
       constrains_parser.parseConstrains();
 
-      FunctionsBuilder functions_builder(model, constrains_parser, functions_structure);
-      functions_builder.buildFunctions();
+      ParametrizationsBuilder parametrizations_builder(model, constrains_parser, parametrizations_holder);
+      parametrizations_builder.buildFunctions();
+
+
    }
 };
 
 
-#endif // CONSTRUCTION_MANAGER_HPP
+#endif // PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
