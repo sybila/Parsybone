@@ -37,7 +37,6 @@ public:
 
    }
 
-
    void construct() {
       ParametrizationsHolder parametrizations_holder;
       ConstrainsParser constrains_parser(model);

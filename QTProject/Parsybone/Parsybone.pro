@@ -5,7 +5,7 @@ CONFIG -= qt
 SOURCES += \
     ../../main.cpp
 
-INCLUDEPATH += "C:\Program Files\boost_1_46_1"
+INCLUDEPATH += "C:/Program Files/boost_1_46_1"
 
 HEADERS += \
     ../../auxiliary/user_options.hpp \
@@ -14,19 +14,19 @@ HEADERS += \
     ../../auxiliary/output_streamer.hpp \
     ../../auxiliary/data_types.hpp \
     ../../auxiliary/common_functions.hpp \
-    ../../reforging/product_structure.hpp \
-    ../../reforging/product_builder.hpp \
-    ../../reforging/parametrized_structure_builder.hpp \
-    ../../reforging/parametrized_structure.hpp \
-    ../../reforging/parametrizations_builder.hpp \
-    ../../reforging/parametrizations_holder.hpp \
-    ../../reforging/graph_interface.hpp \
-    ../../reforging/color_storage.hpp \
-    ../../reforging/basic_structure_builder.hpp \
-    ../../reforging/basic_structure.hpp \
-    ../../reforging/automaton_structure.hpp \
-    ../../reforging/automaton_interface.hpp \
-    ../../reforging/automaton_builder.hpp \
+    ../../construction/product_structure.hpp \
+    ../../construction/product_builder.hpp \
+    ../../construction/parametrized_structure_builder.hpp \
+    ../../construction/parametrized_structure.hpp \
+    ../../construction/parametrizations_builder.hpp \
+    ../../construction/parametrizations_holder.hpp \
+    ../../construction/graph_interface.hpp \
+    ../../construction/color_storage.hpp \
+    ../../construction/basic_structure_builder.hpp \
+    ../../construction/basic_structure.hpp \
+    ../../construction/automaton_structure.hpp \
+    ../../construction/automaton_interface.hpp \
+    ../../construction/automaton_builder.hpp \
     ../../results/witness_searcher.hpp \
     ../../results/per_color_storage.hpp \
     ../../results/output_manager.hpp \
@@ -44,8 +44,24 @@ HEADERS += \
     ../../parsing/rapidxml-1.13/rapidxml_iterators.hpp \
     ../../parsing/rapidxml-1.13/rapidxml.hpp \
     ../../parsing/parsing_manager.hpp \
-    ../../reforging/construction_manager.hpp \
-    ../../reforging/constrains_parser.hpp \
-    ../../reforging/parametrizations_holder.hpp \
-    ../../reforging/parametrizations_builder.hpp
+    ../../construction/construction_manager.hpp \
+    ../../construction/constrains_parser.hpp \
+    ../../construction/parametrizations_holder.hpp \
+    ../../construction/parametrizations_builder.hpp \
+    ../../construction/product_structure.hpp \
+    ../../construction/product_builder.hpp \
+    ../../construction/parametrized_structure_builder.hpp \
+    ../../construction/parametrized_structure.hpp \
+    ../../construction/parametrizations_holder.hpp \
+    ../../construction/parametrizations_builder.hpp \
+    ../../construction/graph_interface.hpp \
+    ../../construction/construction_manager.hpp \
+    ../../construction/constrains_parser.hpp \
+    ../../construction/color_storage.hpp \
+    ../../construction/basic_structure_builder.hpp \
+    ../../construction/basic_structure.hpp \
+    ../../construction/automaton_structure.hpp \
+    ../../construction/automaton_interface.hpp \
+    ../../construction/automaton_builder.hpp \
+    ../../construction/construction_holder.hpp
 

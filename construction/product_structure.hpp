@@ -19,9 +19,9 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../coloring/parameters_functions.hpp"
-#include "../reforging/automaton_structure.hpp"
-#include "../reforging/parametrizations_holder.hpp"
-#include "../reforging/parametrized_structure.hpp"
+#include "automaton_structure.hpp"
+#include "parametrizations_holder.hpp"
+#include "parametrized_structure.hpp"
 
 class ProductStructure : public AutomatonInterface {
 	friend class ProductBuilder;

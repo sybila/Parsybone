@@ -92,11 +92,11 @@ class ParametrizationsBuilder {
 
 		// Display stats
 		std::string specie_stats = "Specie " + model.getName(ID) + " has " + boost::lexical_cast<std::string>(regulations.size())
-				+ " regulators with " + boost::lexical_cast<std::string>(constrains.getTargetVals(ID, 0).size()) + " possible regulatory contexts.";
+				+ " regulators with " + boost::lexical_cast<std::string>(constrains.getColorsNum(ID)) + " possible regulatory contexts.";
 		output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
 
 		// Increase step size for the next function
-		step_size *= constrains.getTargetVals(ID, 0).size();
+		step_size *= constrains.getColorsNum(ID);
 	}
 
 	/**

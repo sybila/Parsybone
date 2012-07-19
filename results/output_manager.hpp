@@ -15,7 +15,7 @@
 
 #include "../auxiliary/user_options.hpp"
 #include "../coloring/split_manager.hpp"
-#include "../reforging/product_structure.hpp"
+#include "../construction/product_structure.hpp"
 #include "coloring_analyzer.hpp"
 
 class OutputManager {

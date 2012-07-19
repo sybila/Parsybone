@@ -14,8 +14,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../coloring/parameters_functions.hpp"
-#include "../reforging/product_structure.hpp"
-#include "../reforging/color_storage.hpp"
+#include "../construction/product_structure.hpp"
+#include "../construction/color_storage.hpp"
 #include "../results/per_color_storage.hpp"
 
 class WitnessSearcher {

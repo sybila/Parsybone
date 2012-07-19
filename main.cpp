@@ -16,14 +16,14 @@
 #include "parsing/argument_parser.hpp"
 #include "parsing/model_parser.hpp"
 #include "parsing/parsing_manager.hpp"
-#include "reforging/basic_structure_builder.hpp"
-#include "reforging/constrains_parser.hpp"
-#include "reforging/construction_manager.hpp"
-#include "reforging/parametrizations_builder.hpp"
-#include "reforging/parametrized_structure_builder.hpp"
-#include "reforging/automaton_builder.hpp"
-#include "reforging/product_structure.hpp"
-#include "reforging/product_builder.hpp"
+#include "construction/basic_structure_builder.hpp"
+#include "construction/constrains_parser.hpp"
+#include "construction/construction_manager.hpp"
+#include "construction/parametrizations_builder.hpp"
+#include "construction/parametrized_structure_builder.hpp"
+#include "construction/automaton_builder.hpp"
+#include "construction/product_structure.hpp"
+#include "construction/product_builder.hpp"
 #include "coloring/synthesis_manager.hpp"
 
 // porgram-related data
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		ConstructionManager construction_manager( model);
+		ConstructionManager construction_manager(model);
 		construction_manager.construct();
 	}
 	catch (std::exception & e) {

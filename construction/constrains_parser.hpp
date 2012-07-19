@@ -15,6 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Class that computes feasible parametrizations for each specie from edge constrains.
 /// All feasible subcolors for each specie are stored with that specie.
+/// @attention subcolor means partial parametrizatrization ~ full parametrization of a single specie
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstrainsParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,10 +26,10 @@ class ConstrainsParser {
 	/// Holds all the feasible subcolors for single Specie w.r.t. edge constrains
 	struct SpecieColors {
 		SpecieID ID; ///< Unique ID of the specie
-		std::vector<std::vector<std::size_t> > subcolors; ///< Feasible subcolors
-		std::size_t colors_num; ///< Total number of subcolors for a specie(even those unfesible)
+		std::vector<std::vector<std::size_t> > subcolors; ///< Feasible subcolors of the specie
+		std::size_t colors_num; ///< Total number of subcolors possible for the specie(even those unfesible)
 
-		// Add new subcolor
+		/// Add as new subcolor
 		void push_back (std::vector<std::size_t> subcolor) {
 			subcolors.push_back(subcolor);
 		}
@@ -41,7 +42,7 @@ class ConstrainsParser {
 // TESTING FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	/** 
-	 * Test specific constrain on given color
+	 * Test specific constrain on given color - this function checks both observability and the edge constrain
 	 *
 	 * @param is_observable	stores true if the regulation is observable
 	 * @param ID	ID of the specie that undergoes the test
@@ -100,7 +101,7 @@ class ConstrainsParser {
 		// Cycle through interactions
 		for (std::size_t inter_num = 0; inter_num < interactions.size(); inter_num++) {
 			// Skip if there are no requirements
-			if (interactions[inter_num].constrain == none_cons)
+			if (interactions[inter_num].constrain == none_cons && !interactions[inter_num].observable)
 				continue;
 			bool is_observable = false;
 
@@ -110,14 +111,17 @@ class ConstrainsParser {
 				if (!regulations[regul_num].first[inter_num])
 					continue;
 
+				// Test contrains and return false, if sign constrain is not satisfied
 				if(!testConstrains(is_observable, ID, regul_num, inter_num, subcolor))
 					return false;
 			}
 
-			// Check observability
+			// Check observability, if it is required
 			if (!is_observable && interactions[inter_num].observable)
 				return false;
 		}
+
+		// If everything has passed, return true
 		return true;
 	}
 
@@ -198,7 +202,7 @@ class ConstrainsParser {
 	 *
 	 * @param specie used in this round
 	 */
-	void createContexts(const SpecieID ID) {
+	void createKinetics(const SpecieID ID) {
 		// Data to fill
 		SpecieColors valid;
 		valid.ID = ID;
@@ -228,7 +232,7 @@ public:
 	void parseConstrains() { 
 		// Cycle through species
 		for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++) {
-			createContexts(ID);
+			createKinetics(ID);
 		}
 	}
 
@@ -243,6 +247,8 @@ public:
 	}	
 	
 	/**
+	 * @param ID	ID of the specie to get the number from
+	 *
 	 * @return	total number of subcolors this specie could have (all regulatory contexts' combinations)
 	 */
 	inline const std::size_t getAllColorsNum(const SpecieID ID) const {
@@ -250,6 +256,8 @@ public:
 	}
 
 	/**
+	 * @param ID	ID of the specie to get the number from
+	 *
 	 * @return	total number of subcolors this specie has (allowed regulatory contexts' combinations)
 	 */
 	inline const std::size_t getColorsNum(const SpecieID ID) const {
@@ -257,6 +265,9 @@ public:
 	}
 
 	/**
+	 * @param ID	ID of the specie the requested subcolor belongs to
+	 * @param color_num	ordinal number of the requested subcolor
+	 *
 	 * @return	requested subcolor from the vector of subcolors of given specie
 	 */
 	inline const std::vector<std::size_t> & getColor(const SpecieID ID, const std::size_t color_num) const {
@@ -264,7 +275,12 @@ public:
 	}
 
 	/**
-	 * @return	total number of subcolors this specie has (allowed regulatory contexts' combinations)
+	 * This function returns a vector containing target value for a given regulatory contexts for ALL the contexts allowed (in lexicographical order).
+	 *
+	 * @param ID	ID of the specie that is regulated
+	 * @param regul_num	ordinal number of the regulatory context (in a lexicographical order)
+	 *
+	 * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
 	 */
 	const std::vector<std::size_t> getTargetVals(const SpecieID ID, const std::size_t regul_num) const {
 		//Data to fill

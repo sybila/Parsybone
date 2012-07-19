@@ -10,7 +10,7 @@
 #define PARSYBONE_BASIC_STRUCTURE_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
-#include "../reforging/graph_interface.hpp"
+#include "graph_interface.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// BasicStructure stores states of the Kripke structure created from the model - each state knows its levels and indexes of all the neighbours.
