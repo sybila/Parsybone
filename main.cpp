@@ -18,6 +18,7 @@
 #include "parsing/parsing_manager.hpp"
 #include "construction/basic_structure_builder.hpp"
 #include "construction/constrains_parser.hpp"
+#include "construction/construction_holder.hpp"
 #include "construction/construction_manager.hpp"
 #include "construction/parametrizations_builder.hpp"
 #include "construction/parametrized_structure_builder.hpp"
@@ -38,15 +39,17 @@ int main(int argc, char* argv[]) {
 // Create long-live objects
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	time_manager.startClock("runtime");
-	Model model;
+	ConstructionHolder holder;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
+		Model model;
 		ParsingManager parsing_manager(argc, argv, model);
 		parsing_manager.parse();
+		holder.setModel(std::move(model));
 	}
 	catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while parsing input: ").append(e.what()));
@@ -58,7 +61,7 @@ int main(int argc, char* argv[]) {
 // Parse input information.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
-		ConstructionManager construction_manager(model);
+		ConstructionManager construction_manager(holder.getModel());
 		construction_manager.construct();
 	}
 	catch (std::exception & e) {
@@ -66,18 +69,20 @@ int main(int argc, char* argv[]) {
 		return 2;
 	}
 
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP THREE:
 // Create Functions (implicit reprezentation of regulatory contexts of species)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	ParametrizationsHolder parametrizations_holder;
-	ConstrainsParser constrains_parser(model);
+	ConstrainsParser constrains_parser(holder.getModel());
 	try {
 		output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
 
 		constrains_parser.parseConstrains();
 
-		ParametrizationsBuilder parametrizations_builder(model, constrains_parser, parametrizations_holder);
+		ParametrizationsBuilder parametrizations_builder(holder.getModel(), constrains_parser, parametrizations_holder);
 		parametrizations_builder.buildFunctions();
 	} 
 	catch (std::exception & e) {
@@ -95,7 +100,7 @@ int main(int argc, char* argv[]) {
 
 		// Create temporary Kripke structure without parametrization
 		BasicStructure basic_structure; // Kripke structure built from the network
-		BasicStructureBuilder basic_structure_builder(model, basic_structure);
+		BasicStructureBuilder basic_structure_builder(holder.getModel(), basic_structure);
 		basic_structure_builder.buildStructure();
 
 		// Build PKS
@@ -115,7 +120,7 @@ int main(int argc, char* argv[]) {
 	try {
 		output_streamer.output(verbose_str, "Buchi automaton building started.", OutputStreamer::important);
 
-		AutomatonBuilder automaton_builder( model, automaton);
+		AutomatonBuilder automaton_builder( holder.getModel(), automaton);
 		automaton_builder.buildAutomaton();
 	} 
 	catch (std::exception & e) {

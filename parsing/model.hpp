@@ -143,6 +143,12 @@ private:
 
 public:
 	Model() {} ///< Default empty constructor
+	Model& operator=(Model && other) {
+		species = std::move(other.species);
+		states = std::move(other.states);
+		additional_information = std::move(other.additional_information);
+		return *this;
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 

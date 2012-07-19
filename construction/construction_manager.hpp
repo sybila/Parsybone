@@ -27,6 +27,9 @@ class ConstructionManager {
 
    }
 
+	ConstructionManager(const ConstructionManager & other); ///< Forbidden copy constructor.
+	ConstructionManager& operator=(const ConstructionManager & other); ///< Forbidden assignment operator.
+
 public:
    /**
     * Constructor
