@@ -28,24 +28,21 @@ class AutomatonStructure : public AutomatonInterface {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Single labelled transition from one state to another
-	struct Transition { 
-		StateID target_state; // To where
+	struct Transition : public TransitionProperty {
 		std::vector<std::set<std::size_t> > allowed_values; // Allowed values of species for this transition
 
-		Transition(const std::size_t _target_state, std::vector<std::set<std::size_t> > && _allowed_values) 
-			: target_state(_target_state), allowed_values(std::move(_allowed_values)) {}
+		Transition(const StateID target_ID, std::vector<std::set<std::size_t> > && _allowed_values)
+			: TransitionProperty(target_ID), allowed_values(std::move(_allowed_values)) {}
 	};
 
 	// Storing a single state - its activation levels of each of the species and IDs of states that are neighbours (differ only in single step of single value)
-	struct State {
-		StateID ID; // unique ID of the state
+	struct State : public StateProperty<Transition> {
 		bool final; // true if this state is final
-		std::vector<Transition> transitions; // Transitions from this state
 
-		State(const StateID _ID, const bool _final) : ID(_ID), final(_final) {}
+		State(const StateID ID, const bool _final) : StateProperty<Transition>(ID), final(_final) {}
 	};
 
-	// DATA STORAGE
+	// Storage of the actuall states
 	std::vector<State> states;
 
 	// Information
@@ -119,7 +116,7 @@ public:
 	 * @override
 	 */
 	inline const std::size_t getTargetID(const StateID ID, const std::size_t transition_num) const {
-		return states[ID].transitions[transition_num].target_state;
+		return states[ID].transitions[transition_num].target_ID;
 	}
 
 	/**

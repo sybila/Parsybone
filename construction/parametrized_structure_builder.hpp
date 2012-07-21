@@ -132,7 +132,7 @@ class ParametrizedStructureBuilder {
 	}
 
 	/**
-	 * Fill properties of an implicit function that is connected to specified transition
+	 * Fill properties of the specified transition for the CMC procedure
 	 * 
 	 * @param ID	ID of this state in KS
 	 * @param neighbour_index	index of the neighbour state. Specie that change is used to determine wich function to use.
@@ -144,7 +144,7 @@ class ParametrizedStructureBuilder {
 	 *
 	 * @return true if there is a possibility of transition, false otherwise
 	 */
-	const bool fillFunctions(const StateID ID, const std::size_t neighbour_index, const Levels & state_levels, 
+	const bool fillFunctions(const StateID ID, const StateID neighbour_index, const Levels & state_levels,
 		                     std::size_t & step_size, std::vector<bool> & transitive_values) {
 		// Get ID of the regulated specie
 		const std::size_t specie_ID = basic_structure.getSpecieID(ID, neighbour_index);
@@ -152,7 +152,7 @@ class ParametrizedStructureBuilder {
 		// Find out which function is currently active
 		std::size_t function_num = getActiveFunction(specie_ID, state_levels);
 
-		// Fill step size
+		// Fill the step size
 		step_size = regulatory_functions.getStepSize(specie_ID, function_num);
 
 		// Fill data about transitivity using provided values
@@ -171,6 +171,9 @@ class ParametrizedStructureBuilder {
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
+	 * @param ID	state from which the transitions should lead
+	 * @param state_levels	activation levels in this state
+	 *
 	 * For each existing neighbour add a transition to the newly created state
 	 */
 	void addTransitions(const StateID ID, const Levels & state_levels) {
@@ -204,7 +207,7 @@ public:
 	 * Create the states from the model and fill the structure with them.
 	 */
 	void buildStructure() {
-		output_streamer.output(stats_str, "Merging functions and Kripke structure into Parametrized Kripke structure.");
+		output_streamer.output(stats_str, "Merging the kinetic functions and the basic Kripke structure into a parametrized Kripke structure.");
 
 		// Recreate all the states of the simple structure
 		for(StateID ID = 0; ID < basic_structure.getStateCount(); ID++) {

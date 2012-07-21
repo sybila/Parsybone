@@ -31,7 +31,7 @@ class ParametrizationsHolder {
 		std::vector<std::vector<std::size_t> > source_values;  ///< Values at which the regulations are active
 
 		RegulatoryFunction(const std::size_t _step_size, std::vector<std::size_t> && _possible_values, std::vector<std::vector<std::size_t> > && _source_values)
-			: step_size(_step_size), possible_values(std::move(_possible_values)), source_values(std::move(_source_values)) {}
+			: step_size(_step_size), possible_values(std::move(_possible_values)), source_values(std::move(_source_values)) {} ///< Simple filler, assigns values to all the variables
 	};
 	
 	/// Storing a sigle specie with its regulations
@@ -44,7 +44,7 @@ class ParametrizationsHolder {
 		std::vector<RegulatoryFunction> functions; ///< Regulatory functions - set of all possible regulatory kinetics
 	
 		Specie(const std::string _name, const std::size_t _ID, std::vector<std::size_t> && _specie_values, std::vector<std::size_t> && _source_species)
-			  : name(_name), ID(_ID), specie_values(std::move(_specie_values)), source_species(std::move(_source_species)) { }
+			  : name(_name), ID(_ID), specie_values(std::move(_specie_values)), source_species(std::move(_source_species)) { } ///< Simple filler, assigns values to all the variables
 	};
 
 	/// Vector of all the species together with their Regulatory functions

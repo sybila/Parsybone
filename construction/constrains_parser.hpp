@@ -29,7 +29,7 @@ class ConstrainsParser {
 		std::vector<std::vector<std::size_t> > subcolors; ///< Feasible subcolors of the specie
 		std::size_t colors_num; ///< Total number of subcolors possible for the specie(even those unfesible)
 
-		/// Add as new subcolor
+		/// Add as new subcolor (to the end of the vector)
 		void push_back (std::vector<std::size_t> subcolor) {
 			subcolors.push_back(subcolor);
 		}

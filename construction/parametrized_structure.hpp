@@ -27,23 +27,20 @@ class ParametrizedStructure : public GraphInterface {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Storing a single transition to neighbour state together with its transition function
-	struct Transition {
-		StateID target_ID; ///< ID of the state the transition leads to
+	struct Transition : public TransitionProperty {
 		std::size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another
 		std::vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
-		Transition(const std::size_t _target_ID, const std::size_t _step_size, std::vector<bool>&& _transitive_values)
-			: target_ID(_target_ID), step_size(_step_size), transitive_values(std::move(_transitive_values)) {}
+		Transition(const StateID target_ID, const std::size_t _step_size, std::vector<bool>&& _transitive_values)
+			: TransitionProperty(target_ID), step_size(_step_size), transitive_values(std::move(_transitive_values)) {} ///< Simple filler, assigns values to all the variables
 	};
-	
-	/// Simple state enriched with transition functions
-	struct State {
-		StateID ID; ///< unique ID of the state
-		Levels species_level; ///< species_level[i] = activation level of specie i
-		std::vector<Transition> transitions; ///< Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
 
-		State(const std::size_t _ID, const Levels& _species_level) 
-			: ID(_ID), species_level(_species_level) { }
+	/// Simple state enriched with transition functions
+	struct State : public StateProperty<Transition> {
+		Levels species_level; ///< species_level[i] = activation level of specie i
+
+		State(const StateID ID, const Levels& _species_level)
+			: StateProperty<Transition>(ID), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables
 	};
 
 	/// Vector of all the states of the PKS
@@ -124,7 +121,7 @@ public:
 
 	/**
 	 * @param ID	ID of the state to get the data from
-	 * @param transition_num index of the transition to get the data from
+	 * @param transition_num	index of the transition to get the data from
 	 *
 	 * @return	number of neighbour parameters that share the same value of the function
 	 */
@@ -134,7 +131,7 @@ public:
 
 	/**
 	 * @param ID	ID of the state to get the data from
-	 * @param transition_num index of the transition to get the data from
+	 * @param transition_num	index of the transition to get the data from
 	 *
 	 * @return	target values that are includete in non-transitive parameters that have to be removed
 	 */

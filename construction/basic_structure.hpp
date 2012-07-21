@@ -25,26 +25,22 @@ class BasicStructure : public GraphInterface {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Stores an unlabelled transition to next state
-	struct Transition {
-        StateID target_ID; ///< index in the vector of states
-        std::size_t changed_specie; ///< ID of specie that differs between this and neighbour
-        Direction change_direction; ///< way the specie's value is changed
+   struct Transition : public TransitionProperty {
+      std::size_t changed_specie; ///< ID of specie that differs between this and neighbour
+      Direction change_direction; ///< way the specie's value is changed
 
-		Transition(const StateID _target_ID, const std::size_t _changed_specie, const Direction _change_direction)
-			: target_ID(_target_ID), changed_specie(_changed_specie), change_direction(_change_direction) { }
+		Transition(const StateID target_ID, const std::size_t _changed_specie, const Direction _change_direction)
+			: TransitionProperty(target_ID), changed_specie(_changed_specie), change_direction(_change_direction) { } ///< Simple filler, assigns values to all the variables
 	};
-	
+
     /// Storing a single state - its activation levels of each of the species and IDs of states that are neighbours (differ only in single step of single value)
-	struct State { 
-        StateID ID; ///< unique ID of the state
-        Levels species_level; ///< species_level[i] = activation level of specie i
+   struct State : public StateProperty<Transition> {
+      Levels species_level; ///< species_level[i] = activation level of specie i
 
-        std::vector<Transition> transitions; ///< Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
-
-		State(const StateID _ID, const Levels _species_level) 
-			: ID(_ID), species_level(_species_level) { }
+		State(const StateID ID, const Levels _species_level)
+			: StateProperty<Transition>(ID), species_level(_species_level) { }
 	};
-	
+
 	/// A vector of all the states of the basic KS
 	std::vector<State> states;
 

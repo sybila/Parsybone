@@ -29,27 +29,24 @@ class ProductStructure : public AutomatonInterface {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	// Storing a single transition to neighbour state together with its transition function
-	struct Transition {
-		StateID target_ID; // ID of the state the transition leads to
+	struct Transition : public TransitionProperty {
 		std::size_t step_size; // How many bits of a parameter space bitset is needed to get from one targe value to another
 		std::vector<bool> transitive_values; // Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
-		Transition(const std::size_t _target_ID, const std::size_t _step_size, const std::vector<bool>& _transitive_values)
-			: target_ID(_target_ID), step_size(_step_size), transitive_values(_transitive_values) {}
+		Transition(const StateID target_ID, const std::size_t _step_size, const std::vector<bool>& _transitive_values)
+			: TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {}
 	};
 	
 	// State of the product - same as the state of parametrized structure but together with BA state
-	struct State {
-		StateID ID; // unique ID of the state
+	struct State : public StateProperty<Transition> {
 		StateID KS_ID; // ID of original KS state this one is built from
 		StateID BA_ID; // ID of original BA state this one is built from
 		bool initial; // True if the state is initial
 		bool final; // True if the state is final
 		Levels species_level; // species_level[i] = activation level of specie i
-		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
 
-		State(const StateID _ID, const StateID _KS_ID, const StateID _BA_ID, const bool _initial, const bool _final, const  Levels & _species_level)
-			: ID(_ID), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) { }
+		State(const StateID ID, const StateID _KS_ID, const StateID _BA_ID, const bool _initial, const bool _final, const  Levels & _species_level)
+			: StateProperty<Transition>(ID), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) { }
 	};
 	
 	// References to data structures

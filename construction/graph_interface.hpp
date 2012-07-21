@@ -9,6 +9,9 @@
 #ifndef PARSYBONE_GRAPH_INTERFACE_INCLUDED
 #define PARSYBONE_GRAPH_INTERFACE_INCLUDED
 
+#include "state_property.hpp"
+#include "transition_property.hpp"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Interface for all the classes that represent a directed graph.
 /// Transitions are stored with their source state.

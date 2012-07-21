@@ -63,5 +63,7 @@ HEADERS += \
     ../../construction/automaton_structure.hpp \
     ../../construction/automaton_interface.hpp \
     ../../construction/automaton_builder.hpp \
-    ../../construction/construction_holder.hpp
+    ../../construction/construction_holder.hpp \
+    ../../construction/state_property.hpp \
+    ../../construction/transition_property.hpp
 
