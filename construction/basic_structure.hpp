@@ -10,6 +10,7 @@
 #define PARSYBONE_BASIC_STRUCTURE_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
+#include "../auxiliary/common_functions.hpp"
 #include "graph_interface.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +39,7 @@ class BasicStructure : public GraphInterface {
       Levels species_level; ///< species_level[i] = activation level of specie i
 
 		State(const StateID ID, const Levels _species_level)
-			: StateProperty<Transition>(ID), species_level(_species_level) { }
+			: StateProperty<Transition>(ID), species_level(_species_level) { }  ///< Simple filler, assigns values to all the variables
 	};
 
 	/// A vector of all the states of the basic KS
@@ -93,11 +94,11 @@ public:
 		std::string state_string = "(";
 		// Add species levels
 		for (auto spec_it = getStateLevels(ID).begin(); spec_it != getStateLevels(ID).end() - 1; spec_it++) {
-			state_string += boost::lexical_cast<std::string, std::size_t>(*spec_it);
+			state_string += toString(*spec_it);
 			state_string += ",";
 		}
 		// Add the last species level
-		state_string += boost::lexical_cast<std::string, std::size_t>(getStateLevels(ID).back());
+		state_string += toString(getStateLevels(ID).back());
 		// End the state
 		state_string += ")";
 		return std::move(state_string);

@@ -9,22 +9,21 @@
 #ifndef PARSYBONE_AUTOMATON_BUILDER_INCLUDED
 #define PARSYBONE_AUTOMATON_BUILDER_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AutomatonBuilder transform graph of the automaton into set of transitions that know values necessary for transition to be feasible.
-// Correspondence to the states of the automaton itself assured by storing the source in the transition and correct ordering of the vector of transitions.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../parsing/model.hpp"
 #include "automaton_structure.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// AutomatonBuilder transform graph of the automaton into set of transitions that know values necessary for transition to be feasible.
+/// Correspondence to the states of the automaton itself assured by storing the source in the transition and correct ordering of the vector of transitions.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonBuilder {
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const Model & model;
-	AutomatonStructure & automaton;
-
-	AllowedValues all_values;
+	const Model & model; ///< Model that holds the data
+	AutomatonStructure & automaton; ///< Automaton that will be created
+	AllowedValues all_values; ///< Commonly used structure holding values of the KS that allow some transition
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS:
@@ -164,8 +163,8 @@ class AutomatonBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	AutomatonBuilder(const AutomatonBuilder & other);            // Forbidden copy constructor.
-	AutomatonBuilder& operator=(const AutomatonBuilder & other); // Forbidden assignment operator.
+	AutomatonBuilder(const AutomatonBuilder & other); ///< Forbidden copy constructor.
+	AutomatonBuilder& operator=(const AutomatonBuilder & other); ///< Forbidden assignment operator.
 
 	/**
 	 * Creates transitions from labelled edges of BA and passes them to automaton structure
@@ -173,7 +172,7 @@ class AutomatonBuilder {
 	 * @param state_num	index of the state of BA 
 	 * @param start_position	index of the last transition created
 	 */
-	void addTransitions(const StateID ID) const {
+	void addTransitions(const StateID ID, std::size_t & transition_count) const {
 		const std::vector<Model::Egde> & edges = model.getEdges(ID); 
 
 		// Transform each edge into transition and pass it to the automaton
@@ -181,8 +180,10 @@ class AutomatonBuilder {
 			// Compute allowed values from string of constrains
 			AllowedValues constrained_values = std::move(parseConstrains(edges[edge_num].second));
 			// If the transition is possible for at least some values, add it
-			if (!constrained_values.empty())
+			if (!constrained_values.empty()) {
 				automaton.addTransition(ID, edges[edge_num].first, std::move(constrained_values));
+				transition_count++;
+			}
 		}
 	}
 
@@ -200,16 +201,21 @@ public:
 	 * Create the transitions from the model and fill the automaton with them
 	 */
 	void buildAutomaton() {
-		output_streamer.output(stats_str, "Costructing Buchi automaton structure states, total number of states: ", OutputStreamer::no_newl)
-			           .output(model.getStateCount(), OutputStreamer::no_newl).output(".");
-		
+		output_streamer.output(stats_str, "Costructing Buchi automaton.");
+		output_streamer.output(stats_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
+			.output(model.getStateCount(), OutputStreamer::no_newl).output(".");
+		std::size_t transition_count = 0;
+
 		// List throught all the automaton states
 		for (StateID ID = 0; ID < model.getStateCount(); ID++) {
 			// Fill auxiliary data
 			automaton.addState(ID, model.isFinal(ID));
 			// Add transitions for this state
-			addTransitions(ID);
+			addTransitions(ID, transition_count);
 		}
+
+		output_streamer.output(stats_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
+			.output(transition_count, OutputStreamer::no_newl).output(".");
 	}
 };
 
