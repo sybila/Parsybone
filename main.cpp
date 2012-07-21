@@ -69,33 +69,16 @@ int main(int argc, char* argv[]) {
 		return 2;
 	}
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP FIVE:
-// Create the automaton.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	AutomatonStructure automaton; // Set of transitions - controlling automaton
-	try {
-		output_streamer.output(verbose_str, "Buchi automaton building started.", OutputStreamer::important);
-
-		AutomatonBuilder automaton_builder(holder.getModel(), automaton);
-		automaton_builder.buildAutomaton();
-	} 
-	catch (std::exception & e) {
-		output_streamer.output(error_str, std::string("Error occured while building the automaton: ").append(e.what()));
-		return 5;
-	}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP SIX:
 // Create the product - splitted into two parts
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure product_structure(holder.getParametrizations(), holder.getConstrains(), holder.getParametrizedStructure(), automaton);
+	ProductStructure product_structure(holder.getParametrizations(), holder.getConstrains(), holder.getParametrizedStructure(), holder.getAutomatonStructure());
 	ColorStorage color_storage;
 	try {
-		output_streamer.output(verbose_str, "Product building started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Product building started.");
 
-		ProductBuilder product_builder(holder.getParametrizedStructure(), automaton, product_structure, color_storage);
+		ProductBuilder product_builder(holder.getParametrizedStructure(), holder.getAutomatonStructure(), product_structure, color_storage);
 		product_builder.buildProduct();
 	} catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while building the product: ").append(e.what()));
@@ -109,7 +92,7 @@ int main(int argc, char* argv[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
 		SynthesisManager synthesis_manager(product_structure, color_storage);
-		output_streamer.output(verbose_str, "Coloring started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Coloring started.");
 		synthesis_manager.doSynthesis();
 	} 
 	catch (std::exception & e) {

@@ -41,7 +41,7 @@ public:
    ConstructionManager(ConstructionHolder & _holder) : holder(_holder) { }
 
    void construct() {
-      output_streamer.output(verbose_str, "Kinetic parameters building started.", OutputStreamer::important);
+      output_streamer.output(verbose_str, "Kinetic parameters building started.");
       // Create possible kinetic parameters
       ConstrainsParser * constrains_parser = new ConstrainsParser(holder.getModel());
       constrains_parser->parseConstrains();
@@ -53,7 +53,7 @@ public:
       parametrizations_builder.buildParametrizations();
       holder.fillParametrizations(std::move(parametrizations_holder));
 
-		output_streamer.output(verbose_str, "Parametrized Kripke structure building started.", OutputStreamer::important);
+		output_streamer.output(verbose_str, "Parametrized Kripke structure building started.");
 		// Create a simple Kripke structure without parametrization
 		BasicStructure * basic_structure = new BasicStructure; // Kripke structure built from the network
 		BasicStructureBuilder basic_structure_builder(holder.getModel(), *basic_structure);
@@ -65,6 +65,13 @@ public:
 		ParametrizedStructureBuilder parametrized_structure_builder(holder.getBasicStructure(), holder.getParametrizations(), *parametrized_structure);
 		parametrized_structure_builder.buildStructure();
 		holder.fillParametrizedStructure(parametrized_structure);
+
+		output_streamer.output(verbose_str, "Buchi automaton building started.");
+		// Create the B\"uchi automaton
+		AutomatonStructure * automaton = new AutomatonStructure; // Set of transitions - controlling automaton
+		AutomatonBuilder automaton_builder(holder.getModel(), *automaton);
+		automaton_builder.buildAutomaton();
+		holder.fillAutomaton(automaton);
    }
 };
 
