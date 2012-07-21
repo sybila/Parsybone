@@ -9,46 +9,44 @@
 #ifndef PARSYBONE_PARAMETRIZED_STRUCTURE_INCLUDED
 #define PARSYBONE_PARAMETRIZED_STRUCTURE_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ParametrizedStructure stores states of the Kripke structure created from the model together with labelled transitions.
-// Each transition contains a function that causes it with explicit enumeration of values from the function that are transitive.
-// To easily search for the values in the parameter bitmask, step_size of the function is added 
-// - that is the value saying how many bits of mask share the the same value for the function.
-// ParametrizedStructure data can be set only form the ParametrizedStructureBuilder object.
-// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../auxiliary/output_streamer.hpp"
 #include "graph_interface.hpp"
 
-class ParametrizedStructureBuilder;
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ParametrizedStructure stores states of the Kripke structure created from the model together with labelled transitions.
+/// Each transition contains a function that causes it with explicit enumeration of values from the function that are transitive.
+/// To easily search for the values in the parameter bitmask, step_size of the function is added
+/// - that is the value saying how many bits of mask share the the same value for the function.
+/// ParametrizedStructure data can be set only form the ParametrizedStructureBuilder object.
+/// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizedStructure : public GraphInterface {
 	friend class ParametrizedStructureBuilder;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Storing a single transition to neighbour state together with its transition function
+	/// Storing a single transition to neighbour state together with its transition function
 	struct Transition {
-		StateID target_ID; // ID of the state the transition leads to
-		std::size_t step_size; // How many bits of a parameter space bitset is needed to get from one targe value to another
-		std::vector<bool> transitive_values; // Which values from the original set does not allow a trasition and therefore removes bits from the mask.
+		StateID target_ID; ///< ID of the state the transition leads to
+		std::size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another
+		std::vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
 		Transition(const std::size_t _target_ID, const std::size_t _step_size, std::vector<bool>&& _transitive_values)
 			: target_ID(_target_ID), step_size(_step_size), transitive_values(std::move(_transitive_values)) {}
 	};
 	
-	// Simple state enriched with transition functions
+	/// Simple state enriched with transition functions
 	struct State {
-		StateID ID; // unique ID of the state
-		Levels species_level; // species_level[i] = activation level of specie i
-		std::vector<Transition> transitions; // Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
+		StateID ID; ///< unique ID of the state
+		Levels species_level; ///< species_level[i] = activation level of specie i
+		std::vector<Transition> transitions; ///< Indexes of the neigbourging BasicStates - all those whose levels change only in one step of a single value
 
 		State(const std::size_t _ID, const Levels& _species_level) 
 			: ID(_ID), species_level(_species_level) { }
 	};
 
-	// DATA STORAGE
+	/// Vector of all the states of the PKS
 	std::vector<State> states;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +63,7 @@ class ParametrizedStructure : public GraphInterface {
 	/**
 	 * @param ID	add data to the state with this IS
 	 *
-	 * Add a new transition with all its values
+	 * Add a new transition to the source specie, containg necessary edge labels for the CMC
 	 */
 	inline void addTransition(const StateID ID, const StateID target_ID, const std::size_t step_size, std::vector<bool>&& transitive_values) {
 		states[ID].transitions.push_back(Transition(target_ID, step_size, std::move(transitive_values)));
@@ -74,38 +72,28 @@ class ParametrizedStructure : public GraphInterface {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ParametrizedStructure(const ParametrizedStructure & other);            // Forbidden copy constructor.
-	ParametrizedStructure& operator=(const ParametrizedStructure & other); // Forbidden assignment operator.
+	ParametrizedStructure(const ParametrizedStructure & other); ///<  Forbidden copy constructor.
+	ParametrizedStructure& operator=(const ParametrizedStructure & other); ///<  Forbidden assignment operator.
 
 public:
-	ParametrizedStructure() {} // Default empty constructor
+	ParametrizedStructure() {} ///<  Default empty constructor
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KRIPKE STRUCTURE FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @override
-	 */
 	inline const std::size_t getStateCount() const {
 		return states.size();
 	}
 
-	/**
-	 * @override
-	 */
 	inline const std::size_t getTransitionCount(const StateID ID) const {
 		return states[ID].transitions.size();
 	}
 
-	/**
-	 * @override
-	 */
 	inline const std::size_t getTargetID(const StateID ID, const std::size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].target_ID;
 	}
 
 	/**
-	 * @override
 	 * Return string representing given state in the form (specie1_val, specie2_val, ...)
 	 */
 	const std::string getString(const StateID ID) const {

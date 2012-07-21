@@ -47,7 +47,7 @@ class ParametrizationsHolder {
 			  : name(_name), ID(_ID), specie_values(std::move(_specie_values)), source_species(std::move(_source_species)) { }
 	};
 
-	/// DATA STORAGE
+	/// Vector of all the species together with their Regulatory functions
 	std::vector<Specie> species;
 
 	/// Total number of parameters (colors)

@@ -9,6 +9,7 @@
 #ifndef PARSYBONE_BASIC_STRUCTURE_BUILDER_INCLUDED
 #define PARSYBONE_BASIC_STRUCTURE_BUILDER_INCLUDED
 
+#include "../auxiliary/common_functions.hpp"
 #include "../parsing/model.hpp"
 #include "basic_structure.hpp"
 
@@ -114,8 +115,8 @@ class BasicStructureBuilder {
 		}
 	}
 	
-	BasicStructureBuilder(const BasicStructureBuilder & other);            // Forbidden copy constructor.
-	BasicStructureBuilder& operator=(const BasicStructureBuilder & other); // Forbidden assignment operator.
+	BasicStructureBuilder(const BasicStructureBuilder & other); ///<  Forbidden copy constructor.
+	BasicStructureBuilder& operator=(const BasicStructureBuilder & other); ///<  Forbidden assignment operator.
 
 public:
 	/**
@@ -133,20 +134,27 @@ public:
 	 * Create the states from the model and fill the structure with them.
 	 */
 	void buildStructure() {
-		output_streamer.output(stats_str, "Computing Kripke structure states, total number of states: ", OutputStreamer::no_newl)
-			           .output(states_count, OutputStreamer::no_newl).output(".");
+		output_streamer.output(stats_str, "Computing Kripke Structure.");
+		output_streamer.output(stats_str,"Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab).output(states_count, OutputStreamer::no_newl).output(".");
+		std::size_t transition_count = 0;
 
 		// Create initial state (by its values)
-		Levels state_levels(species_count, 0);
+		Levels levels(species_count, 0);
 
 		// Create states 
-		for(std::size_t state_num = 0; state_num < states_count; state_num++) {
+		for(StateID ID = 0; ID < states_count; ID++) {
 			// Fill the structure with the state
-			structure.addState(state_num, state_levels);
-			storeNeigbours(state_num, state_levels, maxes);
+			structure.addState(ID, levels);
+			storeNeigbours(ID, levels, maxes);
 			// Generate new state for the next round
-			state_levels = std::move(getNextState(state_levels));
+			levels = std::move(getNextState(levels));
+			// Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop
+			transition_count += structure.getTransitionCount(ID) - model.getSpeciesCount() + 1;
 		}
+		output_streamer.output(stats_str, "Number of possible transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
+				.output(transition_count, OutputStreamer::no_newl).output(".");
+		output_streamer.output(stats_str, "Lowest activation state is: ", OutputStreamer::no_newl | OutputStreamer::tab).output(structure.getString(0), OutputStreamer::no_newl)
+				.output(", highest activation state is: ", OutputStreamer::no_newl).output(structure.getString(states_count-1), OutputStreamer::no_newl).output(".");
 	}
 };
 

@@ -45,7 +45,7 @@ class BasicStructure : public GraphInterface {
 			: ID(_ID), species_level(_species_level) { }
 	};
 	
-    /// DATA STORAGE
+	/// A vector of all the states of the basic KS
 	std::vector<State> states;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,11 +69,11 @@ class BasicStructure : public GraphInterface {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	BasicStructure(const BasicStructure & other);            // Forbidden copy constructor.
-	BasicStructure& operator=(const BasicStructure & other); // Forbidden assignment operator.
+	BasicStructure(const BasicStructure & other); ///< Forbidden copy constructor.
+	BasicStructure& operator=(const BasicStructure & other); ///< Forbidden assignment operator.
 
 public:
-	BasicStructure() {} // Default empty constructor, needed to create an empty object that will be filled
+	BasicStructure() {} ///< Default empty constructor, needed to create an empty object that will be filled
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KRIPKE STRUCTURE FUNCTIONS 
@@ -91,10 +91,20 @@ public:
 	}
 
 	/**
-     * Returns ID in the form of string, should not be used.
+	 * Return string representing given state in the form (specie1_val, specie2_val, ...)
 	 */
 	const std::string getString(const StateID ID) const {
-        return boost::lexical_cast<std::string>(ID);
+		std::string state_string = "(";
+		// Add species levels
+		for (auto spec_it = getStateLevels(ID).begin(); spec_it != getStateLevels(ID).end() - 1; spec_it++) {
+			state_string += boost::lexical_cast<std::string, std::size_t>(*spec_it);
+			state_string += ",";
+		}
+		// Add the last species level
+		state_string += boost::lexical_cast<std::string, std::size_t>(getStateLevels(ID).back());
+		// End the state
+		state_string += ")";
+		return std::move(state_string);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

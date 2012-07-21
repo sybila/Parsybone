@@ -9,25 +9,24 @@
 #ifndef PARSYBONE_PARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
 #define PARSYBONE_PARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ParametrizedStructureBuilder creates the ParametrizedStructure from the model data.
-// States are read from the basic structure and passed to the parametrized structure, then the transitions are added.
-// Each transition is supplemented with a label - mask of transitive values and the its function ID.
-// This expects semantically correct data from BasicStructure and FunctionsStructure.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "basic_structure.hpp"
 #include "parametrizations_holder.hpp"
 #include "parametrized_structure.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ParametrizedStructureBuilder creates the ParametrizedStructure from the model data.
+/// States are read from the basic structure and passed to the parametrized structure, then the transitions are added.
+/// Each transition is supplemented with a label - mask of transitive values and the its function ID.
+/// This expects semantically correct data from BasicStructure and FunctionsStructure.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizedStructureBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
-	const BasicStructure & basic_structure; // Provider of basic KS data
-	const ParametrizationsHolder & regulatory_functions; // Provider of implicit functions
-	ParametrizedStructure & structure; // KipkeStructure to fill
+	const BasicStructure & basic_structure; ///< Provider of basic KS data
+	const ParametrizationsHolder & regulatory_functions; ///< Provider of implicit functions
+	ParametrizedStructure & structure; ///< KipkeStructure to fill
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TESTING FUNCTIONS:
@@ -48,7 +47,7 @@ class ParametrizedStructureBuilder {
 			const StateID ID = source_species[regulator_num]; // real ID of the regulator
 
 			// Does current level of the specie belongs to the levels that are required?
-			std::for_each(source_values[regulator_num].begin(), source_values[regulator_num].end(),	[&]
+			std::for_each(source_values[regulator_num].begin(), source_values[regulator_num].end(), [&]
 				(std::size_t feasible_level) {
 					if (feasible_level == state_levels[ID])
 						is_included = true;
@@ -190,8 +189,8 @@ class ParametrizedStructureBuilder {
 		}	
 	}
 	
-	ParametrizedStructureBuilder(const ParametrizedStructureBuilder & other);            // Forbidden copy constructor.
-	ParametrizedStructureBuilder& operator=(const ParametrizedStructureBuilder & other); // Forbidden assignment operator.
+	ParametrizedStructureBuilder(const ParametrizedStructureBuilder & other); ///<  Forbidden copy constructor.
+	ParametrizedStructureBuilder& operator=(const ParametrizedStructureBuilder & other); ///<  Forbidden assignment operator.
 
 public:
 	/**

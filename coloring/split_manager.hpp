@@ -63,7 +63,7 @@ class SplitManager {
 			if (coloring_parser.getColors().size() != rounds_count)
 				throw std::runtime_error(std::string("Rounds computed from bitmask: ").append(boost::lexical_cast<std::string>(coloring_parser.getColors().size()))
 				                         .append(" does not equal round count computed from model: ")
-										 .append(boost::lexical_cast<std::string>(rounds_count).c_str()));
+                                         .append(toString(rounds_count).c_str()));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

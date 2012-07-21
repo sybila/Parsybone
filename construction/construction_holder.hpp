@@ -12,6 +12,8 @@
 #include "../parsing/model.hpp"
 #include "constrains_parser.hpp"
 #include "parametrizations_holder.hpp"
+#include "basic_structure_builder.hpp"
+#include "parametrized_structure_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Class stores and provides all the objects that are built during construction phase.
@@ -26,6 +28,8 @@ class ConstructionHolder {
 	std::unique_ptr<ConstrainsParser> constrains;
 	std::unique_ptr<Model> model;
 	std::unique_ptr<ParametrizationsHolder> parametrizations;
+	std::unique_ptr<BasicStructure> basic;
+	std::unique_ptr<ParametrizedStructure> structure;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLERS:
@@ -37,12 +41,20 @@ public:
 	}
 
 private:
-	void fillParametrizations(ParametrizationsHolder * _parametrizations) {
-		parametrizations.reset(_parametrizations);
+	void fillBasicStructure(BasicStructure * _basic) {
+		basic.reset(_basic);
 	}
 
 	void fillConstrains(ConstrainsParser * _constrains) {
 		constrains.reset(_constrains);
+	}
+
+	void fillParametrizations(ParametrizationsHolder * _parametrizations) {
+		parametrizations.reset(_parametrizations);
+	}
+
+	void fillParametrizedStructure(ParametrizedStructure * _structure) {
+		structure.reset(_structure);
 	}
 
 	ConstructionHolder(const ConstructionHolder & other); ///< Forbidden copy constructor.
@@ -54,6 +66,14 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	const BasicStructure & getBasicStructure() const {
+		return *basic.get();
+	}
+
+	const ConstrainsParser & getConstrains() const {
+		return *constrains.get();
+	}
+
 	const Model & getModel() const {
 		return *model.get();
 	}
@@ -62,8 +82,8 @@ public:
 		return *parametrizations.get();
 	}
 
-	const ConstrainsParser & getConstrains() const {
-		return *constrains.get();
+	const ParametrizedStructure & getParametrizedStructure() const {
+		return *structure.get();
 	}
 };
 

@@ -40,19 +40,31 @@ public:
     */
    ConstructionManager(ConstructionHolder & _holder) : holder(_holder) { }
 
-   void construct() {  
-      ParametrizationsHolder * parametrizations_holder = new ParametrizationsHolder;
+   void construct() {
+      output_streamer.output(verbose_str, "Kinetic parameters building started.", OutputStreamer::important);
+      // Create possible kinetic parameters
       ConstrainsParser * constrains_parser = new ConstrainsParser(holder.getModel());
-
-      output_streamer.output(verbose_str, "Functions building started.", OutputStreamer::important);
-
       constrains_parser->parseConstrains();
       holder.fillConstrains(std::move(constrains_parser));
 
+      // Create implicit form of the kinetic parameters
+      ParametrizationsHolder * parametrizations_holder = new ParametrizationsHolder;
       ParametrizationsBuilder parametrizations_builder(holder.getModel(), holder.getConstrains(), *parametrizations_holder);
       parametrizations_builder.buildParametrizations();
-
       holder.fillParametrizations(std::move(parametrizations_holder));
+
+		output_streamer.output(verbose_str, "Parametrized Kripke structure building started.", OutputStreamer::important);
+		// Create a simple Kripke structure without parametrization
+		BasicStructure * basic_structure = new BasicStructure; // Kripke structure built from the network
+		BasicStructureBuilder basic_structure_builder(holder.getModel(), *basic_structure);
+		basic_structure_builder.buildStructure();
+		holder.fillBasicStructure(basic_structure);
+
+		// Create the PKS
+		ParametrizedStructure * parametrized_structure = new ParametrizedStructure; // Kripke structure that has transitions labelled with functions
+		ParametrizedStructureBuilder parametrized_structure_builder(holder.getBasicStructure(), holder.getParametrizations(), *parametrized_structure);
+		parametrized_structure_builder.buildStructure();
+		holder.fillParametrizedStructure(parametrized_structure);
    }
 };
 

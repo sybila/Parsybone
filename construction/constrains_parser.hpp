@@ -35,7 +35,7 @@ class ConstrainsParser {
 		}
 	};
 
-	/// Store all vectors of subcolors
+	/// Storage for all the vectors of subcolors for each specie
 	std::vector<SpecieColors> colors;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,6 +230,8 @@ public:
 	 * Entry function of parsing, tests and stores subcolors for all the species
 	 */
 	void parseConstrains() { 
+		output_streamer.output(verbose_str, "Applying the edge constrains. ");
+
 		// Cycle through species
 		for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++) {
 			createKinetics(ID);

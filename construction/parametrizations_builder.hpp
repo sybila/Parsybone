@@ -153,7 +153,7 @@ public:
 	 */
 	void buildParametrizations() {
 		// Display stats
-		output_streamer.output(stats_str, "Costructing Regulatory functions for ", OutputStreamer::no_newl)
+		output_streamer.output(stats_str, "Costructing Regulatory kinetics for ", OutputStreamer::no_newl)
 			           .output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
 
 		std::size_t step_size = 1; // Variable necessary for encoding of colors 

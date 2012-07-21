@@ -14,6 +14,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/data_types.hpp"
+#include "../auxiliary/output_streamer.hpp"
+#include "boost/lexical_cast.hpp"
 
 // Platform dependent min or max
 #ifdef __GNUC__
@@ -27,13 +29,35 @@
 /**
  * Apply function on all the data stored within the object. 
  *
- * @param obj	object storing the data, must have begin and end method
- * @param fun	function to apply
+ * @param obj	object storing the data, must have begin() and end() methods
+ * @param fun	pointer to the function to apply
+ *
+ * @return provided function (usually unnamed function)
  */
 template<class Object, class Function>
 Function forEach(Object & obj, Function fun)
 {
 	return std::for_each(obj.begin(), obj.end(), fun);
+}
+
+/**
+ * Conversion of basic types to std::string data type. If an error occurs, displays it and throws an exception.
+ *
+ * @param data variable to convert
+ *
+ * @return converted string
+ */
+template<class basic_T>
+	std::string toString(basic_T data) {
+	std::string result;
+	try {
+		 result = std::move(boost::lexical_cast<std::string, basic_T>(data));
+	} catch (boost::bad_lexical_cast e) {
+		output_streamer.output(error_str, "Error occured while trying to cast a varible", OutputStreamer::no_newl)
+				.output(data, OutputStreamer::no_newl).output(" to a string: ", OutputStreamer::no_newl).output(e.what());
+		throw std::runtime_error("boost::lexical_cast<std::string, basic_T>(data)) failed");
+	}
+	return result;
 }
 
 #endif

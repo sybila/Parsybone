@@ -69,27 +69,6 @@ int main(int argc, char* argv[]) {
 		return 2;
 	}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP FOUR:
-// Create the Kripke Structure (product of all activation value of all the species)
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ParametrizedStructure parametrized_structure; // Kripke structure that has transitions labelled with functions
-	try {
-		output_streamer.output(verbose_str, "Parametrized Kripke structure building started.", OutputStreamer::important);
-
-		// Create temporary Kripke structure without parametrization
-		BasicStructure basic_structure; // Kripke structure built from the network
-		BasicStructureBuilder basic_structure_builder(holder.getModel(), basic_structure);
-		basic_structure_builder.buildStructure();
-
-		// Build PKS
-		ParametrizedStructureBuilder parametrized_structure_builder(basic_structure, holder.getParametrizations(), parametrized_structure);
-		parametrized_structure_builder.buildStructure();
-	} 
-	catch (std::exception & e) {
-		output_streamer.output(error_str, std::string("Error occured while building Parametrized Kripke structure: ").append(e.what()));
-		return 4;
-	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP FIVE:
@@ -99,7 +78,7 @@ int main(int argc, char* argv[]) {
 	try {
 		output_streamer.output(verbose_str, "Buchi automaton building started.", OutputStreamer::important);
 
-		AutomatonBuilder automaton_builder( holder.getModel(), automaton);
+		AutomatonBuilder automaton_builder(holder.getModel(), automaton);
 		automaton_builder.buildAutomaton();
 	} 
 	catch (std::exception & e) {
@@ -111,12 +90,12 @@ int main(int argc, char* argv[]) {
 // STEP SIX:
 // Create the product - splitted into two parts
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure product_structure(holder.getParametrizations(), holder.getConstrains(), parametrized_structure, automaton);
+	ProductStructure product_structure(holder.getParametrizations(), holder.getConstrains(), holder.getParametrizedStructure(), automaton);
 	ColorStorage color_storage;
 	try {
 		output_streamer.output(verbose_str, "Product building started.", OutputStreamer::important);
 
-		ProductBuilder product_builder(parametrized_structure, automaton, product_structure, color_storage);
+		ProductBuilder product_builder(holder.getParametrizedStructure(), automaton, product_structure, color_storage);
 		product_builder.buildProduct();
 	} catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while building the product: ").append(e.what()));
