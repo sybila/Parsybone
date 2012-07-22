@@ -193,7 +193,7 @@ public:
 		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters % 2)
-				colors.push_back(std::make_pair(color_mask, createColorString(work_color)));
+				colors.push_back(std::make_pair(color_mask, constrains.createColorString(col_num)));
 
 			// Increase values
 			color_mask >>= 1;	

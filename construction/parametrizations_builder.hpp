@@ -9,6 +9,7 @@
 #ifndef PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
 #define PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
 
+#include "../auxiliary/common_functions.hpp"
 #include "../parsing/model.hpp"
 #include "constrains_parser.hpp"
 #include "parametrizations_holder.hpp"
@@ -91,8 +92,8 @@ class ParametrizationsBuilder {
 		}
 
 		// Display stats
-		std::string specie_stats = "Specie " + model.getName(ID) + " has " + boost::lexical_cast<std::string>(regulations.size())
-				+ " regulators with " + boost::lexical_cast<std::string>(constrains.getColorsNum(ID)) + " possible regulatory contexts.";
+		std::string specie_stats = "Specie " + model.getName(ID) + " has " + toString(regulations.size()) + " regulatory contexts with "
+				+ toString(constrains.getColorsNum(ID)) + " total possible parametrizations.";
 		output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
 
 		// Increase step size for the next function
