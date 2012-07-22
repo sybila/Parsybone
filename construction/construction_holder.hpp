@@ -12,8 +12,8 @@
 #include "../parsing/model.hpp"
 #include "automaton_builder.hpp"
 #include "basic_structure_builder.hpp"
-#include "constrains_parser.hpp"
-#include "labeling_holder.hpp".hpp"
+#include "parametrizations_builder.hpp"
+#include "labeling_builder.hpp"
 #include "parametrized_structure_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ class ConstructionHolder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::unique_ptr<AutomatonStructure> automaton;
 	std::unique_ptr<BasicStructure> basic;
-	std::unique_ptr<ConstrainsParser> constrains;
+	std::unique_ptr<ParametrizationsBuilder> parametrizations;
 	std::unique_ptr<Model> model;
 	std::unique_ptr<LabelingHolder> labeling;
 	std::unique_ptr<ParametrizedStructure> structure;
@@ -51,8 +51,8 @@ private:
 		basic.reset(_basic);
 	}
 
-	void fillConstrains(ConstrainsParser * _constrains) {
-		constrains.reset(_constrains);
+	void fillConstrains(ParametrizationsBuilder * _parametrizations) {
+		parametrizations.reset(_parametrizations);
 	}
 
 	void fillLabeling(LabelingHolder * _labeling) {
@@ -80,8 +80,8 @@ public:
 		return *basic.get();
 	}
 
-	const ConstrainsParser & getConstrains() const {
-		return *constrains.get();
+	const ParametrizationsBuilder & getParametrizations() const {
+		return *parametrizations.get();
 	}
 
 	const Model & getModel() const {

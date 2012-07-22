@@ -14,14 +14,15 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../construction/product_structure.hpp"
+#include "../construction/construction_holder.hpp"
 
 class ColoringAnalyzer {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// References
-	const LabelingHolder & parametrizations; // Functions from the product
-	const ConstrainsParser & constrains; // Constrains on functions
+	const LabelingHolder & labeling; // Functions from the product
+	const ParametrizationsBuilder & parametrizations; // parametrizations on functions
 
 	// DATA STORAGE
 	std::vector<Coloring> colorings;
@@ -70,8 +71,8 @@ class ColoringAnalyzer {
 	const std::string createColorString(std::vector<std::size_t> color_parts) const {
 		std::string color_str = "[";
 		// Cycle through all values except last
-		for (SpecieID ID = 0; ID < constrains.getSpecieNum(); ID++) {
-			auto color = constrains.getColor(ID, color_parts[ID]);
+		for (SpecieID ID = 0; ID < parametrizations.getSpecieNum(); ID++) {
+			auto color = parametrizations.getColor(ID, color_parts[ID]);
 			for (auto it = color.begin(); it != color.end(); it++) {
 				color_str += boost::lexical_cast<std::string, std::size_t>(*it);
 				color_str += ",";
@@ -90,9 +91,9 @@ class ColoringAnalyzer {
 	 */
 	void computeBoundaries() {
 		// Cycle through all functions
-		for (SpecieID ID = 0; ID < constrains.getSpecieNum(); ID++) {
+		for (SpecieID ID = 0; ID < parametrizations.getSpecieNum(); ID++) {
 			subcolor_nums.push_back(0);
-			max_colors.push_back(constrains.getColorsNum(ID) - 1);
+			max_colors.push_back(parametrizations.getColorsNum(ID) - 1);
 		}
 	}
 	
@@ -104,7 +105,7 @@ public:
 	 * Get reference data and create final states that will hold all the computed data
 	 */
 	ColoringAnalyzer(const ProductStructure & _product) 
-					  : parametrizations(_product.getFunc()), constrains(_product.getCons())  {
+					  : labeling(_product.getFunc()), parametrizations(_product.getCons())  {
 		computeBoundaries();
 		parameter_begin = parameter_end = 0;
 	} 
@@ -193,7 +194,7 @@ public:
 		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters % 2)
-				colors.push_back(std::make_pair(color_mask, constrains.createColorString(col_num)));
+				colors.push_back(std::make_pair(color_mask, parametrizations.createColorString(col_num)));
 
 			// Increase values
 			color_mask >>= 1;	

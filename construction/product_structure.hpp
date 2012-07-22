@@ -21,6 +21,7 @@
 #include "../coloring/parameters_functions.hpp"
 #include "../construction/automaton_structure.hpp"
 #include "../construction/labeling_holder.hpp"
+#include "../construction/parametrizations_builder.hpp"
 #include "../construction/parametrized_structure.hpp"
 
 class ProductStructure : public AutomatonInterface {
@@ -51,7 +52,7 @@ class ProductStructure : public AutomatonInterface {
 	
 	// References to data structures
 	const LabelingHolder & functions; // Implicit reprezentation of functions - used as reference
-	const ConstrainsParser & constrains; // Constrains on functions taken from the model
+	const ParametrizationsBuilder & parametrizations; // Constrains on functions taken from the model
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 
@@ -88,8 +89,8 @@ class ProductStructure : public AutomatonInterface {
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	ProductStructure(const LabelingHolder & _functions, const ConstrainsParser & _constrains, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
-		: functions(_functions), constrains(_constrains), structure(_structure), automaton(_automaton) { }
+	ProductStructure(const LabelingHolder & _functions, const ParametrizationsBuilder & _parametrizations, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
+		: functions(_functions), parametrizations(_parametrizations), structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KRIPKE STRUCTURE FUNCTIONS 
@@ -213,8 +214,8 @@ public:
 	/**
 	 * @return constant reference to structure with interactions constrains
 	 */
-	const ConstrainsParser & getCons() const {
-		return constrains;
+	const ParametrizationsBuilder & getCons() const {
+		return parametrizations;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

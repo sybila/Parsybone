@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 // STEP SIX:
 // Create the product - splitted into two parts
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure product_structure(holder.getLabeling(), holder.getConstrains(), holder.getParametrizedStructure(), holder.getAutomatonStructure());
+	ProductStructure product_structure(holder.getLabeling(), holder.getParametrizations(), holder.getParametrizedStructure(), holder.getAutomatonStructure());
 	ColorStorage color_storage;
 	try {
 		output_streamer.output(verbose_str, "Product building started.");

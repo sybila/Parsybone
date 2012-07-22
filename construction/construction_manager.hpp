@@ -10,7 +10,6 @@
 #define PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 
 #include "construction_holder.hpp"
-#include "labeling_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ConstructionManager overviews the whole process of construction of structures from information contained within a model file.
@@ -43,13 +42,13 @@ public:
    void construct() {
       output_streamer.output(verbose_str, "Kinetic parameters building started.");
       // Create possible kinetic parameters
-      ConstrainsParser * constrains_parser = new ConstrainsParser(holder.getModel());
-      constrains_parser->parseConstrains();
-      holder.fillConstrains(std::move(constrains_parser));
+      ParametrizationsBuilder * parametrizations_builder = new ParametrizationsBuilder(holder.getModel());
+      parametrizations_builder->parseConstrains();
+      holder.fillConstrains(std::move(parametrizations_builder));
 
       // Create implicit form of the kinetic parameters used as edge labels
       LabelingHolder * labeling_holder = new LabelingHolder;
-      LabelingBuilder labeling_builder(holder.getModel(), holder.getConstrains(), *labeling_holder);
+      LabelingBuilder labeling_builder(holder.getModel(), holder.getParametrizations(), *labeling_holder);
       labeling_builder.buildLabeling();
       holder.fillLabeling(std::move(labeling_holder));
 

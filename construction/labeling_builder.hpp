@@ -11,7 +11,7 @@
 
 #include "../auxiliary/common_functions.hpp"
 #include "../parsing/model.hpp"
-#include "constrains_parser.hpp"
+#include "parametrizations_builder.hpp"
 #include "labeling_holder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ class LabelingBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	const Model & model; ///< Model that holds the data
-	const ConstrainsParser & constrains; ///< Information about edge constrains
+	const ParametrizationsBuilder & parametrizations; ///< Precomputed partial parametrizations
 	LabelingHolder & labeling_holder; ///< FunctionsStructure class to fill
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ class LabelingBuilder {
 			std::vector<std::vector<std::size_t> > source_values = std::move(getSourceValues(interactions, regul_it->first));
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
-			std::vector<std::size_t> possible_values = std::move(constrains.getTargetVals(ID, regul_num));
+			std::vector<std::size_t> possible_values = std::move(parametrizations.getTargetVals(ID, regul_num));
 
 			// pass the function to the holder.
 			labeling_holder.addRegulatoryFunction(ID, step_size, std::move(possible_values), std::move(source_values));
@@ -93,11 +93,11 @@ class LabelingBuilder {
 
 		// Display stats
 		std::string specie_stats = "Specie " + model.getName(ID) + " has " + toString(regulations.size()) + " regulatory contexts with "
-				+ toString(constrains.getColorsNum(ID)) + " total possible parametrizations.";
+				+ toString(parametrizations.getColorsNum(ID)) + " total possible parametrizations.";
 		output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
 
 		// Increase step size for the next function
-		step_size *= constrains.getColorsNum(ID);
+		step_size *= parametrizations.getColorsNum(ID);
 	}
 
 	/**
@@ -146,8 +146,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	LabelingBuilder(const Model & _model, const ConstrainsParser & _constrains, LabelingHolder & _labeling_holder)
-		: model(_model), constrains(_constrains), labeling_holder(_labeling_holder)  { }
+	LabelingBuilder(const Model & _model, const ParametrizationsBuilder & _parametrizations, LabelingHolder & _labeling_holder)
+		: model(_model), parametrizations(_parametrizations), labeling_holder(_labeling_holder)  { }
 
 	/**
 	 * For each specie recreate all its regulatory functions (all possible labels)
