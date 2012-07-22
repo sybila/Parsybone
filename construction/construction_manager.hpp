@@ -10,7 +10,7 @@
 #define PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 
 #include "construction_holder.hpp"
-#include "parametrizations_builder.hpp"
+#include "labeling_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ConstructionManager overviews the whole process of construction of structures from information contained within a model file.
@@ -47,11 +47,11 @@ public:
       constrains_parser->parseConstrains();
       holder.fillConstrains(std::move(constrains_parser));
 
-      // Create implicit form of the kinetic parameters
-      ParametrizationsHolder * parametrizations_holder = new ParametrizationsHolder;
-      ParametrizationsBuilder parametrizations_builder(holder.getModel(), holder.getConstrains(), *parametrizations_holder);
-      parametrizations_builder.buildParametrizations();
-      holder.fillParametrizations(std::move(parametrizations_holder));
+      // Create implicit form of the kinetic parameters used as edge labels
+      LabelingHolder * labeling_holder = new LabelingHolder;
+      LabelingBuilder labeling_builder(holder.getModel(), holder.getConstrains(), *labeling_holder);
+      labeling_builder.buildLabeling();
+      holder.fillLabeling(std::move(labeling_holder));
 
 		output_streamer.output(verbose_str, "Parametrized Kripke structure building started.");
 		// Create a simple Kripke structure without parametrization
@@ -62,7 +62,7 @@ public:
 
 		// Create the PKS
 		ParametrizedStructure * parametrized_structure = new ParametrizedStructure; // Kripke structure that has transitions labelled with functions
-		ParametrizedStructureBuilder parametrized_structure_builder(holder.getBasicStructure(), holder.getParametrizations(), *parametrized_structure);
+		ParametrizedStructureBuilder parametrized_structure_builder(holder.getBasicStructure(), holder.getLabeling(), *parametrized_structure);
 		parametrized_structure_builder.buildStructure();
 		holder.fillParametrizedStructure(parametrized_structure);
 

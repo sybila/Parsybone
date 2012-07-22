@@ -20,7 +20,7 @@ class ColoringAnalyzer {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// References
-	const ParametrizationsHolder & parametrizations; // Functions from the product
+	const LabelingHolder & parametrizations; // Functions from the product
 	const ConstrainsParser & constrains; // Constrains on functions
 
 	// DATA STORAGE

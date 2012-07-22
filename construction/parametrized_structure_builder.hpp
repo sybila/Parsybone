@@ -10,7 +10,7 @@
 #define PARSYBONE_PARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
 
 #include "basic_structure.hpp"
-#include "parametrizations_holder.hpp"
+#include "labeling_holder.hpp"
 #include "parametrized_structure.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ class ParametrizedStructureBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	const BasicStructure & basic_structure; ///< Provider of basic KS data
-	const ParametrizationsHolder & regulatory_functions; ///< Provider of implicit functions
+	const LabelingHolder & regulatory_functions; ///< Provider of implicit functions
 	ParametrizedStructure & structure; ///< KipkeStructure to fill
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +199,7 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	ParametrizedStructureBuilder(const BasicStructure & _basic_structure, const ParametrizationsHolder & _regulatory_functions, ParametrizedStructure & _structure) 
+	ParametrizedStructureBuilder(const BasicStructure & _basic_structure, const LabelingHolder & _regulatory_functions, ParametrizedStructure & _structure) 
 		: regulatory_functions(_regulatory_functions), basic_structure(_basic_structure), structure(_structure)  {
 	}
 

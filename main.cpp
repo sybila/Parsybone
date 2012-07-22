@@ -16,14 +16,7 @@
 #include "parsing/argument_parser.hpp"
 #include "parsing/model_parser.hpp"
 #include "parsing/parsing_manager.hpp"
-#include "construction/basic_structure_builder.hpp"
-#include "construction/constrains_parser.hpp"
-#include "construction/construction_holder.hpp"
 #include "construction/construction_manager.hpp"
-#include "construction/parametrizations_builder.hpp"
-#include "construction/parametrized_structure_builder.hpp"
-#include "construction/automaton_builder.hpp"
-#include "construction/product_structure.hpp"
 #include "construction/product_builder.hpp"
 #include "coloring/synthesis_manager.hpp"
 
@@ -73,7 +66,7 @@ int main(int argc, char* argv[]) {
 // STEP SIX:
 // Create the product - splitted into two parts
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure product_structure(holder.getParametrizations(), holder.getConstrains(), holder.getParametrizedStructure(), holder.getAutomatonStructure());
+	ProductStructure product_structure(holder.getLabeling(), holder.getConstrains(), holder.getParametrizedStructure(), holder.getAutomatonStructure());
 	ColorStorage color_storage;
 	try {
 		output_streamer.output(verbose_str, "Product building started.");

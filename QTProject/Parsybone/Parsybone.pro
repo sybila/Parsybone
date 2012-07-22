@@ -18,8 +18,6 @@ HEADERS += \
     ../../construction/product_builder.hpp \
     ../../construction/parametrized_structure_builder.hpp \
     ../../construction/parametrized_structure.hpp \
-    ../../construction/parametrizations_builder.hpp \
-    ../../construction/parametrizations_holder.hpp \
     ../../construction/graph_interface.hpp \
     ../../construction/color_storage.hpp \
     ../../construction/basic_structure_builder.hpp \
@@ -46,14 +44,10 @@ HEADERS += \
     ../../parsing/parsing_manager.hpp \
     ../../construction/construction_manager.hpp \
     ../../construction/constrains_parser.hpp \
-    ../../construction/parametrizations_holder.hpp \
-    ../../construction/parametrizations_builder.hpp \
     ../../construction/product_structure.hpp \
     ../../construction/product_builder.hpp \
     ../../construction/parametrized_structure_builder.hpp \
     ../../construction/parametrized_structure.hpp \
-    ../../construction/parametrizations_holder.hpp \
-    ../../construction/parametrizations_builder.hpp \
     ../../construction/graph_interface.hpp \
     ../../construction/construction_manager.hpp \
     ../../construction/constrains_parser.hpp \
@@ -65,5 +59,7 @@ HEADERS += \
     ../../construction/automaton_builder.hpp \
     ../../construction/construction_holder.hpp \
     ../../construction/state_property.hpp \
-    ../../construction/transition_property.hpp
+    ../../construction/transition_property.hpp \
+    ../../construction/labeling_holder.hpp \
+    ../../construction/labeling_builder.hpp
 
