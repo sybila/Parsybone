@@ -60,5 +60,6 @@ HEADERS += \
     ../../construction/transition_property.hpp \
     ../../construction/labeling_holder.hpp \
     ../../construction/labeling_builder.hpp \
-    ../../construction/parametrizations_builder.hpp
+    ../../construction/parametrizations_builder.hpp \
+    ../../construction/parametrizations_holder.hpp
 

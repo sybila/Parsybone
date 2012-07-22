@@ -6,8 +6,8 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_PARAMETRIZATIONS_HOLDER_INCLUDED
-#define PARSYBONE_PARAMETRIZATIONS_HOLDER_INCLUDED
+#ifndef PARSYBONE_LABELING_HOLDER_INCLUDED
+#define PARSYBONE_LABELING_HOLDER_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
 
@@ -151,4 +151,4 @@ public:
 	}
 };
 
-#endif // PARSYBONE_PARAMETRIZATIONS_HOLDER_INCLUDED
+#endif // PARSYBONE_LABELING_HOLDER_INCLUDED

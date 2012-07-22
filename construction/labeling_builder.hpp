@@ -26,7 +26,7 @@ class LabelingBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	const Model & model; ///< Model that holds the data
-	const ParametrizationsBuilder & parametrizations; ///< Precomputed partial parametrizations
+	const ParametrizationsHolder & parametrizations; ///< Precomputed partial parametrizations
 	LabelingHolder & labeling_holder; ///< FunctionsStructure class to fill
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,7 +146,7 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	LabelingBuilder(const Model & _model, const ParametrizationsBuilder & _parametrizations, LabelingHolder & _labeling_holder)
+	LabelingBuilder(const Model & _model, const ParametrizationsHolder & _parametrizations, LabelingHolder & _labeling_holder)
 		: model(_model), parametrizations(_parametrizations), labeling_holder(_labeling_holder)  { }
 
 	/**

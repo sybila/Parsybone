@@ -28,7 +28,7 @@ class ConstructionHolder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::unique_ptr<AutomatonStructure> automaton;
 	std::unique_ptr<BasicStructure> basic;
-	std::unique_ptr<ParametrizationsBuilder> parametrizations;
+	std::unique_ptr<ParametrizationsHolder> parametrizations;
 	std::unique_ptr<Model> model;
 	std::unique_ptr<LabelingHolder> labeling;
 	std::unique_ptr<ParametrizedStructure> structure;
@@ -51,7 +51,7 @@ private:
 		basic.reset(_basic);
 	}
 
-	void fillConstrains(ParametrizationsBuilder * _parametrizations) {
+	void fillConstrains(ParametrizationsHolder * _parametrizations) {
 		parametrizations.reset(_parametrizations);
 	}
 
@@ -80,7 +80,7 @@ public:
 		return *basic.get();
 	}
 
-	const ParametrizationsBuilder & getParametrizations() const {
+	const ParametrizationsHolder & getParametrizations() const {
 		return *parametrizations.get();
 	}
 

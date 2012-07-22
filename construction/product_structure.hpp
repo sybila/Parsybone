@@ -52,7 +52,7 @@ class ProductStructure : public AutomatonInterface {
 	
 	// References to data structures
 	const LabelingHolder & functions; // Implicit reprezentation of functions - used as reference
-	const ParametrizationsBuilder & parametrizations; // Constrains on functions taken from the model
+	const ParametrizationsHolder & parametrizations; // Constrains on functions taken from the model
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 
@@ -89,7 +89,7 @@ class ProductStructure : public AutomatonInterface {
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	ProductStructure(const LabelingHolder & _functions, const ParametrizationsBuilder & _parametrizations, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
+	ProductStructure(const LabelingHolder & _functions, const ParametrizationsHolder & _parametrizations, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
 		: functions(_functions), parametrizations(_parametrizations), structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -214,7 +214,7 @@ public:
 	/**
 	 * @return constant reference to structure with interactions constrains
 	 */
-	const ParametrizationsBuilder & getCons() const {
+	const ParametrizationsHolder & getCons() const {
 		return parametrizations;
 	}
 

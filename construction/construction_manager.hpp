@@ -42,15 +42,16 @@ public:
    void construct() {
       output_streamer.output(verbose_str, "Kinetic parameters building started.");
       // Create possible kinetic parameters
-      ParametrizationsBuilder * parametrizations_builder = new ParametrizationsBuilder(holder.getModel());
-      parametrizations_builder->parseConstrains();
-      holder.fillConstrains(std::move(parametrizations_builder));
+      ParametrizationsHolder * parametrizations_holder = new ParametrizationsHolder;
+      ParametrizationsBuilder parametrizations_builder(holder.getModel(), *parametrizations_holder);
+      parametrizations_builder.buildParametrizations();
+      holder.fillConstrains(parametrizations_holder);
 
       // Create implicit form of the kinetic parameters used as edge labels
       LabelingHolder * labeling_holder = new LabelingHolder;
       LabelingBuilder labeling_builder(holder.getModel(), holder.getParametrizations(), *labeling_holder);
       labeling_builder.buildLabeling();
-      holder.fillLabeling(std::move(labeling_holder));
+      holder.fillLabeling(labeling_holder);
 
 		output_streamer.output(verbose_str, "Parametrized Kripke structure building started.");
 		// Create a simple Kripke structure without parametrization

@@ -21,8 +21,7 @@ class ColoringAnalyzer {
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// References
-	const LabelingHolder & labeling; // Functions from the product
-	const ParametrizationsBuilder & parametrizations; // parametrizations on functions
+	const ParametrizationsHolder & parametrizations; // Functions from the product
 
 	// DATA STORAGE
 	std::vector<Coloring> colorings;
@@ -105,7 +104,7 @@ public:
 	 * Get reference data and create final states that will hold all the computed data
 	 */
 	ColoringAnalyzer(const ProductStructure & _product) 
-					  : labeling(_product.getFunc()), parametrizations(_product.getCons())  {
+					  : parametrizations(_product.getCons())  {
 		computeBoundaries();
 		parameter_begin = parameter_end = 0;
 	} 
