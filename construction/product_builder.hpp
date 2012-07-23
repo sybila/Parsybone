@@ -76,7 +76,7 @@ class ProductBuilder {
 	 * @param KS_ID	source in the KS
 	 * @param BA_ID source in the BA
 	 */
-	void createProductStates(const StateID KS_ID, const StateID BA_ID) {
+	void createProductState(const StateID KS_ID, const StateID BA_ID) {
 		// Add this state
 		product.addState(KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID));
 		const StateID ID = product.getProductID(KS_ID, BA_ID); 
@@ -115,13 +115,10 @@ public:
 	 * Create the the product from BA and KS together.
 	 */
 	void buildProduct() {
-		// count product states
-		const std::size_t states_count = structure.getStateCount() * automaton.getStateCount();
-
-		// Add transitions
+		// Creates states and their transitions
 		for (std::size_t KS_ID = 0; KS_ID < structure.getStateCount(); KS_ID++) {
 			for (std::size_t BA_ID = 0; BA_ID < automaton.getStateCount(); BA_ID++) {
-				createProductStates(KS_ID, BA_ID);
+				createProductState(KS_ID, BA_ID);
 			}
 		}
 

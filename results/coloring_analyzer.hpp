@@ -13,7 +13,6 @@
 // ColoringAnalyzer is used to get polished and formatted data from the product.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../construction/product_structure.hpp"
 #include "../construction/construction_holder.hpp"
 
 class ColoringAnalyzer {
@@ -103,8 +102,8 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	ColoringAnalyzer(const ProductStructure & _product) 
-					  : parametrizations(_product.getCons())  {
+	ColoringAnalyzer(const ConstructionHolder & holder)
+					  : parametrizations(holder.getParametrizations())  {
 		computeBoundaries();
 		parameter_begin = parameter_end = 0;
 	} 

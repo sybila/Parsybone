@@ -15,8 +15,10 @@
 
 #include "../coloring/parameters_functions.hpp"
 #include "../coloring/color_storage.hpp"
+#include "../construction/construction_holder.hpp"
 #include "../construction/product_structure.hpp"
 #include "../results/per_color_storage.hpp"
+#include "coloring_analyzer.hpp"
 
 class WitnessSearcher {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,10 +52,10 @@ public:
 	/**
 	 * Get reference data and create final states that will hold all the computed data
 	 */
-	WitnessSearcher(const ColoringAnalyzer & _analyzer, const ColorStorage & _storage, const ProductStructure & _product) 
-		           : analyzer(_analyzer), product(_product), storage(_storage) {
+    WitnessSearcher(const ConstructionHolder & holder, const ColoringAnalyzer & _analyzer, const ColorStorage & _storage)
+                   : product(holder.getProduct()), analyzer(_analyzer), storage(_storage) {
 		// Resize path for maximal possible lenght
-		path.resize(_product.getStateCount() - _product.getBA().getStateCount() * 2 + 2);
+        path.resize(product.getStateCount() - product.getBA().getStateCount() * 2 + 2);
 		lenght = color_num = max_path_lenght = 0;
 	} 
 

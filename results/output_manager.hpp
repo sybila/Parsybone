@@ -17,6 +17,7 @@
 #include "../coloring/split_manager.hpp"
 #include "../construction/product_structure.hpp"
 #include "coloring_analyzer.hpp"
+#include "witness_searcher.hpp"
 
 class OutputManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +25,6 @@ class OutputManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	const ColoringAnalyzer & analyzer;
-	const ProductStructure & product;
 	const SplitManager & split_manager;
 	WitnessSearcher & searcher;
 
@@ -35,8 +35,8 @@ class OutputManager {
 	OutputManager& operator=(const OutputManager & other); // Forbidden assignment operator.
 
 public:
-	OutputManager(const ColoringAnalyzer & _analyzer, const ProductStructure & _product, const SplitManager & _split_manager, WitnessSearcher & _searcher) 
-		         : analyzer(_analyzer), product(_product), split_manager(_split_manager), searcher(_searcher) { } 
+	OutputManager(const ColoringAnalyzer & _analyzer, const SplitManager & _split_manager, WitnessSearcher & _searcher)
+					: analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS

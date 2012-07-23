@@ -27,7 +27,7 @@ class SynthesisManager {
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided
-	ConstructionHolder & holder;
+	const ConstructionHolder & holder;
 
 	// Created within the constructor
 	std::unique_ptr<ColoringAnalyzer> analyzer; // Class for analysis
@@ -142,14 +142,14 @@ public:
 	/**
 	 * Constructor builds all the data objects that are used within
 	 */
-	SynthesisManager(ConstructionHolder & _holder) : holder(_holder) {
+	SynthesisManager(const ConstructionHolder & _holder) : holder(_holder) {
 		// Create classes that help with the synthesis
-		analyzer.reset(new ColoringAnalyzer(holder.getProduct()));
+		analyzer.reset(new ColoringAnalyzer(holder));
 		storage.reset(new ColorStorage(holder.getProduct().getStateCount()));
 		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
-		model_checker.reset(new ModelChecker(holder.getProduct(), *storage.get()));
-		searcher.reset(new WitnessSearcher(*analyzer, *storage.get(), holder.getProduct()));
-		output.reset(new OutputManager(*analyzer, holder.getProduct(), *split_manager, *searcher));
+		model_checker.reset(new ModelChecker(holder, *storage.get()));
+		searcher.reset(new WitnessSearcher(holder, *analyzer, *storage.get()));
+		output.reset(new OutputManager(*analyzer, *split_manager, *searcher));
 
 		total_colors = 0;
 		BFS_reach.resize(getParamsetSize());
