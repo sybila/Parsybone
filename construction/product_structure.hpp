@@ -51,8 +51,6 @@ class ProductStructure : public AutomatonInterface {
 	};
 	
 	// References to data structures
-	const LabelingHolder & functions; // Implicit reprezentation of functions - used as reference
-	const ParametrizationsHolder & parametrizations; // Constrains on functions taken from the model
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 
@@ -89,8 +87,8 @@ class ProductStructure : public AutomatonInterface {
 	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
 
 public:
-	ProductStructure(const LabelingHolder & _functions, const ParametrizationsHolder & _parametrizations, const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
-		: functions(_functions), parametrizations(_parametrizations), structure(_structure), automaton(_automaton) { }
+	ProductStructure(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
+		: structure(_structure), automaton(_automaton) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KRIPKE STRUCTURE FUNCTIONS 
@@ -185,37 +183,6 @@ public:
 	 */
 	inline const StateID getKSID(const StateID ID) const {
 		return states[ID].KS_ID;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// REFERENCE GETTERS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @return constant reference to Kripke structure stored within the product
-	 */
-	const ParametrizedStructure & getKS() const {
-		return structure;
-	}
-
-	/**
-	 * @return constant reference to Buchi automaton stored within the product
-	 */
-	const AutomatonStructure & getBA() const {
-		return automaton;
-	}
-
-	/**
-	 * @return constant reference to structure with regulatory functions
-	 */
-	const LabelingHolder & getFunc() const {
-		return functions;
-	}
-
-	/**
-	 * @return constant reference to structure with interactions constrains
-	 */
-	const ParametrizationsHolder & getCons() const {
-		return parametrizations;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

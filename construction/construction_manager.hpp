@@ -75,7 +75,7 @@ public:
 
 		output_streamer.output(verbose_str, "Product building started.");
 		// Create the product
-		ProductStructure * product_structure = new ProductStructure(holder.getLabeling(), holder.getParametrizations(), holder.getParametrizedStructure(), holder.getAutomatonStructure());
+		ProductStructure * product_structure = new ProductStructure(holder.getParametrizedStructure(), holder.getAutomatonStructure());
 		ProductBuilder product_builder(holder.getParametrizedStructure(), holder.getAutomatonStructure(), *product_structure);
 		product_builder.buildProduct();
 		holder.fillProduct(product_structure);

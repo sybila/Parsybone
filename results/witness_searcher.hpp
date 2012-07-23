@@ -55,7 +55,7 @@ public:
     WitnessSearcher(const ConstructionHolder & holder, const ColoringAnalyzer & _analyzer, const ColorStorage & _storage)
                    : product(holder.getProduct()), analyzer(_analyzer), storage(_storage) {
 		// Resize path for maximal possible lenght
-        path.resize(product.getStateCount() - product.getBA().getStateCount() * 2 + 2);
+        path.resize(product.getStateCount() - holder.getAutomatonStructure().getStateCount() * 2 + 2);
 		lenght = color_num = max_path_lenght = 0;
 	} 
 

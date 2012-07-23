@@ -25,8 +25,8 @@ class BasicStructureBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided with constructor
 	const Model & model; ///< Model that holds the data
+	const std::size_t species_count; ///< Number of species of the model
 	BasicStructure & structure; ///< KipkeStructure to fill
-	std::size_t species_count; ///< Number of species of the model
 
 	// Computed
 	std::size_t states_count; ///< Number of states in this KS (exponential in number of species)
