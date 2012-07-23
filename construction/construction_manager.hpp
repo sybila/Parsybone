@@ -76,10 +76,8 @@ public:
 		output_streamer.output(verbose_str, "Product building started.");
 		// Create the product
 		ProductStructure * product_structure = new ProductStructure(holder.getLabeling(), holder.getParametrizations(), holder.getParametrizedStructure(), holder.getAutomatonStructure());
-		ColorStorage * color_storage = new ColorStorage;
-		ProductBuilder product_builder(holder.getParametrizedStructure(), holder.getAutomatonStructure(), *product_structure, *color_storage);
+		ProductBuilder product_builder(holder.getParametrizedStructure(), holder.getAutomatonStructure(), *product_structure);
 		product_builder.buildProduct();
-		holder.fillColorStorage(color_storage);
 		holder.fillProduct(product_structure);
    }
 };

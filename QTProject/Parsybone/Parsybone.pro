@@ -19,7 +19,6 @@ HEADERS += \
     ../../construction/parametrized_structure_builder.hpp \
     ../../construction/parametrized_structure.hpp \
     ../../construction/graph_interface.hpp \
-    ../../construction/color_storage.hpp \
     ../../construction/basic_structure_builder.hpp \
     ../../construction/basic_structure.hpp \
     ../../construction/automaton_structure.hpp \
@@ -49,7 +48,6 @@ HEADERS += \
     ../../construction/parametrized_structure.hpp \
     ../../construction/graph_interface.hpp \
     ../../construction/construction_manager.hpp \
-    ../../construction/color_storage.hpp \
     ../../construction/basic_structure_builder.hpp \
     ../../construction/basic_structure.hpp \
     ../../construction/automaton_structure.hpp \
@@ -61,5 +59,6 @@ HEADERS += \
     ../../construction/labeling_holder.hpp \
     ../../construction/labeling_builder.hpp \
     ../../construction/parametrizations_builder.hpp \
-    ../../construction/parametrizations_holder.hpp
+    ../../construction/parametrizations_holder.hpp \
+    ../../coloring/color_storage.hpp
 

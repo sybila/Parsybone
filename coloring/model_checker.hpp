@@ -11,6 +11,7 @@
 
 #include "../auxiliary/common_functions.hpp"
 #include "../construction/product_structure.hpp"
+#include "color_storage.hpp"
 #include "parameters_functions.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,9 +23,8 @@ class ModelChecker {
 // DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	// Provided with constructor
-	const ParametrizedStructure & structure; // Stores info about KS states
-	const AutomatonStructure & automaton; // Stores info about BA states
-	const ProductStructure & product; // Product on which the computation will be conducted
+    const AutomatonStructure & automaton; // Stores info about BA states
+    const ProductStructure & product; // Product on which the computation will be conducted
 	ColorStorage & storage; // Auxiliary product storage
 	ColorStorage next_round_storage; // Storing values passed in this round
 
@@ -284,8 +284,8 @@ public:
 	/**
 	 * Constructor, passes the data
 	 */
-	ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : structure(_product.getKS()), automaton(_product.getBA()), product(_product), storage(_storage) {	
-		BA_presence.resize(automaton.getStateCount(), false);
+    ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : automaton(_product.getBA()), product(_product), storage(_storage) {
+        BA_presence.resize(automaton.getStateCount(), false);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

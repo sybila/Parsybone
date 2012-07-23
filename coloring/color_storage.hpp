@@ -9,17 +9,16 @@
 #ifndef PARSYBONE_COLOR_STORAGE_INCLUDED
 #define PARSYBONE_COLOR_STORAGE_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ColorStorage is auxiliary class to the product and stores colors and possibly predecessors for individual states of the product during the computation.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
 
 class ProductBuilder;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ColorStorage is auxiliary class to the product and stores colors and possibly predecessors for individual states of the product during the computation.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class ColorStorage {
-	friend class ProductBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
@@ -51,12 +50,23 @@ class ColorStorage {
 		states.push_back(State(ID, states_num));
 	}
 
-
 public:
-	ColorStorage() { }
+	/**
+	 * Constructor allocates necessary memory for further usage (this memory is not supposed to be freed until endo of the computation)
+	 * Every state has predecessors and succesors allocated for EVERY other state, this consumes memory but benefits the complexity of operations.
+	 *
+	 * @param states_count	number of states the structure the data will be saved for has
+	 */
+	ColorStorage(std::size_t states_count) {
+		for (StateID ID = 0; ID < states_count; ID++) {
+			addState(ID, states_count);
+		}
+	}
+
+	ColorStorage() {};
 
 	/**
-	 * Sets all values for all the states to zero
+	 * Sets all values for all the states to zero. Allocated memory remains.
 	 */ 
 	void reset() {
 		// Clear each state
@@ -76,7 +86,8 @@ public:
 	}
 
 	/**
-	 * Add all values from one coloring structure to another
+	 * Add all values from one coloring structure to another.
+	 * @attention	This will only sum, not replace original values
 	 *
 	 * @param other	structure to copy from
 	 */
@@ -231,4 +242,4 @@ public:
 	}
 };
 
-#endif
+#endif // PARSYBONE_COLOR_STORAGE_INCLUDED

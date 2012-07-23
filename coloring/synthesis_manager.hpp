@@ -14,12 +14,12 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/time_manager.hpp"
-#include "../construction/construction_holder.hpp"
 #include "../results/coloring_analyzer.hpp"
 #include "../results/witness_searcher.hpp"
 #include "../results/output_manager.hpp"
-#include "parameters_functions.hpp"
+#include "color_storage.hpp"
 #include "model_checker.hpp"
+#include "parameters_functions.hpp"
 #include "split_manager.hpp"
 
 class SynthesisManager {
@@ -30,10 +30,11 @@ class SynthesisManager {
 	ConstructionHolder & holder;
 
 	// Created within the constructor
-	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
-	std::unique_ptr<OutputManager> output; // Class for output
-	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
 	std::unique_ptr<ColoringAnalyzer> analyzer; // Class for analysis
+	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
+	std::unique_ptr<OutputManager> output; // Class for output
+	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
+	std::unique_ptr<ColorStorage> storage; // Class that holds
 	std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
 
 	// Round data 
@@ -76,7 +77,7 @@ class SynthesisManager {
 		colorProduct(user_options.witnesses());
 
 		// Store colored final vertices
-		std::vector<Coloring> final_states = std::move(holder.getStorage().getColor(holder.getProduct().getFinalStates()));
+		std::vector<Coloring> final_states = std::move(storage.get()->getColor(holder.getProduct().getFinalStates()));
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
@@ -84,7 +85,7 @@ class SynthesisManager {
 				detectCycle(*final_it);
 
 			// Store results from this final state
-			analyzer->storeResults(Coloring(final_it->first, holder.getStorage().getColor(final_it->first)));
+			analyzer->storeResults(Coloring(final_it->first, storage.get()->getColor(final_it->first)));
 		}
 	}
 
@@ -95,7 +96,7 @@ class SynthesisManager {
 	 */
 	void colorProduct(const WitnessUse wits_use) {
 		// Assure emptyness
-		holder.getStorage().reset();
+		storage.get()->reset();
 
 		// Get initial coloring
 		Parameters starting;
@@ -109,7 +110,7 @@ class SynthesisManager {
 
 		// Set all the initial states to initial color
 		for (auto init_it = holder.getProduct().getInitialStates().begin(); init_it != holder.getProduct().getInitialStates().end(); init_it++)
-			holder.getStorage().update(starting, *init_it);
+			storage.get()->update(starting, *init_it);
 
 		// Schedule all initial states for updates
 		std::set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());
@@ -125,7 +126,7 @@ class SynthesisManager {
 	 */
 	void detectCycle(const Coloring & init_coloring) {
 		// Assure emptyness
-		holder.getStorage().reset();
+		storage.get()->reset();
 
 		// Sechedule nothing for updates (will be done during transfer in the next step)
 		model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange());
@@ -143,10 +144,11 @@ public:
 	 */
 	SynthesisManager(ConstructionHolder & _holder) : holder(_holder) {
 		// Create classes that help with the synthesis
-		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
-		model_checker.reset(new ModelChecker(holder.getProduct(), holder.getStorage()));
 		analyzer.reset(new ColoringAnalyzer(holder.getProduct()));
-		searcher.reset(new WitnessSearcher(*analyzer, holder.getStorage(), holder.getProduct()));
+		storage.reset(new ColorStorage(holder.getProduct().getStateCount()));
+		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
+		model_checker.reset(new ModelChecker(holder.getProduct(), *storage.get()));
+		searcher.reset(new WitnessSearcher(*analyzer, *storage.get(), holder.getProduct()));
 		output.reset(new OutputManager(*analyzer, holder.getProduct(), *split_manager, *searcher));
 
 		total_colors = 0;

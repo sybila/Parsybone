@@ -9,23 +9,20 @@
 #ifndef PARSYBONE_PRODUCT_BUILDER_INCLUDED
 #define PARSYBONE_PRODUCT_BUILDER_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ProductBuilder creates the Product for coloring, based on automaton and PKS
-// States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
-// In other words, first iterate through BA then through KS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "product_structure.hpp"
-#include "color_storage.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ProductBuilder creates the an automaton corresponding to the synchronous product of BA and KS.
+/// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ProductBuilder {
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	const ParametrizedStructure & structure; // Stores info about KS states
 	const AutomatonStructure & automaton; // Stores info about BA states
 	ProductStructure & product; // Product to build
-	ColorStorage & storage; // Auxiliary product storage to build
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS:
@@ -53,18 +50,6 @@ class ProductBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Creates the vector with all parameters set to zero
-	 *
-	 * @param states_count	how many states the product will have
-	 */ 
-	void createEmptyStorage (const std::size_t states_count) {
-		// add empty states to storage
-		for (StateID ID = 0; ID < states_count; ID++) {
-			storage.addState(ID, states_count);
-		}
-	}
-
 	/**
 	 * Create position set of final states and initial states in the product
 	 */
@@ -123,8 +108,8 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	ProductBuilder(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product, ColorStorage & _storage) 
-		: structure(_structure), automaton(_automaton), product(_product), storage(_storage) { }
+	ProductBuilder(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product)
+		: structure(_structure), automaton(_automaton), product(_product){ }
 
 	/**
 	 * Create the the product from BA and KS together.
@@ -132,9 +117,6 @@ public:
 	void buildProduct() {
 		// count product states
 		const std::size_t states_count = structure.getStateCount() * automaton.getStateCount();
-		
-		// Start storage
-		createEmptyStorage(states_count);
 
 		// Add transitions
 		for (std::size_t KS_ID = 0; KS_ID < structure.getStateCount(); KS_ID++) {

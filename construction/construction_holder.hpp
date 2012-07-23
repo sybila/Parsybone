@@ -12,7 +12,6 @@
 #include "../parsing/model.hpp"
 #include "automaton_builder.hpp"
 #include "basic_structure_builder.hpp"
-#include "color_storage.hpp"
 #include "parametrizations_builder.hpp"
 #include "labeling_builder.hpp"
 #include "parametrized_structure_builder.hpp"
@@ -30,7 +29,6 @@ class ConstructionHolder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::unique_ptr<AutomatonStructure> automaton;
 	std::unique_ptr<BasicStructure> basic;
-	std::unique_ptr<ColorStorage> storage;
 	std::unique_ptr<ParametrizationsHolder> parametrizations;
 	std::unique_ptr<Model> model;
 	std::unique_ptr<LabelingHolder> labeling;
@@ -53,10 +51,6 @@ private:
 
 	void fillBasicStructure(BasicStructure * _basic) {
 		basic.reset(_basic);
-	}
-
-	void fillColorStorage(ColorStorage * _storage) {
-		storage.reset(_storage);
 	}
 
 	void fillConstrains(ParametrizationsHolder * _parametrizations) {
@@ -90,10 +84,6 @@ public:
 
 	const BasicStructure & getBasicStructure() const {
 		return *basic.get();
-	}
-
-	ColorStorage & getStorage() const {
-		return *storage.get();
 	}
 
 	const ParametrizationsHolder & getParametrizations() const {
