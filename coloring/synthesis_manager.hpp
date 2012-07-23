@@ -14,22 +14,20 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/time_manager.hpp"
-#include "parameters_functions.hpp"
-#include "model_checker.hpp"
-#include "split_manager.hpp"
+#include "../construction/construction_holder.hpp"
 #include "../results/coloring_analyzer.hpp"
 #include "../results/witness_searcher.hpp"
 #include "../results/output_manager.hpp"
+#include "parameters_functions.hpp"
+#include "model_checker.hpp"
+#include "split_manager.hpp"
 
 class SynthesisManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Provided
-	const ParametrizedStructure & structure; // Stores info about KS states
-	const AutomatonStructure & automaton; // Stores info about BA states
-	const ProductStructure & product; // Product to compute on
-	ColorStorage & storage; // Auxiliary product storage
+	ConstructionHolder & holder;
 
 	// Created within the constructor
 	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
@@ -78,7 +76,7 @@ class SynthesisManager {
 		colorProduct(user_options.witnesses());
 
 		// Store colored final vertices
-		std::vector<Coloring> final_states = std::move(storage.getColor(product.getFinalStates()));
+		std::vector<Coloring> final_states = std::move(holder.getStorage().getColor(holder.getProduct().getFinalStates()));
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
@@ -86,7 +84,7 @@ class SynthesisManager {
 				detectCycle(*final_it);
 
 			// Store results from this final state
-			analyzer->storeResults(Coloring(final_it->first, storage.getColor(final_it->first)));
+			analyzer->storeResults(Coloring(final_it->first, holder.getStorage().getColor(final_it->first)));
 		}
 	}
 
@@ -97,12 +95,12 @@ class SynthesisManager {
 	 */
 	void colorProduct(const WitnessUse wits_use) {
 		// Assure emptyness
-		storage.reset();
+		holder.getStorage().reset();
 
 		// Get initial coloring
 		Parameters starting;
-        if(coloring_parser.input())
-            starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum())];
+		  if(coloring_parser.input())
+				starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum())];
 		else
 			starting = split_manager->createStartingParameters();
 
@@ -110,11 +108,11 @@ class SynthesisManager {
 			return;
 
 		// Set all the initial states to initial color
-		for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++) 
-			storage.update(starting, *init_it);
+		for (auto init_it = holder.getProduct().getInitialStates().begin(); init_it != holder.getProduct().getInitialStates().end(); init_it++)
+			holder.getStorage().update(starting, *init_it);
 
 		// Schedule all initial states for updates
-		std::set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
+		std::set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());
 
 		// Start coloring procedure
 		BFS_reach = std::move(model_checker->startColoring(starting, updates, split_manager->getRoundRange(), wits_use));
@@ -127,7 +125,7 @@ class SynthesisManager {
 	 */
 	void detectCycle(const Coloring & init_coloring) {
 		// Assure emptyness
-		storage.reset();
+		holder.getStorage().reset();
 
 		// Sechedule nothing for updates (will be done during transfer in the next step)
 		model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange());
@@ -143,14 +141,13 @@ public:
 	/**
 	 * Constructor builds all the data objects that are used within
 	 */
-	SynthesisManager(const ProductStructure & _product, ColorStorage & _storage)
-		            : structure(_product.getKS()), storage(_storage), automaton(_product.getBA()), product(_product) {
+	SynthesisManager(ConstructionHolder & _holder) : holder(_holder) {
 		// Create classes that help with the synthesis
-		split_manager.reset(new SplitManager(product.getFunc().getParametersCount()));
-		model_checker.reset(new ModelChecker(product, storage));
-		analyzer.reset(new ColoringAnalyzer(product));
-		searcher.reset(new WitnessSearcher(*analyzer, storage, product));
-		output.reset(new OutputManager(*analyzer, product, *split_manager, *searcher));
+		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
+		model_checker.reset(new ModelChecker(holder.getProduct(), holder.getStorage()));
+		analyzer.reset(new ColoringAnalyzer(holder.getProduct()));
+		searcher.reset(new WitnessSearcher(*analyzer, holder.getStorage(), holder.getProduct()));
+		output.reset(new OutputManager(*analyzer, holder.getProduct(), *split_manager, *searcher));
 
 		total_colors = 0;
 		BFS_reach.resize(getParamsetSize());

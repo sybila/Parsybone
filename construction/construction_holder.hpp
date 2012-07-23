@@ -12,9 +12,11 @@
 #include "../parsing/model.hpp"
 #include "automaton_builder.hpp"
 #include "basic_structure_builder.hpp"
+#include "color_storage.hpp"
 #include "parametrizations_builder.hpp"
 #include "labeling_builder.hpp"
 #include "parametrized_structure_builder.hpp"
+#include "product_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Class stores and provides all the objects that are built during construction phase.
@@ -28,10 +30,12 @@ class ConstructionHolder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::unique_ptr<AutomatonStructure> automaton;
 	std::unique_ptr<BasicStructure> basic;
+	std::unique_ptr<ColorStorage> storage;
 	std::unique_ptr<ParametrizationsHolder> parametrizations;
 	std::unique_ptr<Model> model;
 	std::unique_ptr<LabelingHolder> labeling;
 	std::unique_ptr<ParametrizedStructure> structure;
+	std::unique_ptr<ProductStructure> product;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLERS:
@@ -51,6 +55,10 @@ private:
 		basic.reset(_basic);
 	}
 
+	void fillColorStorage(ColorStorage * _storage) {
+		storage.reset(_storage);
+	}
+
 	void fillConstrains(ParametrizationsHolder * _parametrizations) {
 		parametrizations.reset(_parametrizations);
 	}
@@ -61,6 +69,10 @@ private:
 
 	void fillParametrizedStructure(ParametrizedStructure * _structure) {
 		structure.reset(_structure);
+	}
+
+	void fillProduct(ProductStructure * _product) {
+		product.reset(_product);
 	}
 
 	ConstructionHolder(const ConstructionHolder & other); ///< Forbidden copy constructor.
@@ -80,6 +92,10 @@ public:
 		return *basic.get();
 	}
 
+	ColorStorage & getStorage() const {
+		return *storage.get();
+	}
+
 	const ParametrizationsHolder & getParametrizations() const {
 		return *parametrizations.get();
 	}
@@ -94,6 +110,10 @@ public:
 
 	const ParametrizedStructure & getParametrizedStructure() const {
 		return *structure.get();
+	}
+
+	const ProductStructure & getProduct() const {
+		return *product.get();
 	}
 };
 

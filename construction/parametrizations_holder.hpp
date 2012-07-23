@@ -89,8 +89,8 @@ public:
 	 *
 	 * @return	requested subcolor from the vector of subcolors of given specie
 	 */
-	inline const std::vector<std::size_t> & getColor(const SpecieID ID, const std::size_t color_num) const {
-		return colors[ID].subcolors[color_num];
+	inline const std::vector<std::size_t> & getColor(const SpecieID ID, const ColorNum color_num) const {
+		return colors[ID].subcolors[static_cast<std::size_t>(color_num)];
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ public:
 	 */
 	const std::string createColorString(ColorNum number) const {
 		// compute numbers of partial parametrizations for each component
-		const std::vector<std::size_t> color_parts = std::move(getSpecieVals(number));
+		const std::vector<ColorNum> color_parts = std::move(getSpecieVals(number));
 
 		std::string color_str = "[";
 		// cycle through the species
@@ -152,9 +152,9 @@ public:
 	 *
 	 * @return ordinal numbers of partial parametrizations in a vector indexed by IDs of the species
 	 */
-	const std::vector<std::size_t> getSpecieVals(ColorNum number) const {
+	const std::vector<ColorNum> getSpecieVals(ColorNum number) const {
 		// Prepare storage vector
-		std::vector<std::size_t> specie_vals(colors.size());
+		std::vector<ColorNum> specie_vals(colors.size());
 		auto reverse_val_it = specie_vals.rbegin();
 
 		// Go through colors backwards
