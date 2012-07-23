@@ -29,38 +29,13 @@ class ColoringAnalyzer {
 	std::vector<std::size_t> subcolor_nums;
 	std::vector<std::size_t> max_colors;
 
-	//// Used throughout full computation - values for each function
-	//std::vector<std::size_t> bottom_values;
-	//std::vector<std::size_t> top_values;
-
 	//// Used only for a single round
-	//std::vector<std::size_t> current_color;
 	ColorNum parameter_begin;
 	ColorNum parameter_end;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COLOR BASED FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Increment values in curren_color so we get next color in the ordering
-	 *
-	 * @param color	vector of contexts for the color
-	 */
-	void iterateColor(std::vector<std::size_t> & color) const {
-		// If there is a posibility to increaset the value (from left to right), increase it and end, otherwise null it and continue
-		for (std::size_t value_num = 0; value_num < color.size(); value_num++) {
-			// Increase and end
-			if (color[value_num] < max_colors[value_num]) {
-				color[value_num]++;
-				return;
-			}
-			// Null 
-			else { 
-				color[value_num] = 0;
-			}
-		}
-	}
-	
 	/**
 	 * Creates a color string in the form [context_11, context_12, context_21 ...]
 	 *
@@ -117,22 +92,16 @@ public:
 		// Error check
 		if (round_range.first < parameter_begin)
 			throw std::runtime_error("Round start value is lower than start of previous round.");
-		
-		// Clear storage
-		colorings.clear();
 
-		// Iterate reference values for the state up till first state of this round
+		colorings.clear();
 		parameter_end = round_range.second;
-		for (; parameter_begin < round_range.first; parameter_begin++) {
-			iterateColor(subcolor_nums);
-		}
+		parameter_begin = round_range.first;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	/*
+	/**
 	 * Output all colors from this round.
 	 */
 	void display() const {
@@ -157,7 +126,7 @@ public:
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS
+// REFORMING GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
 	/**
 	 * Compute merge of all final colors creating a coloring with all feasible colors
@@ -179,10 +148,10 @@ public:
 	 * 
 	 * @return vector of masks and strings of feasible colors
 	 */
-	std::vector<std::pair<std::size_t, std::string> > getColors(Parameters result_parameters) const {	
+	const std::vector<std::pair<std::size_t, std::string> > getColors(Parameters result_parameters) const {
 		// Vector to fill
 		std::vector<std::pair<std::size_t, std::string> > colors;
-		std::vector<std::size_t> work_color = subcolor_nums;
+
 		// Change the order of values to: from right to left
 		result_parameters = swap(result_parameters, getParamsetSize() - static_cast<std::size_t>(parameter_end - parameter_begin));
 		// Store a mask for each color with just its bit on, other off
@@ -195,9 +164,8 @@ public:
 				colors.push_back(std::make_pair(color_mask, parametrizations.createColorString(col_num)));
 
 			// Increase values
-			color_mask >>= 1;	
+			color_mask >>= 1;
 			result_parameters >>= 1;
-			iterateColor(work_color);
 		}
 		return colors;
 	}
@@ -207,7 +175,7 @@ public:
 	 *
 	 * @return vector of numbers and strings of colors
 	 */
-	std::vector<std::pair<std::size_t, std::string> > getColors() const {	
+	const std::vector<std::pair<std::size_t, std::string> > getColors() const {
 		return getColors(getUnion());
 	}
 };

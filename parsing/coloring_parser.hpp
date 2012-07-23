@@ -138,9 +138,6 @@ public:
 	inline const std::size_t getColorsCount() {
 		return colors_sets.size() * getParamsetSize();
 	}
-
-
-
 } coloring_parser; // Single program-shared output file
 
 #endif

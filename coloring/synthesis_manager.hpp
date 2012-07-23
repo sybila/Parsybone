@@ -9,10 +9,6 @@
 #ifndef PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 #define PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Class that shelters all of the synthesis and output of the results
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../auxiliary/time_manager.hpp"
 #include "../results/coloring_analyzer.hpp"
 #include "../results/witness_searcher.hpp"
@@ -22,25 +18,32 @@
 #include "parameters_functions.hpp"
 #include "split_manager.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Manager of the synthesis procedure - takes the reference data constructed during previous steps and computes and executes the synthesis.
+/// Synthesis is done in three steps:
+///	-# preparation: empties data and starts a new round.
+///   -# synthesis: computes the coloring, stored in the storage object and adds data to coloring analyzer if needed.
+///   -# conclusion: stores additional data and outputs
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynthesisManager {
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Provided
-	const ConstructionHolder & holder;
+	const ConstructionHolder & holder; ///< Holder of all the reference data.
 
 	// Created within the constructor
-	std::unique_ptr<ColoringAnalyzer> analyzer; // Class for analysis
-	std::unique_ptr<ModelChecker> model_checker; // Class for synthesis
-	std::unique_ptr<OutputManager> output; // Class for output
-	std::unique_ptr<SplitManager> split_manager; // Control of independent rounds
-	std::unique_ptr<ColorStorage> storage; // Class that holds
-	std::unique_ptr<WitnessSearcher> searcher; // Class to build wintesses
+	std::unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis
+	std::unique_ptr<ModelChecker> model_checker; ///< Class for synthesis
+	std::unique_ptr<OutputManager> output; ///< Class for output
+	std::unique_ptr<SplitManager> split_manager; ///< Control of independent rounds
+	std::unique_ptr<ColorStorage> storage; ///< Class that holds
+	std::unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses
 
-	// Round data 
+	/// Round data
 	std::vector<std::size_t> BFS_reach;
 
-	// Overall statistics
+	/// Overall statistics
 	std::size_t total_colors;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,10 +53,12 @@ class SynthesisManager {
 	 * Setup everything that needs it for computation in this round
 	 */
 	void doPreparation() {
+		// Assure emptyness
+		storage.get()->reset();
 		// Output round number
 		output->outputRoundNum();
 		// Pass information about round (necessary for setup)
-		analyzer->strartNewRound(split_manager->getRoundRange());	
+		analyzer->strartNewRound(split_manager->getRoundRange());
 	}
 
 	/**
@@ -69,8 +74,6 @@ class SynthesisManager {
 	 * Entry point of the parameter synthesis. 
 	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
-	 *
-	 * @param witness_use - how to handle witnesses
 	 */
 	void doComputation() {
 		// Basic (initial) coloring
@@ -95,13 +98,10 @@ class SynthesisManager {
 	 * @param witness_use - how to handle witnesses
 	 */
 	void colorProduct(const WitnessUse wits_use) {
-		// Assure emptyness
-		storage.get()->reset();
-
 		// Get initial coloring
 		Parameters starting;
-		  if(coloring_parser.input())
-				starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum())];
+		if(coloring_parser.input())
+			starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum())];
 		else
 			starting = split_manager->createStartingParameters();
 
@@ -156,7 +156,7 @@ public:
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SYNTHESIS ENTRY
+// SYNTHESIS ENTRY FUNCTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Main synthesis function that iterates through all the rounds of the synthesis
@@ -172,8 +172,6 @@ public:
 		}
 
 		time_manager.ouputClock("coloring");
-
-		// Output final numbers
 		output->outputSummary(total_colors);
 	}
 };

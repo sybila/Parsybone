@@ -48,11 +48,6 @@ public:
 	 * @return vector of initial states' IDs
 	 */
 	virtual inline const std::vector<StateID> & getInitialStates() const = 0;
-
-	/**
-	 * Virtual destructor.
-	 */
-	virtual ~AutomatonInterface() {}
 };
 
 #endif
