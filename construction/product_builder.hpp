@@ -20,9 +20,9 @@ class ProductBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const ParametrizedStructure & structure; // Stores info about KS states
-	const AutomatonStructure & automaton; // Stores info about BA states
-	ProductStructure & product; // Product to build
+	const ParametrizedStructure & structure; ///< Provides info about KS states
+	const AutomatonStructure & automaton; ///< Provides info about BA states
+	ProductStructure & product; ///< Product to build
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS:
@@ -31,7 +31,7 @@ class ProductBuilder {
 	 * Given this source BA state, find out all the target BA that are reachable under this KS state
 	 *
 	 * @param KS_ID	source KS state
-	 * @param BA_ID source BA state
+	 * @param BA_ID	source BA state
 	 *
 	 * @return	vector of all the reachable BA states from give product state
 	 */
@@ -51,7 +51,7 @@ class ProductBuilder {
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Create position set of final states and initial states in the product
+	 * Create set with indexes of final and initial states of the product
 	 */
 	void markStates() {
 		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStateCount(); ba_state_num++) {
@@ -71,12 +71,13 @@ class ProductBuilder {
 	}
 
 	/**
-	 * Create state of the product from its KS and BA counterparts
+	 * Create state of the product as a combination of a single BA and a single PKS state
 	 *
 	 * @param KS_ID	source in the KS
-	 * @param BA_ID source in the BA
+	 * @param BA_ID	source in the BA
+	 * @param transition_count	value which counts the transition for the whole product, will be filled
 	 */
-	void createProductState(const StateID KS_ID, const StateID BA_ID) {
+	void createProductState(const StateID KS_ID, const StateID BA_ID, std::size_t & transition_count) {
 		// Add this state
 		product.addState(KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID));
 		const StateID ID = product.getProductID(KS_ID, BA_ID); 
@@ -97,33 +98,42 @@ class ProductBuilder {
 				const StateID target = product.getProductID(KS_target_ID, *BA_traget_it);
 				// Store the transition
 				product.addTransition(ID, target, step_size, transitive_values);
+				transition_count++;
 			}
 		}
 	}
 	
-	ProductBuilder(const ProductBuilder & other);            // Forbidden copy constructor.
-	ProductBuilder& operator=(const ProductBuilder & other); // Forbidden assignment operator.
+	ProductBuilder(const ProductBuilder & other); ///< Forbidden copy constructor.
+	ProductBuilder& operator=(const ProductBuilder & other); ///< Forbidden assignment operator.
 
 public:
 	/**
-	 * Constructor just attaches the references to data holders
+	 * Constructor just attaches the references of data holders
 	 */
 	ProductBuilder(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product)
 		: structure(_structure), automaton(_automaton), product(_product){ }
 
 	/**
-	 * Create the the product from BA and KS together.
+	 * Create the the synchronous product of the provided BA and PKS.
 	 */
 	void buildProduct() {
+		output_streamer.output(stats_str, "Computing Synchronous product of the Buchi automaton and parametrized Kripke structure.");
+		output_streamer.output(stats_str,"Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
+				.output(structure.getStateCount() * automaton.getStateCount(), OutputStreamer::no_newl).output(".");
+		std::size_t transition_count = 0;
+
 		// Creates states and their transitions
 		for (std::size_t KS_ID = 0; KS_ID < structure.getStateCount(); KS_ID++) {
 			for (std::size_t BA_ID = 0; BA_ID < automaton.getStateCount(); BA_ID++) {
-				createProductState(KS_ID, BA_ID);
+				createProductState(KS_ID, BA_ID, transition_count);
 			}
 		}
 
 		// Create final and intial states vectors
 		markStates();
+
+		output_streamer.output(stats_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
+				.output(transition_count, OutputStreamer::no_newl).output(".");
 	}
 };
 

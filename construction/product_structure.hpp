@@ -9,57 +9,53 @@
 #ifndef PARSYBONE_PRODUCT_INCLUDED
 #define PARSYBONE_PRODUCT_INCLUDED
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ProductStructure stores product of BA and PKS
-// States are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
-// In other words, first iterate through BA then through KS
-// ProductStructure data can be set only form the ProductBuilder object.
-// ProductStructure is used for computation - meaning it has also setter / computation functions
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "../auxiliary/output_streamer.hpp"
-#include "../coloring/parameters_functions.hpp"
 #include "../construction/automaton_structure.hpp"
-#include "../construction/labeling_holder.hpp"
-#include "../construction/parametrizations_builder.hpp"
 #include "../construction/parametrized_structure.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// This is the final step of construction - a structure that is acutally used during the computation. For simplicity, it copies data from its predecessors (BA and PKS).
+/// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
+/// ProductStructure data can be set only form the ProductBuilder object.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ProductStructure : public AutomatonInterface {
 	friend class ProductBuilder;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW TYPES AND DATA:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	// Storing a single transition to neighbour state together with its transition function
+	/// Storing a single transition to a neighbour state together with its transition function
 	struct Transition : public TransitionProperty {
-		std::size_t step_size; // How many bits of a parameter space bitset is needed to get from one targe value to another
-		std::vector<bool> transitive_values; // Which values from the original set does not allow a trasition and therefore removes bits from the mask.
+		std::size_t step_size; ///<  How many bits of a parameter space bitset is needed to get from one targe value to another
+		std::vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
 		Transition(const StateID target_ID, const std::size_t _step_size, const std::vector<bool>& _transitive_values)
-			: TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {}
+			: TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {} ///< Simple filler, assigns values to all the variables
 	};
 	
 	// State of the product - same as the state of parametrized structure but together with BA state
 	struct State : public StateProperty<Transition> {
-		StateID KS_ID; // ID of original KS state this one is built from
-		StateID BA_ID; // ID of original BA state this one is built from
-		bool initial; // True if the state is initial
-		bool final; // True if the state is final
-		Levels species_level; // species_level[i] = activation level of specie i
+		StateID KS_ID; ///< ID of an original KS state this one is built from
+		StateID BA_ID; ///< ID of an original BA state this one is built from
+		bool initial; ///< True if the state is initial
+		bool final; ///< True if the state is final
+		Levels species_level; ///< species_level[i] = activation level of specie i in this state
 
+		/// Simple filler, assigns values to all the variables
 		State(const StateID ID, const StateID _KS_ID, const StateID _BA_ID, const bool _initial, const bool _final, const  Levels & _species_level)
-			: StateProperty<Transition>(ID), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) { }
+			: StateProperty<Transition>(ID), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) {}
 	};
 	
-	// References to data structures
-	const ParametrizedStructure & structure; // Stores info about KS states
-	const AutomatonStructure & automaton; // Stores info about BA states
+	// References to data predecessing data structures
+	const ParametrizedStructure & structure; ///< Stores info about KS states, used in the getString function
+	const AutomatonStructure & automaton; ///< Stores info about BA states, used in the getString function
 
-	// DATA STORAGE
+	/// Stores all the data
 	std::vector<State> states;
 
 	// Information about states
-	std::vector<StateID> initial_states;
-	std::vector<StateID> final_states;
+	std::vector<StateID> initial_states; ///< Vector of inital states of the product
+	std::vector<StateID> final_states; ///< Vector of final states of the product
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from ProductBuilder)
@@ -93,23 +89,14 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KRIPKE STRUCTURE FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @override
-	 */
 	inline const std::size_t getStateCount() const {
 		return states.size();
 	}
 
-	/**
-	 * @override
-	 */
 	const std::size_t getTransitionCount(const StateID ID) const { 
 		return states[ID].transitions.size(); 
 	}
 
-	/**
-	 * @override
-	 */
 	const std::size_t getTargetID(const StateID ID, const std::size_t trans_number) const {
 		return states[ID].transitions[trans_number].target_ID;
 	}
@@ -133,30 +120,18 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BUCHI AUTOMATON FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @override
-	 */
 	virtual inline const bool isFinal(const StateID ID) const {
 		return states[ID].final;
 	}
 
-	/**
-	 * @override
-	 */
 	virtual inline const bool isInitial(const StateID ID) const {
 		return states[ID].initial;
 	}
 
-	/**
-	 * @override
-	 */
 	virtual inline const std::vector<StateID> & getFinalStates() const {
 		return final_states;
 	}
 
-	/**
-	 * @override
-	 */
 	virtual inline const std::vector<StateID> & getInitialStates() const {
 		return initial_states;
 	}
