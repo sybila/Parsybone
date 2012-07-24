@@ -80,10 +80,15 @@ public:
 	 * Display colors synthetized during current round
 	 */
 	void outputRound(const std::vector<std::size_t> & BFS_reach) const {
-		if (user_options.witnesses() != none_wit ) 
-			searcher.display(BFS_reach);
-		else if (user_options.coloring())
-			analyzer.getOutput();
+        auto params = analyzer.getOutput(); auto param_it = params.begin();
+        auto data = searcher.getOutput(BFS_reach); auto data_it = data.begin();
+        if (params.size() != data.size())
+            throw std::runtime_error("Sizes of vectors on output are not equal.");
+        while (param_it != params.end()) {
+            output_streamer.output(results_str, *param_it + *data_it);
+            param_it++; data_it++;
+        }
+
 		if (coloring_parser.output())
 			coloring_parser.outputComputed(analyzer.getMask());
 	}

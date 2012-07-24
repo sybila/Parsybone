@@ -19,6 +19,7 @@
 #define PARSYBONE_PARAMETERS_FUNCTIONS_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
+#include "../auxiliary/data_types.hpp"
 
 /**
  * @return number of parameters in a single round
@@ -51,8 +52,8 @@ inline Parameters getAll() {
 /**
  * @return mask that holds value of the binary form 10...0 .
  */
-Parameters getLeftOne() {
-   return (1 << (getParamsetSize() - 1));
+Parameters getLeftOne(ColorNum size = (getParamsetSize() - 1) ) {
+   return (1 << size);
 }
 
 /**
@@ -64,6 +65,7 @@ std::vector<Parameters> getSingleMasks(Parameters parameters) {
    for (std::size_t counter = 0; counter < getParamsetSize(); counter++) {
       if (mask & parameters)
          masks.push_back(mask);
+      mask >>= 1;
    }
    return masks;
 }
