@@ -135,17 +135,14 @@ public:
 	 */
 	void display(const std::vector<std::size_t> & BFS_reach) {
 		// Get synthetized colors
-		auto colors = analyzer.getColors();
+        auto masks = getSingleMasks(analyzer.getMask());
 		per_color_storage.reset(new PerColorStorage(analyzer, storage, product));
 
 		// Go through colors
-		for (color_num = 0; color_num < colors.size(); color_num++) {
-			// Display color if requested
-			if (user_options.coloring())
-				output_streamer.output(results_str, colors[color_num].second);
+        for (color_num = 0; color_num < masks.size(); color_num++) {
 
 			// Get round values
-			std::size_t bit_num = getBitNum(colors[color_num].first);
+            std::size_t bit_num = getBitNum(masks[color_num]);
 			max_path_lenght = (user_options.witnesses() == short_wit) ? BFS_reach[bit_num] : ~0;
 
 			// Compute witnesses for given color from each final state, they are also displayed, if requested

@@ -65,11 +65,11 @@ class SynthesisManager {
 	 * Store results that have not been stored yet and finalize the round where needed
 	 */
 	void doConclusion() {
-		total_colors += count(analyzer->getUnion());
+		total_colors += count(analyzer->getMask());
 		// Output what has been synthetized (colors, witnesses)
 		output->outputRound(BFS_reach);
 	}
-	
+
 	/**
 	 * Entry point of the parameter synthesis. 
 	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
@@ -84,7 +84,7 @@ class SynthesisManager {
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
- 			if (!none(final_it->second) && !user_options.timeSerie())
+			if (!none(final_it->second) && !user_options.timeSerie())
 				detectCycle(*final_it);
 
 			// Store results from this final state

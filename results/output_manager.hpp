@@ -57,7 +57,7 @@ public:
 	 * Ouputs round number - if there are no data within, then erase the line each round
 	 */ 
 	void outputRoundNum() {
-		// Erase the line if outputting to file or not at all
+		// Erase the line if outputting results to file or not at all
 		if (output_streamer.isResultInFile() || (!user_options.coloring() && (user_options.witnesses() == none_wit))) 
 			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 		else 
@@ -83,9 +83,9 @@ public:
 		if (user_options.witnesses() != none_wit ) 
 			searcher.display(BFS_reach);
 		else if (user_options.coloring())
-			analyzer.display();
+			analyzer.getOutput();
 		if (coloring_parser.output())
-			coloring_parser.outputComputed(analyzer.getUnion());
+			coloring_parser.outputComputed(analyzer.getMask());
 	}
 };
 

@@ -134,6 +134,14 @@ public:
 		return true;
 	}
 
+	/**
+	 * Return true if the state would be updated, false otherwise.
+	 *
+	 * @param ID	index of the state to fill
+	 * @param parameters to add - if empty, add all, otherwise use bitwise or
+	 *
+	 * @return true if there would be an update
+	 */
 	inline bool soft_update(const Parameters parameters, const StateID ID) {
 		if (states[ID].parameters == (parameters | states[ID].parameters))
 			return false;
@@ -189,6 +197,9 @@ public:
 		return colors;
 	}
 
+	/**
+	 * @return vector of states that have any color attached to them
+	 */
 	std::set<StateID> getColored() const {
 		std::set<StateID> new_updates;
 		for (auto state_it = states.begin(); state_it != states.end(); state_it++) {

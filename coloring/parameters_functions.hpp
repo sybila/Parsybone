@@ -49,6 +49,26 @@ inline Parameters getAll() {
 }
 
 /**
+ * @return mask that holds value of the binary form 10...0 .
+ */
+Parameters getLeftOne() {
+   return (1 << (getParamsetSize() - 1));
+}
+
+/**
+ * Computer a vector of masks of single parametrizations - i.e. 10010 would give {10000,00010}
+ */
+std::vector<Parameters> getSingleMasks(Parameters parameters) {
+   std::vector<Parameters> masks;
+   Parameters mask = getLeftOne();
+   for (std::size_t counter = 0; counter < getParamsetSize(); counter++) {
+      if (mask & parameters)
+         masks.push_back(mask);
+   }
+   return masks;
+}
+
+/**
  * @return true if none of the paremters is set
  */
 inline const bool none(Parameters parameters) {
