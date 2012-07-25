@@ -65,7 +65,7 @@ class SynthesisManager {
 	 * Store results that have not been stored yet and finalize the round where needed
 	 */
 	void doConclusion() {
-		total_colors += count(analyzer->getMask());
+        total_colors += paramset_helper.count(analyzer->getMask());
 		// Output what has been synthetized (colors, witnesses)
 		output->outputRound(BFS_reach);
 	}
@@ -84,7 +84,7 @@ class SynthesisManager {
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
-			if (!none(final_it->second) && !user_options.timeSerie())
+            if (!paramset_helper.none(final_it->second) && !user_options.timeSerie())
 				detectCycle(*final_it);
 
 			// Store results from this final state
@@ -105,7 +105,7 @@ class SynthesisManager {
 		else
 			starting = split_manager->createStartingParameters();
 
-		if (none(starting))
+        if (paramset_helper.none(starting))
 			return;
 
 		// Set all the initial states to initial color
@@ -152,7 +152,7 @@ public:
 		output.reset(new OutputManager(*analyzer, *split_manager, *searcher));
 
 		total_colors = 0;
-		BFS_reach.resize(getParamsetSize());
+		BFS_reach.resize(paramset_helper.getParamsetSize());
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

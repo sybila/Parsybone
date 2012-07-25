@@ -39,20 +39,20 @@ class SplitManager {
 	 */
 	void computeSubspace() {
 		// Number of full rounds for all processes
-		rounds_count = all_colors_count / (user_options.procCount() * getParamsetSize());
-		ColorNum rest_bits = all_colors_count % (user_options.procCount() * getParamsetSize());
-		last_round_bits = getParamsetSize();
+		rounds_count = all_colors_count / (user_options.procCount() * paramset_helper.getParamsetSize());
+		ColorNum rest_bits = all_colors_count % (user_options.procCount() * paramset_helper.getParamsetSize());
+		last_round_bits = paramset_helper.getParamsetSize();
 
 		// If there is some leftover, add a round
-		if (std::ceil(static_cast<double>(rest_bits) / static_cast<double>(getParamsetSize())) >= user_options.procNum()) {
+		if (std::ceil(static_cast<double>(rest_bits) / static_cast<double>(paramset_helper.getParamsetSize())) >= user_options.procNum()) {
 			rounds_count++;
 			// Pad last round
-			if ((rest_bits / getParamsetSize()) == (user_options.procNum() - 1))
-				last_round_bits = rest_bits % getParamsetSize();
+			if ((rest_bits / paramset_helper.getParamsetSize()) == (user_options.procNum() - 1))
+				last_round_bits = rest_bits % paramset_helper.getParamsetSize();
 		}
 		
 		// Get colors num for this process
-		process_color_count = (rounds_count - 1) * getParamsetSize() + last_round_bits;
+		process_color_count = (rounds_count - 1) * paramset_helper.getParamsetSize() + last_round_bits;
 
 		// Set positions for the round
 		setStartPositions();
@@ -87,10 +87,10 @@ public:
 	 * Set values for the first round of computation.
 	 */
 	void setStartPositions() {
-		round_begin = (user_options.procNum() - 1) * getParamsetSize();
+		round_begin = (user_options.procNum() - 1) * paramset_helper.getParamsetSize();
 		if (rounds_count > 0) {
 			if (rounds_count > 1)
-				round_end = round_begin + getParamsetSize();
+				round_end = round_begin + paramset_helper.getParamsetSize();
 			else
 				round_end = round_begin + last_round_bits;
 		}
@@ -102,12 +102,12 @@ public:
 	 */
 	void increaseRound() {
 		round_number++;
-		round_begin += (getParamsetSize() * user_options.procCount());
+		round_begin += (paramset_helper.getParamsetSize() * user_options.procCount());
 		// For the last round we have to use a shorter range, if necessary, otherwise we use whole
 		if (lastRound())
 			round_end = round_begin + last_round_bits;
 		else
-			round_end = round_begin + getParamsetSize();
+			round_end = round_begin + paramset_helper.getParamsetSize();
 	}
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,9 +174,9 @@ public:
 	 */
 	inline Parameters createStartingParameters() const {
 		if (!lastRound())
-			return getAll();
+			return paramset_helper.getAll();
 		else
-			return getAll() >> (getParamsetSize() - last_round_bits);	
+			return paramset_helper.getAll() >> (paramset_helper.getParamsetSize() - last_round_bits);
 	}
 };
 

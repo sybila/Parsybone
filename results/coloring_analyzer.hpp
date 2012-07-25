@@ -77,7 +77,7 @@ class ColoringAnalyzer {
 		// Vector to fill
 		std::vector<ColorNum> numbers;
 		// Store a mask for each color with just its bit on, other off
-		Parameters color_mask = getLeftOne(parameter_end - parameter_begin);
+        Parameters color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
 		// Cycle through all round colors
 		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
@@ -102,7 +102,7 @@ class ColoringAnalyzer {
 		// Vector to fill
 		std::vector<std::string> strings;
 		// Store a mask for each color with just its bit on, other off
-		Parameters color_mask = getLeftOne(parameter_end - parameter_begin);
+        Parameters color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
 		// Cycle through all round colors
 		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {

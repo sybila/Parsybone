@@ -131,7 +131,7 @@ public:
 		std::vector<std::string> results;
 
 		// Get synthetized colors
-		auto masks = getSingleMasks(analyzer.getMask());
+        auto masks = paramset_helper.getSingleMasks(analyzer.getMask());
 		per_color_storage.reset(new PerColorStorage(analyzer, storage, product));
 
 		// Go through colors
@@ -139,7 +139,7 @@ public:
 			std::string result;
 
 			// Get round values
-			std::size_t bit_num = getBitNum(masks[color_num]);
+            std::size_t bit_num = paramset_helper.getBitNum(masks[color_num]);
 			max_path_lenght = (user_options.witnesses() == short_wit) ? BFS_reach[bit_num] : ~0;
 
 			// Compute witnesses for given color from each final state, they are also displayed, if requested

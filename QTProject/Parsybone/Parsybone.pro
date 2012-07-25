@@ -30,7 +30,6 @@ HEADERS += \
     ../../results/coloring_analyzer.hpp \
     ../../coloring/synthesis_manager.hpp \
     ../../coloring/split_manager.hpp \
-    ../../coloring/parameters_functions.hpp \
     ../../coloring/model_checker.hpp \
     ../../parsing/model_parser.hpp \
     ../../parsing/model.hpp \
@@ -60,5 +59,6 @@ HEADERS += \
     ../../construction/labeling_builder.hpp \
     ../../construction/parametrizations_builder.hpp \
     ../../construction/parametrizations_holder.hpp \
-    ../../coloring/color_storage.hpp
+    ../../coloring/color_storage.hpp \
+    ../../coloring/paramset_helper.hpp
 

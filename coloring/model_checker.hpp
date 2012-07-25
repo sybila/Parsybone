@@ -74,7 +74,7 @@ class ModelChecker {
 				// If transitive, add ones for the width of the step
 				if (transitive_values[value_num]) {
 					Parameters add = ~0;
-					add >>= (getParamsetSize() - bits_in_step);
+					add >>= (paramset_helper.getParamsetSize() - bits_in_step);
 					temporary |= add;
 				}
 				// If we went throught the whole size, end
@@ -130,7 +130,7 @@ class ModelChecker {
 		to_find &= ~colors;
 
 		// Store those that were found in this round
-		for (int color_pos = static_cast<int>(getParamsetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
+		for (int color_pos = static_cast<int>(paramset_helper.getParamsetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
 			if (store % 2)
 				BFS_reach[color_pos] = BFS_level;		
 		}
@@ -208,7 +208,7 @@ class ModelChecker {
 		// For all passed values make update on target
 		for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
 			// Skip empty updates
-			if (none(update_it->second))
+            if (paramset_helper.none(update_it->second))
 				continue;
 
 			// Do not allow to pass between initial states and final states in the time serie
@@ -271,7 +271,7 @@ class ModelChecker {
 		if (witness_use == short_wit) {
 			BFS_level = 1; // Set sterting number of BFS
 			next_updates.clear(); // Ensure emptiness of the next round
-			BFS_reach.resize(getParamsetSize(), 0); // Recreate reach values
+			BFS_reach.resize(paramset_helper.getParamsetSize(), 0); // Recreate reach values
 			next_round_storage = storage; // Copy starting values
 		}
 	}

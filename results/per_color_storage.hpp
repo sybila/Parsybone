@@ -16,7 +16,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
 #include "../coloring/color_storage.hpp"
-#include "../coloring/parameters_functions.hpp"
+#include "../coloring/paramset_helper.hpp"
 #include "../construction/product_structure.hpp"
 
 class ProductBuilder;
@@ -52,7 +52,7 @@ class PerColorStorage {
 
 public:
 	PerColorStorage(const ColoringAnalyzer & _analyzer, const ColorStorage & _storage, const ProductStructure & _product) : analyzer(_analyzer), storage(_storage), product(_product) {
-		auto masks = getSingleMasks(analyzer.getMask());
+        auto masks = paramset_helper.getSingleMasks(analyzer.getMask());
 
 		states.resize(product.getStateCount());
 		for (StateID ID = 0; ID < product.getStateCount(); ID++) {
@@ -63,7 +63,7 @@ public:
 		for (auto mask_it = masks.begin(); mask_it != masks.end(); mask_it++) {
 
 			// Get round values
-			std::size_t color_num = getBitNum(*mask_it);
+            std::size_t color_num = paramset_helper.getBitNum(*mask_it);
 			Parameters color_bit = *mask_it;
 
 			for (auto state_it = states.begin(); state_it != states.end(); state_it++) {

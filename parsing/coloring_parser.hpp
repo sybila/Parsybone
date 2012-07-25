@@ -11,7 +11,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
-#include "../coloring/parameters_functions.hpp"
+#include "../coloring/paramset_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Coloring parser reads a bitmask of colors from the file.
@@ -136,7 +136,7 @@ public:
 	 * @return number of Parameters e.g. number of rounds of computation
 	 */
 	inline const std::size_t getColorsCount() {
-		return colors_sets.size() * getParamsetSize();
+		return colors_sets.size() * paramset_helper.getParamsetSize();
 	}
 } coloring_parser; // Single program-shared output file
 

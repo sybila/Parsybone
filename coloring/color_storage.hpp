@@ -203,7 +203,7 @@ public:
 	std::set<StateID> getColored() const {
 		std::set<StateID> new_updates;
 		for (auto state_it = states.begin(); state_it != states.end(); state_it++) {
-			if (!none(state_it->parameters)) {
+			if (!paramset_helper.none(state_it->parameters)) {
 				new_updates.insert(state_it->ID);
 			}
 		}
