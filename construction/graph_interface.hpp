@@ -9,21 +9,55 @@
 #ifndef PARSYBONE_GRAPH_INTERFACE_INCLUDED
 #define PARSYBONE_GRAPH_INTERFACE_INCLUDED
 
-#include "state_property.hpp"
-#include "transition_property.hpp"
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// This is just a very simple basis for a transition in a graph.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct TransitionProperty {
+   /// unique ID of the state
+   StateID target_ID;
+
+   /**
+    * Basic constructor fills in the ID.
+    */
+   TransitionProperty(StateID _target_ID) : target_ID(_target_ID) { }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// This is just a very simple basis for a state of any graph.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <typename Transition>
+struct StateProperty {
+   /// unique ID of the state
+   const StateID ID;
+   /// label of the state (usually a number or series of numbers) descibing this state
+   const std::string label;
+   /// Graph or automaton transitions, basically it is an edge with a label
+   std::vector<Transition> transitions;
+
+   /**
+    * Basic constructor fills in the ID.
+    */
+   StateProperty<Transition>(const StateID _ID, const std::string && _label) : ID(_ID), label(std::move(_label)) { }
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Interface for all the classes that represent a directed graph.
 /// Transitions are expected to be stored within their source state structure.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <typename StateT>
 class GraphInterface {
+protected:
+	std::vector<StateT> states;
+
 public:
 	/**
 	 * Obtains number of states of the graph.
 	 *
 	 * @return integer with size of the graph
 	 */
-	virtual inline const std::size_t getStateCount() const = 0;
+	inline const std::size_t getStateCount() const {
+		return states.size();
+	}
 
 	/**
 	 * Obtains number of outcoming transitions for given state.
@@ -32,7 +66,9 @@ public:
 	 *
 	 * @return	integer with number of outcoming transitions 
 	 */
-	virtual inline const std::size_t getTransitionCount(const StateID ID) const = 0;
+	inline const std::size_t getTransitionCount(const StateID ID) const {
+		return states[ID].transitions.size();
+	}
 
 	/**
 	 * Obtains ID of the target of given transition for given state.
@@ -42,7 +78,9 @@ public:
 	 *
 	 * @return	ID of the requested target
 	 */
-	virtual inline const StateID getTargetID(const StateID ID, const std::size_t transition_number) const = 0;
+	inline const StateID getTargetID(const StateID ID, const std::size_t transition_number) const {
+		return states[ID].transitions[transition_number].target_ID;
+	}
 
 	/**
 	 * Returns given state as a string.
@@ -51,7 +89,9 @@ public:
 	 *
 	 * @return	given state as a string
 	 */
-	virtual inline const std::string & getString(const std::size_t StateID) const = 0;
+	inline const std::string & getString(const StateID ID) const {
+		return states[ID].label;
+	}
 };
 
 #endif

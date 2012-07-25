@@ -15,7 +15,8 @@
 /// Interface for all the classes that represent a Buchi automaton.
 /// Buchi automaton is based on a directed graph.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class AutomatonInterface : public GraphInterface {
+template<typename StateT>
+class AutomatonInterface : public GraphInterface<StateT> {
 public:
 	/**
 	 * For given state find out if it is marked as final.
