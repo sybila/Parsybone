@@ -21,17 +21,16 @@ class UserOptions {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OPTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool show_coloring;
-	bool be_verbose;
-	bool display_stats;
-	bool negation_check;
-	bool time_serie;
-	bool add_BA_to_witness;
-	bool compute_robustness;
-	bool display_wintess;
-	WitnessUse witness_use;
-	std::size_t process_number;
-	std::size_t processes_count;
+	bool show_coloring; ///< Display parametrizations values
+	bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
+	bool display_stats; ///< Display data from statistics stream (verbose_str), mainly states and transition counts
+	bool time_serie; ///< Work with the property as with a time series (meaning check only reachability property)
+	bool add_BA_to_witness; ///< Should witnesses be displayed with BA state numbers? Usually only for debug.
+	bool compute_robustness; ///< Should robustness value be computed and displyed?
+	bool display_wintess; ///< Should witnesses be computed and displayed?
+	WitnessUse witness_use; ///< In what form the witnesses are computed? (obsolete)
+	std::size_t process_number; ///< What is the ID of this process?
+	std::size_t processes_count; ///< How many processes are included in the computation?
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION METHODS
@@ -44,7 +43,7 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-		display_wintess = show_coloring = be_verbose = display_stats = negation_check = time_serie = add_BA_to_witness = compute_robustness = false;
+		display_wintess = show_coloring = be_verbose = display_stats = time_serie = add_BA_to_witness = compute_robustness = false;
 		process_number = processes_count = 1;
 		witness_use = none_wit;
 	}
@@ -88,13 +87,6 @@ public:
 	}
 
 	/**
-	 * @return	true if time_serie (checking only reachability)
-	 */
-	inline const bool negation() const {
-		return negation_check;
-	}
-
-		/**
 	 * @return	true if negative_check (switching feasible for non-feasible)
 	 */
 	inline const bool timeSerie() const {

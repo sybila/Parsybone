@@ -33,55 +33,55 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT/OUTPUT RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// What stream to use in all-streams functions
+/// What stream to use in all-streams functions
 enum StreamType {input_str, error_str, results_str, stats_str, verbose_str};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// If a regulation is missing, what kind of value it should get?
+/// If a regulation is missing, what kind of value it should get?
 enum UnspecifiedRegulations {error_reg, basal_reg, param_reg};
 
-// To store the way a specie value has changed
+/// To store the way a specie value has changed
 enum Direction {up_dir, stay_dir, down_dir};
 
-// ID of a graph/automaton state
+/// ID of a graph/automaton state
 typedef std::size_t StateID; 
 
-// ID of a specie
+/// ID of a specie
 typedef std::size_t SpecieID; 
 
-// vector of activation levels of species used for labelling of states of KS
+/// vector of activation levels of species used for labelling of states of KS
 typedef std::vector<std::size_t> Levels;
 
-// Transitible values in a state of BA
+/// Transitible values in a state of BA
 typedef std::vector<std::set<std::size_t> > AllowedValues;
 
-// Label of the interaction
+/// Label of the interaction
 enum EdgeConstrain {pos_cons, neg_cons, none_cons};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// mask of parameters - each bit represents single combination of target values for each function
+/// mask of parameters - each bit represents single combination of target values for each function
 typedef unsigned int Parameters;
 
-// Index of the color - may be a big number
+/// Index of the color - may be a big number
 typedef long long ColorNum;
 
-// Index of the color - may be a big number as well
+/// Index of the color - may be a big number as well
 typedef unsigned long long RoundNum;
 
-// IDs of predecessors of a state
+/// IDs of predecessors of a state
 typedef std::vector<StateID> Neighbours;
 
-// State number and its coloring
+/// State number and its coloring
 typedef std::pair<StateID, Parameters> Coloring;
 
-// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
+/// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
 typedef std::pair<ColorNum, ColorNum> Range;
 
-// How to deal with witnesses
+/// How to deal with witnesses
 enum WitnessUse {none_wit, short_wit, all_wit};
 
-#endif PARSYBONE_DATA_TYPES_INCLUDED
+#endif // PARSYBONE_DATA_TYPES_INCLUDED

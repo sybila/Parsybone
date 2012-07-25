@@ -26,13 +26,8 @@
 ///   -# conclusion: stores additional data and outputs
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynthesisManager {
+    const ConstructionHolder & holder; ///< Holder of all the reference data.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DATA
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const ConstructionHolder & holder; ///< Holder of all the reference data.
-
-	// Created within the constructor
 	std::unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis
 	std::unique_ptr<ModelChecker> model_checker; ///< Class for synthesis
 	std::unique_ptr<OutputManager> output; ///< Class for output
@@ -77,7 +72,7 @@ class SynthesisManager {
 	 */
 	void doComputation() {
 		// Basic (initial) coloring
-		colorProduct(user_options.witnesses());
+        colorProduct();
 
 		// Store colored final vertices
 		std::vector<Coloring> final_states = std::move(storage.get()->getColor(holder.getProduct().getFinalStates()));
@@ -94,10 +89,8 @@ class SynthesisManager {
 
 	/**
 	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
-	 *
-	 * @param witness_use - how to handle witnesses
 	 */
-	void colorProduct(const WitnessUse wits_use) {
+    void colorProduct() {
 		// Get initial coloring
 		Parameters starting;
 		if(coloring_parser.input())

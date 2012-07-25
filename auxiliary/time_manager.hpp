@@ -6,8 +6,8 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef POSEIDON_TIME_MANAGER_INCLUDED
-#define POSEIDON_TIME_MANAGER_INCLUDED
+#ifndef PARSYBONE_TIME_MANAGER_INCLUDED
+#define PARSYBONE_TIME_MANAGER_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
 
@@ -77,4 +77,4 @@ public:
 	}
 } time_manager;
 
-#endif // POSEIDON_TIME_MANAGER_INCLUDED
+#endif // PARSYBONE_TIME_MANAGER_INCLUDED

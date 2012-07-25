@@ -69,10 +69,6 @@ class ArgumentParser {
 				user_options.show_coloring = true;
 				break;
 
-			case 'n':
-				user_options.negation_check = true;
-				break;
-
 			case 'r':
 				if (user_options.witness_use == none_wit)
 					user_options.witness_use = short_wit;

@@ -60,4 +60,4 @@ template<class basic_T>
 	return result;
 }
 
-#endif
+#endif // PARSYBONE_COMMON_FUNCTIONS_INCLUDED

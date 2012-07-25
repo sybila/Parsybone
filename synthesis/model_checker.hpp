@@ -30,7 +30,7 @@ class ModelChecker {
 	std::set<StateID> next_updates; ///< Updates that are sheduled forn the next round
 
 	// BFS boundaries
-	Parameters to_find;
+	Parameters to_find; ///< Mask of parameters that are still
 	std::vector<std::size_t> BFS_reach; // In which round this color was found
 	std::size_t BFS_level; // Number of current BFS level during coloring
 
@@ -151,7 +151,6 @@ class ModelChecker {
 		std::size_t KS_state = product.getKSID(ID);
 		Parameters self_loop = ~0;
 
-
 		// Cycle through all the transition
 		for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
 			// Parameters to pass through the transition
@@ -239,7 +238,7 @@ class ModelChecker {
 			updates.erase(ID);
 
 			// If witness has not been found and 
-			if (updates.empty() && witness_use == short_wit && to_find ) {
+			if (updates.empty() && user_options.witnesses() == short_wit && to_find ) {
 				updates = std::move(next_round_storage.getColored()); // Get updates from this level coloring
 				storage.addFrom(next_round_storage); // Copy updated
 				next_round_storage.reset(); // Clean storage
@@ -263,7 +262,7 @@ class ModelChecker {
 		updates = start_updates; // Copy starting updates
 		synthesis_range = _range; // Copy range of this round
 
-		if (witness_use == short_wit) {
+		if (user_options.witnesses() == short_wit) {
 			BFS_level = 1; // Set sterting number of BFS
 			next_updates.clear(); // Ensure emptiness of the next round
 			BFS_reach.resize(paramset_helper.getParamsetSize(), 0); // Recreate reach values
@@ -271,8 +270,8 @@ class ModelChecker {
 		}
 	}
 
-	ModelChecker(const ModelChecker & other);            // Forbidden copy constructor.
-	ModelChecker& operator=(const ModelChecker & other); // Forbidden assignment operator.
+	ModelChecker(const ModelChecker & other); ///< Forbidden copy constructor.
+	ModelChecker& operator=(const ModelChecker & other); ///< Forbidden assignment operator.
 
 public:
 	/**

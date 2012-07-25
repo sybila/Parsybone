@@ -17,16 +17,12 @@ class ProductBuilder;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ColorStorage is auxiliary class to the product and stores colors and possibly predecessors for individual states of the product during the computation.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class ColorStorage {
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NEW TYPES AND DATA:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
 	struct State {
 		StateID ID;
-		Parameters parameters; // 32 bits for each color in this round marking its presence or absence
-		std::vector<Parameters> predecessors; // Stores a predeccesor in the form (product_ID, parameters)
-		std::vector<Parameters> successors; // Stores succesors in the same form
+		Parameters parameters; ///< 32 bits for each color in this round marking its presence or absence
+		std::vector<Parameters> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters)
+		std::vector<Parameters> successors; ///< Stores succesors in the same form
 
 		State(const StateID _ID, const std::size_t states_num) : ID(_ID), parameters(0) {
 			parameters = 0;
@@ -35,8 +31,7 @@ class ColorStorage {
 		}
 	};
 	
-	// DATA STORAGE
-	std::vector<State> states;
+	std::vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -63,7 +58,7 @@ public:
 		}
 	}
 
-	ColorStorage() {};
+	ColorStorage() {} ///< Empty constructor for empty storage
 
 	/**
 	 * Sets all values for all the states to zero. Allocated memory remains.
