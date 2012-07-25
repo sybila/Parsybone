@@ -40,6 +40,19 @@ class ArgumentParser {
 	}
 
 	/**
+	 * Some of the switches must be followed by additional argument (i.e. filename).
+	 * Such a switch must be last in the string of switches, or is not valid. This function controls it.
+	 *
+	 * @return true if the position is valid, false otherwise
+	 */
+	bool testLast(const std::size_t position, const std::size_t size) {
+		if (position + 1 != size) {
+			throw(std::runtime_error(std::string("There are forbidden characters after some switch")));
+		}
+		return true;
+	}
+
+	/**
 	 * Function that parses switches in the string that starts with a "-" symbol
 	 *
 	 * @param argument	iterator pointer to the string to read
@@ -92,33 +105,25 @@ class ArgumentParser {
 
 			// Open file with color mask
 			case 'm':
-				if (switch_num + 1 < argument->size())
-					throw(std::runtime_error(std::string("There are forbidden characters after m switch: ").append(argument->begin() + switch_num + 1, argument->end())));
+				testLast(switch_num, argument->size());
 				coloring_parser.openFile(*(++argument));
 				return;
 
 			// Open file with color mask
 			case 'M':
-				if (switch_num + 1 < argument->size())
-					throw(std::runtime_error(std::string("There are forbidden characters after M switch: ").append(argument->begin() + switch_num + 1, argument->end())));
+				testLast(switch_num, argument->size());
 				coloring_parser.createOutput(*(++argument));
 				return;
 
 			// Get data for distributed computation
 			case 'D':
-				// After d there must be a white space (to distinct requsted numbers)
-				if (switch_num + 1 < argument->size())
-					throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(argument->begin() + switch_num + 1, argument->end())));
-				getDistribution(*(argument+1), *(argument+2));
-				argument += 2;
+				testLast(switch_num, argument->size());
+				getDistribution(*(argument+1), *(argument+2)); argument += 2;
 				return;
 
 			// Redirecting results output to a file by a parameter
 			case 'F':
-				// After f there must be a white space (to distinct file name)
-				if (switch_num + 1 < argument->size())
-					throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(argument->begin() + switch_num + 1, argument->end())));
-				// Create file for the result output and iterate argument pointer
+				testLast(switch_num, argument->size());
 				output_streamer.createStreamFile(results_str, *(++argument));
 				return;
 
