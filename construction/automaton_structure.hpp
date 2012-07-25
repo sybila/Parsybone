@@ -22,11 +22,11 @@ struct AutTransitionion : public TransitionProperty {
 };
 
 /// Storing a single state of the B\"uchi automaton. This state is extended with a value saying wheter the states is final.
-struct AutState : public StateProperty<AutTransitionion> {
-	bool final; ///< true if this state is final, false otherwise
+struct AutState : public AutomatonStateProperty<AutTransitionion> {
 
-	AutState(const StateID ID, const bool _final, std::string && label)
-		: StateProperty<AutTransitionion>(ID, std::move(label)), final(_final) {}  ///< Simple filler, assigns values to all the variables
+	/// Fills data and checks if the state has value  -> is initial
+	AutState(const StateID ID, const bool final, std::string && label)
+		: AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID, std::move(label)) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,9 +35,6 @@ struct AutState : public StateProperty<AutTransitionion> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonStructure : public AutomatonInterface<AutState> {
 	friend class AutomatonBuilder;
-
-	std::vector<StateID> initial_states; ///< Vector with indexes of initial states (in this case only the first state)
-	std::vector<StateID> final_states; ///< Vector with indexes of final states of the BA
 		
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from AutomatonStructureBuilder)
@@ -90,28 +87,7 @@ public:
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BUCHI AUTOMATON FUNCTIONS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual inline const bool isFinal(const StateID ID) const {
-		return states[ID].final;
-	}
-
-	//! Only the first state is considered initial.
-	virtual inline const bool isInitial(const StateID ID) const {
-		return (ID == 0);
-	}
-
-	virtual inline const std::vector<StateID> & getFinalStates() const {
-		return final_states;
-	}
-
-	//! Only the first state is considered initial.
-	virtual inline const std::vector<StateID> & getInitialStates() const {
-		return initial_states;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OTHER CONSTANT GETTERS 
+// CONSTANT GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Get a vector of values the KS can be in for the transition to be active

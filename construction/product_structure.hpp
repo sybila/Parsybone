@@ -23,16 +23,14 @@ struct ProdTransitiontion : public TransitionProperty {
 };
 
 // State of the product - same as the state of parametrized structure but together with BA state
-struct ProdState : public StateProperty<ProdTransitiontion> {
+struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
 	StateID KS_ID; ///< ID of an original KS state this one is built from
 	StateID BA_ID; ///< ID of an original BA state this one is built from
-	bool initial; ///< True if the state is initial
-	bool final; ///< True if the state is final
 	Levels species_level; ///< species_level[i] = activation level of specie i in this state
 
 	/// Simple filler, assigns values to all the variables
-	ProdState(const StateID ID, const std::string && label, const StateID _KS_ID, const StateID _BA_ID, const bool _initial, const bool _final, const  Levels & _species_level)
-		: StateProperty<ProdTransitiontion>(ID, std::move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) {}
+	ProdState(const StateID ID, const std::string && label, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const  Levels & _species_level)
+		: AutomatonStateProperty<ProdTransitiontion>(initial, final, ID, std::move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,10 +45,6 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 	// References to data predecessing data structures
 	const ParametrizedStructure & structure; ///< Stores info about KS states, used in the getString function
 	const AutomatonStructure & automaton; ///< Stores info about BA states, used in the getString function
-
-	// Information about states
-	std::vector<StateID> initial_states; ///< Vector of inital states of the product
-	std::vector<StateID> final_states; ///< Vector of final states of the product
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from ProductBuilder)
@@ -85,25 +79,6 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 public:
 	ProductStructure(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
 		: structure(_structure), automaton(_automaton) { }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BUCHI AUTOMATON FUNCTIONS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual inline const bool isFinal(const StateID ID) const {
-		return states[ID].final;
-	}
-
-	virtual inline const bool isInitial(const StateID ID) const {
-		return states[ID].initial;
-	}
-
-	virtual inline const std::vector<StateID> & getFinalStates() const {
-		return final_states;
-	}
-
-	virtual inline const std::vector<StateID> & getInitialStates() const {
-		return initial_states;
-	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REFORMING GETTERS
