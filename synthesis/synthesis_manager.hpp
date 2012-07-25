@@ -10,9 +10,9 @@
 #define PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 
 #include "../auxiliary/time_manager.hpp"
-#include "../results/coloring_analyzer.hpp"
-#include "../results/witness_searcher.hpp"
-#include "../results/output_manager.hpp"
+#include "coloring_analyzer.hpp"
+#include "witness_searcher.hpp"
+#include "output_manager.hpp"
 #include "color_storage.hpp"
 #include "model_checker.hpp"
 #include "paramset_helper.hpp"

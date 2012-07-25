@@ -13,11 +13,11 @@
 // Class for display of witnesses for all colors in current round.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../coloring/paramset_helper.hpp"
-#include "../coloring/color_storage.hpp"
+#include "paramset_helper.hpp"
+#include "color_storage.hpp"
 #include "../construction/construction_holder.hpp"
 #include "../construction/product_structure.hpp"
-#include "../results/per_color_storage.hpp"
+#include "per_color_storage.hpp"
 #include "coloring_analyzer.hpp"
 
 class WitnessSearcher {

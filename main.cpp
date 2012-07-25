@@ -18,7 +18,7 @@
 #include "parsing/parsing_manager.hpp"
 #include "construction/construction_manager.hpp"
 #include "construction/product_builder.hpp"
-#include "coloring/synthesis_manager.hpp"
+#include "synthesis/synthesis_manager.hpp"
 
 // porgram-related data
 const float program_version = 1.0;

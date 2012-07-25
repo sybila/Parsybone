@@ -14,23 +14,6 @@ HEADERS += \
     ../../auxiliary/output_streamer.hpp \
     ../../auxiliary/data_types.hpp \
     ../../auxiliary/common_functions.hpp \
-    ../../construction/product_structure.hpp \
-    ../../construction/product_builder.hpp \
-    ../../construction/parametrized_structure_builder.hpp \
-    ../../construction/parametrized_structure.hpp \
-    ../../construction/graph_interface.hpp \
-    ../../construction/basic_structure_builder.hpp \
-    ../../construction/basic_structure.hpp \
-    ../../construction/automaton_structure.hpp \
-    ../../construction/automaton_interface.hpp \
-    ../../construction/automaton_builder.hpp \
-    ../../results/witness_searcher.hpp \
-    ../../results/per_color_storage.hpp \
-    ../../results/output_manager.hpp \
-    ../../results/coloring_analyzer.hpp \
-    ../../coloring/synthesis_manager.hpp \
-    ../../coloring/split_manager.hpp \
-    ../../coloring/model_checker.hpp \
     ../../parsing/model_parser.hpp \
     ../../parsing/model.hpp \
     ../../parsing/coloring_parser.hpp \
@@ -58,6 +41,15 @@ HEADERS += \
     ../../construction/labeling_builder.hpp \
     ../../construction/parametrizations_builder.hpp \
     ../../construction/parametrizations_holder.hpp \
-    ../../coloring/color_storage.hpp \
-    ../../coloring/paramset_helper.hpp
+    ../../synthesis/color_storage.hpp \
+    ../../synthesis/paramset_helper.hpp \
+    ../../synthesis/witness_searcher.hpp \
+    ../../synthesis/synthesis_manager.hpp \
+    ../../synthesis/split_manager.hpp \
+    ../../synthesis/per_color_storage.hpp \
+    ../../synthesis/paramset_helper.hpp \
+    ../../synthesis/output_manager.hpp \
+    ../../synthesis/model_checker.hpp \
+    ../../synthesis/coloring_analyzer.hpp \
+    ../../synthesis/color_storage.hpp
 

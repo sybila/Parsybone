@@ -15,8 +15,8 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
-#include "../coloring/color_storage.hpp"
-#include "../coloring/paramset_helper.hpp"
+#include "color_storage.hpp"
+#include "paramset_helper.hpp"
 #include "../construction/product_structure.hpp"
 
 class ProductBuilder;
