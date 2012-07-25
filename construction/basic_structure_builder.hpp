@@ -114,6 +114,24 @@ class BasicStructureBuilder {
 			jump_lenght *= (model.getMax(specie_num) + 1);
 		}
 	}
+
+	/**
+	 * Creates a label of a state from its activation levels
+	 *
+	 * @param levels	current activation levels of the specie
+	 */
+	const std::string createLabel(const Levels & levels) const {
+		std::string state_string = "(";
+		// Add species levels
+		for (auto spec_it = levels.begin(); spec_it != levels.end(); spec_it++) {
+			state_string += toString(*spec_it);
+			state_string += ",";
+		}
+		// End the state
+		state_string.back() = ')';
+
+		return state_string;
+	}
 	
 	BasicStructureBuilder(const BasicStructureBuilder & other); ///<  Forbidden copy constructor.
 	BasicStructureBuilder& operator=(const BasicStructureBuilder & other); ///<  Forbidden assignment operator.
@@ -144,7 +162,7 @@ public:
 		// Create states 
 		for(StateID ID = 0; ID < states_count; ID++) {
 			// Fill the structure with the state
-			structure.addState(ID, levels);
+			structure.addState(ID, levels, std::move(createLabel(levels)));
 			storeNeigbours(ID, levels, maxes);
 			// Generate new state for the next round
 			levels = std::move(getNextState(levels));

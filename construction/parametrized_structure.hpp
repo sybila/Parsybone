@@ -40,8 +40,8 @@ class ParametrizedStructure : public GraphInterface {
 	struct State : public StateProperty<Transition> {
 		Levels species_level; ///< species_level[i] = activation level of specie i
 
-		State(const StateID ID, const Levels& _species_level)
-			: StateProperty<Transition>(ID), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables
+		State(const StateID ID, const Levels& _species_level, const std::string && label)
+			: StateProperty<Transition>(ID, std::move(label)), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables
 	};
 
 	/// Vector of all the states of the PKS
@@ -54,8 +54,8 @@ class ParametrizedStructure : public GraphInterface {
 	/**
 	 * Add a new state, only with ID and levels
 	 */
-	inline void addState(const StateID ID, const Levels& species_level) {
-		states.push_back(State(ID, species_level));
+	inline void addState(const StateID ID, const Levels& species_level, const std::string label) {
+		states.push_back(State(ID, species_level, std::move(label)));
 	}
 
 	/**
@@ -94,18 +94,8 @@ public:
 	/**
 	 * Return string representing given state in the form (specie1_val, specie2_val, ...)
 	 */
-	const std::string getString(const StateID ID) const {
-		std::string state_string = "(";
-		// Add species levels
-		for (auto spec_it = getStateLevels(ID).begin(); spec_it != getStateLevels(ID).end() - 1; spec_it++) {
-			state_string += toString(*spec_it);
-			state_string += ",";
-		}
-		// Add the last species level
-		state_string += toString(getStateLevels(ID).back());
-		// End the state
-		state_string += ")";
-		return std::move(state_string);
+	const std::string & getString(const StateID ID) const {
+		return states[ID].label;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

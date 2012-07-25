@@ -13,7 +13,7 @@
 // Class for display of witnesses for all colors in current round.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../coloring/parameters_functions.hpp"
+#include "../coloring/paramset_helper.hpp"
 #include "../coloring/color_storage.hpp"
 #include "../construction/construction_holder.hpp"
 #include "../construction/product_structure.hpp"

@@ -19,44 +19,36 @@
 /// @attention  Parameters in an Paramset are ordered in an ascending order.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParamsetHelper {
-   static std::size_t subset_size;
+   const static std::size_t subset_size = sizeof(Parameters) * 8; ///< size in bits of a single subset of parametrization space
+   const static Parameters all = ~0; ///< parametrization set with all the bits set to 1
 
 public:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// VALUE GETTERS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * @return number of parameters in a single round
     */
    inline static const std::size_t getParamsetSize() {
-      return sizeof(Parameters) * 8;
+      return subset_size;
    }
-
-   /**
-    * Count bits
-    * From The Art of Computer Programming Vol IV, p 11
-    */
-   #define MASK_01010101 (((unsigned int)(-1))/3)
-   #define MASK_00110011 (((unsigned int)(-1))/5)
-   #define MASK_00001111 (((unsigned int)(-1))/17)
-   int count (Parameters n) {
-      n = (n & MASK_01010101) + ((n >> 1) & MASK_01010101) ;
-      n = (n & MASK_00110011) + ((n >> 2) & MASK_00110011) ;
-      n = (n & MASK_00001111) + ((n >> 4) & MASK_00001111) ;
-      return n % 255 ;
-   }
-
    /**
     * @return a parameter set with everything set to 1
     */
    inline Parameters getAll() {
-      return ~0;
+      return all;
    }
 
    /**
     * @return mask that holds value of the binary form 10...0 .
     */
-   Parameters getLeftOne(ColorNum size = (getParamsetSize() - 1) ) {
+   Parameters getLeftOne(ColorNum size = (subset_size - 1) ) {
       return (1 << size);
    }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// TRANSFORMERS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Computer a vector of masks of single parametrizations - i.e. 10010 would give {10000,00010}
     */
@@ -69,13 +61,6 @@ public:
          mask >>= 1;
       }
       return masks;
-   }
-
-   /**
-    * @return true if none of the paremters is set
-    */
-   inline const bool none(Parameters parameters) {
-      return (parameters == 0);
    }
 
    /**
@@ -119,6 +104,30 @@ public:
       return parameters;
    }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ANALYZERS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+    * Count bits
+    * From The Art of Computer Programming Vol IV, p 11
+    */
+   #define MASK_01010101 (((unsigned int)(-1))/3)
+   #define MASK_00110011 (((unsigned int)(-1))/5)
+   #define MASK_00001111 (((unsigned int)(-1))/17)
+   int count (Parameters n) {
+      n = (n & MASK_01010101) + ((n >> 1) & MASK_01010101) ;
+      n = (n & MASK_00110011) + ((n >> 2) & MASK_00110011) ;
+      n = (n & MASK_00001111) + ((n >> 4) & MASK_00001111) ;
+      return n % 255 ;
+   }
+
+   /**
+    * @return true if none of the paremters is set
+    */
+   inline const bool none(Parameters parameters) {
+      return (parameters == 0);
+   }
+
    /**
     * Get number of the on bit.
     *
@@ -140,7 +149,6 @@ public:
       // Return the bit position
       return ((getParamsetSize() - 1) - bit_num);
    }
-
 } paramset_helper;
 
 #endif // PARSYBONE_PARAMSET_HELPER_INCLUDED

@@ -43,8 +43,8 @@ class ProductStructure : public AutomatonInterface {
 		Levels species_level; ///< species_level[i] = activation level of specie i in this state
 
 		/// Simple filler, assigns values to all the variables
-		State(const StateID ID, const StateID _KS_ID, const StateID _BA_ID, const bool _initial, const bool _final, const  Levels & _species_level)
-			: StateProperty<Transition>(ID), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) {}
+		State(const StateID ID, const std::string && label, const StateID _KS_ID, const StateID _BA_ID, const bool _initial, const bool _final, const  Levels & _species_level)
+			: StateProperty<Transition>(ID, std::move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), initial(_initial), final(_final), species_level(_species_level) {}
 	};
 	
 	// References to data predecessing data structures
@@ -65,7 +65,12 @@ class ProductStructure : public AutomatonInterface {
 	 * Add a new state, only with ID and levels
 	 */
 	inline void addState(const StateID KS_ID, const StateID BA_ID, const bool initial, const bool final, const Levels & species_level) {
-		states.push_back(State(getProductID(KS_ID, BA_ID), KS_ID, BA_ID, initial, final, species_level));
+		// Create the state label
+		std::string label = structure.getString(KS_ID);
+		if (user_options.BA())
+			label += automaton.getString(BA_ID);
+
+		states.push_back(State(getProductID(KS_ID, BA_ID), std::move(label), KS_ID, BA_ID, initial, final, species_level));
 	}
 
 	/**
@@ -106,16 +111,8 @@ public:
 	 * Create string in the form KSstateBAstate or KSstate based on if user requests BA as well
 	 * @override
 	 */
-	const std::string getString(const StateID ID) const {
-		// Get states numbers
-		StateID KS_ID = getKSID(ID);
-		StateID BA_ID = getBAID(ID);
-		// Concat strings of subparts
-		std::string state_string = std::move(structure.getString(KS_ID));
-		if (user_options.BA())
-			state_string += std::move(automaton.getString(BA_ID));
-
-		return std::move(state_string);
+	const std::string & getString(const StateID ID) const {
+		return states[ID].label;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

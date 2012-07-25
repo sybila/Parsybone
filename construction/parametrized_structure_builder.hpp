@@ -214,7 +214,8 @@ public:
 
 			// Create a new state from the known data
 			const Levels & state_levels = basic_structure.getStateLevels(ID);
-			structure.addState(ID, state_levels);
+			const std::string & label = basic_structure.getString(ID);
+			structure.addState(ID, state_levels, label);
 
 			// Add all the transitions
 			addTransitions(ID, state_levels);

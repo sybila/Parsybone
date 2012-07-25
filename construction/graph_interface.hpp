@@ -51,7 +51,7 @@ public:
 	 *
 	 * @return	given state as a string
 	 */
-	virtual inline const std::string getString(const std::size_t StateID) const = 0;
+	virtual inline const std::string & getString(const std::size_t StateID) const = 0;
 };
 
 #endif

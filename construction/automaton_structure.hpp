@@ -35,8 +35,8 @@ class AutomatonStructure : public AutomatonInterface {
 	struct State : public StateProperty<Transition> {
 		bool final; ///< true if this state is final, false otherwise
 
-		State(const StateID ID, const bool _final)
-			: StateProperty<Transition>(ID), final(_final) {}  ///< Simple filler, assigns values to all the variables
+		State(const StateID ID, const bool _final, std::string && label)
+			: StateProperty<Transition>(ID, std::move(label)), final(_final) {}  ///< Simple filler, assigns values to all the variables
 	};
 
 	/// Storage of the actuall states
@@ -59,7 +59,9 @@ class AutomatonStructure : public AutomatonInterface {
 	 * @param final	if true than state with index equal to the one of this vector is final
 	 */
 	inline void addState(const StateID ID, const bool final) {
-		states.push_back(std::move(State(ID, final)));
+		std::string label("(");
+		label.append(toString(ID)).append(")");
+		states.push_back(std::move(State(ID, final, std::move(label))));
 		if (ID == 0) 
 			initial_states.push_back(ID);
 		if (final)
@@ -111,12 +113,8 @@ public:
 	/**
 	 * Return string representing the state in the form: (ID).
 	 */
-	const std::string getString(const StateID ID) const {
-		std::string state_string;
-		state_string = "(";
-		state_string += boost::lexical_cast<std::string, std::size_t>(ID);
-		state_string += ")";
-		return std::move(state_string);
+	const std::string & getString(const StateID ID) const {
+		return states[ID].label;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

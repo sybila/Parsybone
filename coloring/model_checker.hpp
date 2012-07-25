@@ -12,7 +12,7 @@
 #include "../auxiliary/common_functions.hpp"
 #include "../construction/construction_holder.hpp"
 #include "color_storage.hpp"
-#include "parameters_functions.hpp"
+#include "paramset_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ModelChecker class solves the parameter synthesis problem by iterative transfer parameters from initial states to final ones.

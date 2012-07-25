@@ -17,14 +17,16 @@
 template <typename Transition>
 struct StateProperty {
    /// unique ID of the state
-   StateID ID;
+   const StateID ID;
+   /// label of the state (usually a number or series of numbers) descibing this state
+   const std::string label;
    /// Graph or automaton transitions, basically it is an edge with a label
    std::vector<Transition> transitions;
 
    /**
     * Basic constructor fills in the ID.
     */
-   StateProperty<Transition>(StateID _ID) : ID(_ID) { }
+   StateProperty<Transition>(const StateID _ID, const std::string && _label) : ID(_ID), label(std::move(_label)) { }
 };
 
 #endif // PARSYBONE_STATE_PROPERTY_INCLUDED
