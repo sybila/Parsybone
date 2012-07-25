@@ -13,8 +13,8 @@
 // Functions that may be usable within all program.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../auxiliary/data_types.hpp"
-#include "../auxiliary/output_streamer.hpp"
+#include "data_types.hpp"
+#include "output_streamer.hpp"
 #include "boost/lexical_cast.hpp"
 
 // Platform dependent min or max

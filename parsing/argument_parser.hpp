@@ -95,14 +95,14 @@ class ArgumentParser {
 				if (switch_num + 1 < argument->size())
 					throw(std::runtime_error(std::string("There are forbidden characters after m switch: ").append(argument->begin() + switch_num + 1, argument->end())));
 				coloring_parser.openFile(*(++argument));
-				break;
+				return;
 
 			// Open file with color mask
 			case 'M':
 				if (switch_num + 1 < argument->size())
 					throw(std::runtime_error(std::string("There are forbidden characters after M switch: ").append(argument->begin() + switch_num + 1, argument->end())));
 				coloring_parser.createOutput(*(++argument));
-				break;
+				return;
 
 			// Get data for distributed computation
 			case 'D':
@@ -111,7 +111,7 @@ class ArgumentParser {
 					throw(std::runtime_error(std::string("There are forbidden characters after d switch: ").append(argument->begin() + switch_num + 1, argument->end())));
 				getDistribution(*(argument+1), *(argument+2));
 				argument += 2;
-				break;
+				return;
 
 			// Redirecting results output to a file by a parameter
 			case 'F':
@@ -120,12 +120,12 @@ class ArgumentParser {
 					throw(std::runtime_error(std::string("There are forbidden characters after f switch: ").append(argument->begin() + switch_num + 1, argument->end())));
 				// Create file for the result output and iterate argument pointer
 				output_streamer.createStreamFile(results_str, *(++argument));
-				break;
+				return;
 
 			// If the switch is not known.
 			default:
 				throw (std::invalid_argument(std::string("Wrong argument: -").append(*argument).c_str()));
-				break;
+				return;
 			}
 		}
 	}
