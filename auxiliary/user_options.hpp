@@ -6,8 +6,8 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_TEMPLATE_INCLUDED
-#define PARSYBONE_TEMPLATE_INCLUDED
+#ifndef PARSYBONE_USER_OPTIONS_INCLUDED
+#define PARSYBONE_USER_OPTIONS_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
 
@@ -131,4 +131,4 @@ public:
 	
 } user_options; ///< Single object further used through the program.
 
-#endif
+#endif // PARSYBONE_USER_OPTIONS_INCLUDED

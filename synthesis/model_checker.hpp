@@ -19,27 +19,23 @@
 /// Functions in model checker use many supporting variables and therefore are quite long, it would not make sense to split them, though.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelChecker {
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DATA:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	// Provided with constructor
-    const ProductStructure & product; // Product on which the computation will be conducted
-	ColorStorage & storage; // Auxiliary product storage
-	ColorStorage next_round_storage; // Storing values passed in this round
-
-	// Used for computation
-	std::set<StateID> updates; // Set of states that need to spread their updates
-	std::set<StateID> next_updates;
+	// Information
+	const ProductStructure & product; ///< Product on which the computation will be conducted
 	Range synthesis_range; // First and one beyond last color to be computed in this round
-	WitnessUse witness_use; // How wintesses will be held in this computation
 
-	// Used for self loops
-	std::vector<bool> BA_presence;
+	// Coloring storage
+	ColorStorage & storage; ///< Class that actually stores colors during the computation
+	ColorStorage next_round_storage; ///< Class that stores updated colors for next round (prevents multiple transitions through one BFS round)
+	std::set<StateID> updates; ///< Set of states that need to spread their updates
+	std::set<StateID> next_updates; ///< Updates that are sheduled forn the next round
 
-	// Bounded check variables
+	// BFS boundaries
 	Parameters to_find;
 	std::vector<std::size_t> BFS_reach; // In which round this color was found
 	std::size_t BFS_level; // Number of current BFS level during coloring
+
+	// Other
+	std::vector<bool> BA_presence; ///< Vector that marks IDs of BA states under which self-loop is possible this round, used to update only with "sink" parametrizations
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING FUNCTIONS:
@@ -139,7 +135,6 @@ class ModelChecker {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COLORING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	/**
 	 * Get stripped parameters for each unique edge (if there are multi-edges, intersect their values)
 	 *
@@ -218,11 +213,11 @@ class ModelChecker {
 			}
 
 			// If something new is added to the target, schedule it for an update
-			if ((witness_use == none_wit && storage.update(update_it->second, update_it->first)))
+			if ((user_options.witnesses() == none_wit && storage.update(update_it->second, update_it->first)))
 				updates.insert(update_it->first);
-			else if (witness_use == all_wit && storage.update(ID, update_it->second, update_it->first))
+			else if (user_options.witnesses() == all_wit && storage.update(ID, update_it->second, update_it->first))
 				updates.insert(update_it->first);
-			else if (witness_use == short_wit && storage.soft_update(update_it->second, update_it->first)) // Only test
+			else if (user_options.witnesses() == short_wit && storage.soft_update(update_it->second, update_it->first)) // Only test
 				next_round_storage.update(ID, update_it->second, update_it->first); // If something is present, schedule it for next round
 		}
 	}
@@ -259,13 +254,13 @@ class ModelChecker {
 	/**
 	 * Sets/resets all coloring reference values;
 	 *
+	 * @param parameters	starting parameters for the cycle detection
 	 * @param _range	range of parameters for this coloring round
-	 * @param _witness_use	how to manage witnesses in this coloring round
+	 * @param _updates	states that are will be scheduled for an update in this round
 	 */
-	void prepareCheck(const Parameters parameters, const Range & _range, const WitnessUse _witness_use, std::set<StateID> start_updates = std::set<StateID>()) {
+	void prepareCheck(const Parameters parameters, const Range & _range, std::set<StateID> start_updates = std::set<StateID>()) {
 		to_find = parameters; // Store which parameters are we searching for
 		updates = start_updates; // Copy starting updates
-		witness_use = _witness_use; // Store witness use info
 		synthesis_range = _range; // Copy range of this round
 
 		if (witness_use == short_wit) {
@@ -296,10 +291,9 @@ public:
 	 * @param ID	ID of the state to start cycle detection from
 	 * @param parameters	starting parameters for the cycle detection
 	 * @param _range	range of parameters for this coloring round
-	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	const std::vector<std::size_t> startColoring(const StateID ID, const Parameters parameters, const Range & _range, const WitnessUse _witness_use = none_wit) {
-		prepareCheck(parameters, _range, _witness_use);
+	const std::vector<std::size_t> startColoring(const StateID ID, const Parameters parameters, const Range & _range) {
+		prepareCheck(parameters, _range);
 		transferUpdates(ID, parameters); // Transfer updates from the start of the detection
 		doColoring();
 		return std::move(BFS_reach);
@@ -308,16 +302,16 @@ public:
 	/**
 	 * Start a new coloring round for cycle detection from a single state.
 	 *
+	 * @param ID	ID of the state to start cycle detection from
+	 * @param parameters	starting parameters for the cycle detection
 	 * @param _updates	states that are will be scheduled for an update in this round
 	 * @param _range	range of parameters for this coloring round
-	 * @param _witness_use	how to manage witnesses in this coloring round
 	 */
-	const std::vector<std::size_t> startColoring(const Parameters parameters, const std::set<StateID> & _updates, const Range & _range, const WitnessUse _witness_use = none_wit){
-		prepareCheck(parameters, _range, _witness_use, _updates);
+	const std::vector<std::size_t> startColoring(const Parameters parameters, const std::set<StateID> & _updates, const Range & _range){
+		prepareCheck(parameters, _range, _updates);
 		doColoring();
 		return std::move(BFS_reach);
 	}
 };
 
-
-#endif
+#endif // PARSYBONE_MODEL_CHECKER_INCLUDED

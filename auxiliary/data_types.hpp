@@ -10,7 +10,7 @@
 #define PARSYBONE_DATA_TYPES_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This file holds specifications of data types (typedefs and 3rd party classes) used by multiple classes throughout the computation.
+/// @file This file holds specifications of data types (typedefs and 3rd party classes) used by multiple classes throughout the computation.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
@@ -84,4 +84,4 @@ typedef std::pair<ColorNum, ColorNum> Range;
 // How to deal with witnesses
 enum WitnessUse {none_wit, short_wit, all_wit};
 
-#endif
+#endif PARSYBONE_DATA_TYPES_INCLUDED

@@ -116,7 +116,7 @@ class SynthesisManager {
 		std::set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());
 
 		// Start coloring procedure
-		BFS_reach = std::move(model_checker->startColoring(starting, updates, split_manager->getRoundRange(), wits_use));
+        BFS_reach = std::move(model_checker->startColoring(starting, updates, split_manager->getRoundRange()));
 	}
 
 	/**
