@@ -42,8 +42,8 @@ public:
    /**
     * @return mask that holds value of the binary form 10...0 .
     */
-   Parameters getLeftOne(ColorNum size = (subset_size - 1) ) {
-      return (1 << size);
+   Parameters getLeftOne(ColorNum size = subset_size ) {
+      return (1 << (size - 1));
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

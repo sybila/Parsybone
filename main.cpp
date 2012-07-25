@@ -41,6 +41,7 @@ int main(int argc, char* argv[]) {
 	try {
 		Model * model = new Model;
 		ParsingManager parsing_manager(argc, argv, *model);
+		output_streamer.output(verbose_str, "Parsing started.");
 		parsing_manager.parse();
 		// Pass the model
 		holder.fillModel(model);
@@ -51,11 +52,12 @@ int main(int argc, char* argv[]) {
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP ONE:
-// Parse input information.
+// STEP TWO:
+// Construct data structures that correspond to formal verification structures.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
 		ConstructionManager construction_manager(holder);
+		output_streamer.output(verbose_str, "Construction started.");
 		construction_manager.construct();
 	}
 	catch (std::exception & e) {
@@ -64,8 +66,7 @@ int main(int argc, char* argv[]) {
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STEP SEVEN:
-// COMPUTATION:
+// STEP THREE:
 // Synthetize the colors and output them
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	try {
@@ -75,7 +76,7 @@ int main(int argc, char* argv[]) {
 	} 
 	catch (std::exception & e) {
 		output_streamer.output(error_str, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
-		return 7;
+		return 3;
 	}
 
 	time_manager.ouputClock("runtime");

@@ -78,10 +78,10 @@ public:
 	const std::size_t getSpaceSize() const {
 		std::size_t space_size = 1;
 		forEach(colors, [&space_size](const SpecieColors & specie_cols) {
-				  space_size *=	specie_cols.possible_count;
-	});
-	return space_size;
-}
+				  space_size *= specie_cols.acceptable_count;
+		});
+		return space_size;
+	}
 
 	/**
 	 * @param ID	ID of the specie the requested subcolor belongs to
@@ -161,7 +161,7 @@ public:
 		ColorNum divisor = getSpaceSize();
 		for (auto specie_it = colors.rbegin(); specie_it != colors.rend(); specie_it++, reverse_val_it++) {
 			// lower divisor value
-			divisor /= specie_it->possible_count;
+			divisor /= specie_it->acceptable_count;
 			// pick a number for current specie
 			*reverse_val_it = (number / divisor);
 			// take the rest for next round

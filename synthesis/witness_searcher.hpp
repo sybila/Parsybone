@@ -89,7 +89,8 @@ private:
 	 */
 	void storeWit() {
 		for (std::size_t state_index = lenght; state_index > 1; state_index--)
-			witness_str.append(product.getString(path[state_index- 1]));
+            witness_str.append(product.getString(path[state_index- 1]));
+        witness_str.append(",");
 	}
 
 	/**
@@ -142,16 +143,19 @@ public:
             std::size_t bit_num = paramset_helper.getBitNum(masks[color_num]);
 			max_path_lenght = (user_options.witnesses() == short_wit) ? BFS_reach[bit_num] : ~0;
 
+
+            witness_str = "{";
 			// Compute witnesses for given color from each final state, they are also displayed, if requested
 			for (auto final_it = product.getFinalStates().begin(); final_it != product.getFinalStates().end(); final_it++) {
 				// Restart values
 				lenght = 0;
 
-				witness_str.clear();
 				// Start search
 				DFS(*final_it);
-				result.append(witness_str);
 			}
+            result.append(witness_str);
+            result.back() = '}';
+
 
 			// Display robustness if requested
 			if (user_options.robustness()) {
@@ -162,7 +166,7 @@ public:
 				});
 				// Divide by number of inital states and ouput
 				robustness /= state_robustness.size();
-				result.append(toString(robustness));
+                result = toString(robustness) + result;
 
 				state_robustness.clear();
 			}
