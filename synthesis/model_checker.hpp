@@ -241,6 +241,7 @@ class ModelChecker {
 				BFS_level++; // Increase level
 			}
 		} while (!updates.empty());
+		storage.setCost(BFS_reach);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +262,7 @@ class ModelChecker {
 		if (user_options.witnesses() == short_wit) {
 			BFS_level = 1; // Set sterting number of BFS
 			next_updates.clear(); // Ensure emptiness of the next round
-			BFS_reach.resize(paramset_helper.getParamsetSize(), 0); // Recreate reach values
+			BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)
 			next_round_storage = storage; // Copy starting values
 		}
 	}
@@ -291,21 +292,18 @@ public:
 		prepareCheck(parameters, _range);
 		transferUpdates(ID, parameters); // Transfer updates from the start of the detection
 		doColoring();
-		storage.setCost(BFS_reach);
 	}
 
 	/**
 	 * Start a new coloring round for cycle detection from a single state.
 	 *
-	 * @param ID	ID of the state to start cycle detection from
-	 * @param parameters	starting parameters for the cycle detection
+	 * @param parameters	starting parameters to color the structure with
 	 * @param _updates	states that are will be scheduled for an update in this round
 	 * @param _range	range of parameters for this coloring round
 	 */
 	void startColoring(const Parameters parameters, const std::set<StateID> & _updates, const Range & _range){
 		prepareCheck(parameters, _range, _updates);
 		doColoring();
-		storage.setCost(BFS_reach);
 	}
 };
 
