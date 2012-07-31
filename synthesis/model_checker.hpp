@@ -287,11 +287,11 @@ public:
 	 * @param parameters	starting parameters for the cycle detection
 	 * @param _range	range of parameters for this coloring round
 	 */
-	const std::vector<std::size_t> startColoring(const StateID ID, const Parameters parameters, const Range & _range) {
+	void startColoring(const StateID ID, const Parameters parameters, const Range & _range) {
 		prepareCheck(parameters, _range);
 		transferUpdates(ID, parameters); // Transfer updates from the start of the detection
 		doColoring();
-		return std::move(BFS_reach);
+		storage.setCost(BFS_reach);
 	}
 
 	/**
@@ -302,10 +302,10 @@ public:
 	 * @param _updates	states that are will be scheduled for an update in this round
 	 * @param _range	range of parameters for this coloring round
 	 */
-	const std::vector<std::size_t> startColoring(const Parameters parameters, const std::set<StateID> & _updates, const Range & _range){
+	void startColoring(const Parameters parameters, const std::set<StateID> & _updates, const Range & _range){
 		prepareCheck(parameters, _range, _updates);
 		doColoring();
-		return std::move(BFS_reach);
+		storage.setCost(BFS_reach);
 	}
 };
 

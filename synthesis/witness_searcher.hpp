@@ -128,7 +128,7 @@ private:
 	}
 
 public:
-	const std::vector<std::string> getOutput (const std::vector<std::size_t> & BFS_reach) {
+	const std::vector<std::string> getOutput () {
 		std::vector<std::string> results;
 
 		// Get synthetized colors
@@ -141,7 +141,7 @@ public:
 
 			// Get round values
             std::size_t bit_num = paramset_helper.getBitNum(masks[color_num]);
-			max_path_lenght = (user_options.witnesses() == short_wit) ? BFS_reach[bit_num] : ~0;
+         max_path_lenght = (user_options.witnesses() == short_wit) ? storage.getCost(bit_num) : ~0;
 
 
             witness_str = "{";

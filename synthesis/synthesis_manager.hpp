@@ -35,9 +35,6 @@ class SynthesisManager {
 	std::unique_ptr<ColorStorage> storage; ///< Class that holds
 	std::unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses
 
-	/// Round data
-	std::vector<std::size_t> BFS_reach;
-
 	/// Overall statistics
 	std::size_t total_colors;
 
@@ -62,7 +59,7 @@ class SynthesisManager {
 	void doConclusion() {
         total_colors += paramset_helper.count(analyzer->getMask());
 		// Output what has been synthetized (colors, witnesses)
-		output->outputRound(BFS_reach);
+		output->outputRound();
 	}
 
 	/**
@@ -109,7 +106,7 @@ class SynthesisManager {
 		std::set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());
 
 		// Start coloring procedure
-        BFS_reach = std::move(model_checker->startColoring(starting, updates, split_manager->getRoundRange()));
+		model_checker->startColoring(starting, updates, split_manager->getRoundRange());
 	}
 
 	/**
@@ -145,7 +142,6 @@ public:
 		output.reset(new OutputManager(*analyzer, *split_manager, *searcher));
 
 		total_colors = 0;
-		BFS_reach.resize(paramset_helper.getParamsetSize());
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

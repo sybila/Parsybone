@@ -11,6 +11,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
+#include "paramset_helper.hpp"
 
 class ProductBuilder;
 
@@ -32,6 +33,7 @@ class ColorStorage {
 	};
 	
 	std::vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data
+	std::vector<std::size_t> cost_val; ///< This vector stores so-called COST value i.e. number of steps required to reach the final state in TS
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -56,9 +58,10 @@ public:
 		for (StateID ID = 0; ID < states_count; ID++) {
 			addState(ID, states_count);
 		}
+		cost_val = std::vector<std::size_t>(paramset_helper.getParamsetSize(), ~0); // Set all to max. value
 	}
 
-	ColorStorage() {} ///< Empty constructor for empty storage
+	ColorStorage() {} ///< Empty constructor for an empty storage
 
 	/**
 	 * Sets all values for all the states to zero. Allocated memory remains.
@@ -107,6 +110,15 @@ public:
 				*this_pred_it |= *other_pred_it;
 			}
 		}
+	}
+
+	/**
+	 * Just passes a new cost vector
+	 *
+	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use ~0
+	 */
+	void setCost(const std::vector<std::size_t> & new_cost) {
+		cost_val = new_cost;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +172,6 @@ public:
 		// Make an actuall update
 		return update(parameters, target_ID);
 	}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
@@ -245,6 +256,20 @@ public:
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 
 		return neigbours;
+	}
+
+	/**
+	 *
+	 */
+	const std::size_t getCost(std::size_t position) const {
+		return cost_val[position];
+	}
+
+	/**
+	 *
+	 */
+	const std::vector<std::size_t> & getCost() const {
+		return cost_val;
 	}
 };
 
