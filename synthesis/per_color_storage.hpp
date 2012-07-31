@@ -51,7 +51,7 @@ class PerColorStorage {
 	PerColorStorage& operator=(const PerColorStorage & other); // Forbidden assignment operator.
 
 public:
-	PerColorStorage(const ColoringAnalyzer & _analyzer, const ColorStorage & _storage, const ProductStructure & _product) : analyzer(_analyzer), storage(_storage), product(_product) {
+    PerColorStorage(const ColoringAnalyzer & _analyzer, const ColorStorage & _storage, const ProductStructure & _product) : storage(_storage), product(_product), analyzer(_analyzer) {
         auto masks = paramset_helper.getSingleMasks(analyzer.getMask());
 
 		states.resize(product.getStateCount());

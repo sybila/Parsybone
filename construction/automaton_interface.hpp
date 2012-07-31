@@ -43,7 +43,7 @@ public:
 	 * @return	true if the state is final
 	 */
 	virtual inline const bool isFinal(const StateID ID) const {
-		return states[ID].final;
+        return GraphInterface<StateT>::states[ID].final;
 	}
 
 	/**
@@ -54,7 +54,7 @@ public:
 	 * @return	true if the state is initial
 	 */
 	virtual inline const bool isInitial(const StateID ID) const {
-		return states[ID].initial;
+        return GraphInterface<StateT>::states[ID].initial;
 	}
 
 	/**

@@ -25,8 +25,8 @@ struct AutTransitionion : public TransitionProperty {
 struct AutState : public AutomatonStateProperty<AutTransitionion> {
 
 	/// Fills data and checks if the state has value  -> is initial
-	AutState(const StateID ID, const bool final, std::string && label)
-		: AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID, std::move(label)) { }
+    AutState(const StateID ID, const bool final, std::string && label)
+        : AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID, std::move(label)) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ class AutomatonStructure : public AutomatonInterface<AutState> {
 	inline void addState(const StateID ID, const bool final) {
 		std::string label("(");
 		label.append(toString(ID)).append(")");
-		states.push_back(std::move(AutState(ID, final, std::move(label))));
+        states.push_back(std::move(AutState(ID, final, std::move(label))));
 		if (ID == 0) 
 			initial_states.push_back(ID);
 		if (final)

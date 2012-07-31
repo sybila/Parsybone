@@ -197,7 +197,7 @@ public:
 	 * Constructor just attaches the references to data holders
 	 */
 	ParametrizedStructureBuilder(const BasicStructure & _basic_structure, const LabelingHolder & _regulatory_functions, ParametrizedStructure & _structure) 
-		: regulatory_functions(_regulatory_functions), basic_structure(_basic_structure), structure(_structure)  {
+        : basic_structure(_basic_structure), regulatory_functions(_regulatory_functions), structure(_structure)  {
 	}
 
 	/**

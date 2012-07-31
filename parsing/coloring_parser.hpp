@@ -48,7 +48,7 @@ public:
 	 * @param filename	path to the file to read from 
 	 */
 	void openFile(const std::string filename) {
-		input_file.open(filename, std::ios::in | std::ios::binary | std::ios::ate);
+        input_file.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
 		if (input_file.fail()) 
 			throw std::runtime_error(std::string("Failed to open input coloring mask file: ").append(filename).c_str());
 		file_size = input_file.tellg();
@@ -66,7 +66,7 @@ public:
 	 * @param filename	path to the file to read from 
 	 */
 	void createOutput(const std::string filename) {
-		output_file.open(filename, std::ios::out | std::ios::binary);
+        output_file.open(filename.c_str(), std::ios::out | std::ios::binary);
 		if (output_file.fail()) 
 			throw std::runtime_error(std::string("Failed to open output coloring mask file: ").append(filename).c_str());
 		output_mask = true;

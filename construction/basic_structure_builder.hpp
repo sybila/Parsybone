@@ -22,7 +22,7 @@ class BasicStructureBuilder {
 	// Provided with constructor
 	const Model & model; ///< Model that holds the data
 	const std::size_t species_count; ///< Number of species of the model
-	BasicStructure & structure; ///< KipkeStructure to fill
+    BasicStructure & structure; ///< KipkeStructure to fill
 
 	// Computed
 	std::size_t states_count; ///< Number of states in this KS (exponential in number of species)
@@ -137,7 +137,7 @@ public:
 	 * Constructor initializes basic information from the model
 	 */
 	BasicStructureBuilder(const Model & _model, BasicStructure & _structure) 
-		                 : model(_model), structure(_structure), species_count(_model.getSpeciesCount())   {
+                         : model(_model), species_count(_model.getSpeciesCount()), structure(_structure)  {
 		// Compute species-related values
 		computeBoundaries();
 		// Compute transitions-related values

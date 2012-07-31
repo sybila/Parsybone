@@ -28,9 +28,9 @@ struct TransitionProperty {
 template <typename Transition>
 struct StateProperty {
    /// unique ID of the state
-   const StateID ID;
+   StateID ID;
    /// label of the state (usually a number or series of numbers) descibing this state
-   const std::string label;
+   std::string label;
    /// Graph or automaton transitions, basically it is an edge with a label
    std::vector<Transition> transitions;
 

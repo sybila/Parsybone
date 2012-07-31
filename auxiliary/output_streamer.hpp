@@ -100,7 +100,7 @@ public:
 	 */
 	void createStreamFile(StreamType stream_type, std::string filename) {
 		// Try to open the file
-		std::fstream * file_stream = new std::fstream(filename, std::ios::out);
+        std::fstream * file_stream = new std::fstream(filename.c_str(), std::ios::out);
 		if (file_stream->fail()) 
 			throw std::runtime_error(std::string("Program failed to open output stream file: ").append(filename));
 		
@@ -168,6 +168,9 @@ public:
 				*verbose_stream << "* ";
 			}
 			break;
+        case results_str:
+            // This is an only stream that is not-formatted.
+            break;
 		}
 		// Continue with output, then return this object
 		return output(stream_data, trait_mask);

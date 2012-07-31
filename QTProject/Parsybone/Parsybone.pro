@@ -5,7 +5,9 @@ CONFIG -= qt
 SOURCES += \
     ../../main.cpp
 
-INCLUDEPATH += "C:/Program Files/boost_1_46_1"
+INCLUDEPATH += "C:/Program Files/boost_1_50_0"
+
+QMAKE_CXXFLAGS += -std=gnu++0x
 
 HEADERS += \
     ../../auxiliary/user_options.hpp \

@@ -53,8 +53,6 @@ class ModelChecker {
 		ColorNum param_num = synthesis_range.first;
 		// First value might not bet 0 - get it from current parameter position
 		std::size_t value_num = (param_num / step_size) % transitive_values.size();
-		// As well current value step might not be the first one, it is also necessary to get it from current parameter position
-		std::size_t substep = param_num % step_size;
 		// Mask that will be created
 		register Parameters temporary = 0;
 
@@ -79,8 +77,6 @@ class ModelChecker {
 					passed &= temporary;
 					return;
 				}
-				// Reset steps for the value
-				substep = 0;
 			}
 			// Reset the value
 			value_num = 0;

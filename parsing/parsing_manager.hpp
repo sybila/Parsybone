@@ -28,6 +28,10 @@ class ParsingManager {
 public:
    /**
     * Constructor copies arguments from the argv and passes the model object that will store parsed information.
+    *
+    * @param argc passed argc from main()
+    * @param argv passed argv from main()
+    * @param _model  model storing the reference data
     */
    ParsingManager(int argc, char* argv[], Model & _model) : model(_model) {
       for (int argn = 0; argn < argc; argn++) {

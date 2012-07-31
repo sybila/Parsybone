@@ -51,8 +51,8 @@ private:
 
 		std::string name; ///< Actuall name of the specie
 		std::size_t ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
+        std::size_t max_value; ///< Maximal activation level of the specie
 		std::size_t basal_value; ///< Value the specie tends to if unregulated, currently unused
-		std::size_t max_value; ///< Maximal activation level of the specie
 	};
 
 	/// Structure that holds data about a single state.
@@ -63,8 +63,8 @@ private:
 
 		BuchiAutomatonState(std::size_t _ID, bool _final) : ID(_ID), final(_final) {	}
 
+        std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
 		bool final; ///< stores the information whether the state is final
-		std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
 
 		std::vector<Egde> edges; ///< edges in Buchi Automaton (Target ID, edge label)
 	};
