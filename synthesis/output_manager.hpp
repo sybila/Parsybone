@@ -55,7 +55,7 @@ public:
 	 */ 
 	void outputRoundNum() {
 		// Erase the line if outputting results to file or not at all
-		if (output_streamer.isResultInFile() || (!user_options.coloring() && (user_options.witnesses() == none_wit))) 
+        if (output_streamer.isResultInFile() || !(user_options.coloring() || user_options.witnesses()))
 			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 		else 
 			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl);
@@ -65,7 +65,7 @@ public:
 			           .output(split_manager.getRoundCount(), OutputStreamer::no_newl);
 
 		// Add white space if outputting to file or not at all, otherwise add a new line
-		if (output_streamer.isResultInFile() || (!user_options.coloring() && (user_options.witnesses() == none_wit))) 
+        if (output_streamer.isResultInFile() || !(user_options.coloring() || user_options.witnesses()))
 			output_streamer.output("         ", OutputStreamer::no_newl);
 		else
 			output_streamer.output("");

@@ -27,8 +27,7 @@ class UserOptions {
 	bool time_serie; ///< Work with the property as with a time series (meaning check only reachability property)
 	bool add_BA_to_witness; ///< Should witnesses be displayed with BA state numbers? Usually only for debug.
 	bool compute_robustness; ///< Should robustness value be computed and displyed?
-	bool display_wintess; ///< Should witnesses be computed and displayed?
-	WitnessUse witness_use; ///< In what form the witnesses are computed? (obsolete)
+	bool compute_wintess; ///< Should witnesses be computed and displayed?
 	std::size_t process_number; ///< What is the ID of this process?
 	std::size_t processes_count; ///< How many processes are included in the computation?
 
@@ -43,9 +42,8 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-		display_wintess = show_coloring = be_verbose = display_stats = time_serie = add_BA_to_witness = compute_robustness = false;
+		compute_wintess = show_coloring = be_verbose = display_stats = time_serie = add_BA_to_witness = compute_robustness = false;
 		process_number = processes_count = 1;
-		witness_use = none_wit;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,12 +55,19 @@ public:
 	inline const bool coloring() const {
 		return show_coloring;
 	}
-	
+
 	/**
-	 * @return	how to manage witnesses
+	 * @return	true if compute_robustness (robustness output is requested)
 	 */
-	inline const WitnessUse witnesses() const {
-		return witness_use;
+	inline const bool robustness() const {
+		return compute_robustness;
+	}
+
+	/**
+	 * @return	true if witnesses are to be computed
+	 */
+	inline const bool witnesses() const {
+		return compute_wintess;
 	}
 
 	/**
@@ -105,22 +110,7 @@ public:
 	 */
 	inline const std::size_t procCount() const {
 		return processes_count;
-	}
-	
-	/**
-	 * @return	true if compute_robustness (robustness output is requested)
-	 */
-	inline const bool robustness() const {
-		return compute_robustness;
-	}
-
-	/**
-	 * @return	true if display_wintess (witness output is requested)
-	 */
-	inline const bool displayWintess() const {
-		return display_wintess;
-	}
-	
+	}	
 } user_options; ///< Single object further used through the program.
 
 #endif // PARSYBONE_USER_OPTIONS_INCLUDED

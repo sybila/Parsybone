@@ -81,7 +81,4 @@ typedef std::pair<StateID, Parameters> Coloring;
 /// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
 typedef std::pair<ColorNum, ColorNum> Range;
 
-/// How to deal with witnesses
-enum WitnessUse {none_wit, short_wit, all_wit};
-
 #endif // PARSYBONE_DATA_TYPES_INCLUDED

@@ -208,11 +208,9 @@ class ModelChecker {
 			}
 
 			// If something new is added to the target, schedule it for an update
-			if ((user_options.witnesses() == none_wit && storage.update(update_it->second, update_it->first)))
+            if (!user_options.witnesses() && storage.update(update_it->second, update_it->first))
 				updates.insert(update_it->first);
-			else if (user_options.witnesses() == all_wit && storage.update(ID, update_it->second, update_it->first))
-				updates.insert(update_it->first);
-			else if (user_options.witnesses() == short_wit && storage.soft_update(update_it->second, update_it->first)) // Only test
+            else if (storage.soft_update(update_it->second, update_it->first)) // Only test if there is an update
 				next_round_storage.update(ID, update_it->second, update_it->first); // If something is present, schedule it for next round
 		}
 	}
@@ -226,7 +224,7 @@ class ModelChecker {
 			// Within updates, find the one with most bits
 			StateID ID = getStrongestUpdate();
 			// Check if this is not the last round
-			if (user_options.witnesses() == short_wit && product.isFinal(ID)) 
+            if (user_options.witnesses() && product.isFinal(ID))
 				markLevels(storage.getColor(ID));
 			// Pass data from updated vertex to its succesors
 			transferUpdates(ID, storage.getColor(ID));
@@ -234,7 +232,7 @@ class ModelChecker {
 			updates.erase(ID);
 
 			// If witness has not been found and 
-			if (updates.empty() && user_options.witnesses() == short_wit && to_find ) {
+            if (updates.empty() && user_options.witnesses() && to_find ) {
 				updates = std::move(next_round_storage.getColored()); // Get updates from this level coloring
 				storage.addFrom(next_round_storage); // Copy updated
 				next_round_storage.reset(); // Clean storage
@@ -259,7 +257,7 @@ class ModelChecker {
 		updates = start_updates; // Copy starting updates
 		synthesis_range = _range; // Copy range of this round
 
-		if (user_options.witnesses() == short_wit) {
+        if (user_options.witnesses()) {
 			BFS_level = 1; // Set sterting number of BFS
 			next_updates.clear(); // Ensure emptiness of the next round
 			BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)

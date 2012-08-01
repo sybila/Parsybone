@@ -70,8 +70,6 @@ class ArgumentParser {
 				break;
 
 			case 'r':
-				if (user_options.witness_use == none_wit)
-					user_options.witness_use = short_wit;
 				user_options.compute_robustness = true;
 				break;
 
@@ -88,24 +86,17 @@ class ArgumentParser {
 				break;
 
 			case 'w':
-				user_options.witness_use = short_wit;
-				user_options.display_wintess = true;
+                user_options.compute_wintess = true;
 				user_options.time_serie = true;
 				break;
 
-			case 'W':
-				user_options.witness_use = all_wit;
-				user_options.display_wintess = true;
-				user_options.time_serie = true;
-				break;
-
-			// Open file with color mask
+            // Open file to read a color mask
 			case 'm':
 				testLast(switch_num, argument->size());
 				coloring_parser.openFile(*(++argument));
 				return;
 
-			// Open file with color mask
+            // Open file to fill a color mask
 			case 'M':
 				testLast(switch_num, argument->size());
 				coloring_parser.createOutput(*(++argument));

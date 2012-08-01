@@ -103,7 +103,7 @@ private:
 		// If you are initial, print this path
 		if (product.isInitial(ID)) {
 			used_paths.insert(path[1]);
-			if (user_options.displayWintess())
+            if (user_options.witnesses())
 				storeWit();
 			if (user_options.robustness())
 				countProb();
@@ -141,8 +141,7 @@ public:
 
 			// Get round values
             std::size_t bit_num = paramset_helper.getBitNum(masks[color_num]);
-         max_path_lenght = (user_options.witnesses() == short_wit) ? storage.getCost(bit_num) : ~0;
-
+            max_path_lenght = storage.getCost(bit_num);
 
             witness_str = "{";
 			// Compute witnesses for given color from each final state, they are also displayed, if requested
@@ -155,7 +154,6 @@ public:
 			}
             result.append(witness_str);
             result.back() = '}';
-
 
 			// Display robustness if requested
 			if (user_options.robustness()) {
