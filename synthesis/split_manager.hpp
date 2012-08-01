@@ -158,7 +158,7 @@ public:
 	/**
 	 * @return All the parameters of the current round - for the last round, finish has to be cropped.
 	 */
-	inline Parameters createStartingParameters() const {
+	inline Paramset createStartingParameters() const {
 		if (!lastRound())
 			return paramset_helper.getAll();
 		else

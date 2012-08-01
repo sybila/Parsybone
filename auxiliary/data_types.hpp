@@ -64,7 +64,7 @@ enum EdgeConstrain {pos_cons, neg_cons, none_cons};
 // COMPUTATION RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// mask of parameters - each bit represents single combination of target values for each function
-typedef unsigned int Parameters;
+typedef unsigned int Paramset;
 
 /// Index of the color - may be a big number
 typedef long long ColorNum;
@@ -76,7 +76,7 @@ typedef unsigned long long RoundNum;
 typedef std::vector<StateID> Neighbours;
 
 /// State number and its coloring
-typedef std::pair<StateID, Parameters> Coloring;
+typedef std::pair<StateID, Paramset> Coloring;
 
 /// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
 typedef std::pair<ColorNum, ColorNum> Range;

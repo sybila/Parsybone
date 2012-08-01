@@ -22,7 +22,7 @@ class ColoringParser {
 // CLASS DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Data storage
-	std::vector<Parameters> colors_sets;
+	std::vector<Paramset> colors_sets;
 
 	// File-based values
 	std::ifstream::pos_type file_size;
@@ -52,9 +52,9 @@ public:
 		if (input_file.fail()) 
 			throw std::runtime_error(std::string("Failed to open input coloring mask file: ").append(filename).c_str());
 		file_size = input_file.tellg();
-		if (file_size % sizeof(Parameters) != 0)
+		if (file_size % sizeof(Paramset) != 0)
 			throw std::runtime_error("Bitmask file has incorrect number of bits - it must be dividable by the size of Paramset.");
-		if (file_size / sizeof(Parameters) > colors_sets.max_size())
+		if (file_size / sizeof(Paramset) > colors_sets.max_size())
 			throw std::runtime_error("Bitmask is bigger than a possible size of the vector, can not be used due to memory boundaries.");
 		input_file.seekg(0, std::ios::beg);
 		input_mask = true;
@@ -81,12 +81,12 @@ public:
 		input_file.read(byteblock, file_size);
 
 		// Cycle through bytemasks and reforge them into Parameters
-		for (std::size_t shade_num = 0; shade_num < file_size / sizeof(Parameters); shade_num++) {
-			Parameters temp = 0;
+		for (std::size_t shade_num = 0; shade_num < file_size / sizeof(Paramset); shade_num++) {
+			Paramset temp = 0;
 			// Read bytes and move them to the front of the Parameters, when possible
-			for (std::size_t byte_num = 0; byte_num < sizeof(Parameters); byte_num++) {
+			for (std::size_t byte_num = 0; byte_num < sizeof(Paramset); byte_num++) {
 				temp <<= 8;
-				char val = byteblock[shade_num*sizeof(Parameters) + byte_num];
+				char val = byteblock[shade_num*sizeof(Paramset) + byte_num];
 				temp += static_cast<unsigned char>(val);
 			}
 			colors_sets.push_back(temp);
@@ -100,7 +100,7 @@ public:
 	 *
 	 * @param parameters	bitmask of computed feasible colors
 	 */
-	void outputComputed(const Parameters parameters) {
+	void outputComputed(const Paramset parameters) {
 		// Cycle through bytes
 		for (std::size_t byte_num = sizeof(parameters); byte_num > 0; byte_num--) {
 			// Take last 8 bits - to save the form, it is needed to shift up till last round 
@@ -128,7 +128,7 @@ public:
 	/**
 	 * @return masks for all colors that can be used
 	 */
-	inline const std::vector<Parameters> & getColors() const {
+	inline const std::vector<Paramset> & getColors() const {
 		return colors_sets;
 	}
 

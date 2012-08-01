@@ -27,7 +27,7 @@ class PerColorStorage {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	struct ColorData {
 		std::size_t color_num; // Relative number of the color in this round
-		Parameters color_bit; // Bit assigned to the color
+		Paramset color_bit; // Bit assigned to the color
 		std::vector<StateID> predecessors; // Predecessors only for this color
 		std::vector<StateID> successors; // Succesors only for this color
 	};
@@ -64,7 +64,7 @@ public:
 
 			// Get round values
             std::size_t color_num = paramset_helper.getBitNum(*mask_it);
-			Parameters color_bit = *mask_it;
+			Paramset color_bit = *mask_it;
 
 			for (auto state_it = states.begin(); state_it != states.end(); state_it++) {
 				ColorData color_data;

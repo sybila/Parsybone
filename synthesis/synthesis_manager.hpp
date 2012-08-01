@@ -89,7 +89,7 @@ class SynthesisManager {
 	 */
     void colorProduct() {
 		// Get initial coloring
-		Parameters starting;
+		Paramset starting;
 		if(coloring_parser.input())
 			starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum())];
 		else

@@ -23,7 +23,7 @@ class ColoringAnalyzer {
 	const ParametrizationsHolder & parametrizations; ///< Reference to actuall explicit parametrizations that are further printed
 
 	/// Vector that stores individual states after the coloring procedure
-	std::map<StateID, Parameters> colorings;
+	std::map<StateID, Paramset> colorings;
 
 	ColorNum parameter_begin; ///< Ordinal number of the first parametrization in this round.
 	ColorNum parameter_end; ///< Ordinal number of the last parametrization used in this round.
@@ -73,11 +73,11 @@ class ColoringAnalyzer {
 	 *
 	 * @return ordinal number of the parametrizations that are feasible
 	 */
-	const std::vector<ColorNum> buildNumbers(const Parameters result_parameters) const  {
+	const std::vector<ColorNum> buildNumbers(const Paramset result_parameters) const  {
 		// Vector to fill
 		std::vector<ColorNum> numbers;
 		// Store a mask for each color with just its bit on, other off
-        Parameters color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
+		  Paramset color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
 		// Cycle through all round colors
 		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
@@ -98,11 +98,11 @@ class ColoringAnalyzer {
 	 *
 	 * @return vector of masks and strings of feasible colors in this round
 	 */
-	const std::vector<std::string> buildStrings(const Parameters result_parameters) const {
+	const std::vector<std::string> buildStrings(const Paramset result_parameters) const {
 		// Vector to fill
 		std::vector<std::string> strings;
 		// Store a mask for each color with just its bit on, other off
-        Parameters color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
+		  Paramset color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
 		// Cycle through all round colors
 		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
@@ -195,7 +195,7 @@ public:
 	 *
 	 * @return coloring of the given state or 0 if the state is not present
 	 */
-	const Parameters getMask(const StateID ID) const {
+	const Paramset getMask(const StateID ID) const {
 		auto coloring = colorings.find(ID);
 		if (coloring != colorings.end())
 			return coloring->second;
@@ -208,8 +208,8 @@ public:
 	 *
 	 * @return all feasible colors in this round
 	 */
-	const Parameters getMask() const {
-		Parameters all = 0;
+	const Paramset getMask() const {
+		Paramset all = 0;
 		for (auto coloring_it = colorings.begin(); coloring_it != colorings.end(); coloring_it++) {
 			all |= coloring_it->second;
 		}

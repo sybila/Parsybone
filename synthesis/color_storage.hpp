@@ -19,9 +19,9 @@
 class ColorStorage {
 	struct State {
 		StateID ID;
-		Parameters parameters; ///< 32 bits for each color in this round marking its presence or absence
-		std::vector<Parameters> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters)
-		std::vector<Parameters> successors; ///< Stores succesors in the same form
+		Paramset parameters; ///< 32 bits for each color in this round marking its presence or absence
+		std::vector<Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters)
+		std::vector<Paramset> successors; ///< Stores succesors in the same form
 
 		State(const StateID _ID, const std::size_t states_num) : ID(_ID), parameters(0) {
 			parameters = 0;
@@ -34,6 +34,7 @@ class ColorStorage {
 	/// This vector stores so-called COST value i.e. number of steps required to reach the final state in TS.
 	/// If it is not reachable, cost is set to ~0.
 	std::vector<std::size_t> cost_val;
+	Paramset acceptable;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -59,6 +60,7 @@ public:
 			addState(ID, states_count);
 		}
 		cost_val = std::vector<std::size_t>(paramset_helper.getParamsetSize(), ~0); // Set all to max. value
+		acceptable = 0;
 	}
 
 	ColorStorage() {} ///< Empty constructor for an empty storage
@@ -88,8 +90,9 @@ public:
 	 *
 	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use ~0
 	 */
-	void setCost(const std::vector<std::size_t> & new_cost) {
+	void setResults(const std::vector<std::size_t> & new_cost, const Paramset resulting) {
 		cost_val = new_cost;
+		acceptable = resulting;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +106,7 @@ public:
 	 * 
 	 * @return true if there was an actuall update
 	 */
-	inline bool update(const Parameters parameters, const StateID ID) {
+	inline bool update(const Paramset parameters, const StateID ID) {
 		// If nothing is new return false
 		if (states[ID].parameters == (parameters | states[ID].parameters))
 			return false;
@@ -120,7 +123,7 @@ public:
 	 *
 	 * @return true if there would be an update
 	 */
-	inline bool soft_update(const Parameters parameters, const StateID ID) {
+	inline bool soft_update(const Paramset parameters, const StateID ID) {
 		if (states[ID].parameters == (parameters | states[ID].parameters))
 			return false;
 		else
@@ -136,7 +139,7 @@ public:
 	 * 
 	 * @return true if there was an actuall update
 	 */
-	inline bool update(const StateID source_ID, const Parameters parameters, const StateID target_ID) {
+	inline bool update(const StateID source_ID, const Paramset parameters, const StateID target_ID) {
 		// Mark parameters source and target
 		states[target_ID].predecessors[source_ID] |= parameters;
 		states[source_ID].successors[target_ID] |= parameters;
@@ -152,7 +155,7 @@ public:
 	 * 
 	 * @return parameters assigned to the state
 	 */
-	inline const Parameters & getColor(const StateID ID) const {
+	inline const Paramset & getColor(const StateID ID) const {
 		return states[ID].parameters;
 	}
 
@@ -196,7 +199,7 @@ public:
 	 *
 	 * @return neigbours for given state
 	 */
-	inline const Neighbours getNeighbours(const StateID ID, const bool successors, const Parameters color_mask = ~0) const {
+	inline const Neighbours getNeighbours(const StateID ID, const bool successors, const Paramset color_mask = ~0) const {
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 		// Data to fill
@@ -204,7 +207,7 @@ public:
 
 		// Add these from the color
 		StateID neigh_num = 0;
-		forEach(neigbours, [&neigh_num, &color_neigh, color_mask](const Parameters neighbour) {
+		forEach(neigbours, [&neigh_num, &color_neigh, color_mask](const Paramset neighbour) {
 			// Test if the color is present
 			if ((neighbour & color_mask) != 0)
 				color_neigh.push_back(neigh_num);
@@ -222,7 +225,7 @@ public:
 	 *
 	 * @return neigbours for given state and their color
 	 */
-	inline const std::vector<Parameters> getMarking(const StateID ID, const bool successors) const {
+	inline const std::vector<Paramset> getMarking(const StateID ID, const bool successors) const {
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 
@@ -230,17 +233,26 @@ public:
 	}
 
 	/**
+	 * @param number of the parametrization relative in this round
 	 *
+	 * @return Cost value of a particular parametrization
 	 */
 	const std::size_t getCost(std::size_t position) const {
 		return cost_val[position];
 	}
 
 	/**
-	 *
+	 * @return Cost value of all the parametrizations from this round
 	 */
 	const std::vector<std::size_t> & getCost() const {
 		return cost_val;
+	}
+
+	/**
+	 * @return mask of parametrizations that are computed acceptable in this round
+	 */
+	const Paramset & getAcceptable() const {
+		return acceptable;
 	}
 };
 

@@ -60,7 +60,7 @@ public:
 		else 
 			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl);
 
-		// Output data
+		// Output numbers
 		output_streamer.output(split_manager.getRoundNum() + 1, OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
 			           .output(split_manager.getRoundCount(), OutputStreamer::no_newl);
 
@@ -79,8 +79,8 @@ public:
 	void outputRound() const {
         auto params = analyzer.getOutput(); auto param_it = params.begin();
         auto data = searcher.getOutput(); auto data_it = data.begin();
-        if (params.size() != data.size())
-            throw std::runtime_error("Sizes of vectors on output are not equal.");
+        //if (params.size() != data.size())
+         //   throw std::runtime_error("Sizes of vectors on output are not equal.");
         while (param_it != params.end()) {
             output_streamer.output(results_str, *param_it + *data_it);
             param_it++; data_it++;
