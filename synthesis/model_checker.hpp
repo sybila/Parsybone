@@ -30,10 +30,10 @@ class ModelChecker {
 	std::set<StateID> next_updates; ///< Updates that are sheduled forn the next round
 
 	// BFS boundaries
-    Parameters to_find; ///< Mask of parameters that are still not found
-    Parameters restrict_mask; ///< Mask of parameters that are secure to left out
-    std::vector<std::size_t> BFS_reach; ///< In which round this color was found
-    std::size_t BFS_level; ///< Number of current BFS level during coloring
+	Parameters to_find; ///< Mask of parameters that are still not found
+	Parameters restrict_mask; ///< Mask of parameters that are secure to left out
+	std::vector<std::size_t> BFS_reach; ///< In which round this color was found
+	std::size_t BFS_level; ///< Number of current BFS level during coloring
 
 	// Other
 	std::vector<bool> BA_presence; ///< Vector that marks IDs of BA states under which self-loop is possible this round, used to update only with "sink" parametrizations
@@ -91,16 +91,16 @@ class ModelChecker {
 	 */
 	const StateID getStrongestUpdate() const {
 		// Reference value
-		StateID ID = 0;
-		Parameters current_color = 0;
+		register StateID ID = 0;
+		register Parameters current = 0;
 		// Cycle throught the updates
 		for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
-			Parameters test_color = storage.getColor(*update_it);
+			Parameters test = storage.getColor(*update_it);
 			// Compare with current data - if better, replace
-			if (test_color != current_color) {
-				if (test_color == (current_color | test_color)) {
+			if (test != current) {
+				if (test == (current | test)) {
 					ID = *update_it;
-					current_color = test_color;
+					current = test;
 				}
 			}
 		}
@@ -147,7 +147,7 @@ class ModelChecker {
 		param_updates.reserve(product.getTransitionCount(ID));
 
 		std::size_t KS_state = product.getKSID(ID);
-		Parameters self_loop = ~0;
+		Parameters loop_params = ~0;
 
 		// Cycle through all the transition
 		for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
@@ -158,25 +158,25 @@ class ModelChecker {
 
 			StateID target_ID = product.getTargetID(ID, trans_num);
 
-			// Test if it is a self loop, if there is nothing outcoming, add to self-loop (if it is still possible)
-			if (self_loop && (KS_state == product.getKSID(target_ID)) ) {
-				self_loop &= passed;
+			// Test if it is a possibility for a loop, if there is nothing outcoming, add to self-loop (if it is still possible)
+			if (loop_params && (KS_state == product.getKSID(target_ID)) ) {
+				loop_params &= passed;
 				StateID BA_ID = product.getBAID(target_ID);
 				BA_presence[BA_ID] = true;
 			}
-			// Else add normally and remove from the self_loop
+			// Else add normally and remove from the loop
 			else if (passed) {
-				self_loop &= ~passed;
+				loop_params &= ~passed; // Retain only others within a loop
 				param_updates.push_back(std::make_pair(target_ID, passed));
 			}
 		}	
 
-		// If there is a self-loop, add it for all the BA_states
+		// If there is a self-loop, add it for all the BA states (its an intersection of transitible parameters for independent loops)
 		for(StateID BA_state = 0; BA_state < BA_presence.size(); BA_state++) {
 			if (BA_presence[BA_state]) {
-				if (self_loop) {
+				if (loop_params) {
 					StateID target = product.getProductID(KS_state, BA_state) ;
-					param_updates.push_back(Coloring(target, self_loop));
+					param_updates.push_back(Coloring(target, loop_params));
 				}
 				// Null the value
 				BA_presence[BA_state] = false;
@@ -200,7 +200,7 @@ class ModelChecker {
 		// For all passed values make update on target
 		for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
 			// Skip empty updates
-            if (paramset_helper.none(update_it->second))
+			if (paramset_helper.none(update_it->second))
 				continue;
 
 			// Do not allow to pass between initial states and final states in the time serie
@@ -210,18 +210,20 @@ class ModelChecker {
 			}
 
 			// If something new is added to the target, schedule it for an update
-            if (!user_options.witnesses() && storage.update(update_it->second, update_it->first))
-				updates.insert(update_it->first);
-            // Only test if there is an update, if so, add it and post update
-            else if (storage.soft_update(update_it->second, update_it->first)) {
-                next_round_storage.update(ID, update_it->second, update_it->first);
-                next_updates.insert(update_it->first);
-            }
-        }
+			if (storage.soft_update(update_it->second, update_it->first)) {
+				// Determine what is necessary to update
+				if (user_options.witnesses() || user_options.robustness())
+					next_round_storage.update(ID, update_it->second, update_it->first);
+				else
+					next_round_storage.update(update_it->second, update_it->first);
+				next_updates.insert(update_it->first);
+			}
+		}
 	}
 
 	/**
-	 * Distribute updates and store the new ones.
+	 * Main coloring function - passes parametrizations from newly colored states to their neighbours.
+	 * Executed as an BFS - in rounds.
 	 */
 	void doColoring() {
 		// While there are updates, pass them to succesing vertices
@@ -229,23 +231,24 @@ class ModelChecker {
 			// Within updates, find the one with most bits
 			StateID ID = getStrongestUpdate();
 			// Check if this is not the last round
-            if (user_options.witnesses() && product.isFinal(ID))
-                markLevels(storage.getColor(ID) & restrict_mask);
+			if (product.isFinal(ID))
+				 markLevels(storage.getColor(ID));
 			// Pass data from updated vertex to its succesors
-            transferUpdates(ID, storage.getColor(ID));
+			transferUpdates(ID, storage.getColor(ID) & restrict_mask);
 			// Erase completed update from the set
 			updates.erase(ID);
 
-            // If there this round is finished, but there are still paths to find
-            if (updates.empty() && user_options.witnesses() && to_find ) {
-                updates = next_updates; next_updates.clear();
-                storage = next_round_storage;
-                restrict_mask = to_find;
-                BFS_level++; // Increase level
+         // If there this round is finished, but there are still paths to find
+         if (updates.empty() && to_find ) {
+            updates = next_updates; next_updates.clear();
+            storage = next_round_storage;
+            restrict_mask = to_find;
+            BFS_level++; // Increase level
 			}
 		} while (!updates.empty());
 
-        storage.setCost(BFS_reach);
+		// After the coloring, pass cost to the coloring
+		storage.setCost(BFS_reach);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -259,16 +262,14 @@ class ModelChecker {
 	 * @param _updates	states that are will be scheduled for an update in this round
 	 */
 	void prepareCheck(const Parameters parameters, const Range & _range, std::set<StateID> start_updates = std::set<StateID>()) {
-        to_find = restrict_mask = parameters; // Store which parameters are we searching for
+		to_find = restrict_mask = parameters; // Store which parameters are we searching for
 		updates = start_updates; // Copy starting updates
 		synthesis_range = _range; // Copy range of this round
 
-        if (user_options.witnesses()) {
-			BFS_level = 1; // Set sterting number of BFS
-			next_updates.clear(); // Ensure emptiness of the next round
-			BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)
-			next_round_storage = storage; // Copy starting values
-		}
+		BFS_level = 1; // Set sterting number of BFS
+		next_updates.clear(); // Ensure emptiness of the next round
+		BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)
+		next_round_storage = storage; // Copy starting values
 	}
 
 	ModelChecker(const ModelChecker & other); ///< Forbidden copy constructor.
