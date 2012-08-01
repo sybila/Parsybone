@@ -13,8 +13,6 @@
 #include "../auxiliary/common_functions.hpp"
 #include "paramset_helper.hpp"
 
-class ProductBuilder;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ColorStorage is auxiliary class to the product and stores colors and possibly predecessors for individual states of the product during the computation.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +34,7 @@ class ColorStorage {
 	/// This vector stores so-called COST value i.e. number of steps required to reach the final state in TS.
 	/// If it is not reachable, cost is set to ~0.
 	std::vector<std::size_t> cost_val;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,35 +81,6 @@ public:
 				}
 			}
 		});
-	}
-
-	/**
-	 * Add all values from one coloring structure to another.
-	 * @attention	This will only sum, not replace original values
-	 *
-	 * @param other	structure to copy from
-	 */
-	void addFrom(const ColorStorage & other) {
-		// For all states
-		auto this_state_it = states.begin();
-		for (StateID ID = 0; ID < states.size(); ID++, this_state_it++) {
-			// Copy params
-			this_state_it->parameters |= other.getColor(ID);
-
-			// Copy succesors parameters
-			auto this_succ_it = this_state_it->successors.begin();
-			std::vector<Parameters> other_succs = std::move(other.getMarking(ID, true));
-			for (auto other_succ_it = other_succs.begin(); other_succ_it != other_succs.end(); this_succ_it++, other_succ_it++) {
-				*this_succ_it |= *other_succ_it;
-			}
-
-			// Copy predecessors parameters
-			auto this_pred_it = this_state_it->predecessors.begin();
-			std::vector<Parameters> other_preds = std::move(other.getMarking(ID, false));
-			for (auto other_pred_it = other_preds.begin(); other_pred_it != other_preds.end(); this_pred_it++, other_pred_it++) {
-				*this_pred_it |= *other_pred_it;
-			}
-		}
 	}
 
 	/**

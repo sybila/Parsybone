@@ -30,9 +30,10 @@ class ModelChecker {
 	std::set<StateID> next_updates; ///< Updates that are sheduled forn the next round
 
 	// BFS boundaries
-	Parameters to_find; ///< Mask of parameters that are still
-	std::vector<std::size_t> BFS_reach; // In which round this color was found
-	std::size_t BFS_level; // Number of current BFS level during coloring
+    Parameters to_find; ///< Mask of parameters that are still not found
+    Parameters restrict_mask; ///< Mask of parameters that are secure to left out
+    std::vector<std::size_t> BFS_reach; ///< In which round this color was found
+    std::size_t BFS_level; ///< Number of current BFS level during coloring
 
 	// Other
 	std::vector<bool> BA_presence; ///< Vector that marks IDs of BA states under which self-loop is possible this round, used to update only with "sink" parametrizations
@@ -108,7 +109,8 @@ class ModelChecker {
 
 	/**
 	 * For each found color add this BFS level as a first when the state was updated, if it was not already found.
-	 *
+     * This function can be called within a single round (
+     *
 	 * @param colors	current coloring
 	 */
 	void markLevels(const Parameters colors) {
@@ -210,9 +212,12 @@ class ModelChecker {
 			// If something new is added to the target, schedule it for an update
             if (!user_options.witnesses() && storage.update(update_it->second, update_it->first))
 				updates.insert(update_it->first);
-            else if (storage.soft_update(update_it->second, update_it->first)) // Only test if there is an update
-				next_round_storage.update(ID, update_it->second, update_it->first); // If something is present, schedule it for next round
-		}
+            // Only test if there is an update, if so, add it and post update
+            else if (storage.soft_update(update_it->second, update_it->first)) {
+                next_round_storage.update(ID, update_it->second, update_it->first);
+                next_updates.insert(update_it->first);
+            }
+        }
 	}
 
 	/**
@@ -225,21 +230,22 @@ class ModelChecker {
 			StateID ID = getStrongestUpdate();
 			// Check if this is not the last round
             if (user_options.witnesses() && product.isFinal(ID))
-				markLevels(storage.getColor(ID));
+                markLevels(storage.getColor(ID) & restrict_mask);
 			// Pass data from updated vertex to its succesors
-			transferUpdates(ID, storage.getColor(ID));
+            transferUpdates(ID, storage.getColor(ID));
 			// Erase completed update from the set
 			updates.erase(ID);
 
-			// If witness has not been found and 
+            // If there this round is finished, but there are still paths to find
             if (updates.empty() && user_options.witnesses() && to_find ) {
-				updates = std::move(next_round_storage.getColored()); // Get updates from this level coloring
-				storage.addFrom(next_round_storage); // Copy updated
-				next_round_storage.reset(); // Clean storage
-				BFS_level++; // Increase level
+                updates = next_updates; next_updates.clear();
+                storage = next_round_storage;
+                restrict_mask = to_find;
+                BFS_level++; // Increase level
 			}
 		} while (!updates.empty());
-		storage.setCost(BFS_reach);
+
+        storage.setCost(BFS_reach);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -253,7 +259,7 @@ class ModelChecker {
 	 * @param _updates	states that are will be scheduled for an update in this round
 	 */
 	void prepareCheck(const Parameters parameters, const Range & _range, std::set<StateID> start_updates = std::set<StateID>()) {
-		to_find = parameters; // Store which parameters are we searching for
+        to_find = restrict_mask = parameters; // Store which parameters are we searching for
 		updates = start_updates; // Copy starting updates
 		synthesis_range = _range; // Copy range of this round
 
@@ -270,7 +276,7 @@ class ModelChecker {
 
 public:
 	/**
-	 * Constructor, passes the data
+     * Constructor, passes the data and sets up auxiliary storage
 	 */
     ModelChecker(const ConstructionHolder & holder, ColorStorage & _storage) : product(holder.getProduct()), storage(_storage) {
         BA_presence.resize(holder.getAutomatonStructure().getStateCount(), false);
