@@ -33,15 +33,62 @@ public:
       : holder(_holder), analyzer(_analyzer), storage(_storage) {
    }
 
-   const Paramset getPassed(const StateID ID) {
+   const std::size_t getMaxBreadth () const {
+      std::size_t breadth = 0;
+      forEach(workspace.getCost(), [&breadth](std::size_t current){breadth = my_max((current == ~0 ? 0 : current), breadth);});
+      return breadth;
+   }
 
+   const Paramset getUnpassed(const StateID ID) const {
+      auto individuals = workspace.getMarking(ID, true);
+      Paramset passed = 0;
+      forEach(individuals, [&passed](Paramset current){passed |= current;});
+      return (workspace.getColor(ID) & ~passed);
+   }
+
+   void removeUnpassed(const StateID ID, const Paramset unpassed) {
+      // Remove from self
+      workspace.remove(ID, unpassed);
+      // Remove from my predecessors
+      workspace.remove(ID, unpassed, false);
+      // Remove from mine predecessors'sucessors
+      auto predecessors = workspace.getNeighbours(ID, false, unpassed);
+      for (auto predIDit = predecessors.begin(); predIDit != predecessors.end(); predIDit++) {
+         workspace.remove(*predIDit, ID, unpassed, true);
+      }
+   }
+
+   void reduceStorage() {
+      auto max_breadth = getMaxBreadth();
+      for (std::size_t round_num = 0; round_num < max_breadth; round_num++) {
+         for(StateID ID = 0; ID < holder.getProduct().getStateCount(); ID++) {
+            if (!holder.getProduct().isFinal(ID))
+               removeUnpassed(ID, getUnpassed(ID));
+         }
+      }
+   }
+
+   const std::string getTransitions(const Paramset current) {
+      std::string trans_str;
+      for(StateID ID = 0; ID < holder.getProduct().getStateCount(); ID++) {
+         auto predecessors = workspace.getNeighbours(ID, false, current);
+         for (auto ID_it = predecessors.begin(); ID_it != predecessors.end(); ID_it++) {
+            trans_str.append("<").append(holder.getProduct().getString(*ID_it)).append("->")
+                  .append(holder.getProduct().getString(ID)).append(">");
+         }
+      }
+      return trans_str;
    }
 
    const std::vector<std::string> getOutput () {
+      std::vector<std::string> transitions;
       workspace = storage;
-
-
-      return std::vector<std::string>(32, "");
+      reduceStorage();
+      auto masks = paramset_helper.getSingleMasks(workspace.getAcceptable());
+      for (auto mask_it = masks.begin(); mask_it != masks.end(); mask_it++){
+         transitions.push_back(getTransitions(*mask_it));
+      }
+      return transitions;
    }
 };
 

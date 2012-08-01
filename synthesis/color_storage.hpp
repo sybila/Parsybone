@@ -147,6 +147,22 @@ public:
 		return update(parameters, target_ID);
 	}
 
+	void remove(const StateID ID, const Paramset remove) {
+		states[ID].parameters &= ~remove;
+	}
+
+	void remove(const StateID source_ID, const Paramset remove, const bool successors) {
+		// reference
+		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
+		forEach(neigbours, [remove](Paramset & label){label &= ~remove;});
+	}
+
+	void remove(const StateID source_ID, const StateID target_ID, const Paramset remove, const bool successors) {
+		// reference
+		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
+		neigbours[source_ID] &=~ remove;
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
