@@ -106,7 +106,7 @@ public:
 	 * 
 	 * @return true if there was an actuall update
 	 */
-	inline bool update(const Paramset parameters, const StateID ID) {
+	inline bool update(const StateID ID, const Paramset parameters) {
 		// If nothing is new return false
 		if (states[ID].parameters == (parameters | states[ID].parameters))
 			return false;
@@ -123,7 +123,7 @@ public:
 	 *
 	 * @return true if there would be an update
 	 */
-	inline bool soft_update(const Paramset parameters, const StateID ID) {
+	inline bool soft_update(const StateID ID, const Paramset parameters) {
 		if (states[ID].parameters == (parameters | states[ID].parameters))
 			return false;
 		else
@@ -139,12 +139,12 @@ public:
 	 * 
 	 * @return true if there was an actuall update
 	 */
-	inline bool update(const StateID source_ID, const Paramset parameters, const StateID target_ID) {
+	inline bool update(const StateID source_ID, const StateID target_ID, const Paramset parameters) {
 		// Mark parameters source and target
 		states[target_ID].predecessors[source_ID] |= parameters;
 		states[source_ID].successors[target_ID] |= parameters;
 		// Make an actuall update
-		return update(parameters, target_ID);
+		return update(target_ID, parameters);
 	}
 
 	void remove(const StateID ID, const Paramset remove) {
@@ -160,7 +160,7 @@ public:
 	void remove(const StateID source_ID, const StateID target_ID, const Paramset remove, const bool successors) {
 		// reference
 		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
-		neigbours[source_ID] &=~ remove;
+		neigbours[target_ID] &=~ remove;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

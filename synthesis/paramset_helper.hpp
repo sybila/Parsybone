@@ -29,20 +29,20 @@ public:
    /**
     * @return number of parameters in a single round
     */
-   inline static const std::size_t getParamsetSize() {
+   inline const static std::size_t getParamsetSize() {
       return subset_size;
    }
    /**
     * @return a parameter set with everything set to 1
     */
-   inline Paramset getAll() {
+   inline Paramset getAll() const {
       return all;
    }
 
    /**
     * @return mask that holds value of the binary form 10...0 .
     */
-   Paramset getLeftOne(ColorNum size = subset_size ) {
+   Paramset getLeftOne(ColorNum size = subset_size ) const {
       return (1 << (size - 1));
    }
 
@@ -52,7 +52,7 @@ public:
    /**
     * Computer a vector of masks of single parametrizations - i.e. 10010 would give {10000,00010}
     */
-   std::vector<Paramset> getSingleMasks(Paramset parameters) {
+   std::vector<Paramset> getSingleMasks(Paramset parameters) const {
       std::vector<Paramset> masks;
       Paramset mask = getLeftOne();
       for (std::size_t counter = 0; counter < getParamsetSize(); counter++) {
@@ -64,11 +64,28 @@ public:
    }
 
    /**
+    * Return a paramset with on bits corresponding to requested numbers - i.e. for {1,3} we would get 1010...0
+    *
+    * @param vector of number in range [1,|paramset|]
+    *
+    * @return Paramset mask
+    */
+   const Paramset getMaskFromNums(std::vector<std::size_t> numbers) {
+      Paramset full_mask = 0;
+      for (auto num = numbers.begin(); num != numbers.end(); num++) {
+         if (*num > getParamsetSize())
+            throw std::runtime_error("Mask asked for number bigger that is the size of Paramset mask.");
+         full_mask |= 1 << (getParamsetSize() - *num);
+      }
+      return full_mask;
+   }
+
+   /**
     * Flips every bit
     *
     * @return copy of input with swapped bits.
     */
-   inline Paramset flip(const Paramset parameters) {
+   inline Paramset flip(const Paramset parameters)  const {
       return ~parameters;
    }
 
@@ -79,7 +96,7 @@ public:
     *
     * @return copy of input with descending order of parameters
     */
-   inline Paramset swap(Paramset parameters) {
+   inline Paramset swap(Paramset parameters) const {
       Paramset new_params = 0;
       for (std::size_t param_num = 0; param_num < getParamsetSize(); param_num++) {
          new_params <<= 1;
@@ -98,7 +115,7 @@ public:
     *
     * @return copy of input with descending order of parameters
     */
-   inline Paramset swap(Paramset parameters, std::size_t shift) {
+   inline Paramset swap(Paramset parameters, std::size_t shift) const {
       parameters = swap(parameters);
       parameters >>= shift;
       return parameters;
@@ -114,7 +131,7 @@ public:
    #define MASK_01010101 (((unsigned int)(-1))/3)
    #define MASK_00110011 (((unsigned int)(-1))/5)
    #define MASK_00001111 (((unsigned int)(-1))/17)
-   int count (Paramset n) {
+   int count (Paramset n) const {
       n = (n & MASK_01010101) + ((n >> 1) & MASK_01010101) ;
       n = (n & MASK_00110011) + ((n >> 2) & MASK_00110011) ;
       n = (n & MASK_00001111) + ((n >> 4) & MASK_00001111) ;
@@ -124,7 +141,7 @@ public:
    /**
     * @return true if none of the paremters is set
     */
-   inline const bool none(Paramset parameters) {
+   inline const bool none(Paramset parameters) const {
       return (parameters == 0);
    }
 
@@ -135,7 +152,7 @@ public:
     *
     * @return position of the bit in the mask (from the left)
     */
-   inline const std::size_t getBitNum(Paramset color) {
+   inline const std::size_t getBitNum(Paramset color) const {
       if (count(color) != 1)
          throw std::runtime_error("getBitNum called on colorset with different number of on bits than one.");
 

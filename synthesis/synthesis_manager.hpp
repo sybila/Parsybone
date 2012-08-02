@@ -100,7 +100,7 @@ class SynthesisManager {
 
 		// Set all the initial states to initial color
 		for (auto init_it = holder.getProduct().getInitialStates().begin(); init_it != holder.getProduct().getInitialStates().end(); init_it++)
-			storage.get()->update(starting, *init_it);
+			storage.get()->update(*init_it, starting);
 
 		// Schedule all initial states for updates
 		std::set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());

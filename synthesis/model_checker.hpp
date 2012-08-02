@@ -34,7 +34,7 @@ class ModelChecker {
 	Paramset to_find; ///< Mask of parameters that are still not found
 	Paramset restrict_mask; ///< Mask of parameters that are secure to left out
 	std::vector<std::size_t> BFS_reach; ///< In which round this color was found
-	std::size_t BFS_level; ///< Number of current BFS level during coloring
+	std::size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions
 
 	// Other
 	std::vector<bool> BA_presence; ///< Vector that marks IDs of BA states under which self-loop is possible this round, used to update only with "sink" parametrizations
@@ -204,19 +204,13 @@ class ModelChecker {
 			if (paramset_helper.none(update_it->second))
 				continue;
 
-			// Do not allow to pass between initial states and final states in the time serie
-			if (user_options.timeSerie()) {	
-				if (product.isInitial(update_it->first) || product.isFinal(ID))
-					continue;
-			}
-
 			// If something new is added to the target, schedule it for an update
-			if (storage.soft_update(update_it->second, update_it->first)) {
+			if (storage.soft_update(update_it->first, update_it->second)) {
 				// Determine what is necessary to update
 				if (user_options.witnesses() || user_options.robustness())
-					next_round_storage.update(ID, update_it->second, update_it->first);
+					next_round_storage.update(ID, update_it->first, update_it->second);
 				else
-					next_round_storage.update(update_it->second, update_it->first);
+					next_round_storage.update(update_it->first, update_it->second);
 				next_updates.insert(update_it->first);
 			}
 		}
@@ -232,10 +226,14 @@ class ModelChecker {
 			// Within updates, find the one with most bits
 			StateID ID = getStrongestUpdate();
 			// Check if this is not the last round
-			if (product.isFinal(ID))
-				 markLevels(storage.getColor(ID));
-			// Pass data from updated vertex to its succesors
-			transferUpdates(ID, storage.getColor(ID) & restrict_mask);
+			if (user_options.timeSerie()) {
+				if (product.isFinal(ID))
+					markLevels(storage.getColor(ID));
+				else
+					transferUpdates(ID, storage.getColor(ID) & restrict_mask);
+			}
+			else
+				transferUpdates(ID, storage.getColor(ID) & restrict_mask);
 			// Erase completed update from the set
 			updates.erase(ID);
 
@@ -267,7 +265,7 @@ class ModelChecker {
 		updates = start_updates; // Copy starting updates
 		synthesis_range = _range; // Copy range of this round
 
-		BFS_level = 1; // Set sterting number of BFS
+		BFS_level = 0; // Set sterting number of BFS
 		next_updates.clear(); // Ensure emptiness of the next round
 		BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)
 		next_round_storage = storage; // Copy starting values
