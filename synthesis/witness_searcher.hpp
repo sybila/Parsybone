@@ -29,31 +29,35 @@ class WitnessSearcher {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SEARCH FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   void storeTransitions(const Paramset to_whom) {
-      std::string path_str("<");
-      for (std::size_t step = depth; step > 0; step--)
-         path_str.append(product.getString(path[step])).append(",");
-      path_str.back() = '>';
+   void storeTransitions(const Paramset which) {
+      std::string path_str;
+      for (std::size_t step = (depth-1); step > 0; step--)
+         path_str.append("[").append(toString(path[step+1])).append(">").append(toString(path[step])).append("]");
 
       Paramset marker = paramset_helper.getLeftOne();
       for (std::size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
-         if (to_whom & marker)
+         if (which & marker)
             string_paths[param].append(path_str);
          marker >>= 1;
+      }
+
+      for (std::size_t step = 0; step <= depth; step++) {
+         workspace.update(path[step], which);
       }
    }
 
    void DFS(const StateID ID, Paramset paramset) {
-      /*if (! workspace.soft_update(ID, paramset))
-         return;
-      else {
-         paramset = paramset & ~workspace.getColor(ID);
-         workspace.update(ID, paramset);
-      }*/
-
       path[depth] = ID;
+
       if (product.isInitial(ID))
          storeTransitions(paramset);
+      else {
+         Paramset connected = workspace.getColor(ID) & paramset;
+         if (connected)
+            storeTransitions(connected);
+         paramset &= ~workspace.getColor(ID);
+      }
+
       paramset &= ~depth_masks[depth];
       if (paramset) {
          depth++;
@@ -116,7 +120,6 @@ public:
       prepareMasks();
       depth = 0;
       max_depth = getMaxDepth();
-      Paramset starting = workspace.getAcceptable();
 
       auto finals = product.getFinalStates();
       for (auto final = finals.begin(); final != finals.end(); final++) {
