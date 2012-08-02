@@ -75,7 +75,7 @@ public:
       for (auto num = numbers.begin(); num != numbers.end(); num++) {
          if (*num > getParamsetSize())
             throw std::runtime_error("Mask asked for number bigger that is the size of Paramset mask.");
-         full_mask |= 1 << (getParamsetSize() - *num);
+         full_mask |= 1 << (getParamsetSize() - (*num + 1));
       }
       return full_mask;
    }

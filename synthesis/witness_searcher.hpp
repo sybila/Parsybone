@@ -23,30 +23,46 @@ class WitnessSearcher {
 
    std::vector<StateID> path;
    std::vector<Paramset> depth_masks;
-   Paramset current;
    std::size_t depth;
    std::size_t max_depth;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SEARCH FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   void storeTransitions(const Paramset to_whom) {
+      std::string path_str("<");
+      for (std::size_t step = depth; step > 0; step--)
+         path_str.append(product.getString(path[step])).append(",");
+      path_str.back() = '>';
+
+      Paramset marker = paramset_helper.getLeftOne();
+      for (std::size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
+         if (to_whom & marker)
+            string_paths[param].append(path_str);
+         marker >>= 1;
+      }
+   }
+
    void DFS(const StateID ID, Paramset paramset) {
-      if (! workspace.soft_update(ID, paramset))
+      /*if (! workspace.soft_update(ID, paramset))
          return;
-      else
+      else {
          paramset = paramset & ~workspace.getColor(ID);
+         workspace.update(ID, paramset);
+      }*/
 
       path[depth] = ID;
-      depth++;
-
-      if (depth < max_depth) {
+      if (product.isInitial(ID))
+         storeTransitions(paramset);
+      paramset &= ~depth_masks[depth];
+      if (paramset) {
+         depth++;
          auto predecessors = workspace.getNeighbours(ID, false, paramset);
          for (auto pred = predecessors.begin(); pred != predecessors.end(); pred++) {
             DFS(*pred, paramset);
          }
+         depth--;
       }
-
-      depth--;
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +78,6 @@ class WitnessSearcher {
 
    void prepareMasks() {
       depth_masks.clear();
-      Paramset starting = workspace.getAcceptable();
       std::vector<std::vector<std::size_t> > members(getMaxDepth() + 1);
       std::size_t param_num = 0;
       forEach(workspace.getCost(), [&members, &param_num](std::size_t current){
@@ -71,7 +86,7 @@ class WitnessSearcher {
          param_num++;
       });
       forEach(members, [&](std::vector<std::size_t> numbers){
-              depth_masks.push_back(paramset_helper.getMaskFromNums(numbers));
+          depth_masks.push_back(paramset_helper.getMaskFromNums(numbers));
       });
    }
 
@@ -95,20 +110,24 @@ public:
    const std::vector<std::string> getOutput () {
       workspace = storage;
       for (StateID ID = 0; ID < product.getStateCount(); ID++) {
-         if (!product.isFinal(ID))
-            workspace.remove(ID, ~0);
+         workspace.remove(ID, ~0);
       }
       clearPaths();
       prepareMasks();
       depth = 0;
       max_depth = getMaxDepth();
+      Paramset starting = workspace.getAcceptable();
 
       auto finals = product.getFinalStates();
       for (auto final = finals.begin(); final != finals.end(); final++) {
-         DFS(*final, workspace.getColor(*final));
+         DFS(*final, storage.getColor(*final));
       }
 
-      return string_paths;
+      std::vector<std::string> acceptable_paths;
+      for (auto path_it = string_paths.begin(); path_it != string_paths.end(); path_it++)
+         if (!path_it->empty())
+            acceptable_paths.push_back(std::move(*path_it));
+      return acceptable_paths;
    }
 };
 
