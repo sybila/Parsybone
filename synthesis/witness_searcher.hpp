@@ -24,6 +24,7 @@ class WitnessSearcher {
    std::vector<StateID> path;
    std::vector<Paramset> depth_masks;
    std::size_t depth;
+   std::size_t fork_depth;
    std::size_t max_depth;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,8 +32,10 @@ class WitnessSearcher {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    void storeTransitions(const Paramset which) {
       std::string path_str;
-      for (std::size_t step = (depth-1); step > 0; step--)
-         path_str.append("[").append(toString(path[step+1])).append(">").append(toString(path[step])).append("]");
+      for (std::size_t step = my_max(fork_depth,1); step < depth; step++) {
+         path_str.append("[").append(toString(path[step])).append("<").append(toString(path[step+1])).append("]");
+         workspace.update(path[step], which);
+      }
 
       Paramset marker = paramset_helper.getLeftOne();
       for (std::size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
@@ -40,22 +43,21 @@ class WitnessSearcher {
             string_paths[param].append(path_str);
          marker >>= 1;
       }
-
-      for (std::size_t step = 0; step <= depth; step++) {
-         workspace.update(path[step], which);
-      }
+      fork_depth = depth;
    }
 
    void DFS(const StateID ID, Paramset paramset) {
       path[depth] = ID;
+      if (depth > max_depth)
+         throw std::runtime_error("Depth boundary overcome.");
 
-      if (product.isInitial(ID))
+      Paramset connected = workspace.getColor(ID) & paramset;
+      if (connected)
+         storeTransitions(connected);
+      paramset &= ~connected;
+
+      if (product.isInitial(ID)) {
          storeTransitions(paramset);
-      else {
-         Paramset connected = workspace.getColor(ID) & paramset;
-         if (connected)
-            storeTransitions(connected);
-         paramset &= ~workspace.getColor(ID);
       }
 
       paramset &= ~depth_masks[depth];
@@ -67,6 +69,7 @@ class WitnessSearcher {
          }
          depth--;
       }
+      fork_depth = my_min(depth-1, fork_depth);
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +121,7 @@ public:
       }
       clearPaths();
       prepareMasks();
-      depth = 0;
+      depth = fork_depth = 0;
       max_depth = getMaxDepth();
 
       auto finals = product.getFinalStates();

@@ -77,10 +77,10 @@ public:
 	 * Display colors synthetized during current round
 	 */
 	void outputRound() const {
-        auto params = analyzer.getOutput(); auto param_it = params.begin();
-        auto data = searcher.getOutput(); auto data_it = data.begin();
-        //if (params.size() != data.size())
-         //   throw std::runtime_error("Sizes of vectors on output are not equal.");
+		  auto params = std::move(analyzer.getOutput()); auto param_it = params.begin();
+		  auto data = std::move(searcher.getOutput()); auto data_it = data.begin();
+		  if (params.size() != data.size())
+			  throw std::runtime_error("Sizes of vectors on output are not equal.");
         while (param_it != params.end()) {
             output_streamer.output(results_str, *param_it + *data_it);
             param_it++; data_it++;
