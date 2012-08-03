@@ -151,7 +151,7 @@ public:
       }
    }
 
-   const std::vector<std::string> getOutput () {
+   const std::vector<std::string> getOutput() const {
       std::vector<std::string> acceptable_paths;
       for (auto param_it = transitions.begin(); param_it != transitions.end(); param_it++) {
          if (!param_it->empty()) {

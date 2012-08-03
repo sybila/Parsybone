@@ -14,6 +14,7 @@
 #include "../construction/product_structure.hpp"
 #include "coloring_analyzer.hpp"
 #include "witness_searcher.hpp"
+#include "robustness_compute.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Class that outputs formatted data from results
@@ -21,7 +22,8 @@
 class OutputManager {
 	const ColoringAnalyzer & analyzer; ///< Provides parametrizations' numbers and exact values
 	const SplitManager & split_manager; ///< Provides round and split information
-	WitnessSearcher & searcher; ///< Provides robustness and witnesses
+	const WitnessSearcher & searcher; ///< Provides witnesses in the form of transitions
+	const RobustnessCompute & robustness; ///< Provides Robustness value
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -33,8 +35,8 @@ public:
 	/**
 	 * Simple constructor that only passes the references.
 	 */
-	OutputManager(const ColoringAnalyzer & _analyzer, const SplitManager & _split_manager, WitnessSearcher & _searcher)
-					: analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher) { }
+	OutputManager(const ColoringAnalyzer & _analyzer, const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
+		: analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OUTPUT FUNCTIONS
@@ -77,14 +79,16 @@ public:
 	 * Display colors synthetized during current round
 	 */
 	void outputRound() const {
-		  auto params = std::move(analyzer.getOutput()); auto param_it = params.begin();
-		  auto data = std::move(searcher.getOutput()); auto data_it = data.begin();
-		  if (params.size() != data.size())
-			  throw std::runtime_error("Sizes of vectors on output are not equal.");
-        while (param_it != params.end()) {
-            output_streamer.output(results_str, *param_it + *data_it);
-            param_it++; data_it++;
-        }
+		auto params = std::move(analyzer.getOutput()); auto param_it = params.begin();
+		auto witnesses = std::move(searcher.getOutput()); auto witness_it = witnesses.begin();
+		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
+
+		if (params.size() != witnesses.size() || params.size() != robusts.size())
+			throw std::runtime_error("Sizes of vectors on output are not equal.");
+		while (param_it != params.end()) {
+			output_streamer.output(results_str, *param_it + *robust_it + *witness_it);
+			param_it++; witness_it++; robust_it++;
+		}
 
 		if (coloring_parser.output())
 			coloring_parser.outputComputed(analyzer.getMask());

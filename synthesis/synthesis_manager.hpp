@@ -17,6 +17,7 @@
 #include "model_checker.hpp"
 #include "paramset_helper.hpp"
 #include "split_manager.hpp"
+#include "robustness_compute.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Manager of the synthesis procedure - takes the reference data constructed during previous steps and computes and executes the synthesis.
@@ -34,6 +35,7 @@ class SynthesisManager {
 	std::unique_ptr<SplitManager> split_manager; ///< Control of independent rounds
 	std::unique_ptr<ColorStorage> storage; ///< Class that holds
 	std::unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses
+    std::unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness
 
 	/// Overall statistics
 	std::size_t total_colors;
@@ -140,7 +142,8 @@ public:
 		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
 		model_checker.reset(new ModelChecker(holder, *storage.get()));
         searcher.reset(new WitnessSearcher(holder, *storage.get()));
-		output.reset(new OutputManager(*analyzer, *split_manager, *searcher));
+        robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
+        output.reset(new OutputManager(*analyzer, *split_manager, *searcher, *robustness));
 
 		total_colors = 0;
 	}
