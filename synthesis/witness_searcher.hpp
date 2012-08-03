@@ -38,7 +38,7 @@ class WitnessSearcher {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    void storeTransitions(const Paramset which) {
      std::multimap<StateID, StateID> trans;
-      for (std::size_t step = my_max(fork_depth,1); step < depth; step++) {
+      for (std::size_t step = my_max(fork_depth,0); step < depth; step++) {
          trans.insert(std::make_pair(path[step+1], path[step]));
          markings[path[step]].succeeded = which;
          // path_str.append("[").append(toString(path[step])).append("<").append(toString(path[step+1])).append("]");
@@ -92,12 +92,12 @@ class WitnessSearcher {
          string_paths.resize(paramset_helper.getParamsetSize(), "");
       else
          forEach(string_paths, [](std::string & single_path){single_path = "";});
-      path = std::vector<StateID>(getMaxDepth() + 1, 0);
+      path = std::vector<StateID>(storage.getMaxDepth() + 1, 0);
    }
 
    void prepareMasks() {
       depth_masks.clear();
-      std::vector<std::vector<std::size_t> > members(getMaxDepth() + 1);
+      std::vector<std::vector<std::size_t> > members(storage.getMaxDepth() + 1);
       std::size_t param_num = 0;
 
       forEach(storage.getCost(), [&members, &param_num](std::size_t current){
@@ -119,12 +119,6 @@ class WitnessSearcher {
       transitions.resize(paramset_helper.getParamsetSize());
    }
 
-   const std::size_t getMaxDepth () const {
-      std::size_t depth = 0;
-      forEach(storage.getCost(), [&depth](std::size_t current){depth = my_max((current == ~0 ? 0 : current), depth);});
-      return depth;
-   }
-
    WitnessSearcher(const WitnessSearcher & other); ///< Forbidden copy constructor.
    WitnessSearcher& operator=(const WitnessSearcher & other); ///< Forbidden assignment operator.
 
@@ -142,7 +136,7 @@ public:
       clearPaths();
       prepareMasks();
       depth = fork_depth = 0;
-      max_depth = getMaxDepth();
+      max_depth = storage.getMaxDepth();
 
       auto finals = product.getFinalStates();
       for (auto final = finals.begin(); final != finals.end(); final++) {
@@ -163,6 +157,11 @@ public:
          }
       }
       return acceptable_paths;
+   }
+
+
+   const std::vector<std::multimap<StateID, StateID> > & getTransitions() const {
+      return transitions;
    }
 };
 

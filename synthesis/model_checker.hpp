@@ -247,7 +247,7 @@ class ModelChecker {
 		} while (!updates.empty());
 
 		// After the coloring, pass cost to the coloring (and computed colors = starting - not found)
-		storage.setResults(BFS_reach, ~restrict_mask & starting);
+		storage.setResults(BFS_reach, ~to_find & starting);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
