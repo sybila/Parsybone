@@ -53,5 +53,6 @@ HEADERS += \
     ../../synthesis/output_manager.hpp \
     ../../synthesis/model_checker.hpp \
     ../../synthesis/coloring_analyzer.hpp \
-    ../../synthesis/color_storage.hpp
+    ../../synthesis/color_storage.hpp \
+    ../../synthesis/robustness_compute.hpp
 

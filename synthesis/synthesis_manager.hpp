@@ -58,6 +58,7 @@ class SynthesisManager {
 	 */
 	void doConclusion() {
         total_colors += paramset_helper.count(analyzer->getMask());
+        searcher->findWitnesses();
 		// Output what has been synthetized (colors, witnesses)
 		output->outputRound();
 	}
@@ -138,7 +139,7 @@ public:
 		storage.reset(new ColorStorage(holder.getProduct().getStateCount()));
 		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
 		model_checker.reset(new ModelChecker(holder, *storage.get()));
-		searcher.reset(new WitnessSearcher(holder, *analyzer, *storage.get()));
+        searcher.reset(new WitnessSearcher(holder, *storage.get()));
 		output.reset(new OutputManager(*analyzer, *split_manager, *searcher));
 
 		total_colors = 0;

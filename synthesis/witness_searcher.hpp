@@ -16,6 +16,7 @@ class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties
    const ColorStorage & storage; ///< Constant storage with the actuall data
 
+   std::vector<std::multimap<StateID, StateID> > transitions;
    std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable)
 
    std::vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position
@@ -36,16 +37,17 @@ class WitnessSearcher {
 // SEARCH FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    void storeTransitions(const Paramset which) {
-      std::string path_str;
+     std::multimap<StateID, StateID> trans;
       for (std::size_t step = my_max(fork_depth,1); step < depth; step++) {
-         path_str.append("[").append(toString(path[step])).append("<").append(toString(path[step+1])).append("]");
+         trans.insert(std::make_pair(path[step+1], path[step]));
          markings[path[step]].succeeded = which;
+         // path_str.append("[").append(toString(path[step])).append("<").append(toString(path[step+1])).append("]");
       }
 
       Paramset marker = paramset_helper.getLeftOne();
       for (std::size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
          if (which & marker)
-            string_paths[param].append(path_str);
+            transitions[param].insert(trans.begin(), trans.end());
          marker >>= 1;
       }
       fork_depth = depth;
@@ -97,16 +99,24 @@ class WitnessSearcher {
       depth_masks.clear();
       std::vector<std::vector<std::size_t> > members(getMaxDepth() + 1);
       std::size_t param_num = 0;
+
       forEach(storage.getCost(), [&members, &param_num](std::size_t current){
          if (current != ~0)
             members[current].push_back(param_num);
          param_num++;
       });
+
       forEach(members, [&](std::vector<std::size_t> numbers){
-          depth_masks.push_back(paramset_helper.getMaskFromNums(numbers));
+         depth_masks.push_back(paramset_helper.getMaskFromNums(numbers));
       });
 
-      forEach(markings, [](Marking & marking){marking.succeeded = 0; marking.busted.assign(marking.busted.size(),0);});
+      forEach(markings, [](Marking & marking){
+         marking.succeeded = 0;
+         marking.busted.assign(marking.busted.size(),0);
+      });
+
+      transitions.clear();
+      transitions.resize(paramset_helper.getParamsetSize());
    }
 
    const std::size_t getMaxDepth () const {
@@ -114,7 +124,6 @@ class WitnessSearcher {
       forEach(storage.getCost(), [&depth](std::size_t current){depth = my_max((current == ~0 ? 0 : current), depth);});
       return depth;
    }
-
 
    WitnessSearcher(const WitnessSearcher & other); ///< Forbidden copy constructor.
    WitnessSearcher& operator=(const WitnessSearcher & other); ///< Forbidden assignment operator.
@@ -129,8 +138,7 @@ public:
       markings.resize(product.getStateCount(), empty);
    }
 
-
-   const std::vector<std::string> getOutput () {
+   void findWitnesses() {
       clearPaths();
       prepareMasks();
       depth = fork_depth = 0;
@@ -141,11 +149,19 @@ public:
          if (storage.getColor(*final))
             DFS(*final, storage.getColor(*final));
       }
+   }
 
+   const std::vector<std::string> getOutput () {
       std::vector<std::string> acceptable_paths;
-      for (auto path_it = string_paths.begin(); path_it != string_paths.end(); path_it++)
-         if (!path_it->empty())
-            acceptable_paths.push_back(std::move(*path_it));
+      for (auto param_it = transitions.begin(); param_it != transitions.end(); param_it++) {
+         if (!param_it->empty()) {
+            std::string path;
+            for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
+               path.append("[").append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append("]");
+            }
+            acceptable_paths.push_back(std::move(path));
+         }
+      }
       return acceptable_paths;
    }
 };
