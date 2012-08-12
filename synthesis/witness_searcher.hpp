@@ -16,8 +16,10 @@ class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties
    const ColorStorage & storage; ///< Constant storage with the actuall data
 
+   /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget)
    std::vector<std::set<std::pair<StateID, StateID> > > transitions;
-   std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable)
+
+   std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string)
 
    std::vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position
    std::vector<Paramset> depth_masks; ///< For each of levels of DFS, stores mask of parametrizations with corresponding cost (those that are not furter used in the DFS)
@@ -35,13 +37,21 @@ class WitnessSearcher {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SEARCH FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+    * Storest transitions in the form (source, target) within the @var transitions vector, for the path from the final vertex to the one in the current depth of the DFS procedure.
+    *
+    * @param which   mask of the parametrizations that allow currently found path
+    */
    void storeTransitions(const Paramset which) {
-      std::vector<std::pair<StateID, StateID> >  trans;
+      std::vector<std::pair<StateID, StateID> >  trans;  // Temporary storage for the transitions
+      // Go from the end till the lastly reached node
       for (std::size_t step = 0; step < depth; step++) {
          trans.push_back(std::make_pair(path[step+1], path[step]));
-         markings[path[step]].succeeded = which;
+         markings[path[step]].succeeded = which; // Mark found for given parametrizations
       }
+      markings[path[depth]].succeeded = which;
 
+      // Add transitions to the parametrizations that allow them
       Paramset marker = paramset_helper.getLeftOne();
       for (std::size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
          if (which & marker)
@@ -50,30 +60,43 @@ class WitnessSearcher {
       }
    }
 
+   /**
+    * Searching procedure itself. This method is called recursivelly based on the depth of the search and passes current parametrizations based on the predecessors.
+    *
+    * @param ID   ID of the state visited
+    * @param paramset   parametrizations passed form the successor
+    */
    void DFS(const StateID ID, Paramset paramset) {
+      // Add the state to the path
       path[depth] = ID;
       if (depth > max_depth)
          throw std::runtime_error("Depth boundary overcome during the DFS procedure.");
 
+      // If this state already has proven to lie on a path to the source, add this possible successors
+      // Note that this works correctly due to the fact, that parametrizations are removed form the BFS during the coloring once they prove acceptable
       Paramset connected = markings[ID].succeeded & paramset;
       if (connected)
          storeTransitions(connected);
 
-      if (product.isInitial(ID)) {
+      // If a way to the source was found, apply it as well
+      if (product.isInitial(ID))
          storeTransitions(paramset);
-      }
 
+      // Remove those with Cost lower than this level of the search (meaning that nothing more that cycles would be found)
       paramset &= ~depth_masks[depth];
 
+      // Remove parametrizations that already have proven to be used/useless
       for (std::size_t level = 1; level <= depth && paramset; level++)
          paramset &= ~markings[ID].busted[level];
-      markings[ID].busted[depth] |= paramset;
+      markings[ID].busted[depth] |= paramset; // Forbid usage of these parametrizations for depth levels as high or higher than this one
 
+      // If there is anything left, pass it further to the predecessors
       if (paramset) {
          depth++;
+         // Obtain and cycle through possible predecessors.
          auto predecessors = storage.getNeighbours(ID, false, paramset);
          for (auto pred = predecessors.begin(); pred != predecessors.end(); pred++) {
-            DFS(*pred, paramset);
+            DFS(*pred, paramset); // USAGE OF THE WHOLE PARAMSET PROBABLY CAUSES ERRORS
          }
          depth--;
       }
@@ -157,7 +180,9 @@ public:
       return acceptable_paths;
    }
 
-
+   /**
+    * @retur transitions for each parametrizations in the form (source, target)
+    */
    const std::vector<std::set<std::pair<StateID, StateID> > > & getTransitions() const {
       return transitions;
    }

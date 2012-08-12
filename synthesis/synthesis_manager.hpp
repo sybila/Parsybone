@@ -60,10 +60,13 @@ class SynthesisManager {
 	 */
 	void doConclusion() {
 		total_colors += paramset_helper.count(analyzer->getMask());
-		searcher->findWitnesses();
-		robustness->compute();
-		// Output what has been synthetized (colors, witnesses)
-		output->outputRound();
+		// Compute witnesses etc. if there is anything to computed, if so, print
+		if (analyzer->getMask()) {
+			searcher->findWitnesses();
+			robustness->compute();
+			// Output what has been synthetized (colors, witnesses)
+			output->outputRound();
+		}
 	}
 
 	/**
