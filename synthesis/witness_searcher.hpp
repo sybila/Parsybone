@@ -40,7 +40,6 @@ class WitnessSearcher {
       for (std::size_t step = 0; step < depth; step++) {
          trans.push_back(std::make_pair(path[step+1], path[step]));
          markings[path[step]].succeeded = which;
-         // path_str.append("[").append(toString(path[step])).append("<").append(toString(path[step+1])).append("]");
       }
 
       Paramset marker = paramset_helper.getLeftOne();
@@ -59,7 +58,6 @@ class WitnessSearcher {
       Paramset connected = markings[ID].succeeded & paramset;
       if (connected)
          storeTransitions(connected);
-      paramset &= ~connected;
 
       if (product.isInitial(ID)) {
          storeTransitions(paramset);
