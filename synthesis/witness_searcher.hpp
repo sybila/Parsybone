@@ -16,13 +16,12 @@ class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties
    const ColorStorage & storage; ///< Constant storage with the actuall data
 
-   std::vector<std::multimap<StateID, StateID> > transitions;
+   std::vector<std::set<std::pair<StateID, StateID> > > transitions;
    std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable)
 
    std::vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position
    std::vector<Paramset> depth_masks; ///< For each of levels of DFS, stores mask of parametrizations with corresponding cost (those that are not furter used in the DFS)
    std::size_t depth; ///< Current level of the DFS
-   std::size_t fork_depth; ///< Last level of the rollback (for the initial search being 0) - this is basically the level from which this search differes from the previous one.
    std::size_t max_depth; ///< Maximal level of recursion that is possible (maximal Cost in this round).
 
    /// This structure stores "already tested" paramsets for a state
@@ -37,9 +36,9 @@ class WitnessSearcher {
 // SEARCH FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    void storeTransitions(const Paramset which) {
-     std::multimap<StateID, StateID> trans;
-      for (std::size_t step = my_max(fork_depth,0); step < depth; step++) {
-         trans.insert(std::make_pair(path[step+1], path[step]));
+      std::vector<std::pair<StateID, StateID> >  trans;
+      for (std::size_t step = 0; step < depth; step++) {
+         trans.push_back(std::make_pair(path[step+1], path[step]));
          markings[path[step]].succeeded = which;
          // path_str.append("[").append(toString(path[step])).append("<").append(toString(path[step+1])).append("]");
       }
@@ -50,13 +49,12 @@ class WitnessSearcher {
             transitions[param].insert(trans.begin(), trans.end());
          marker >>= 1;
       }
-      fork_depth = depth;
    }
 
    void DFS(const StateID ID, Paramset paramset) {
       path[depth] = ID;
       if (depth > max_depth)
-         throw std::runtime_error("Depth boundary overcome.");
+         throw std::runtime_error("Depth boundary overcome during the DFS procedure.");
 
       Paramset connected = markings[ID].succeeded & paramset;
       if (connected)
@@ -81,7 +79,6 @@ class WitnessSearcher {
          }
          depth--;
       }
-      fork_depth = my_min(depth-1, fork_depth);
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +132,7 @@ public:
    void findWitnesses() {
       clearPaths();
       prepareMasks();
-      depth = fork_depth = 0;
+      depth = 0;
       max_depth = storage.getMaxDepth();
 
       auto finals = product.getFinalStates();
@@ -151,7 +148,10 @@ public:
          if (!param_it->empty()) {
             std::string path;
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
-               path.append("[").append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append("]");
+               if (!user_options.BA())
+                  path.append("[").append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append("]");
+               else
+                  path.append(",").append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second));
             }
             acceptable_paths.push_back(std::move(path));
          }
@@ -160,7 +160,7 @@ public:
    }
 
 
-   const std::vector<std::multimap<StateID, StateID> > & getTransitions() const {
+   const std::vector<std::set<std::pair<StateID, StateID> > > & getTransitions() const {
       return transitions;
    }
 };

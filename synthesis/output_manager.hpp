@@ -90,7 +90,7 @@ public:
 		}
 
 		while (param_it != params.end()) {
-			output_streamer.output(results_str, *param_it + *robust_it + *witness_it);
+			output_streamer.output(results_str, *param_it + *witness_it);
 			param_it++; witness_it++; robust_it++;
 		}
 

@@ -63,9 +63,10 @@ public:
     */
    RobustnessCompute(const ConstructionHolder & _holder, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
       : product(_holder.getProduct()), storage(_storage), searcher(_searcher) {
-      Marking empty = {std::vector<unsigned char>(paramset_helper.getParamsetSize(), 0),
+      Marking empty = { std::vector<unsigned char>(paramset_helper.getParamsetSize(), 0),
          std::vector<double>(paramset_helper.getParamsetSize(), 0.0),
-         std::vector<double>(paramset_helper.getParamsetSize(), 0.0)};
+         std::vector<double>(paramset_helper.getParamsetSize(), 0.0)
+      };
       markings.resize(product.getStateCount(), empty);
       results.resize(paramset_helper.getParamsetSize(), 0.0);
    }

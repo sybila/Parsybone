@@ -27,7 +27,7 @@
 ///   -# conclusion: stores additional data and outputs
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynthesisManager {
-    const ConstructionHolder & holder; ///< Holder of all the reference data.
+	const ConstructionHolder & holder; ///< Holder of all the reference data.
 
 	std::unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis
 	std::unique_ptr<ModelChecker> model_checker; ///< Class for synthesis
@@ -35,7 +35,7 @@ class SynthesisManager {
 	std::unique_ptr<SplitManager> split_manager; ///< Control of independent rounds
 	std::unique_ptr<ColorStorage> storage; ///< Class that holds
 	std::unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses
-    std::unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness
+	std::unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness
 
 	/// Overall statistics
 	std::size_t total_colors;
@@ -59,9 +59,9 @@ class SynthesisManager {
 	 * Store results that have not been stored yet and finalize the round where needed
 	 */
 	void doConclusion() {
-        total_colors += paramset_helper.count(analyzer->getMask());
-        searcher->findWitnesses();
-        robustness->compute();
+		total_colors += paramset_helper.count(analyzer->getMask());
+		searcher->findWitnesses();
+		robustness->compute();
 		// Output what has been synthetized (colors, witnesses)
 		output->outputRound();
 	}
@@ -73,15 +73,15 @@ class SynthesisManager {
 	 */
 	void doComputation() {
 		// Basic (initial) coloring
-        colorProduct();
+		colorProduct();
 
 		// Store colored final vertices
 		std::vector<Coloring> final_states = std::move(storage.get()->getColor(holder.getProduct().getFinalStates()));
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
-            if (!paramset_helper.none(final_it->second) && !user_options.timeSerie())
-				detectCycle(*final_it);
+			if (!paramset_helper.none(final_it->second) && !user_options.timeSerie())
+			detectCycle(*final_it);
 
 			// Store results from this final state
 			analyzer->storeResults(Coloring(final_it->first, storage.get()->getColor(final_it->first)));
@@ -99,7 +99,7 @@ class SynthesisManager {
 		else
 			starting = split_manager->createStartingParameters();
 
-        if (paramset_helper.none(starting))
+		if (paramset_helper.none(starting))
 			return;
 
 		// Set all the initial states to initial color
@@ -142,9 +142,9 @@ public:
 		storage.reset(new ColorStorage(holder.getProduct().getStateCount()));
 		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
 		model_checker.reset(new ModelChecker(holder, *storage.get()));
-        searcher.reset(new WitnessSearcher(holder, *storage.get()));
-        robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
-        output.reset(new OutputManager(*analyzer, *split_manager, *searcher, *robustness));
+		searcher.reset(new WitnessSearcher(holder, *storage.get()));
+		robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
+		output.reset(new OutputManager(*analyzer, *split_manager, *searcher, *robustness));
 
 		total_colors = 0;
 	}
