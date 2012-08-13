@@ -61,33 +61,31 @@ class ArgumentParser {
 		for (std::size_t switch_num = 1; switch_num < argument->size(); switch_num++) {
 			switch ((*argument)[switch_num]) {
 
-			case 'b':
-				user_options.add_BA_to_witness = true;
-				break;
-
 			case 'c':
 				user_options.show_coloring = true;
 				break;
 
+			case 'n':
+				user_options.show_state_numbers = true;
+				break;
+
+			// Dependency cascade
 			case 'r':
 				user_options.compute_robustness = true;
+
+			case 'w':
+				user_options.compute_wintess = true;
+
+			case 't':
+				user_options.time_serie = true;
 				break;
 
 			case 's':
 				user_options.display_stats = true;
 				break;
 
-			case 't':
-				user_options.time_serie = true;
-				break;
-
 			case 'v':
 				user_options.be_verbose = true;
-				break;
-
-			case 'w':
-                user_options.compute_wintess = true;
-				user_options.time_serie = true;
 				break;
 
             // Open file to read a color mask
@@ -103,13 +101,13 @@ class ArgumentParser {
 				return;
 
 			// Get data for distributed computation
-			case 'D':
+			case 'd':
 				testLast(switch_num, argument->size());
 				getDistribution(*(argument+1), *(argument+2)); argument += 2;
 				return;
 
 			// Redirecting results output to a file by a parameter
-			case 'F':
+			case 'f':
 				testLast(switch_num, argument->size());
 				output_streamer.createStreamFile(results_str, *(++argument));
 				return;

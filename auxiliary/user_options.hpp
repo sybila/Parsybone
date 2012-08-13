@@ -25,7 +25,7 @@ class UserOptions {
 	bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
 	bool display_stats; ///< Display data from statistics stream (verbose_str), mainly states and transition counts
 	bool time_serie; ///< Work with the property as with a time series (meaning check only reachability property)
-	bool add_BA_to_witness; ///< Should witnesses be displayed with BA state numbers? Usually only for debug.
+	bool show_state_numbers; ///< Should witnesses be displayed with BA state numbers? Usually only for debug.
 	bool compute_robustness; ///< Should robustness value be computed and displyed?
 	bool compute_wintess; ///< Should witnesses be computed and displayed?
 	std::size_t process_number; ///< What is the ID of this process?
@@ -42,7 +42,7 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-		compute_wintess = show_coloring = be_verbose = display_stats = time_serie = add_BA_to_witness = compute_robustness = false;
+		compute_wintess = show_coloring = be_verbose = display_stats = time_serie = show_state_numbers = compute_robustness = false;
 		process_number = processes_count = 1;
 	}
 
@@ -74,7 +74,7 @@ public:
 	 * @return	true if add_BA_to_witness is set (displaying path with BA states as well)
 	 */
 	inline const bool BA() const {
-		return add_BA_to_witness;
+		return show_state_numbers;
 	}
 
 	/**

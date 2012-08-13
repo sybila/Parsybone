@@ -22,6 +22,8 @@ class WitnessSearcher {
 
    /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget)
    std::vector<std::set<std::pair<StateID, StateID> > > transitions;
+   /// Vector storing for each parametrization initial states it reached
+   std::vector<std::vector<StateID> > initials;
 
    std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string)
 
@@ -45,8 +47,9 @@ class WitnessSearcher {
     * Storest transitions in the form (source, target) within the @var transitions vector, for the path from the final vertex to the one in the current depth of the DFS procedure.
     *
     * @param which   mask of the parametrizations that allow currently found path
+    * @param initil  if true, stores also the last node as an initial one for given parametrizations
     */
-   void storeTransitions(const Paramset which) {
+   void storeTransitions(const Paramset which, bool initial) {
       std::vector<std::pair<StateID, StateID> > trans;  // Temporary storage for the transitions
 
       // Go from the end till the lastly reached node
@@ -59,8 +62,11 @@ class WitnessSearcher {
       // Add transitions to the parametrizations that allow them
       Paramset marker = paramset_helper.getLeftOne();
       for (std::size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
-         if (which & marker)
+         if (which & marker) {
             transitions[param].insert(trans.begin(), trans.end());
+            if (initial)
+               initials[param].push_back(path[depth]);
+         }
          marker >>= 1;
       }
    }
@@ -81,11 +87,11 @@ class WitnessSearcher {
       // Note that this works correctly due to the fact, that parametrizations are removed form the BFS during the coloring once they prove acceptable
       Paramset connected = markings[ID].succeeded & paramset;
       if (connected)
-         storeTransitions(connected);
+         storeTransitions(connected, false);
 
       // If a way to the source was found, apply it as well
       if (product.isInitial(ID))
-         storeTransitions(paramset);
+         storeTransitions(paramset, true);
 
       // Remove those with Cost lower than this level of the search (meaning that nothing more that cycles would be found)
       paramset &= ~depth_masks[depth];
@@ -124,6 +130,9 @@ class WitnessSearcher {
       // Empty the storage of transitions
       transitions.clear();
       transitions.resize(paramset_helper.getParamsetSize());
+      // Empty the storage of inital states
+      initials.clear();
+      initials.resize(paramset_helper.getParamsetSize());
       // Clear markings
       forEach(markings, [](Marking & marking){
          marking.succeeded = 0;
@@ -217,10 +226,17 @@ public:
    }
 
    /**
-    * @retur transitions for each parametrizations in the form (source, target)
+    * @retur   transitions for each parametrizations in the form (source, target)
     */
    const std::vector<std::set<std::pair<StateID, StateID> > > & getTransitions() const {
       return transitions;
+   }
+
+   /**
+    * @return  a vector of IDs of intial states
+    */
+   const std::vector<std::vector<StateID> > & getInitials() const {
+      return initials;
    }
 };
 
