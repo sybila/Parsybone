@@ -11,7 +11,6 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "property_parser.hpp"
-#include "model.hpp"
 #include "network_parser.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,171 +29,6 @@ class ModelParser {
 	// Created with and for parsing
     rapidxml::xml_document<>  model_xml; ///< Main parsing node
     std::unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARSING:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Starting from the SPECIE node, the function parses all the INTER tags and reads the data from them.
-	 */
-	void parseInteractions(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		rapidxml::xml_node<>      *interaction;
-		// Interaction data
-		std::size_t source = ~0;
-		std::size_t threshold = ~0;
-		std::string label = "";
-		EdgeConstrain constrain = none_cons;
-		bool observable = false;
-
-		// Step into INTERACTIONS tag
-		interaction = XMLHelper::getChildNode(specie_node, "INTERACTIONS");
-
-		// Step into first INTER tag
-		interaction = XMLHelper::getChildNode(interaction, "INTER");
-
-		while (true) { // End when the current node does not have next sibling (all INTER tags were parsed)
-			// Get source ID and conver to integer.
-			XMLHelper::getAttribute(source, interaction, "source");
-			// Get threshold and conver to integer.
-			XMLHelper::getAttribute(threshold, interaction, "threshold");
-			// Get an edge label
-			if (!XMLHelper::getAttribute(label, interaction, "label", false))
-				label = "";
-			// Convert label into an edge constrain
-			constrain = Translator::readConstrain(label);
-			// Get observable attribute
-			XMLHelper::getAttribute(observable, interaction, "observ", false);
-
-			// Add a new interaction to the specified target
-			model.addInteraction(source, specie_ID, threshold, constrain, observable);
-
-			// Continue stepping into INTER tags while possible
-			if (interaction->next_sibling("INTER"))
-				interaction = interaction->next_sibling("INTER");
-			else break;
-		}
-	}
-
-	/**
-	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
-	 */
-	void parseRegulations(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		rapidxml::xml_node<>      *regulation;
-		// Interaction data
-		std::string mask_string; int target_value;
-
-		// Step into REGULATIONS tag
-		regulation = XMLHelper::getChildNode(specie_node, "REGULATIONS");
-		// Step into first REGUL tag
-		regulation = XMLHelper::getChildNode(regulation, "REGUL");
-
-		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
-			// Get the mask string.
-			XMLHelper::getAttribute(mask_string, regulation, "mask");
-			// Get max value and conver to integer.
-			XMLHelper::getAttribute(target_value, regulation, "t_value");
-
-			// Add a new regulation to the specified target
-			model.addRegulation(specie_ID, std::move(Translator::getMask(mask_string)),target_value);
-
-			// Continue stepping into REGUL tags while possible
-			if (regulation->next_sibling("REGUL"))
-				regulation = regulation->next_sibling("REGUL");
-			else break;
-		}
-	}
-
-	/**
-	 * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
-	 */
-	void parseSpecies(const rapidxml::xml_node<> * const structure_node) const {
-		rapidxml::xml_node<>      *specie;
-		// Specie data
-		std::string name; size_t max; size_t basal;
-
-		// Step into first SPECIE tag
-		specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-
-		while (true) { // End when the current node does not have next sibling (all SPECIES tags were parsed)
-			// Get name of the specie.
-			XMLHelper::getAttribute(name, specie, "name");
-			// Get max value and conver to integer.
-			XMLHelper::getAttribute(max, specie, "max");
-			// Get basal value and conver to integer.
-			XMLHelper::getAttribute(basal, specie, "basal");
-
-			// Create a new specie
-			size_t specie_ID = model.addSpecie(name, max, basal);
-
-			// Get all the interactions of the specie and store them to the model.
-			parseInteractions(specie, specie_ID);
-			// Get all the regulations of the specie and store them to the model.
-			parseRegulations(specie, specie_ID);
-
-			// Continue stepping into SPECIE tags while possible
-			if (specie->next_sibling("SPECIE"))
-				specie = specie->next_sibling("SPECIE");
-			else break;
-		} 
-	}
-
-	/**
-	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
-	 */
-	void parseTransitions(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
-		rapidxml::xml_node<>      *transition;
-		// Interaction data
-		std::string label_string; std::size_t target_ID;
-
-		// Step into REGULATIONS tag
-		transition = XMLHelper::getChildNode(state_node, "TRANSITIONS");
-		// Step into first REGUL tag
-		transition = XMLHelper::getChildNode(transition, "TRANS");
-
-		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
-			// Get the mask string.
-			XMLHelper::getAttribute(label_string, transition, "label");
-			// Get max value and conver to integer.
-			XMLHelper::getAttribute(target_ID, transition, "target");
-
-			// Add a new regulation to the specified target
-			model.addConditions(source_ID, target_ID, std::move(label_string));
-
-			// Continue stepping into REGUL tags while possible
-			if (transition->next_sibling("TRANS"))
-				transition = transition->next_sibling("TRANS");
-			else break;
-		}
-	}
-
-	/**
-	 * Starting from the AUTOMATON node, the function parses all the STATE tags and all their TRANSITION tags and reads the data from them.
-	 */
-	void parseStates(const rapidxml::xml_node<> * const automaton_node) const {
-		rapidxml::xml_node<>      *state;
-		// State data
-		bool final;
-
-		// Step into first SPECIE tag
-		state = XMLHelper::getChildNode(automaton_node, "STATE");
-
-		while (true) { // End when the current node does not have next sibling (all STATES tags were parsed)
-			// Find out whether the state is final
-			XMLHelper::getAttribute(final, state, "final");
-
-			// Create a new state
-			StateID ID = model.addState(final);
-
-			// Get all the transitions of the state and store them to the model.
-			parseTransitions(state, ID);
-
-			// Continue stepping into STATE tags while possible
-			if (state->next_sibling("STATE"))
-				state = state->next_sibling("STATE");
-			else break;
-		} 
-	}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION FUNCTIONS:
@@ -252,17 +86,13 @@ public:
 			                         .append(current_node->name()).append("> instead").c_str());
 		// Find version number
 		XMLHelper::getAttribute(file_version, current_node, "ver");
+		// XMLHelper::getAttribute(unspecified_regulations, current_node, "unspec", false);
 
-		// Parse Kripke Structure
-		output_streamer.output(verbose_str, "Started reading of the Kripke structure.");
-		current_node = XMLHelper::getChildNode(current_node, "STRUCTURE");
-		XMLHelper::getAttribute(unspecified_regulations, current_node, "unspec");
-		parseSpecies(current_node);
+		NetworkParser network_parser(model);
+		PropertyParser property_parser(model);
 
-		// Parse Buchi Automaton
-		output_streamer.output(verbose_str, "Started reading of the Buchi automaton.");
-		current_node = XMLHelper::getSiblingNode(current_node, "AUTOMATON");
-		parseStates(current_node);
+		network_parser.parse(current_node);
+		property_parser.parse(current_node);
 
 		// Pass additional information
 		model.addAdditionalInformation(Translator::getUnspecType(unspecified_regulations), file_version);
