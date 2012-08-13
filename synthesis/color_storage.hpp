@@ -18,15 +18,16 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ColorStorage {
 	struct State {
-		StateID ID;
+		StateID ID; ///< unique ID of the state
 		Paramset parameters; ///< 32 bits for each color in this round marking its presence or absence
 		std::vector<Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters)
 		std::vector<Paramset> successors; ///< Stores succesors in the same form
 
+		/// Holder of the computed information for a single state
 		State(const StateID _ID, const std::size_t states_num) : ID(_ID), parameters(0) {
-			parameters = 0;
-			predecessors.resize(states_num, 0);
-			successors.resize(states_num, 0);
+			parameters = 0; ///< Reaching paramset itself
+			predecessors.resize(states_num, 0); ///< Paramset of what came form a state with given ID
+			successors.resize(states_num, 0); ///< Paramset of what was passed to a state with given ID
 		}
 	};
 	
@@ -34,7 +35,7 @@ class ColorStorage {
 	/// This vector stores so-called COST value i.e. number of steps required to reach the final state in TS.
 	/// If it is not reachable, cost is set to ~0.
 	std::vector<std::size_t> cost_val;
-	Paramset acceptable;
+	Paramset acceptable; ///< Additional value that stores paramset computed in this orund
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -147,16 +148,30 @@ public:
 		return update(target_ID, parameters);
 	}
 
+	/**
+	 * Removes given paramset from the coloring of the given state
+	 */
 	void remove(const StateID ID, const Paramset remove) {
 		states[ID].parameters &= ~remove;
 	}
 
+	/**
+	 * Removes given paramset from the label of transitions to successors / from predecessors for a given state
+	 *
+	 * @param successors	if true, use successors, predecessors otherwise
+	 */
 	void remove(const StateID source_ID, const Paramset remove, const bool successors) {
 		// reference
 		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
 		forEach(neigbours, [remove](Paramset & label){label &= ~remove;});
 	}
 
+	/**
+	 * Removes given paramset from the label of transitions to a single successor / from a single predecessor for a given state
+	 *
+	 * @param target_ID	ID of the state target state to remove parameset from labelling
+	 * @param successors	if true, use successors, predecessors otherwise
+	 */
 	void remove(const StateID source_ID, const StateID target_ID, const Paramset remove, const bool successors) {
 		// reference
 		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;

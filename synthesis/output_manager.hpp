@@ -79,21 +79,33 @@ public:
 	 * Display colors synthetized during current round
 	 */
 	void outputRound() const {
+		// Get referencese
 		auto params = std::move(analyzer.getOutput()); auto param_it = params.begin();
 		auto witnesses = std::move(searcher.getOutput()); auto witness_it = witnesses.begin();
 		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
 
-		if (params.size() != witnesses.size() || params.size() != robusts.size()) {
+		/*if (params.size() != witnesses.size() || params.size() != robusts.size()) {
 			std::string error("Sizes of vectors on output are not equal.");
 			error.append(toString(params.size())).append(",").append(toString(witnesses.size())).append(",").append(toString(robusts.size()));
 			throw std::runtime_error(error);
-		}
+		}*/
 
+		// Cycle through parametrizations, display requested data
 		while (param_it != params.end()) {
-			output_streamer.output(results_str, *param_it + *robust_it + *witness_it);
-			param_it++; witness_it++; robust_it++;
+			output_streamer.output(results_str, *param_it, OutputStreamer::no_newl);
+			param_it++;
+			if (user_options.robustness()) {
+				output_streamer.output(results_str, *robust_it, OutputStreamer::no_newl);
+				robust_it++;
+			}
+			if (user_options.witnesses()) {
+				output_streamer.output(results_str, *witness_it, OutputStreamer::no_newl);
+				witness_it++;
+			}
+			output_streamer.output(results_str, "");
 		}
 
+		// Output mask if requested
 		if (coloring_parser.output())
 			coloring_parser.outputComputed(analyzer.getMask());
 	}

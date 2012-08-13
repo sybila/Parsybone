@@ -53,5 +53,7 @@ HEADERS += \
     ../../synthesis/model_checker.hpp \
     ../../synthesis/coloring_analyzer.hpp \
     ../../synthesis/color_storage.hpp \
-    ../../synthesis/robustness_compute.hpp
+    ../../synthesis/robustness_compute.hpp \
+    ../../parsing/xml_helper.hpp \
+    ../../parsing/translator.hpp
 

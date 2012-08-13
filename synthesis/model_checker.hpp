@@ -21,7 +21,7 @@
 class ModelChecker {
 	// Information
 	const ProductStructure & product; ///< Product on which the computation will be conducted
-	Range synthesis_range; // First and one beyond last color to be computed in this round
+	Range synthesis_range; ///< First and one beyond last color to be computed in this round
 
 	// Coloring storage
 	ColorStorage & storage; ///< Class that actually stores colors during the computation
@@ -207,7 +207,7 @@ class ModelChecker {
 			// If something new is added to the target, schedule it for an update
 			if (storage.soft_update(update_it->first, update_it->second)) {
 				// Determine what is necessary to update
-				if (user_options.witnesses() || user_options.robustness())
+				if (user_options.analysis())
 					next_round_storage.update(ID, update_it->first, update_it->second);
 				else
 					next_round_storage.update(update_it->first, update_it->second);

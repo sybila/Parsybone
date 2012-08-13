@@ -11,11 +11,8 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "model.hpp"
-
-#include "rapidxml-1.13/rapidxml.hpp"
-#include "rapidxml-1.13/rapidxml_iterators.hpp"
-#include "rapidxml-1.13/rapidxml_print.hpp"
-#include "rapidxml-1.13/rapidxml_utils.hpp"
+#include "translator.hpp"
+#include "xml_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ModelParser parses provided input stream and stores data in the provided Model object.
@@ -35,137 +32,7 @@ class ModelParser {
     std::unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @param mask_string	mask of the active interactions in given regulatory context in the form of a string
-	 *
-	 * @return Vector of boolean values that represents the input mask.
-	 */
-	std::vector<bool> getMask(std::string mask_string) const {
-		// Vector that will hold the mask instead of the string
-		std::vector<bool> mask;
-		// For all characters in the mask
-		std::for_each(mask_string.begin(), mask_string.end(),[&mask](char ch) {
-			// Check correctness of the symbols
-			if (ch != '0' && ch !='1') 
-				throw std::runtime_error("Error occured while parsing a regulation. It seems that you have entered value other than 0 or 1 in the mask.");
-			// Push the value to the vector
-			try {
-				mask.push_back(boost::lexical_cast<bool, char>(ch));
-			} catch (boost::bad_lexical_cast e) {
-				output_streamer.output(error_str, std::string("Error occured while parsing a regulation: ").append(e.what()));
-				throw std::runtime_error("boost::lexical_cast<size_t, char>(temp_attr->value()) failed");
-			}
-		});
-		return mask;
-	}
-
-	/**
-	 * @param label	label on the edge for some arbitrary interaction - can be + or - or nothing
-	 *
-	 * @return	enumeration item with given specification
-	 */
-	const EdgeConstrain readConstrain(const std::string & label) const {
-		// Test possible options
-		if (label.compare("") == 0)
-			return none_cons;
-		else if (label.compare("+") == 0)
-			return pos_cons;
-		else if (label.compare("-") == 0)
-			return neg_cons;
-		else
-			throw std::runtime_error("Wrong sing in interaction label.");
-	}
-
-	/**
-	 * @param uspec_type	what to do with usnpecified regulations
-	 *
-	 * @return	enumeration item with given specification
-	 */
-	const UnspecifiedRegulations getUnspecType(std::string unspec_type) const {
-		if      (unspec_type.compare("error"))
-			return error_reg;
-		else if (unspec_type.compare("basal"))
-			return basal_reg;
-		else if (unspec_type.compare("param"))
-			return param_reg;
-		else 
-			throw std::runtime_error("Wrong value given as an uspec attribute.");
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// READING FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Gets pointer to the descendant of the current node.
-	 *
-	 * @param current_node	pointer to the ancestor of requested node
-	 * @param node_name	string with the name of the decendant
-	 *
-	 * @return	pointer to the descendant if sucessful
-	 */
-	rapidxml::xml_node<> * getChildNode(const rapidxml::xml_node<> * const current_node, const char* node_name) const {
-		rapidxml::xml_node<> * return_node = 0;
-		// try to get the node
-		return_node = current_node->first_node(node_name);
-		if (return_node == 0)
-			throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
-		return return_node;
-	}
-
-	/**
-	 * Gets pointer to the sibling of the current node.
-	 *
-	 * @param current_node	pointer to the ancestor of requested node
-	 * @param node_name	string with the name of the decendant
-	 *
-	 * @return	pointer to the sybling if sucessful
-	 */
-	rapidxml::xml_node<> * getSiblingNode(const rapidxml::xml_node<> * const current_node, const char* node_name) const {
-		rapidxml::xml_node<> * return_node = 0;
-		// try to get the node
-		return_node = current_node->next_sibling(node_name);
-		if (return_node == 0)
-			throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
-		return return_node;
-	}
-
-	/**
-	 * Gets value of the attribute in the correct data type.
-	 *
-	 * @param requested_data	variable that will be filled with requested value
-	 * @param current_node	pointer to the node holding requested attribute
-	 * @param attribute_name	string with the name of the attribute
-	 *
-	 * @return true if the argument was present, false otherwise
-	 */
-	template <class returnType>
-	bool getAttribute(returnType & requested_data, const rapidxml::xml_node<> * const current_node, const char* attribute_name, bool mandatory = true) const {
-		rapidxml::xml_attribute<> *temp_attr = 0;
-		// Try to get the attribute
-		temp_attr = current_node->first_attribute(attribute_name);
-		// Check if the attribute has been required
-		if (temp_attr == 0) {
-			if (mandatory)
-				throw std::runtime_error(std::string("Parser did not found the mandatory attribute ").append(attribute_name));
-			else 
-				return false;
-		}
-		else { 
-			// Try to convert attribute into requested data type
-			try {
-				requested_data = boost::lexical_cast<returnType, char*>(temp_attr->value());
-			} catch (boost::bad_lexical_cast e) {
-				output_streamer.output(error_str, std::string("Error while parsing an attribute ").append(attribute_name).append(": ").append(e.what()));
-				throw std::runtime_error("boost::lexical_cast<returnType, char*>(temp_attr->value()) failed");
-			}
-		}
-		return true;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARSING FUNCTIONS:
+// PARSING:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Starting from the SPECIE node, the function parses all the INTER tags and reads the data from them.
@@ -180,23 +47,23 @@ class ModelParser {
 		bool observable = false;
 
 		// Step into INTERACTIONS tag
-		interaction = getChildNode(specie_node, "INTERACTIONS");
+		interaction = XMLHelper::getChildNode(specie_node, "INTERACTIONS");
 
 		// Step into first INTER tag
-		interaction = getChildNode(interaction, "INTER");
+		interaction = XMLHelper::getChildNode(interaction, "INTER");
 
 		while (true) { // End when the current node does not have next sibling (all INTER tags were parsed)
 			// Get source ID and conver to integer.
-			getAttribute(source, interaction, "source");
+			XMLHelper::getAttribute(source, interaction, "source");
 			// Get threshold and conver to integer.
-			getAttribute(threshold, interaction, "threshold");
+			XMLHelper::getAttribute(threshold, interaction, "threshold");
 			// Get an edge label
-			if (!getAttribute(label, interaction, "label", false))
+			if (!XMLHelper::getAttribute(label, interaction, "label", false))
 				label = "";
 			// Convert label into an edge constrain
-			constrain = readConstrain(label);
+			constrain = Translator::readConstrain(label);
 			// Get observable attribute
-			getAttribute(observable, interaction, "observ", false);
+			XMLHelper::getAttribute(observable, interaction, "observ", false);
 
 			// Add a new interaction to the specified target
 			model.addInteraction(source, specie_ID, threshold, constrain, observable);
@@ -217,18 +84,18 @@ class ModelParser {
 		std::string mask_string; int target_value;
 
 		// Step into REGULATIONS tag
-		regulation = getChildNode(specie_node, "REGULATIONS");
+		regulation = XMLHelper::getChildNode(specie_node, "REGULATIONS");
 		// Step into first REGUL tag
-		regulation = getChildNode(regulation, "REGUL");
+		regulation = XMLHelper::getChildNode(regulation, "REGUL");
 
 		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
 			// Get the mask string.
-			getAttribute(mask_string, regulation, "mask");
+			XMLHelper::getAttribute(mask_string, regulation, "mask");
 			// Get max value and conver to integer.
-			getAttribute(target_value, regulation, "t_value");
+			XMLHelper::getAttribute(target_value, regulation, "t_value");
 
 			// Add a new regulation to the specified target
-			model.addRegulation(specie_ID, std::move(getMask(mask_string)),target_value);
+			model.addRegulation(specie_ID, std::move(Translator::getMask(mask_string)),target_value);
 
 			// Continue stepping into REGUL tags while possible
 			if (regulation->next_sibling("REGUL"))
@@ -246,15 +113,15 @@ class ModelParser {
 		std::string name; size_t max; size_t basal;
 
 		// Step into first SPECIE tag
-		specie = getChildNode(structure_node, "SPECIE");
+		specie = XMLHelper::getChildNode(structure_node, "SPECIE");
 
 		while (true) { // End when the current node does not have next sibling (all SPECIES tags were parsed)
 			// Get name of the specie.
-			getAttribute(name, specie, "name");
+			XMLHelper::getAttribute(name, specie, "name");
 			// Get max value and conver to integer.
-			getAttribute(max, specie, "max");
+			XMLHelper::getAttribute(max, specie, "max");
 			// Get basal value and conver to integer.
-			getAttribute(basal, specie, "basal");
+			XMLHelper::getAttribute(basal, specie, "basal");
 
 			// Create a new specie
 			size_t specie_ID = model.addSpecie(name, max, basal);
@@ -280,15 +147,15 @@ class ModelParser {
 		std::string label_string; std::size_t target_ID;
 
 		// Step into REGULATIONS tag
-		transition = getChildNode(state_node, "TRANSITIONS");
+		transition = XMLHelper::getChildNode(state_node, "TRANSITIONS");
 		// Step into first REGUL tag
-		transition = getChildNode(transition, "TRANS");
+		transition = XMLHelper::getChildNode(transition, "TRANS");
 
 		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
 			// Get the mask string.
-			getAttribute(label_string, transition, "label");
+			XMLHelper::getAttribute(label_string, transition, "label");
 			// Get max value and conver to integer.
-			getAttribute(target_ID, transition, "target");
+			XMLHelper::getAttribute(target_ID, transition, "target");
 
 			// Add a new regulation to the specified target
 			model.addConditions(source_ID, target_ID, std::move(label_string));
@@ -309,11 +176,11 @@ class ModelParser {
 		bool final;
 
 		// Step into first SPECIE tag
-		state = getChildNode(automaton_node, "STATE");
+		state = XMLHelper::getChildNode(automaton_node, "STATE");
 
 		while (true) { // End when the current node does not have next sibling (all STATES tags were parsed)
 			// Find out whether the state is final
-			getAttribute(final, state, "final");
+			XMLHelper::getAttribute(final, state, "final");
 
 			// Create a new state
 			StateID ID = model.addState(final);
@@ -384,21 +251,21 @@ public:
 			throw std::runtime_error(std::string("Parsed found out that input does not start with the tag <MODEL> but with the <")
 			                         .append(current_node->name()).append("> instead").c_str());
 		// Find version number
-		getAttribute(file_version, current_node, "ver");
+		XMLHelper::getAttribute(file_version, current_node, "ver");
 
 		// Parse Kripke Structure
 		output_streamer.output(verbose_str, "Started reading of the Kripke structure.");
-		current_node = getChildNode(current_node, "STRUCTURE");
-		getAttribute(unspecified_regulations, current_node, "unspec");
+		current_node = XMLHelper::getChildNode(current_node, "STRUCTURE");
+		XMLHelper::getAttribute(unspecified_regulations, current_node, "unspec");
 		parseSpecies(current_node);
 
 		// Parse Buchi Automaton
 		output_streamer.output(verbose_str, "Started reading of the Buchi automaton.");
-		current_node = getSiblingNode(current_node, "AUTOMATON");
+		current_node = XMLHelper::getSiblingNode(current_node, "AUTOMATON");
 		parseStates(current_node);
 
 		// Pass additional information
-		model.addAdditionalInformation(getUnspecType(unspecified_regulations), file_version);
+		model.addAdditionalInformation(Translator::getUnspecType(unspecified_regulations), file_version);
     }
 };
 

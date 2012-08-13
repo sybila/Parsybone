@@ -213,7 +213,7 @@ public:
             std::string path;
             // Reformat based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
-               if (!user_options.BA())
+               if (!user_options.longWit())
                   path.append("[").append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append("]");
                else
                   path.append(",").append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second));

@@ -65,16 +65,16 @@ class ArgumentParser {
 				user_options.show_coloring = true;
 				break;
 
-			case 'n':
-				user_options.show_state_numbers = true;
-				break;
-
-			// Dependency cascade
-			case 'r':
-				user_options.compute_robustness = true;
+			case 'W':
+				user_options.use_long_witnesses = true;
 
 			case 'w':
+				user_options.time_serie = true;
 				user_options.compute_wintess = true;
+				break;
+
+			case 'r':
+				user_options.compute_robustness = true;
 
 			case 't':
 				user_options.time_serie = true;
