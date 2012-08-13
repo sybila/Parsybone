@@ -10,9 +10,9 @@
 #define PARSYBONE_MODEL_PARSER_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
+#include "property_parser.hpp"
 #include "model.hpp"
-#include "translator.hpp"
-#include "xml_helper.hpp"
+#include "network_parser.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ModelParser parses provided input stream and stores data in the provided Model object.
@@ -269,4 +269,4 @@ public:
     }
 };
 
-#endif
+#endif PARSYBONE_MODEL_PARSER_INCLUDED
