@@ -48,7 +48,6 @@ HEADERS += \
     ../../synthesis/witness_searcher.hpp \
     ../../synthesis/synthesis_manager.hpp \
     ../../synthesis/split_manager.hpp \
-    ../../synthesis/per_color_storage.hpp \
     ../../synthesis/paramset_helper.hpp \
     ../../synthesis/output_manager.hpp \
     ../../synthesis/model_checker.hpp \

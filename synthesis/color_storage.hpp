@@ -199,25 +199,12 @@ public:
 		return colors;
 	}
 
-	/**
-	 * @return vector of states that have any color attached to them
-	 */
-	std::set<StateID> getColored() const {
-		std::set<StateID> new_updates;
-		for (auto state_it = states.begin(); state_it != states.end(); state_it++) {
-			if (!paramset_helper.none(state_it->parameters)) {
-				new_updates.insert(state_it->ID);
-			}
-		}
-		return new_updates;
-	}
-
 	/** 
 	 * Get all the neigbours for this color from this state.
 	 *
 	 * @param ID	index of the state to ask for predecessors
 	 * @param successors	true if successors are required, false if predecessors
-	 * @param color_mask	bitmask for a given color, if it is not specified, all colors are required
+	 * @param color_mask	if specified, restricts neighbour to only those that contain a subset of the parametrizations
 	 *
 	 * @return neigbours for given state
 	 */
@@ -240,18 +227,29 @@ public:
 	}
 
 	/** 
-	 * Get all the neigbours for this color from this state.
+	 * Get all the labels on trasintions from given neighbours
 	 *
 	 * @param ID	index of the state to ask for predecessors
 	 * @param successors	true if successors are required, false if predecessors
+	 * @param color_mask	if specified, restricts neighbour to only those that contain a subset of the parametrizations
 	 *
-	 * @return neigbours for given state and their color
+	 * @return labelling on the neighbour labels
 	 */
-	inline const std::vector<Paramset> getMarking(const StateID ID, const bool successors) const {
+	inline const std::vector<Paramset> getMarking(const StateID ID, const bool successors, const Paramset color_mask = ~0) const {
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
+		// Return all, if all requested
+		if (color_mask == ~0)
+			return neigbours;
 
-		return neigbours;
+		std::vector<Paramset> restricted;
+		// Add only those that contain the value
+		forEach(neigbours, [&restricted, color_mask](const Paramset neighbour) {
+			// Test if the color is present
+			if ((neighbour & color_mask) != 0)
+				restricted.push_back(neighbour);
+		});
+		return restricted;
 	}
 
 	/**

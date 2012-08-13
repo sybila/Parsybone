@@ -12,6 +12,10 @@
 #include "../construction/construction_holder.hpp"
 #include "color_storage.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Class executes a search through the synthetized space in order to find transitions included in shortest paths for every parametrization.
+/// Procedure is supposed to be first executed and then it can provide results.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties
    const ColorStorage & storage; ///< Constant storage with the actuall data
@@ -43,7 +47,8 @@ class WitnessSearcher {
     * @param which   mask of the parametrizations that allow currently found path
     */
    void storeTransitions(const Paramset which) {
-      std::vector<std::pair<StateID, StateID> >  trans;  // Temporary storage for the transitions
+      std::vector<std::pair<StateID, StateID> > trans;  // Temporary storage for the transitions
+
       // Go from the end till the lastly reached node
       for (std::size_t step = 0; step < depth; step++) {
          trans.push_back(std::make_pair(path[step+1], path[step]));
@@ -93,11 +98,14 @@ class WitnessSearcher {
       // If there is anything left, pass it further to the predecessors
       if (paramset) {
          depth++;
-         // Obtain and cycle through possible predecessors.
-         auto predecessors = storage.getNeighbours(ID, false, paramset);
-         for (auto pred = predecessors.begin(); pred != predecessors.end(); pred++) {
-            DFS(*pred, paramset); // USAGE OF THE WHOLE PARAMSET PROBABLY CAUSES ERRORS
+
+         auto predecessors = std::move(storage.getNeighbours(ID, false, paramset)); // Get predecessors
+         auto pred_label = std::move(storage.getMarking(ID, false, paramset)); auto label_it = pred_label.begin(); // Get its values
+
+         for (auto pred = predecessors.begin(); pred != predecessors.end(); pred++, label_it++) {
+            DFS(*pred, paramset & *label_it); // Recursive descent with parametrizations passed from the predecessor.
          }
+
          depth--;
       }
    }
@@ -105,36 +113,47 @@ class WitnessSearcher {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+    * Clear the data objects used during the computation that may contain some data from the previous round
+    */
    void clearPaths() {
-      if (string_paths.size() != paramset_helper.getParamsetSize())
-         string_paths.resize(paramset_helper.getParamsetSize(), "");
-      else
-         forEach(string_paths, [](std::string & single_path){single_path = "";});
+      // Empty strings
+      forEach(string_paths, [](std::string & single_path){single_path = "";});
+      // Empty path tracker
       path = std::vector<StateID>(storage.getMaxDepth() + 1, 0);
+      // Empty the storage of transitions
+      transitions.clear();
+      transitions.resize(paramset_helper.getParamsetSize());
+      // Clear markings
+      forEach(markings, [](Marking & marking){
+         marking.succeeded = 0;
+         marking.busted.assign(marking.busted.size(),0);
+      });
    }
 
+   /**
+    * Fills a depth_masks vector that specifies which of the parametrizations end at which round
+    */
    void prepareMasks() {
+      // clear the data
       depth_masks.clear();
-      std::vector<std::vector<std::size_t> > members(storage.getMaxDepth() + 1);
-      std::size_t param_num = 0;
 
+      // Helping data
+      std::vector<std::vector<std::size_t> > members(storage.getMaxDepth() + 1); // Stores parametrization numbers with their Cost
+      std::size_t param_num = 0; // number in the interval (0,|paramset|-1)
+
+      // Store parametrization numbers with their BFS level (Cost)
       forEach(storage.getCost(), [&members, &param_num](std::size_t current){
          if (current != ~0)
             members[current].push_back(param_num);
          param_num++;
       });
 
+      // Fill masks based on the members vector
       forEach(members, [&](std::vector<std::size_t> numbers){
          depth_masks.push_back(paramset_helper.getMaskFromNums(numbers));
       });
 
-      forEach(markings, [](Marking & marking){
-         marking.succeeded = 0;
-         marking.busted.assign(marking.busted.size(),0);
-      });
-
-      transitions.clear();
-      transitions.resize(paramset_helper.getParamsetSize());
    }
 
    WitnessSearcher(const WitnessSearcher & other); ///< Forbidden copy constructor.
@@ -142,20 +161,29 @@ class WitnessSearcher {
 
 public:
    /**
-    * Constructor, passes the data
+    * Constructor ensures that data objects used within the whole computation process have appropriate size
     */
    WitnessSearcher(const ConstructionHolder & _holder, const ColorStorage & _storage)
       : product(_holder.getProduct()), storage(_storage) {
       Marking empty = {0, std::vector<Paramset>(product.getStateCount(), 0)};
       markings.resize(product.getStateCount(), empty);
+      string_paths.resize(paramset_helper.getParamsetSize(), "");
    }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// INTERFACE
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+    * Function that executes the whole searching process
+    */
    void findWitnesses() {
+      // Preparation
       clearPaths();
       prepareMasks();
       depth = 0;
       max_depth = storage.getMaxDepth();
 
+      // Search paths from all the final states
       auto finals = product.getFinalStates();
       for (auto final = finals.begin(); final != finals.end(); final++) {
          if (storage.getColor(*final))
@@ -163,17 +191,25 @@ public:
       }
    }
 
+   /**
+    * Reformats the transitions computed in the round into the strings
+    *
+    * @return  string with all transitions for each resulting parametrization
+    */
    const std::vector<std::string> getOutput() const {
-      std::vector<std::string> acceptable_paths;
+      std::vector<std::string> acceptable_paths; // Vector fo actuall data
+      // Cycle throught the parametrizations
       for (auto param_it = transitions.begin(); param_it != transitions.end(); param_it++) {
-         if (!param_it->empty()) {
+         if (!param_it->empty()) { // Test for emptyness
             std::string path;
+            // Reformat based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
                if (!user_options.BA())
                   path.append("[").append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append("]");
                else
                   path.append(",").append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second));
             }
+            // Add the string
             acceptable_paths.push_back(std::move(path));
          }
       }
