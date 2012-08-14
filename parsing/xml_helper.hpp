@@ -16,6 +16,9 @@
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// This class is pure static and encapsulates simple parsing functions for bigger robustness.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class XMLHelper {
 
 public:
@@ -32,7 +35,7 @@ public:
 		// try to get the node
 		return_node = current_node->first_node(node_name);
 		if (return_node == 0)
-			throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
+			throw std::runtime_error(std::string("Parser did not found the ").append(node_name).append(" node"));
 		return return_node;
 	}
 
@@ -49,7 +52,7 @@ public:
 		// try to get the node
 		return_node = current_node->next_sibling(node_name);
 		if (return_node == 0)
-			throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
+			throw std::runtime_error(std::string("Parser did not found the ").append(node_name).append(" node"));
 		return return_node;
 	}
 
@@ -59,6 +62,7 @@ public:
 	 * @param requested_data	variable that will be filled with requested value
 	 * @param current_node	pointer to the node holding requested attribute
 	 * @param attribute_name	string with the name of the attribute
+	 * @param mandatory	true if absence of the attribute should raise exception
 	 *
 	 * @return true if the argument was present, false otherwise
 	 */

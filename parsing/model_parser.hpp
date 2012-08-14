@@ -19,16 +19,39 @@
 /// Most of the possible mistakes and typos would case an exception and failure of the program.
 /// Only syntactic correcntess is checked. Wrong semantics would pass through here!
 /// There is only single public functions (apart from the constructor) - parseInput(), that performs the whole process.
-/// The functions are rather long, but their meaning is quite straithforward and repetitive. Most of the code are controls of correctness.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelParser {
     // Provided with constructor
-    Model & model; ///< Model that will hold the data
+    Model & model;  ///< Reference to the model object that will be filled
     std::ifstream * input_stream; ///< File to parse the data from
 
 	// Created with and for parsing
     rapidxml::xml_document<>  model_xml; ///< Main parsing node
     std::unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PARSING:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   const rapidxml::xml_node<> * initiateParsing() const {
+      // Temporaries
+      rapidxml::xml_node<> *current_node;
+      float file_version;
+      std::string unspec;
+
+		// Step into first MODEL (main) tag
+		current_node = model_xml.first_node();
+		if (strcmp(current_node->name(), "MODEL") != 0)
+			throw std::runtime_error(std::string("Parsed found out that input does not start with the tag <MODEL> but with the <")
+											 .append(current_node->name()).append("> instead").c_str());
+		// Find version number
+		XMLHelper::getAttribute(file_version, current_node, "ver");
+		XMLHelper::getAttribute(unspec, current_node, "unspec", false);
+
+		// Pass additional information
+		model.addAdditionalInformation(Translator::getUnspecType(unspec), file_version);
+
+		return current_node;
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION FUNCTIONS:
@@ -56,46 +79,25 @@ class ModelParser {
 		}
 	}
 	
-	ModelParser(const ModelParser & other);            // Forbidden copy constructor.
-	ModelParser& operator=(const ModelParser & other); // Forbidden assignment operator.
+	ModelParser(const ModelParser & other); ///< Forbidden copy constructor.
+	ModelParser& operator=(const ModelParser & other); ///< Forbidden assignment operator.
 
 public:
-	/**
-	 * Constructor has to provide references to an input stream to read from and model object to store parsed information.
-	 */
-    ModelParser(Model & _model, std::ifstream * _input_stream) : model( _model), input_stream(_input_stream) {}
+	ModelParser(Model & _model, std::ifstream * _input_stream) : model( _model), input_stream(_input_stream) {} ///< Simple constructor, passes references
 
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.
-	 *
-	 * @return	version of the parsed file.
 	 */
 	void parseInput() {
-		// Temporaries
-		rapidxml::xml_node<> *current_node;
-		float file_version;
-		std::string unspecified_regulations;
-
-		// Create the parser
 		createDocument();
 
-		// Step into first MODEL (main) tag
-		current_node = model_xml.first_node();
-		if (strcmp(current_node->name(), "MODEL") != 0)
-			throw std::runtime_error(std::string("Parsed found out that input does not start with the tag <MODEL> but with the <")
-			                         .append(current_node->name()).append("> instead").c_str());
-		// Find version number
-		XMLHelper::getAttribute(file_version, current_node, "ver");
-		// XMLHelper::getAttribute(unspecified_regulations, current_node, "unspec", false);
+		auto model_node = initiateParsing();
 
 		NetworkParser network_parser(model);
-		PropertyParser property_parser(model);
+		network_parser.parse(model_node);
 
-		network_parser.parse(current_node);
-		property_parser.parse(current_node);
-
-		// Pass additional information
-		model.addAdditionalInformation(Translator::getUnspecType(unspecified_regulations), file_version);
+      PropertyParser property_parser(model);
+      property_parser.parse(model_node);
     }
 };
 
