@@ -55,22 +55,6 @@ namespace Translator {
 		});
 		return mask;
 	}
-
-	/**
-	 * @param uspec_type	what to do with usnpecified regulations
-	 *
-	 * @return	enumeration item with given specification
-	 */
-	static const UnspecifiedRegulations getUnspecType(std::string unspec_type) {
-		if      (unspec_type.compare("error"))
-			return error_reg;
-		else if (unspec_type.compare("basal"))
-			return basal_reg;
-		else if (unspec_type.compare("param"))
-			return param_reg;
-		else
-			throw std::runtime_error("Wrong value given as an uspec attribute.");
-	}
 };
 
 #endif // PARSYBONE_TRANSLATOR_INCLUDED

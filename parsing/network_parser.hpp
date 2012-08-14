@@ -15,6 +15,8 @@
 #include "xml_helper.hpp"
 #include "model.hpp"
 
+#include "boost/algorithm/string.hpp"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// This object is responsible for parsing and translation of data related to the GRN.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,12 +34,7 @@ class NetworkParser {
 
 		XMLHelper::getAttribute(source, regulation, "source");
 
-		try { // Try direct translation
-			source_ID = boost::lexical_cast<StateID, std::string>(source);
-		}
-		catch (boost::bad_lexical_cast) { // Try lookup by name
-			source_ID = model.findID(source);
-		}
+		source_ID = model.findID(source);
 
 		if (source_ID >= model.getSpeciesCount())
 			throw std::invalid_argument(std::string("ID of a regulation of the specie ").append(toString(target_ID)).append(" is incorrect."));
@@ -64,6 +61,35 @@ class NetworkParser {
 		});
 
 		return threshold;
+	}
+
+	/**
+	 * @param uspec_type	what to do with usnpecified regulations
+	 *
+	 * @return	enumeration item with given specification
+	 */
+	static const UnspecifiedParameters getUnspecType(std::string unspec_type) {
+		if      (unspec_type.compare("error"))
+			return error_reg;
+		else if (unspec_type.compare("basal"))
+			return basal_reg;
+		else if (unspec_type.compare("param"))
+			return param_reg;
+		else
+			throw std::runtime_error("Wrong value given as an uspec attribute.");
+	}
+
+	/**
+	 * Obtain an information about how unspecified kinetic parameters should be handled
+	 */
+	const UnspecifiedParameters getUnspecified(const rapidxml::xml_node<> * const specie_node) const {
+		std::string unspec_str; UnspecifiedParameters unspec;
+		// Try to get the value, otherwise use param_reg
+		if (XMLHelper::getAttribute(unspec_str, specie_node, "unspec_str", false))
+			unspec = getUnspecType(unspec_str);
+		else
+			unspec = param_reg;
+		return unspec;
 	}
 
 	/**
@@ -96,24 +122,50 @@ class NetworkParser {
 		}
 	}
 
+	void fillFromContext(const std::string context, size_t specie_ID, int target_value) const {
+		std::vector<std::string> sources;
+		if (!context.empty()) try {
+			boost::split(sources, context, boost::is_any_of(":"));
+		} catch (std::exception & e) {
+			output_streamer.output(error_str, std::string("Error occured while parsing a context. ").append(e.what()));
+			throw std::runtime_error("boost::split(sources, context, boost::is_any_of(\":\")) failed");
+		}
+		std::vector<bool> mask(model.getSpeciesCount(), false);
+		forEach(sources, [&](std::string & source) {
+			mask[model.findID(source)] = true;
+		});
+
+		// Add a new regulation to the specified target
+		model.addParameter(specie_ID, std::move(mask), target_value);
+	}
+
+	void fillFromLogic(const std::string logic, size_t specie_ID) const {
+
+	}
+
+
 	/**
 	 * Starting from the SPECIE node, the function parses all the PARAM tags and reads the data from them.
 	 */
 	void parseParameters(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		// R data
-		std::string mask_string; int target_value;
+		// Parameters data data
+		std::string spec_string; int target_value;
+		auto unspec = getUnspecified(specie_node);
 
 		// Step into first REGUL tag
 		rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "PARAM");
 
 		while (true) { // End when the current node does not have next sibling (all PARAM tags were parsed)
 			// Get the mask string.
-			XMLHelper::getAttribute(mask_string, regulation, "mask");
-			// Get max value and conver to integer.
-			XMLHelper::getAttribute(target_value, regulation, "t_value");
-
-			// Add a new regulation to the specified target
-			model.addParameter(specie_ID, std::move(Translator::getMask(mask_string)),target_value);
+			if ( XMLHelper::getAttribute(spec_string, regulation, "context", false) ) {
+				XMLHelper::getAttribute(target_value, regulation, "value");
+				fillFromContext(spec_string, specie_ID, target_value);
+			} else if ( XMLHelper::getAttribute(spec_string, regulation, "logic", false) ) {
+				fillFromLogic(spec_string, specie_ID);
+			}
+			else {
+				throw std::invalid_argument(std::string("Not context nor logic specified for the parameters in the specie ").append(toString(specie_ID)));
+			}
 
 			// Continue stepping into REGUL tags while possible
 			if (regulation->next_sibling("PARAM"))
@@ -183,6 +235,9 @@ class NetworkParser {
 public:
 	NetworkParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references
 
+	/**
+	 * Main parsing function. It expects a pointer to inside of a MODEL node.
+	 */
 	void parse(const rapidxml::xml_node<> * const model_node) {
 		// Parse Kripke Structure
 		output_streamer.output(verbose_str, "Started reading of the Kripke structure.");

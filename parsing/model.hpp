@@ -73,7 +73,7 @@ private:
 
 	/// Structure that stores additional settings
 	struct AdditionalInformation {
-		UnspecifiedRegulations unspec;
+		UnspecifiedParameters unspec;
 		float ver_number;
 	};
 
@@ -132,7 +132,7 @@ private:
 	 * @param unspec	what to do with unspecified regulations
 	 * @param ver_number	float number with version of the model
 	 */
-	void addAdditionalInformation(UnspecifiedRegulations unspec, float ver_number) {
+	void addAdditionalInformation(UnspecifiedParameters unspec, float ver_number) {
 		additional_information.unspec = unspec;
 		additional_information.ver_number = ver_number;
 	}
@@ -168,10 +168,15 @@ public:
 	 */
 	const SpecieID findID(const std::string name) const {
 		SpecieID ID = ~0;
-		std::for_each(species.begin(), species.end(), [&ID, &name](ModelSpecie spec) {
-			if (spec.name.compare(name) == 0)
-			ID = spec.ID;
-		});
+		try { // Try direct translation
+			ID = boost::lexical_cast<StateID, std::string>(name);
+		}
+		catch (boost::bad_lexical_cast) { // Try lookup by name
+			std::for_each(species.begin(), species.end(), [&ID, &name](ModelSpecie spec) {
+				if (spec.name.compare(name) == 0)
+				ID = spec.ID;
+			});
+		}
 		return ID;
 	}
 

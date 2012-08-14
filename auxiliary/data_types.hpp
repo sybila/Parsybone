@@ -40,7 +40,7 @@ enum StreamType {error_str, results_str, stats_str, verbose_str};
 // DATA RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// If a regulation is missing, what kind of value it should get?
-enum UnspecifiedRegulations {error_reg, basal_reg, param_reg};
+enum UnspecifiedParameters {error_reg, basal_reg, param_reg};
 
 /// To store the way a specie value has changed
 enum Direction {up_dir, stay_dir, down_dir};

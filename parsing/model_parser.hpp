@@ -48,7 +48,7 @@ class ModelParser {
 		XMLHelper::getAttribute(unspec, current_node, "unspec", false);
 
 		// Pass additional information
-		model.addAdditionalInformation(Translator::getUnspecType(unspec), file_version);
+        model.addAdditionalInformation(basal_reg, file_version);
 
 		return current_node;
 	}
