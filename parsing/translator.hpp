@@ -12,11 +12,9 @@
 #include "../auxiliary/data_types.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// This class is pure static. Methods are used for translation of string data to variables.
+/// Methods used for translation of string data to variables during model parsing.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Translator {
-
-public:
+namespace Translator {
 	/**
 	 * @param label	label on the edge for some arbitrary interaction - can be + or - or nothing
 	 *
@@ -73,8 +71,6 @@ public:
 		else
 			throw std::runtime_error("Wrong value given as an uspec attribute.");
 	}
-
-	virtual ~Translator() = 0; ///< Pure virtual desctructor
 };
 
 #endif // PARSYBONE_TRANSLATOR_INCLUDED

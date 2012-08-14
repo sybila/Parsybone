@@ -164,13 +164,13 @@ public:
 	}
 
 	/**
-	 * @return	ID of the specie with the specified name if there is such, otherwise -1
+	 * @return	ID of the specie with the specified name if there is such, otherwise ~0
 	 */
-	const int findID(const std::string name) const {
-		int ID = -1;
+	const SpecieID findID(const std::string name) const {
+		SpecieID ID = ~0;
 		std::for_each(species.begin(), species.end(), [&ID, &name](ModelSpecie spec) {
 			if (spec.name.compare(name) == 0)
-				ID = spec.ID;
+			ID = spec.ID;
 		});
 		return ID;
 	}

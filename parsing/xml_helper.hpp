@@ -17,11 +17,9 @@
 #include "rapidxml-1.13/rapidxml_utils.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// This class is pure static and encapsulates simple parsing functions for bigger robustness.
+/// This namespace encapsulates simple parsing functions for bigger robustness.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class XMLHelper {
-
-public:
+namespace XMLHelper {
 	/**
 	 * Gets pointer to the descendant of the current node.
 	 *
@@ -57,7 +55,7 @@ public:
 	}
 
 	/**
-	 * Gets value of the attribute in the correct data type.
+	 * Reads the value of the specified attribute and converts it to correct data type if possible.
 	 *
 	 * @param requested_data	variable that will be filled with requested value
 	 * @param current_node	pointer to the node holding requested attribute
@@ -89,8 +87,6 @@ public:
 		}
 		return true;
 	}
-
-	virtual ~XMLHelper() = 0; ///< Pure virtual desctructor
 };
 
 #endif // PARSYBONE_XML_HELPER_INCLUDED
