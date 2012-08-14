@@ -25,16 +25,16 @@ class Model {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 	/// Structure that stores regulation of a specie by another one
-	struct Interaction {
+	struct Regulation {
 		StateID source; ///< Regulator
 		std::size_t threshold; ///< Level of the regulator requested for the function to work
 		EdgeConstrain constrain; ///< What is requested behaviour
-		bool observable; ///< Must the interaction be observable
+		bool observable; ///< Must the regulation be observable
 
-		Interaction(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain, const bool _observable) 
+		Regulation(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain, const bool _observable)
 			: source(_source), threshold(_threshold), constrain(_constrain), observable(_observable) { }
 	};
-	typedef std::pair<std::vector<bool>, int> Regulation; ///< Regulatory context of the specie (bitmask of active incoming interactions, target value)
+	typedef std::pair<std::vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value)
 	typedef std::pair<StateID, std::string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label)
 
 private:
@@ -44,17 +44,17 @@ private:
 		// Data are accesible from within the model class
 		friend class Model;
 
-		ModelSpecie(std::string _name, size_t _ID, size_t _max_value, size_t _basal_value) 
-			: name(_name), ID(_ID), max_value(_max_value), basal_value(_basal_value) { }
-
-		std::vector<Interaction> interactions;
-
 		std::vector<Regulation> regulations;
+
+		std::vector<Parameter> parameters;
 
 		std::string name; ///< Actuall name of the specie
 		std::size_t ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
-        std::size_t max_value; ///< Maximal activation level of the specie
+		std::size_t max_value; ///< Maximal activation level of the specie
 		std::size_t basal_value; ///< Value the specie tends to if unregulated, currently unused
+
+		ModelSpecie(std::string _name, size_t _ID, size_t _max_value, size_t _basal_value)
+			: name(_name), ID(_ID), max_value(_max_value), basal_value(_basal_value) { }
 	};
 
 	/// Structure that holds data about a single state.
@@ -63,12 +63,12 @@ private:
 		// Data are accesible from within the model class
 		friend class Model;
 
-		BuchiAutomatonState(std::size_t _ID, bool _final) : ID(_ID), final(_final) {	}
-
-        std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
+		std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
 		bool final; ///< stores the information whether the state is final
 
 		std::vector<Egde> edges; ///< edges in Buchi Automaton (Target ID, edge label)
+
+		BuchiAutomatonState(std::size_t _ID, bool _final) : ID(_ID), final(_final) {	}
 	};
 
 	/// Structure that stores additional settings
@@ -96,17 +96,17 @@ private:
 	}
 
 	/**
-	 * Add a new interaction to the specie. Interaction is stored with the target, not the source.
+	 * Add a new regulation to the specie. Regulation is stored with the target, not the source.
 	 */
-	inline void addInteraction(size_t source_ID, size_t target_ID, size_t threshold, EdgeConstrain constrain, const bool observable) {
-		species[target_ID].interactions.push_back(std::move(Interaction(source_ID, threshold, constrain, observable)));
+	inline void addRegulation(size_t source_ID, size_t target_ID, size_t threshold, EdgeConstrain constrain, const bool observable) {
+		species[target_ID].regulations.push_back(std::move(Regulation(source_ID, threshold, constrain, observable)));
 	}
 
 	/**
 	 * Add a new regulation to the specie.
 	 */
-	inline void addRegulation(size_t target_ID, std::vector<bool>&& subset_mask, int target_value) {
-		species[target_ID].regulations.push_back(Regulation(std::move(subset_mask), target_value));
+	inline void addParameter(size_t target_ID, std::vector<bool>&& subset_mask, int target_value) {
+		species[target_ID].parameters.push_back(Parameter(std::move(subset_mask), target_value));
 	}
 
 	/**
@@ -197,17 +197,17 @@ public:
 	}
 
 	/**
-	 * @return	interactions of the specie
+	 * @return	regulations of the specie
 	 */
-	inline const std::vector<Interaction> & getInteractions(const std::size_t ID) const {
-		return species[ID].interactions;
+	inline const std::vector<Regulation> & getRegulations(const std::size_t ID) const {
+		return species[ID].regulations;
 	}
 
 	/**
-	 * @return	regulations of the specie
+	 * @return	kinetic parameters of the regulations of the specie
 	 */
-	inline const std::vector<Regulation> & getRegulations(const std::size_t ID)  const {
-		return species[ID].regulations;
+	inline const std::vector<Parameter> & getParameters(const std::size_t ID)  const {
+		return species[ID].parameters;
 	}
 
 	/**

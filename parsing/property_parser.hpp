@@ -20,7 +20,7 @@ class PropertyParser {
 	 */
 	void parseTransitions(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
 		rapidxml::xml_node<>      *transition;
-		// Interaction data
+		// Regulation data
 		std::string label_string; std::size_t target_ID;
 
 		// Step into REGULATIONS tag

@@ -33,40 +33,40 @@ class ParametrizationsBuilder {
 	 *
 	 * @param is_observable	stores true if the regulation is observable
 	 * @param ID	ID of the specie that undergoes the test
-	 * @param regul_num	index of tested regulation
-	 * @param inter_num	index of interaction whose constrains are tested
+     * @param param_num	index of tested parameter
+     * @param regul_num	index of regulation whose constrains are tested
 	 * @param subcolor	coloring for this specie that is tested
 	 *
 	 * @return	true if constrains are satisfied
 	 */
-	bool testConstrains(bool & is_observable, const SpecieID ID, const std::size_t regul_num, const std::size_t inter_num, const std::vector<std::size_t> & subcolor) const {
+    bool testConstrains(bool & is_observable, const SpecieID ID, const std::size_t param_num, const std::size_t regul_num, const std::vector<std::size_t> & subcolor) const {
 		// Get reference data
-		const std::vector<Model::Interaction> & interactions = model.getInteractions(ID);
-		const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
+        const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
+        const std::vector<Model::Parameter> & parameters = model.getParameters(ID);
 
-		// Copy mask of the regulation and turn of tested interaction
-		std::vector<bool> other(regulations[regul_num].first);
-		other[inter_num] = false;
+        // Copy mask of the regulation and turn of tested regulation
+        std::vector<bool> other(parameters[param_num].first);
+        other[regul_num] = false;
 
-		// Cycle through regulations again until you find context just without current interaction
+        // Cycle through regulations again until you find context just without current regulation
 		std::size_t regul_comp = 0;
 		while (true) {
 			// If context is missing
-			if (regul_comp >= regulations.size())
+            if (regul_comp >= parameters.size())
 				throw std::runtime_error("Not fount other complementary regulation for some regulation.");
 			// If context is found
-			if (regulations[regul_comp].first == other)
+            if (parameters[regul_comp].first == other)
 				break;
 			regul_comp++;
 		}
 
 		// Test observability
-		is_observable = is_observable | (subcolor[regul_num] != subcolor[regul_comp]);
+        is_observable = is_observable | (subcolor[param_num] != subcolor[regul_comp]);
 
 		// Test if the requirements are satisfied, if not, return false
-		if (((interactions[inter_num].constrain == pos_cons) && (subcolor[regul_num] < subcolor[regul_comp]))
+        if (((regulations[regul_num].constrain == pos_cons) && (subcolor[param_num] < subcolor[regul_comp]))
 			|| 
-			((interactions[inter_num].constrain == neg_cons) && (subcolor[regul_num] > subcolor[regul_comp])))
+            ((regulations[regul_num].constrain == neg_cons) && (subcolor[param_num] > subcolor[regul_comp])))
 			return false;
 
 		return true;	
@@ -82,29 +82,29 @@ class ParametrizationsBuilder {
 	 */
 	bool testSubcolor (const SpecieID ID, const std::vector<std::size_t> & subcolor) const {
 		// get referecnces to Specie data
-		const std::vector<Model::Interaction> & interactions = model.getInteractions(ID);
-		const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
+        const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
+        const std::vector<Model::Parameter> & parameters = model.getParameters(ID);
 		
-		// Cycle through interactions
-		for (std::size_t inter_num = 0; inter_num < interactions.size(); inter_num++) {
+        // Cycle through regulation
+        for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
 			// Skip if there are no requirements
-			if (interactions[inter_num].constrain == none_cons && !interactions[inter_num].observable)
+            if (regulations[regul_num].constrain == none_cons && !regulations[regul_num].observable)
 				continue;
 			bool is_observable = false;
 
 			// Cycle through regulations and test constrains
-			for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
-				// Skip if the regulation does not contain requested interaction
-				if (!regulations[regul_num].first[inter_num])
+            for (std::size_t param_num = 0; param_num < parameters.size(); param_num++) {
+                // Skip if the regulation does not contain requested regulation
+                if (!parameters[param_num].first[regul_num])
 					continue;
 
 				// Test contrains and return false, if sign constrain is not satisfied
-				if(!testConstrains(is_observable, ID, regul_num, inter_num, subcolor))
+                if(!testConstrains(is_observable, ID, param_num, regul_num, subcolor))
 					return false;
 			}
 
 			// Check observability, if it is required
-			if (!is_observable && interactions[inter_num].observable)
+            if (!is_observable && regulations[regul_num].observable)
 				return false;
 		}
 
@@ -163,20 +163,20 @@ class ParametrizationsBuilder {
 	 */
 	const std::size_t getBoundaries(const SpecieID ID, std::vector<std::size_t> & bottom_color, std::vector<std::size_t> & top_color) {
 		// Obtain all regulations
-		auto regulations = model.getRegulations(ID);
+        auto parameters = model.getParameters(ID);
 		std::size_t colors_num = 1;
 		
 		// Cycle through regulations
-		for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
+        for (std::size_t regul_num = 0; regul_num < parameters.size(); regul_num++) {
 			// If the target value is parametrized, add all the values
-			if (regulations[regul_num].second < 0) {
+            if (parameters[regul_num].second < 0) {
 				bottom_color[regul_num] = model.getMin(ID);
 				top_color[regul_num] = model.getMax(ID);
 				colors_num *= (model.getMax(ID) + 1);
 			}
 			// Otherwise add just given value
 			else  {
-				bottom_color[regul_num] = top_color[regul_num] = regulations[regul_num].second;
+                bottom_color[regul_num] = top_color[regul_num] = parameters[regul_num].second;
 				colors_num *= 1;
 			}
 		}
@@ -195,12 +195,12 @@ class ParametrizationsBuilder {
 		valid.ID = ID;
 
 		// Reference data
-		auto regulations = model.getRegulations(ID);
+        auto parameters = model.getParameters(ID);
 		std::size_t colors_num; // How many colors will be tested (number of all combinations)
 		
 		// Create boundaries for iteration
-		std::vector<std::size_t> bottom_color(regulations.size());
-		std::vector<std::size_t> top_color(regulations.size());
+        std::vector<std::size_t> bottom_color(parameters.size());
+        std::vector<std::size_t> top_color(parameters.size());
 		valid.possible_count = colors_num = getBoundaries(ID, bottom_color, top_color);
 		
 		// Test all the subcolors and save feasible

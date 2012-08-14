@@ -25,7 +25,7 @@ class NetworkParser {
 // PARSING:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * In a current interaction get source of that interaction, if possible.
+	 * In a current regulation get source of that regulation, if possible.
 	 */
 	const SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID ) const {
 		std::string source; SpecieID source_ID;
@@ -57,9 +57,9 @@ class NetworkParser {
 			throw std::invalid_argument(std::string("threshold of a regulation of specie ").append(toString(source_ID))
 												 .append(" is incorrect (bigger than maximal level of the source or equal to 0)."));
 		// Test uniqueness
-		auto interactions = model.getInteractions(target_ID);
-		forEach(interactions, [threshold,source_ID](Model::Interaction & interaction) {
-			if (threshold == interaction.threshold && source_ID == interaction.source)
+		auto regulations = model.getRegulations(target_ID);
+		forEach(regulations, [threshold,source_ID](Model::Regulation & regulation) {
+			if (threshold == regulation.threshold && source_ID == regulation.source)
 				throw std::invalid_argument(std::string("multiple definition of a regulation of a specie ").append(toString(source_ID)));
 		});
 
@@ -70,28 +70,28 @@ class NetworkParser {
 	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
 	 * If not provided, attributes are defaulted - threshold to 1, label to none_cons, observable to false
 	 */
-	void parseInteractions(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		// Interaction data
+	void parseRegulations(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
+		// Regulation data
 		std::string label; EdgeConstrain constrain; bool observable;
 
 		// Step into a first REGUL tag
-		rapidxml::xml_node<>* interaction = XMLHelper::getChildNode(specie_node, "REGUL");
+		rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL");
 
 		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
-			auto source_ID = getSourceID(interaction, specie_ID);
-			auto threshold = getThreshold(interaction, specie_ID, source_ID);
-			if (!XMLHelper::getAttribute(label, interaction, "label", false))
+			auto source_ID = getSourceID(regulation, specie_ID);
+			auto threshold = getThreshold(regulation, specie_ID, source_ID);
+			if (!XMLHelper::getAttribute(label, regulation, "label", false))
 				label = "";
 			constrain = Translator::readConstrain(label);
-			if(!XMLHelper::getAttribute(observable, interaction, "observ", false))
+			if(!XMLHelper::getAttribute(observable, regulation, "observ", false))
 				observable = false;
 
-			// Add a new interaction to the specified target
-			model.addInteraction(source_ID, specie_ID, threshold, constrain, observable);
+			// Add a new regulation to the specified target
+			model.addRegulation(source_ID, specie_ID, threshold, constrain, observable);
 
 			// Continue stepping into REGUL tags while possible
-			if (interaction->next_sibling("REGUL"))
-				interaction = interaction->next_sibling("REGUL");
+			if (regulation->next_sibling("REGUL"))
+				regulation = regulation->next_sibling("REGUL");
 			else break;
 		}
 	}
@@ -99,8 +99,8 @@ class NetworkParser {
 	/**
 	 * Starting from the SPECIE node, the function parses all the PARAM tags and reads the data from them.
 	 */
-	void parseRegulations(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		// Interaction data
+	void parseParameters(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
+		// R data
 		std::string mask_string; int target_value;
 
 		// Step into first REGUL tag
@@ -113,7 +113,7 @@ class NetworkParser {
 			XMLHelper::getAttribute(target_value, regulation, "t_value");
 
 			// Add a new regulation to the specified target
-			model.addRegulation(specie_ID, std::move(Translator::getMask(mask_string)),target_value);
+			model.addParameter(specie_ID, std::move(Translator::getMask(mask_string)),target_value);
 
 			// Continue stepping into REGUL tags while possible
 			if (regulation->next_sibling("PARAM"))
@@ -130,10 +130,10 @@ class NetworkParser {
 		rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
 
 		for (StateID ID = 0; ID < model.getSpeciesCount(); ID++) {
-			// Get all the interactions of the specie and store them to the model.
-			parseInteractions(specie, ID);
 			// Get all the regulations of the specie and store them to the model.
 			parseRegulations(specie, ID);
+			// Get all the parameters of the specie and store them to the model.
+			parseParameters(specie, ID);
 
 			// Step into the next specie (by previous parse their number and order is guaranteed)
 			specie = specie->next_sibling("SPECIE");

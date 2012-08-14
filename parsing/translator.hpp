@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace Translator {
 	/**
-	 * @param label	label on the edge for some arbitrary interaction - can be + or - or nothing
+	 * @param label	label on the edge for some arbitrary regulation - can be + or - or nothing
 	 *
 	 * @return	enumeration item with given specification
 	 */
@@ -29,11 +29,11 @@ namespace Translator {
 		else if (label.compare("-") == 0)
 			return neg_cons;
 		else
-			throw std::runtime_error("Wrong sing in interaction label.");
+			throw std::runtime_error("Wrong sing in regulation label.");
 	}
 
 	/**
-	 * @param mask_string	mask of the active interactions in given regulatory context in the form of a string
+	 * @param mask_string	mask of the active regulations in given regulatory context in the form of a string
 	 *
 	 * @return Vector of boolean values that represents the input mask.
 	 */
