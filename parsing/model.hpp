@@ -46,9 +46,8 @@ private:
 		// Data are accesible from within the model class
 		friend class Model;
 
-		std::vector<Regulation> regulations;
-
-		std::vector<Parameter> parameters;
+		std::vector<Regulation> regulations; ///< Regulations of the specie (activations or inhibitions by other species)
+		std::vector<Parameter> parameters; ///< Kinetic parameters of the regulations
 
 		std::string name; ///< Actuall name of the specie
 		std::size_t ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
@@ -75,14 +74,12 @@ private:
 
 	/// Structure that stores additional settings
 	struct AdditionalInformation {
-		UnspecifiedParameters unspec;
 		float ver_number;
-	};
+	} additional_information;
 
 	// Actuall data holders.
-	std::vector<ModelSpecie> species;
-	std::vector<BuchiAutomatonState> states;
-	AdditionalInformation additional_information;
+	std::vector<ModelSpecie> species; ///< vector of all species of the model
+	std::vector<BuchiAutomatonState> states; ///< vector of all states of the controlling Buchi automaton
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from ModelParser)
@@ -131,11 +128,9 @@ private:
 	/**
 	 * Fill additional information
 	 *
-	 * @param unspec	what to do with unspecified regulations
 	 * @param ver_number	float number with version of the model
 	 */
-	void addAdditionalInformation(UnspecifiedParameters unspec, float ver_number) {
-		additional_information.unspec = unspec;
+	void addAdditionalInformation(float ver_number) {
 		additional_information.ver_number = ver_number;
 	}
 
