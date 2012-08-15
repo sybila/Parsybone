@@ -10,6 +10,7 @@
 #define PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
+#include "../auxiliary/common_functions.hpp"
 #include "../parsing/model.hpp"
 #include "parametrizations_holder.hpp"
 
@@ -126,24 +127,11 @@ class ParametrizationsBuilder {
 		std::vector<std::size_t> subcolor(bottom_color);
 
 		// Cycle through all colors
-		for (std::size_t subcolor_num = 0; subcolor_num < colors_num; subcolor_num++) {
+		do {
 			// Test is it is feasieble, if so, save it
 			if (testSubcolor(ID, subcolor))
 				valid.push_back(subcolor);
-
-			// Iterate subcolor
-			for (std::size_t regul_num = 0; regul_num < subcolor.size(); regul_num++) {
-				// Increase and end
-				if (subcolor[regul_num] < top_color[regul_num]) {
-					subcolor[regul_num]++;
-					break;
-				}
-				// Null and continue
-				else { 
-					subcolor[regul_num] = bottom_color[regul_num];
-				}
-			}
-		}	
+		} while (iterate(top_color, bottom_color, subcolor));
 
 		// Add computed subcolors
 		parametrizations.colors.push_back(std::move(valid));

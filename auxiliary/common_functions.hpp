@@ -48,7 +48,7 @@ Function forEach(Object & obj, Function fun)
  * @return converted string
  */
 template<class basic_T>
-	std::string toString(basic_T data) {
+std::string toString(basic_T data) {
 	std::string result;
 	try {
 		 result = std::move(boost::lexical_cast<std::string, basic_T>(data));
@@ -58,6 +58,37 @@ template<class basic_T>
 		throw std::runtime_error("boost::lexical_cast<std::string, basic_T>(data)) failed");
 	}
 	return result;
+}
+
+/**
+ * increases integral value by 1
+ */
+template<class integral_T>
+void increase(typename std::vector<integral_T>::reference val) {val++;}
+
+/**
+ * increases boolean value to true
+ */
+template<>
+void increase<bool>(typename std::vector<bool>::reference val) {val = true;}
+
+/**
+ * Iterates values from left to right if it is possible. If so, return true, otherwise return false.
+ */
+template<class integral_T>
+bool iterate(const std::vector<integral_T> & top, const std::vector<integral_T> & bottom, std::vector<integral_T> & interated) {
+	for (std::size_t val_num = 0; val_num <= interated.size(); val_num++) {
+		if (val_num == interated.size())
+			return false;
+		if (interated[val_num] == top[val_num]) {
+			interated[val_num] = bottom[val_num];
+		}
+		else {
+			increase<integral_T>(interated[val_num]);
+			break;
+		}
+	}
+	return true;
 }
 
 #endif // PARSYBONE_COMMON_FUNCTIONS_INCLUDED

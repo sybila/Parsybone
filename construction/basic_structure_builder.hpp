@@ -28,6 +28,7 @@ class BasicStructureBuilder {
 	std::size_t states_count; ///< Number of states in this KS (exponential in number of species)
 	std::vector<std::size_t> index_jumps; ///< Holds index differences between two neighbour states in each direction for each specie
 	Levels maxes; ///< Maximal activity levels of the species
+	Levels mins; ///< Minimal activity levels of the species
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS:
@@ -54,30 +55,6 @@ class BasicStructureBuilder {
 				structure.addNeighbour(ID, ID + index_jumps[specie], specie, up_dir);
 		}	
 	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Generate next combination of levels i.e. new state of the KS - using standard method for cartesian product generation
-	 */
-	Levels getNextState(Levels state_levels) const {
-		// ID of specie to iterate
-		int position = 0; 
-		// Iterate through species
-		for (auto specie_level = state_levels.begin(); specie_level != state_levels.end(); specie_level++) {
-			if (*specie_level == maxes[position]) {	// Is max? Set to 0 and continue rights. 
-				(*specie_level) = 0;
-				position++;
-			}
-			else { // Else increase and return
-				(*specie_level)++;
-				return state_levels;
-			}
-		}
-		// All-zero is returned after last round
-		return state_levels;
-	}
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
@@ -90,6 +67,7 @@ class BasicStructureBuilder {
 		for(std::size_t specie_num = 0; specie_num < species_count; specie_num++) {
 			// Maximal values of species
 			maxes.push_back(model.getMax(specie_num));
+			mins.push_back(model.getMin(specie_num));
 			// How many states
 			states_count *= (model.getMax(specie_num) + 1);
 		}
@@ -161,7 +139,7 @@ public:
 			structure.addState(ID, levels, std::move(createLabel(levels)));
 			storeNeigbours(ID, levels, maxes);
 			// Generate new state for the next round
-			levels = std::move(getNextState(levels));
+			iterate(maxes, mins, levels);
 			// Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop
 			transition_count += structure.getTransitionCount(ID) - model.getSpeciesCount() + 1;
 		}

@@ -184,8 +184,9 @@ class NetworkParser {
 	 */
 	void fillFromLogic(const std::string logic, size_t specie_ID) const {
 		// Get reference values
-		std::vector<bool> tested(model.getRegulations(specie_ID).size(), false);
+		std::vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
 		std::vector<bool> top(model.getRegulations(specie_ID).size(), true);
+		std::vector<bool> tested = bottom;
 		do {
 			// Add current valuations for both a species ID and name (if any)
 			std::map<std::string, bool> valuation;
@@ -197,19 +198,7 @@ class NetworkParser {
 
 			model.addParameter(specie_ID, tested, FormulaeParser::resolve(valuation, logic));
 
-			// Iterate while possible
-			if (top == tested)
-				return;
-			for (auto specie_it = tested.begin(); specie_it != tested.end(); specie_it++) {
-				if (*specie_it) {
-					*specie_it = false;
-				}
-				else {
-					*specie_it = true;
-					break;
-				}
-			}
-		} while (true);
+		} while(iterate<bool>(top, bottom, tested));
 	}
 
 	/**
@@ -217,8 +206,10 @@ class NetworkParser {
 	 * Based on the unspec attribute of the specie, uses basal value / parametrization / causes error.
 	 */
 	void addUnspecified(std::set<std::vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
-		std::vector<bool> tested(model.getRegulations(specie_ID).size(), false);
+		std::vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
 		std::vector<bool> top(model.getRegulations(specie_ID).size(), true);
+		std::vector<bool> tested = bottom;
+
 		do {
 			// If tested option is new (not already present in the specified vector)
 			if (specified.insert(tested).second) {
@@ -236,20 +227,7 @@ class NetworkParser {
 						break;
 				}
 			}
-
-			// Iterate while possible
-			if (top == tested)
-				return;
-			for (auto specie_it = tested.begin(); specie_it != tested.end(); specie_it++) {
-				if (*specie_it) {
-					*specie_it = false;
-				}
-				else {
-					*specie_it = true;
-					break;
-				}
-			}
-		} while (true);
+		} while(iterate<bool>(top, bottom, tested));
 	}
 
 	/**

@@ -56,8 +56,5 @@ int main(int argc, char* argv[]) {
 
 	test(testFormulaeParser, "testFormulaeParser");
 
-	std::string empty();
-	empty = "a";
-
 	return 0;
 }
