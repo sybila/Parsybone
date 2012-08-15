@@ -129,7 +129,7 @@ public:
 		// compute numbers of partial parametrizations for each component
 		const std::vector<ColorNum> color_parts = std::move(getSpecieVals(number));
 
-		std::string color_str = "[";
+		std::string color_str = "(";
 		// cycle through the species
 		for (SpecieID ID = 0; ID < getSpecieNum(); ID++) {
 			auto color = getColor(ID, color_parts[ID]);
@@ -140,7 +140,7 @@ public:
 			}
 		}
 		// Change the last value
-		*(color_str.end() - 1) = ']';
+		*(color_str.end() - 1) = ')';
 
 		return color_str;
 	}

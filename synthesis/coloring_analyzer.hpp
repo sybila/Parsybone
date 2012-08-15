@@ -136,6 +136,8 @@ public:
 		while (numbers_it != numbers.end()) {
 			std::string result(toString(*numbers_it));
 			numbers_it++;
+			result += separator;
+
 			// If the parametrization string is required on the output
 			if (user_options.coloring()) {
 				result.append(*strings_it);

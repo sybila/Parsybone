@@ -145,9 +145,8 @@ public:
    const std::vector<std::string> getOutput() const {
       std::vector<std::string> to_return;
       forEach(results, [&to_return](double robust){
-         std::string string_val("<");
          if (robust) // Add if the value is non-zero
-            to_return.push_back(string_val.append(toString(robust)).append(">"));
+            to_return.push_back(toString(robust));
       });
 
       return to_return;

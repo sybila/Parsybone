@@ -17,7 +17,7 @@ class AutomatonParser {
 	/**
 	 * Starting from the STATE node, the function parses all the EDGE tags and reads the data from them.
 	 */
-	void parseTransitions(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
+	void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
 		rapidxml::xml_node<>      *transition;
 		// Regulation data
 		std::string label_string; std::size_t target_ID;
@@ -60,7 +60,7 @@ class AutomatonParser {
 			StateID ID = model.addState(final);
 
 			// Get all the transitions of the state and store them to the model.
-			parseTransitions(state, ID);
+			parseEdges(state, ID);
 
 			// Continue stepping into STATE tags while possible
 			if (state->next_sibling("STATE"))

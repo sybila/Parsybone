@@ -210,14 +210,15 @@ public:
       // Cycle throught the parametrizations
       for (auto param_it = transitions.begin(); param_it != transitions.end(); param_it++) {
          if (!param_it->empty()) { // Test for emptyness
-            std::string path;
+            std::string path = "{";
             // Reformat based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
                if (!user_options.longWit())
-                  path.append("[").append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append("]");
+                  path.append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append(",");
                else
-                  path.append(",").append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second));
+                  path.append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second)).append(",");
             }
+            path.back() = '}';
             // Add the string
             acceptable_paths.push_back(std::move(path));
          }

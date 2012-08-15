@@ -84,20 +84,18 @@ public:
 		auto witnesses = std::move(searcher.getOutput()); auto witness_it = witnesses.begin();
 		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
 
-		/*if (params.size() != witnesses.size() || params.size() != robusts.size()) {
-			std::string error("Sizes of vectors on output are not equal.");
-			error.append(toString(params.size())).append(",").append(toString(witnesses.size())).append(",").append(toString(robusts.size()));
-			throw std::runtime_error(error);
-		}*/
-
 		// Cycle through parametrizations, display requested data
 		while (param_it != params.end()) {
 			output_streamer.output(results_str, *param_it, OutputStreamer::no_newl);
+			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
 			param_it++;
+
 			if (user_options.robustness()) {
 				output_streamer.output(results_str, *robust_it, OutputStreamer::no_newl);
 				robust_it++;
 			}
+
+			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
 			if (user_options.witnesses()) {
 				output_streamer.output(results_str, *witness_it, OutputStreamer::no_newl);
 				witness_it++;
