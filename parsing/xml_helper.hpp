@@ -35,7 +35,7 @@ namespace XMLHelper {
 		return_node = current_node->first_node(node_name);
 		if (return_node == 0) {
 			if (mandatory)
-				throw std::runtime_error(std::string("Parser did not found the ").append(node_name).append(" node"));
+				throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
 			else
 				return 0;
 		}

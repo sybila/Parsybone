@@ -124,9 +124,7 @@ class NetworkParser {
 		std::string label; EdgeConstrain constrain; bool observable;
 
 		// Step into a first REGUL tag or end if there is no such
-		rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL", false);
-		if (regulation == 0)
-			return;
+		rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL");
 
 		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
 			auto source_ID = getSourceID(regulation, specie_ID);
