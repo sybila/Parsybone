@@ -24,15 +24,37 @@
 // program-related data
 const float program_version = 1.0;
 
-int main(int argc, char* argv[]) {
+void test(bool (*test_function)(void), std::string test_name){
+	std::cout << "# Executing test: " << test_name << std::endl;
+	if (test_function)
+		std::cout << "correct" << std::endl;
+	else
+		std::cout << "failed" << std::endl;
+}
+
+bool testFormulaeParser() {
 	std::map<std::string, bool> vars;
 	vars.insert(std::make_pair("A",true));
 	vars.insert(std::make_pair("B",false));
-	bool result;
-	std::string formula1 = "(A|B)"; std::string formula2 = "!B"; std::string formula3 = "(!(A&A)|!B)";
-	result = FormulaeParser::resolve(vars, formula1);
-	result = FormulaeParser::resolve(vars, formula2);
-	result = FormulaeParser::resolve(vars, formula3);
+
+	std::vector<std::string> formulas;
+	formulas.push_back("A");
+	formulas.push_back("!B");
+	formulas.push_back("(A|B)");
+	formulas.push_back("(!(A&A)|!B)");
+
+	for (auto formula_it = formulas.begin(); formula_it != formulas.end(); formula_it++) {
+		if (!FormulaeParser::resolve(vars, *formula_it)) {
+			std::cout << "formula " << *formula_it << " is false.";
+			return false;
+		}
+	}
+	return true;
+}
+
+int main(int argc, char* argv[]) {
+
+	test(testFormulaeParser, "testFormulaeParser");
 
 	return 0;
 }
