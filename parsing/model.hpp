@@ -34,6 +34,7 @@ public:
 		Regulation(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain, const bool _observable)
 			: source(_source), threshold(_threshold), constrain(_constrain), observable(_observable) { }
 	};
+
 	typedef std::pair<std::vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value)
 	typedef std::pair<StateID, std::string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label)
 
@@ -105,8 +106,8 @@ private:
 	/**
 	 * Add a new regulation to the specie.
 	 */
-	inline void addParameter(size_t target_ID, std::vector<bool>&& subset_mask, int target_value) {
-		species[target_ID].parameters.push_back(Parameter(std::move(subset_mask), target_value));
+	inline void addParameter(size_t target_ID, const std::vector<bool> subset_mask, int target_value) {
+		species[target_ID].parameters.push_back(Parameter(subset_mask, target_value));
 	}
 
 	/**
@@ -199,6 +200,13 @@ public:
 	 */
 	inline const std::size_t getMax(const std::size_t ID) const {
 		return species[ID].max_value;
+	}
+
+	/**
+	 * @return	basal value of the specie
+	 */
+	inline const std::size_t getBasal(const std::size_t ID) const {
+		return species[ID].basal_value;
 	}
 
 	/**

@@ -122,27 +122,64 @@ class NetworkParser {
 		}
 	}
 
-	void fillFromContext(const std::string context, size_t specie_ID, int target_value) const {
+	void fillFromContext(const std::string context, std::set<std::vector<bool> > & specified, size_t specie_ID, int target_value) const {
 		std::vector<std::string> sources;
-		if (!context.empty()) try {
-			boost::split(sources, context, boost::is_any_of(":"));
+		try {
+			boost::split(sources, context, boost::is_any_of(","));
 		} catch (std::exception & e) {
 			output_streamer.output(error_str, std::string("Error occured while parsing a context. ").append(e.what()));
-			throw std::runtime_error("boost::split(sources, context, boost::is_any_of(\":\")) failed");
+			throw std::runtime_error("boost::split(sources, context, boost::is_any_of(\",\")) failed");
 		}
-		std::vector<bool> mask(model.getSpeciesCount(), false);
-		forEach(sources, [&](std::string & source) {
-			mask[model.findID(source)] = true;
-		});
+		std::vector<bool> mask;
+		auto regulations = model.getRegulations(specie_ID);
+		for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
+			mask.push_back( std::find(sources.begin(), sources.end(), toString(regulations[regul_num].source)) == sources.end() );
+		}
 
 		// Add a new regulation to the specified target
-		model.addParameter(specie_ID, std::move(mask), target_value);
+		specified.insert(mask);
+		model.addParameter(specie_ID, mask, target_value);
 	}
 
-	void fillFromLogic(const std::string logic, size_t specie_ID) const {
+	void fillFromLogic(const std::string logic, std::set<std::vector<bool> > & specified, size_t specie_ID) const {
 
 	}
 
+	void addUnspecified(std::set<std::vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
+		std::vector<bool> tested(model.getRegulations(specie_ID).size(), false);
+		std::vector<bool> top(model.getRegulations(specie_ID).size(), true);
+		do {
+			if (specified.insert(tested).second) {
+				switch (unspec) {
+					case basal_reg:
+						model.addParameter(specie_ID, tested, model.getBasal(specie_ID));
+						break;
+
+					case param_reg:
+						model.addParameter(specie_ID, tested, -1);
+						break;
+
+					case error_reg:
+						throw std::runtime_error(std::string("Some required parameter specification is missing for the specie ").append(toString(specie_ID)));
+						break;
+				}
+			}
+
+			if (top == tested)
+				return;
+
+			// Iterate
+			for (auto specie_it = tested.begin(); specie_it != tested.end(); specie_it++) {
+				if (*specie_it) {
+					*specie_it = false;
+				}
+				else {
+					*specie_it = true;
+					break;
+				}
+			}
+		} while (true);
+	}
 
 	/**
 	 * Starting from the SPECIE node, the function parses all the PARAM tags and reads the data from them.
@@ -151,6 +188,7 @@ class NetworkParser {
 		// Parameters data data
 		std::string spec_string; int target_value;
 		auto unspec = getUnspecified(specie_node);
+		std::set<std::vector<bool> > specified;
 
 		// Step into first REGUL tag
 		rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "PARAM");
@@ -159,9 +197,9 @@ class NetworkParser {
 			// Get the mask string.
 			if ( XMLHelper::getAttribute(spec_string, regulation, "context", false) ) {
 				XMLHelper::getAttribute(target_value, regulation, "value");
-				fillFromContext(spec_string, specie_ID, target_value);
+				fillFromContext(spec_string, specified, specie_ID, target_value);
 			} else if ( XMLHelper::getAttribute(spec_string, regulation, "logic", false) ) {
-				fillFromLogic(spec_string, specie_ID);
+				fillFromLogic(spec_string, specified, specie_ID);
 			}
 			else {
 				throw std::invalid_argument(std::string("Not context nor logic specified for the parameters in the specie ").append(toString(specie_ID)));
@@ -172,6 +210,8 @@ class NetworkParser {
 				regulation = regulation->next_sibling("PARAM");
 			else break;
 		}
+
+		addUnspecified(specified, specie_ID, unspec);
 	}
 
 	/**
