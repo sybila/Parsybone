@@ -165,6 +165,8 @@ public:
 	}
 
 	/**
+	 * Finds numerical ID of the specie based on its name or ID string
+	 *
 	 * @return	ID of the specie with the specified name if there is such, otherwise ~0
 	 */
 	const SpecieID findID(const std::string name) const {

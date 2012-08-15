@@ -16,23 +16,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace Translator {
 	/**
-	 * @param label	label on the edge for some arbitrary regulation - can be + or - or nothing
-	 *
-	 * @return	enumeration item with given specification
-	 */
-	static const EdgeConstrain readConstrain(const std::string & label) {
-		// Test possible options
-		if (label.compare("") == 0)
-			return none_cons;
-		else if (label.compare("+") == 0)
-			return pos_cons;
-		else if (label.compare("-") == 0)
-			return neg_cons;
-		else
-			throw std::runtime_error("Wrong sing in regulation label.");
-	}
-
-	/**
 	 * @param mask_string	mask of the active regulations in given regulatory context in the form of a string
 	 *
 	 * @return Vector of boolean values that represents the input mask.

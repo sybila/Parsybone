@@ -25,32 +25,20 @@ namespace XMLHelper {
 	 *
 	 * @param current_node	pointer to the ancestor of requested node
 	 * @param node_name	string with the name of the decendant
+	 * @param mandatory	true if absence of the node should raise exception
 	 *
 	 * @return	pointer to the descendant if sucessful
 	 */
-	static rapidxml::xml_node<> * getChildNode(const rapidxml::xml_node<> * const current_node, const char* node_name) {
+	static rapidxml::xml_node<> * getChildNode(const rapidxml::xml_node<> * const current_node, const char* node_name, bool mandatory = true) {
 		rapidxml::xml_node<> * return_node = 0;
 		// try to get the node
 		return_node = current_node->first_node(node_name);
-		if (return_node == 0)
-			throw std::runtime_error(std::string("Parser did not found the ").append(node_name).append(" node"));
-		return return_node;
-	}
-
-	/**
-	 * Gets pointer to the sibling of the current node.
-	 *
-	 * @param current_node	pointer to the ancestor of requested node
-	 * @param node_name	string with the name of the decendant
-	 *
-	 * @return	pointer to the sybling if sucessful
-	 */
-	static rapidxml::xml_node<> * getSiblingNode(const rapidxml::xml_node<> * const current_node, const char* node_name) {
-		rapidxml::xml_node<> * return_node = 0;
-		// try to get the node
-		return_node = current_node->next_sibling(node_name);
-		if (return_node == 0)
-			throw std::runtime_error(std::string("Parser did not found the ").append(node_name).append(" node"));
+		if (return_node == 0) {
+			if (mandatory)
+				throw std::runtime_error(std::string("Parser did not found the ").append(node_name).append(" node"));
+			else
+				return 0;
+		}
 		return return_node;
 	}
 

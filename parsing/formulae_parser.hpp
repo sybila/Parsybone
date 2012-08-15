@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// This is a static helper class able of resolving any preposition logic formula.
 /// Formula construction:
+///   -# tt (true) and ff (false) are formulas
 ///	-# any variable is a formula
 ///   -# for \f$\varphi\f$ formula is \f$!\varphi\f$ formula
 ///   -# for \f$\psi, \varphi\f$ formulas are \f$(\psi|\varphi)\f$, \f$(\psi&\varphi)\f$ formulas
@@ -90,7 +91,7 @@ public:
     */
    static bool resolve (const std::map<std::string, bool> & valuation, std::string formula) {
       // If there is a ! symbol, negate the formula and remove it
-      bool negate = false;
+      bool negate = false; bool result;
       if (formula.front() == '!') {
          negate = true;
          formula = formula.substr(1);
@@ -98,21 +99,30 @@ public:
 
       // Search for any operator, if not found, assume formula to be an atom and return its valuation
       if (formula.find("|") == std::string::npos && formula.find("&") == std::string::npos) {
-         auto variable = valuation.find(formula);
-         // Search form the variable
-         if (variable == valuation.end()) throwException(formula, err_notfound);
-         return (negate ? !variable->second : variable->second);
+
+         if (formula.compare("tt") == 0) {
+            result = true;
+         }
+         else if (formula.compare("ff") == 0) {
+            result = false;
+         }
+         else {
+            auto variable = valuation.find(formula);
+            if (variable == valuation.end())
+               throwException(formula, err_notfound);
+            result = variable->second;
+         }
       }
+      else {
+         // Find position of the operator and its kind (or/and)
+         bool is_or; std::size_t division_pos;
+         readFormula(formula, is_or, division_pos);
 
-      // Find position of the operator and its kind (or/and)
-      bool is_or; std::size_t division_pos;
-      readFormula(formula, is_or, division_pos);
-
-      // Divide formula by the operator and remove its outer parenthesis, then descend recursivelly
-      std::string first = formula.substr(1, division_pos - 1);
-      std::string second = formula.substr(division_pos + 1, formula.size() - division_pos - 2);
-      bool result = is_or ? resolve(valuation, first) | resolve(valuation, second) : resolve(valuation, first) | resolve(valuation, second);
-
+         // Divide formula by the operator and remove its outer parenthesis, then descend recursivelly
+         std::string first = formula.substr(1, division_pos - 1);
+         std::string second = formula.substr(division_pos + 1, formula.size() - division_pos - 2);
+         result = is_or ? resolve(valuation, first) | resolve(valuation, second) : resolve(valuation, first) | resolve(valuation, second);
+      }
       // Return the value based on valuations of its parts
       return negate ? !result : result;
    }

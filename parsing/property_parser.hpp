@@ -2,7 +2,6 @@
 #define PARSYBONE_PROPERTY_PARSER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
-#include "translator.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
 
