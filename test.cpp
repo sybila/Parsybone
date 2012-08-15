@@ -10,16 +10,7 @@
 // This is a testing suite for the Parsybone program
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "auxiliary/time_manager.hpp"
-#include "auxiliary/output_streamer.hpp"
-#include "auxiliary/user_options.hpp"
-#include "parsing/argument_parser.hpp"
-#include "parsing/model_parser.hpp"
-#include "parsing/parsing_manager.hpp"
 #include "parsing/formulae_parser.hpp"
-#include "construction/construction_manager.hpp"
-#include "construction/product_builder.hpp"
-#include "synthesis/synthesis_manager.hpp"
 
 // program-related data
 const float program_version = 1.0;

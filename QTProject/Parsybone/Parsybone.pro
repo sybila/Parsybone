@@ -52,7 +52,7 @@ HEADERS += \
     ../../synthesis/color_storage.hpp \
     ../../synthesis/robustness_compute.hpp \
     ../../parsing/xml_helper.hpp \
-    ../../parsing/property_parser.hpp \
     ../../parsing/network_parser.hpp \
-    ../../parsing/formulae_parser.hpp
+    ../../parsing/formulae_parser.hpp \
+    ../../parsing/automaton_parser.hpp
 

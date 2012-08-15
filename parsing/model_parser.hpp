@@ -10,7 +10,7 @@
 #define PARSYBONE_MODEL_PARSER_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
-#include "property_parser.hpp"
+#include "automaton_parser.hpp"
 #include "network_parser.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ public:
 		NetworkParser network_parser(model);
 		network_parser.parse(model_node);
 
-      PropertyParser property_parser(model);
+      AutomatonParser property_parser(model);
       property_parser.parse(model_node);
     }
 };

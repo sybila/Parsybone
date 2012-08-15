@@ -1,5 +1,5 @@
-#ifndef PARSYBONE_PROPERTY_PARSER_INCLUDED
-#define PARSYBONE_PROPERTY_PARSER_INCLUDED
+#ifndef PARSYBONE_AUTOMATON_PARSER_INCLUDED
+#define PARSYBONE_AUTOMATON_PARSER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"
@@ -8,26 +8,24 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// This object is responsible for parsing and translation of data related to the tested property.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class PropertyParser {
+class AutomatonParser {
 	Model & model; ///< Reference to the model object that will be filled
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARSING:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
+	 * Starting from the STATE node, the function parses all the EDGE tags and reads the data from them.
 	 */
 	void parseTransitions(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
 		rapidxml::xml_node<>      *transition;
 		// Regulation data
 		std::string label_string; std::size_t target_ID;
 
-		// Step into REGULATIONS tag
-		transition = XMLHelper::getChildNode(state_node, "TRANSITIONS");
-		// Step into first REGUL tag
-		transition = XMLHelper::getChildNode(transition, "TRANS");
+		// Step into first EDGE tag
+		transition = XMLHelper::getChildNode(state_node, "EDGE");
 
-		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
+		while (true) { // End when the current node does not have next sibling (all EDGE tags were parsed)
 			// Get the mask string.
 			XMLHelper::getAttribute(label_string, transition, "label");
 			// Get max value and conver to integer.
@@ -37,8 +35,8 @@ class PropertyParser {
 			model.addConditions(source_ID, target_ID, std::move(label_string));
 
 			// Continue stepping into REGUL tags while possible
-			if (transition->next_sibling("TRANS"))
-				transition = transition->next_sibling("TRANS");
+			if (transition->next_sibling("EDGE"))
+				transition = transition->next_sibling("EDGE");
 			else break;
 		}
 	}
@@ -74,11 +72,11 @@ class PropertyParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	PropertyParser(const PropertyParser & other); ///< Forbidden copy constructor.
-	PropertyParser& operator=(const PropertyParser & other); ///< Forbidden assignment operator.
+	AutomatonParser(const AutomatonParser & other); ///< Forbidden copy constructor.
+	AutomatonParser& operator=(const AutomatonParser & other); ///< Forbidden assignment operator.
 
 public:
-	PropertyParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references
+	AutomatonParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references
 
 	void parse(const rapidxml::xml_node<> * const current_node) {
 		// Parse Buchi Automaton
@@ -87,4 +85,4 @@ public:
 	}
 };
 
-#endif // PARSYBONE_PROPERTY_PARSER_INCLUDED
+#endif // PARSYBONE_AUTOMATON_PARSER_INCLUDED
