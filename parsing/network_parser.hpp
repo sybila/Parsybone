@@ -11,6 +11,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
+#include "formulae_parser.hpp"
 #include "translator.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
@@ -152,8 +153,32 @@ class NetworkParser {
 		model.addParameter(specie_ID, mask, target_value);
 	}
 
-	void fillFromLogic(const std::string logic, std::set<std::vector<bool> > & specified, size_t specie_ID) const {
+	void fillFromLogic(const std::string logic, size_t specie_ID) const {
+		std::vector<bool> tested(model.getRegulations(specie_ID).size(), false);
+		std::vector<bool> top(model.getRegulations(specie_ID).size(), true);
+		do {
+			std::map<std::string, bool> valuation;
+			for (std::size_t regul_num = 0; regul_num < tested.size(); regul_num++) {
+				StateID source_ID = (model.getRegulations(specie_ID))[regul_num].source;
+				valuation.insert(std::make_pair(toString(source_ID), tested[regul_num]));
+				valuation.insert(std::make_pair(model.getName(source_ID), tested[regul_num]));
+			}
 
+			model.addParameter(specie_ID, tested, FormulaeParser::resolve(valuation, logic));
+
+			if (top == tested)
+				return;
+			// Iterate
+			for (auto specie_it = tested.begin(); specie_it != tested.end(); specie_it++) {
+				if (*specie_it) {
+					*specie_it = false;
+				}
+				else {
+					*specie_it = true;
+					break;
+				}
+			}
+		} while (true);
 	}
 
 	void addUnspecified(std::set<std::vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
@@ -207,10 +232,12 @@ class NetworkParser {
 		while (true) { // End when the current node does not have next sibling (all PARAM tags were parsed)
 			// Get the mask string.
 			if ( XMLHelper::getAttribute(spec_string, regulation, "context", false) ) {
-				XMLHelper::getAttribute(target_value, regulation, "value");
+				if (!XMLHelper::getAttribute(target_value, regulation, "value"))
+					target_value = - 1;
 				fillFromContext(spec_string, specified, specie_ID, target_value);
 			} else if ( XMLHelper::getAttribute(spec_string, regulation, "logic", false) ) {
-				fillFromLogic(spec_string, specified, specie_ID);
+				fillFromLogic(spec_string, specie_ID);
+				return;
 			}
 			else {
 				throw std::invalid_argument(std::string("Not context nor logic specified for the parameters in the specie ").append(toString(specie_ID)));

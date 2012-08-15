@@ -16,7 +16,6 @@
 #include "parsing/argument_parser.hpp"
 #include "parsing/model_parser.hpp"
 #include "parsing/parsing_manager.hpp"
-#include "parsing/formulae_parser.hpp"
 #include "construction/construction_manager.hpp"
 #include "construction/product_builder.hpp"
 #include "synthesis/synthesis_manager.hpp"
@@ -30,15 +29,6 @@ const float program_version = 1.0;
 int main(int argc, char* argv[]) {
 	time_manager.startClock("runtime");
 	ConstructionHolder holder; ///< Object that will hold all the constructed data structures that are used as reference
-
-	std::map<std::string, bool> vars;
-	vars.insert(std::make_pair("A",true));
-	vars.insert(std::make_pair("B",false));
-	bool result;
-	std::string formula1 = "(A|B)"; std::string formula2 = "!B"; std::string formula3 = "(!(A&A)|!B)";
-	result = FormulaeParser::resolve(vars, formula1);
-	result = FormulaeParser::resolve(vars, formula2);
-	result = FormulaeParser::resolve(vars, formula3);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
