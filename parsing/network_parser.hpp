@@ -123,13 +123,22 @@ class NetworkParser {
 	}
 
 	void fillFromContext(const std::string context, std::set<std::vector<bool> > & specified, size_t specie_ID, int target_value) const {
+		// Obtain strings of the sources
 		std::vector<std::string> sources;
-		try {
+		if (!context.empty()) try {
 			boost::split(sources, context, boost::is_any_of(","));
 		} catch (std::exception & e) {
 			output_streamer.output(error_str, std::string("Error occured while parsing a context. ").append(e.what()));
 			throw std::runtime_error("boost::split(sources, context, boost::is_any_of(\",\")) failed");
 		}
+
+		// Control existence of the
+		forEach(sources, [&](std::string & source) {
+			if (model.findID(source) > model.getSpeciesCount())
+			throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the specie list"));
+		});
+
+		// Create a mask by comparison of source strings against regulations sources of the specie
 		std::vector<bool> mask;
 		auto regulations = model.getRegulations(specie_ID);
 		for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
@@ -137,7 +146,9 @@ class NetworkParser {
 		}
 
 		// Add a new regulation to the specified target
-		specified.insert(mask);
+		if (!specified.insert(mask).second) {
+			throw std::invalid_argument(std::string("Context redefinition found for the specie ").append(toString(specie_ID)));
+		}
 		model.addParameter(specie_ID, mask, target_value);
 	}
 
