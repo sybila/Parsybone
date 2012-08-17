@@ -122,7 +122,7 @@ class ParametrizationsBuilder {
 	 * @param bottom_color	low bound on possible contexts
 	 * @param top_color	top bound on possible contexts
 	 */
-	void testColors(ParametrizationsHolder::SpecieColors && valid, const SpecieID ID, const std::size_t colors_num, const std::vector<std::size_t> & bottom_color, const std::vector<std::size_t> & top_color) {
+    void testColors(ParametrizationsHolder::SpecieColors && valid, const SpecieID ID, const std::vector<std::size_t> & bottom_color, const std::vector<std::size_t> & top_color) {
 		// Cycle through all possible subcolors for this specie
 		std::vector<std::size_t> subcolor(bottom_color);
 
@@ -184,15 +184,14 @@ class ParametrizationsBuilder {
 
 		// Reference data
         auto parameters = model.getParameters(ID);
-		std::size_t colors_num; // How many colors will be tested (number of all combinations)
 		
 		// Create boundaries for iteration
         std::vector<std::size_t> bottom_color(parameters.size());
         std::vector<std::size_t> top_color(parameters.size());
-		valid.possible_count = colors_num = getBoundaries(ID, bottom_color, top_color);
+        valid.possible_count = getBoundaries(ID, bottom_color, top_color);
 		
 		// Test all the subcolors and save feasible
-		testColors(std::move(valid), ID, colors_num, bottom_color, top_color);
+        testColors(std::move(valid), ID, bottom_color, top_color);
 	}
 
 	ParametrizationsBuilder(const ParametrizationsBuilder & other); ///< Forbidden copy constructor.

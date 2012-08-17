@@ -19,26 +19,18 @@ class AutomatonParser {
 	 * Starting from the STATE node, the function parses all the EDGE tags and reads the data from them.
 	 */
 	void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
-		rapidxml::xml_node<>      *transition;
 		// Regulation data
 		std::string label_string; std::size_t target_ID;
 
-		// Step into first EDGE tag
-		transition = XMLHelper::getChildNode(state_node, "EDGE");
-
-		while (true) { // End when the current node does not have next sibling (all EDGE tags were parsed)
+		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
+		for (rapidxml::xml_node<> * edge = XMLHelper::getChildNode(state_node, "EDGE"); edge; edge = edge->next_sibling("EDGE")) {
 			// Get the mask string.
-			XMLHelper::getAttribute(label_string, transition, "label");
+			XMLHelper::getAttribute(label_string, edge, "label");
 			// Get max value and conver to integer.
-			XMLHelper::getAttribute(target_ID, transition, "target");
+			XMLHelper::getAttribute(target_ID, edge, "target");
 
 			// Add a new regulation to the specified target
 			model.addConditions(source_ID, target_ID, std::move(label_string));
-
-			// Continue stepping into REGUL tags while possible
-			if (transition->next_sibling("EDGE"))
-				transition = transition->next_sibling("EDGE");
-			else break;
 		}
 	}
 
@@ -50,11 +42,9 @@ class AutomatonParser {
 		// State data
 		bool final; std::string name;
 
-		// Step into first STATE tag
-		rapidxml::xml_node<> * state = XMLHelper::getChildNode(automaton_node, "STATE");
-
-		StateID ID = 0;
-		while (true) { // End when the current node does not have next sibling (all STATES tags were parsed)
+		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
+		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
+		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
 			// Find out whether the state is final
 			if(!XMLHelper::getAttribute(final, state, "final", false))
 				final = false;
@@ -65,13 +55,6 @@ class AutomatonParser {
 
 			// Create a new state
 			model.addState(name, final);
-
-			// Continue stepping into STATE tags while possible
-			if (state->next_sibling("STATE"))
-				state = state->next_sibling("STATE");
-			else break;
-
-			ID++;
 		}
 	}
 
@@ -80,11 +63,9 @@ class AutomatonParser {
 	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
 	 */
 	void secondParse(const rapidxml::xml_node<> * const automaton_node) const {
-
-		// Step into first STATE tag
-		rapidxml::xml_node<> * state = XMLHelper::getChildNode(automaton_node, "STATE");
-
-		for (StateID ID = 0; ID < model.getStateCount(); ID++, state = state->next_sibling("STATE")) {
+		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
+		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
+		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
 			// Get all the transitions of the state and store them to the model.
 			parseEdges(state, ID);
 		}

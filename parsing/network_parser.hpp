@@ -123,10 +123,8 @@ class NetworkParser {
 		// Regulation data
 		std::string label; EdgeConstrain constrain; bool observable;
 
-		// Step into a first REGUL tag or end if there is no such
-		rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL");
-
-		while (true) { // End when the current node does not have next sibling (all REGUL tags were parsed)
+		// Cycle through REGUL TAGS
+		for (rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL"); regulation; regulation = regulation->next_sibling("REGUL") ) {
 			auto source_ID = getSourceID(regulation, specie_ID);
 			auto threshold = getThreshold(regulation, specie_ID, source_ID);
 			if (!XMLHelper::getAttribute(label, regulation, "label", false))
@@ -137,11 +135,6 @@ class NetworkParser {
 
 			// Add a new regulation to the specified target
 			model.addRegulation(source_ID, specie_ID, threshold, constrain, observable);
-
-			// Continue stepping into REGUL tags while possible
-			if (regulation->next_sibling("REGUL"))
-				regulation = regulation->next_sibling("REGUL");
-			else break;
 		}
 	}
 
@@ -264,23 +257,14 @@ class NetworkParser {
 		auto unspec = getUnspecified(specie_node);
 		std::set<std::vector<bool> > specified; // Used for possibility of partial specification
 
-		// Step into first PARAM tag
-		rapidxml::xml_node<>* parameter = XMLHelper::getChildNode(specie_node, "PARAM", false);
-		if (parameter == 0)
-			return;
-
-		while (true) { // End when the current node does not have next sibling (all PARAM tags were parsed)
+		// Step into first PARAM tag, end when the current node does not have next sibling (all PARAM tags were parsed)
+		for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM"); parameter; parameter = parameter->next_sibling("PARAM") ) {
 			// Get the mask string.
 			if ( XMLHelper::getAttribute(context, parameter, "context") ) {
 				if (!XMLHelper::getAttribute(target_value, parameter, "value", false))
 					target_value = - 1;
 				fillFromContext(context, specified, specie_ID, target_value);
 			}
-
-			// Continue stepping into REGUL tags while possible
-			if (parameter->next_sibling("PARAM"))
-				parameter = parameter->next_sibling("PARAM");
-			else break;
 		}
 
 		addUnspecified(specified, specie_ID, unspec);
@@ -294,11 +278,9 @@ class NetworkParser {
 		// Specie data
 		std::string name; size_t max; size_t basal;
 
-		// Step into first SPECIE tag
+		// Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
 		rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-
-		SpecieID ID = 0;
-		while (true) { // End when the current node does not have next sibling (all SPECIES tags were parsed)
+		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
 			// Get a name of the specie.
 			if (!XMLHelper::getAttribute(name, specie, "name", false))
 				name = toString(ID);
@@ -311,12 +293,6 @@ class NetworkParser {
 
 			// Create a new specie
 			model.addSpecie(name, max, basal);
-
-			// Continue stepping into SPECIE tags while possible
-			if (specie->next_sibling("SPECIE"))
-				specie = specie->next_sibling("SPECIE");
-			else break;
-			ID++;
 		}
 	}
 
@@ -324,21 +300,16 @@ class NetworkParser {
 	 * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
 	 */
 	void secondParse(const rapidxml::xml_node<> * const structure_node) const {
-		// Step into first SPECIE tag
+		// Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
 		rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-
-		// Cycle through species
-		for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++) {
-			// Get all the regulations of the specie and store them to the model.
+		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
+				// Get all the regulations of the specie and store them to the model.
 			parseRegulations(specie, ID);
 			// Try to search for a specification using a formula
 			if (!parseLogic(specie, ID)) {
 				// If not present, use normal parameters
 				parseParameters(specie, ID);
 			}
-
-			// Step into the next specie (by previous parse their number and order is guaranteed)
-			specie = specie->next_sibling("SPECIE");
 		}
 	}
 
