@@ -65,11 +65,13 @@ private:
 		friend class Model;
 
 		std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
+		std::string name; ///< Label of the state
 		bool final; ///< stores the information whether the state is final
 
 		std::vector<Egde> edges; ///< edges in Buchi Automaton (Target ID, edge label)
 
-		BuchiAutomatonState(std::size_t _ID, bool _final) : ID(_ID), final(_final) {	}
+		BuchiAutomatonState(std::string _name, std::size_t _ID, bool _final)
+			: name(_name), ID(_ID), final(_final) {	}
 	};
 
 	/// Structure that stores additional settings
@@ -89,8 +91,8 @@ private:
 	 *
 	 * @return	index of specie in the vector
 	 */
-	inline std::size_t addSpecie(std::string _name, size_t _max_value, size_t _basal_value) {
-		species.push_back(ModelSpecie(_name, species.size(), _max_value, _basal_value));
+	inline std::size_t addSpecie(std::string name, size_t max_value, size_t basal_value) {
+		species.push_back(ModelSpecie(name, species.size(), max_value, basal_value));
 		return species.size() - 1;
 	}
 
@@ -113,8 +115,8 @@ private:
 	 *
 	 * @return	ID of state in the vector
 	 */
-	inline std::size_t addState(bool final) {
-		states.push_back(BuchiAutomatonState(states.size(), final));
+	inline std::size_t addState(std::string name, bool final) {
+		states.push_back(BuchiAutomatonState(name, states.size(), final));
 		return states.size() - 1;
 	}
 
@@ -168,12 +170,32 @@ public:
 	const SpecieID findID(const std::string name) const {
 		SpecieID ID = ~0;
 		try { // Try direct translation
+			ID = boost::lexical_cast<SpecieID, std::string>(name);
+		}
+		catch (boost::bad_lexical_cast) { // Try lookup by name
+			std::for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
+				if (spec.name.compare(name) == 0)
+				ID = spec.ID;
+			});
+		}
+		return ID;
+	}
+
+
+	/**
+	 * Finds ordinal number of the BA state based on its name or number string
+	 *
+	 * @return	number of the state with the specified name if there is such, otherwise ~0
+	 */
+	const SpecieID findNumber(const std::string name) const {
+		StateID ID = ~0;
+		try { // Try direct translation
 			ID = boost::lexical_cast<StateID, std::string>(name);
 		}
 		catch (boost::bad_lexical_cast) { // Try lookup by name
-			std::for_each(species.begin(), species.end(), [&ID, &name](ModelSpecie spec) {
-				if (spec.name.compare(name) == 0)
-				ID = spec.ID;
+			std::for_each(states.begin(), states.end(), [&ID, &name](const BuchiAutomatonState & state) {
+				if (state.name.compare(name) == 0)
+				ID = state.ID;
 			});
 		}
 		return ID;

@@ -96,8 +96,8 @@ public:
 		NetworkParser network_parser(model);
 		network_parser.parse(model_node);
 
-      AutomatonParser property_parser(model);
-      property_parser.parse(model_node);
+      AutomatonParser automaton_parser(model);
+      automaton_parser.parse(model_node);
     }
 };
 

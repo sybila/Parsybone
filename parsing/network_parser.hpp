@@ -299,13 +299,13 @@ class NetworkParser {
 
 		SpecieID ID = 0;
 		while (true) { // End when the current node does not have next sibling (all SPECIES tags were parsed)
-			// Get name of the specie.
+			// Get a name of the specie.
 			if (!XMLHelper::getAttribute(name, specie, "name", false))
 				name = toString(ID);
-			// Get max value and conver to integer.
+			// Get a max value and conver to integer.
 			if (!XMLHelper::getAttribute(max, specie, "max", false))
 				max = 1;
-			// Get basal value and conver to integer.
+			// Get a basal value and conver to integer.
 			if(!XMLHelper::getAttribute(basal, specie, "basal", false))
 				basal = 0;
 
@@ -328,7 +328,7 @@ class NetworkParser {
 		rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
 
 		// Cycle through species
-		for (StateID ID = 0; ID < model.getSpeciesCount(); ID++) {
+		for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++) {
 			// Get all the regulations of the specie and store them to the model.
 			parseRegulations(specie, ID);
 			// Try to search for a specification using a formula

@@ -2,6 +2,7 @@
 #define PARSYBONE_AUTOMATON_PARSER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
+#include "../auxiliary/common_functions.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
 
@@ -43,29 +44,49 @@ class AutomatonParser {
 
 	/**
 	 * Starting from the AUTOMATON node, the function parses all the STATE tags and all their TRANSITION tags and reads the data from them.
+	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
 	 */
-	void parseStates(const rapidxml::xml_node<> * const automaton_node) const {
-		rapidxml::xml_node<>      *state;
+	void firstParse(const rapidxml::xml_node<> * const automaton_node) const {
 		// State data
-		bool final;
+		bool final; std::string name;
 
-		// Step into first SPECIE tag
-		state = XMLHelper::getChildNode(automaton_node, "STATE");
+		// Step into first STATE tag
+		rapidxml::xml_node<> * state = XMLHelper::getChildNode(automaton_node, "STATE");
 
+		StateID ID = 0;
 		while (true) { // End when the current node does not have next sibling (all STATES tags were parsed)
 			// Find out whether the state is final
-			XMLHelper::getAttribute(final, state, "final");
+			if(!XMLHelper::getAttribute(final, state, "final", false))
+				final = false;
+
+			// Get a name of the state, or use its ID as a string
+			if(!XMLHelper::getAttribute(name, state, "name", false))
+				name = toString(ID);
 
 			// Create a new state
-			StateID ID = model.addState(final);
-
-			// Get all the transitions of the state and store them to the model.
-			parseEdges(state, ID);
+			model.addState(name, final);
 
 			// Continue stepping into STATE tags while possible
 			if (state->next_sibling("STATE"))
 				state = state->next_sibling("STATE");
 			else break;
+
+			ID++;
+		}
+	}
+
+	/**
+	 * Starting from the AUTOMATON node, the function parses all the STATE tags and all their TRANSITION tags and reads the data from them.
+	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
+	 */
+	void secondParse(const rapidxml::xml_node<> * const automaton_node) const {
+
+		// Step into first STATE tag
+		rapidxml::xml_node<> * state = XMLHelper::getChildNode(automaton_node, "STATE");
+
+		for (StateID ID = 0; ID < model.getStateCount(); ID++, state = state->next_sibling("STATE")) {
+			// Get all the transitions of the state and store them to the model.
+			parseEdges(state, ID);
 		}
 	}
 
@@ -78,10 +99,16 @@ class AutomatonParser {
 public:
 	AutomatonParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references
 
+	/**
+	 * Main parsing function. It expects a pointer to inside of a MODEL node.
+	 */
 	void parse(const rapidxml::xml_node<> * const current_node) {
 		// Parse Buchi Automaton
 		output_streamer.output(verbose_str, "Started reading of the Buchi automaton.");
-		parseStates(XMLHelper::getChildNode(current_node, "AUTOMATON"));
+		// Parse states
+		firstParse(XMLHelper::getChildNode(current_node, "AUTOMATON"));
+		// Parse transition for the states from the previous parse
+		secondParse(XMLHelper::getChildNode(current_node, "AUTOMATON"));
 	}
 };
 
