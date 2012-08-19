@@ -13,6 +13,19 @@
 class TimeSeriesParser {
    Model & model; ///< Reference to the model object that will be filled
 
+   void fillNormal(const StateID ID, const rapidxml::xml_node<> * const expression) const {
+      model.addConditions(ID, ID, std::move(std::string("tt")));
+
+      std::string values;
+      XMLHelper::getAttribute(values, expression, "values");
+      model.addConditions(ID, ID + 1, std::move(values));
+   }
+
+
+   void fillMonotone(const StateID ID, const rapidxml::xml_node<> * const expression) const {
+      throw std::invalid_argument("Monotone transitions in the time series are not yet implemented.");
+   }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARSING:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,12 +37,12 @@ class TimeSeriesParser {
       StateID ID = 0;
       for (rapidxml::xml_node<> *expression = XMLHelper::getChildNode(series_node, "EXPR"); expression; ID++, expression = expression->next_sibling("EXPR") ) {
          model.addState(toString(ID), false);
-
-         model.addConditions(ID, ID, std::move(std::string("tt")));
-
-         std::string values;
-         XMLHelper::getAttribute(values, expression, "values");
-         model.addConditions(ID, ID + 1, std::move(values));
+         // Currently unused
+         bool monotone = XMLHelper::getAttribute(monotone, expression, "mono", false);
+         if (!monotone)
+            fillNormal(ID, expression);
+         else
+            fillMonotone(ID, expression);
       }
 
       // Add a final state that marks succesful time series walk

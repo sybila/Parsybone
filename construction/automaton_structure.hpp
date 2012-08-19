@@ -15,9 +15,9 @@
 
 /// Single labelled transition from one state to another
 struct AutTransitionion : public TransitionProperty {
-	std::vector<std::set<std::size_t> > allowed_values; ///< Allowed values of species for this transition
+   std::vector<AllowedValues> allowed_values; ///< Allowed values of species for this transition
 
-	AutTransitionion(const StateID target_ID, std::vector<std::set<std::size_t> > && _allowed_values)
+   AutTransitionion(const StateID target_ID, std::vector<AllowedValues> && _allowed_values)
 		: TransitionProperty(target_ID), allowed_values(std::move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables
 };
 
@@ -42,7 +42,7 @@ class AutomatonStructure : public AutomatonInterface<AutState> {
 	/**
 	 * Add a new transition - having a source, target and permitted values for each specie
 	 */
-	inline void addTransition(const StateID source_state, const StateID target_state, std::vector<std::set<std::size_t> > && allowed_values) {
+   inline void addTransition(const StateID source_state, const StateID target_state, std::vector<AllowedValues> && allowed_values) {
 		states[source_state].transitions.push_back(std::move(AutTransitionion(target_state, std::move(allowed_values))));
 	}
 
@@ -77,28 +77,18 @@ public:
 	 */
 	bool isTransitionFeasible(const StateID ID, const std::size_t transition_num, const Levels & levels) const {
 		const AutTransitionion & transition = states[ID].transitions[transition_num];
-		// Cycle through the sates
-		for (std::size_t specie_num = 0; specie_num < transition.allowed_values.size(); specie_num++) {
-			// If you do not find current specie level between allowed, return false
-			if (transition.allowed_values[specie_num].find(levels[specie_num]) == transition.allowed_values[specie_num].end())
-				return false;
-		}
-		return true;
-	}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Get a vector of values the KS can be in for the transition to be active
-	 *
-	 * @param ID	source state
-	 * @param transition_num	number of transition to get the data from
-	 *
-	 * @return	vector of values the KS can occur in for the transition to be allowed
-	 */
-	inline const std::vector<std::set<std::size_t> > & getAllowedValues(const StateID ID, const std::size_t transition_num) const {
-		return states[ID].transitions[transition_num].allowed_values;
+      for (std::size_t clause_num = 0; clause_num < transition.allowed_values.size(); clause_num++) {
+         // Cycle through the sates
+         for (std::size_t specie_num = 0; specie_num < transition.allowed_values[clause_num].size(); specie_num++) {
+            // If you do not find current specie level between allowed, return false
+            if (transition.allowed_values[clause_num][specie_num].find(levels[specie_num]) == transition.allowed_values[clause_num][specie_num].end())
+               break;
+            else if (specie_num == (transition.allowed_values[clause_num].size() - 1))
+               return true;
+         }
+      }
+      return false;
 	}
 };
 

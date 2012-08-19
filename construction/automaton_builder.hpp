@@ -175,9 +175,11 @@ class AutomatonBuilder {
 		for (std::size_t edge_num = 0; edge_num < model.getEdges(ID).size(); edge_num++) {
 			// Compute allowed values from string of constrains
 			AllowedValues constrained_values = std::move(parseConstrains(edges[edge_num].second));
+         std::vector<AllowedValues> allowed_values;
+         allowed_values.push_back(constrained_values);
 			// If the transition is possible for at least some values, add it
 			if (!constrained_values.empty()) {
-				automaton.addTransition(ID, edges[edge_num].first, std::move(constrained_values));
+            automaton.addTransition(ID, edges[edge_num].first, std::move(allowed_values));
 				transition_count++;
 			}
 		}

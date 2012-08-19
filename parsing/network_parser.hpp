@@ -130,8 +130,7 @@ class NetworkParser {
 			if (!XMLHelper::getAttribute(label, regulation, "label", false))
 				label = "";
 			constrain = readConstrain(label);
-			if(!XMLHelper::getAttribute(observable, regulation, "observ", false))
-				observable = false;
+         observable = XMLHelper::getAttribute(observable, regulation, "observ", false);
 
 			// Add a new regulation to the specified target
 			model.addRegulation(source_ID, specie_ID, threshold, constrain, observable);

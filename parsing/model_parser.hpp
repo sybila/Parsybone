@@ -97,6 +97,7 @@ public:
 		NetworkParser network_parser(model);
 		network_parser.parse(model_node);
 
+      // Find property tag and control its uniqueness
       if (model_node->first_node("AUTOMATON")) {
          AutomatonParser automaton_parser(model);
          automaton_parser.parse(model_node);
