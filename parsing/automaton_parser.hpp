@@ -38,7 +38,7 @@ class AutomatonParser {
 	}
 
 	/**
-	 * Starting from the AUTOMATON node, the function parses all the STATE tags and all their TRANSITION tags and reads the data from them.
+    * Starting from the AUTOMATON node, the function parses all the STATE tags and all their EDGE tags and reads the data from them.
 	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
 	 */
 	void firstParse(const rapidxml::xml_node<> * const automaton_node) const {
@@ -62,14 +62,14 @@ class AutomatonParser {
 	}
 
 	/**
-	 * Starting from the AUTOMATON node, the function parses all the STATE tags and all their TRANSITION tags and reads the data from them.
+    * Starting from the AUTOMATON node, the function parses all the STATE tags and all their EDGE tags and reads the data from them.
 	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
 	 */
 	void secondParse(const rapidxml::xml_node<> * const automaton_node) const {
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
 		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
 		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
-			// Get all the transitions of the state and store them to the model.
+         // Get all the edges of the state and store them to the model.
 			parseEdges(state, ID);
 		}
 	}
@@ -91,7 +91,7 @@ public:
 		output_streamer.output(verbose_str, "Started reading of the Buchi automaton.");
 		// Parse states
       firstParse(XMLHelper::getChildNode(model_node, "AUTOMATON"));
-		// Parse transition for the states from the previous parse
+      // Parse edges for the states from the previous parse
       secondParse(XMLHelper::getChildNode(model_node, "AUTOMATON"));
 	}
 };

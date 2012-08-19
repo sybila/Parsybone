@@ -17,9 +17,6 @@
 class ColoringAnalyzer {
 	friend class SynthesisManager;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NEW TYPES AND DATA:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	const ParametrizationsHolder & parametrizations; ///< Reference to actuall explicit parametrizations that are further printed
 
 	/// Vector that stores individual states after the coloring procedure
@@ -136,13 +133,12 @@ public:
 		while (numbers_it != numbers.end()) {
 			std::string result(toString(*numbers_it));
 			numbers_it++;
+
 			result += separator;
 
-			// If the parametrization string is required on the output
-			if (user_options.coloring()) {
-				result.append(*strings_it);
-				strings_it++;
-			}
+         result.append(*strings_it);
+         strings_it++;
+
 			results.push_back(result);
 		}
 

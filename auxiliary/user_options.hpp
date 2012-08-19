@@ -17,14 +17,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class UserOptions {
 	friend class ArgumentParser;
+   friend class ModelParser;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OPTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool show_coloring; ///< Display parametrizations values
-	bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
+   bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
 	bool display_stats; ///< Display data from statistics stream (verbose_str), mainly states and transition counts
-	bool time_serie; ///< Work with the property as with a time series (meaning check only reachability property)
+   bool time_series; ///< Work with the property as with a time series (meaning check only reachability property)
 	bool compute_robustness; ///< Should robustness value be computed and displyed?
 	bool compute_wintess; ///< Should witnesses be computed and displayed?
 	bool use_long_witnesses; ///< How witnesses should be displayed?
@@ -44,20 +44,13 @@ public:
 	 * Constructor, sets up default values
 	 */
 	UserOptions() {
-      compute_wintess = show_coloring = be_verbose = display_stats = time_serie = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = false;
+      compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = false;
 		process_number = processes_count = 1;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @return	true if show_coloring is set (displaying each accepting color)
-	 */
-	inline const bool coloring() const {
-		return show_coloring;
-	}
-
 	/**
 	 * @return	true if compute_robustness (robustness output is requested)
 	 */
@@ -101,10 +94,10 @@ public:
 	}
 
 	/**
-	 * @return	true if negative_check (switching feasible for non-feasible)
+    * @return	true if property is a time series
 	 */
-	inline const bool timeSerie() const {
-		return time_serie;
+   inline const bool timeSeries() const {
+      return time_series;
 	}
 
 	/**

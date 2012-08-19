@@ -61,24 +61,16 @@ class ArgumentParser {
 		for (std::size_t switch_num = 1; switch_num < argument->size(); switch_num++) {
 			switch ((*argument)[switch_num]) {
 
-			case 'c':
-				user_options.show_coloring = true;
-				break;
-
 			case 'W':
 				user_options.use_long_witnesses = true;
 
 			case 'w':
-				user_options.time_serie = true;
 				user_options.compute_wintess = true;
 				break;
 
 			case 'r':
 				user_options.compute_robustness = true;
-
-			case 't':
-				user_options.time_serie = true;
-				break;
+            break;
 
 			case 's':
 				user_options.display_stats = true;

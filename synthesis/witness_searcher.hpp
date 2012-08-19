@@ -209,10 +209,12 @@ public:
       std::vector<std::string> acceptable_paths; // Vector fo actuall data
       // Cycle throught the parametrizations
       for (auto param_it = transitions.begin(); param_it != transitions.end(); param_it++) {
-         if (!param_it->empty()) { // Test for emptyness
+         if (!param_it->empty()) { // Test for emptyness of the set of transitions
             std::string path = "{";
             // Reformat based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
+               if (product.isFinal(trans_it->second)) // Skip transitions to the real final state (ones)
+                  continue;
                if (!user_options.longWit())
                   path.append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append(",");
                else

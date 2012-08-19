@@ -89,7 +89,7 @@ class SynthesisManager {
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
-			if (!paramset_helper.none(final_it->second) && !user_options.timeSerie())
+         if (!paramset_helper.none(final_it->second) && !user_options.timeSeries())
 			detectCycle(*final_it);
 
 			// Store results from this final state
@@ -153,7 +153,7 @@ public:
 		model_checker.reset(new ModelChecker(holder, *storage.get()));
 		searcher.reset(new WitnessSearcher(holder, *storage.get()));
 		robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
-		output.reset(new OutputManager(*analyzer, *split_manager, *searcher, *robustness));
+      output.reset(new OutputManager(*storage, *analyzer, *split_manager, *searcher, *robustness));
 
 		total_colors = 0;
 	}

@@ -226,7 +226,7 @@ class ModelChecker {
 			// Within updates, find the one with most bits
 			StateID ID = getStrongestUpdate();
 			// Check if this is not the last round
-			if (user_options.timeSerie()) {
+         if (user_options.timeSeries()) {
 				if (product.isFinal(ID))
 					markLevels(storage.getColor(ID));
 				else

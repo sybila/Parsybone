@@ -105,7 +105,8 @@ public:
          TimeSeriesParser series_parser(model);
          series_parser.parse(model_node);
          if ((model_node->first_node("SERIES"))->next_sibling("SERIES") || model_node->first_node("AUTOMATON"))
-            throw std::invalid_argument("multiple occurences of property specification (AUTOMATON or SERIES tag)");
+            throw std::invalid_argument("multiple occurences of property specification (AUTOMATON or SERIES tag)");         
+         user_options.time_series = true;
       }
       else
          throw std::invalid_argument("AUTOMATON or SERIES tag missing - no property to be tested found.");
