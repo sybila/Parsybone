@@ -112,7 +112,7 @@ class AutomatonBuilder {
 
          // Find ID of the specie mentioned in the atom
          SpecieID ID = model.findID(atom->substr(0, symbol));
-         if (ID == ~0)
+         if (ID >= model.getSpeciesCount())
             throw std::invalid_argument(std::string("Invalid specie name in the atom ").append(*atom));
 
          // Find a value the specie is compared to

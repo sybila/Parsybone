@@ -152,7 +152,7 @@ class NetworkParser {
 
 		// Control existence of the source species
 		forEach(sources, [&](std::string & source) {
-			if (model.findID(source) > model.getSpeciesCount())
+         if (model.findID(source) >= model.getSpeciesCount())
 			throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the specie list"));
 		});
 
