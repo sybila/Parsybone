@@ -15,11 +15,8 @@
 #include "time_series_parser.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ModelParser parses provided input stream and stores data in the provided Model object.
-/// Data are mostly kept in the raw form, same as in the model file.
-/// Most of the possible mistakes and typos would case an exception and failure of the program.
-/// Only syntactic correcntess is checked. Wrong semantics would pass through here!
-/// There is only single public functions (apart from the constructor) - parseInput(), that performs the whole process.
+/// ModelParser is an entry point for parsing of a model file. Most of the parsing is done by dependent classes, ModelParser only sets the parsing up for further usage.
+/// For the reference on how to create a model see the manual.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelParser {
     // Provided with constructor

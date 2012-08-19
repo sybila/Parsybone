@@ -1,48 +1,36 @@
 #ifndef PARSYBONE_TIME_SERIES_PARSER_INCLUDED
 #define PARSYBONE_TIME_SERIES_PARSER_INCLUDED
 
-
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
+/// This class parses takes the time series and builds it into a B\"uchi automaton.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class TimeSeriesParser {
    Model & model; ///< Reference to the model object that will be filled
-
-   void fillNormal(const StateID ID, const rapidxml::xml_node<> * const expression) const {
-      model.addConditions(ID, ID, std::move(std::string("tt")));
-
-      std::string values;
-      XMLHelper::getAttribute(values, expression, "values");
-      model.addConditions(ID, ID + 1, std::move(values));
-   }
-
-
-   void fillMonotone(const StateID ID, const rapidxml::xml_node<> * const expression) const {
-      throw std::invalid_argument("Monotone transitions in the time series are not yet implemented.");
-   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARSING:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
-    *
+    * Function reads an EXPR tag and creates according state and transitions
     */
    void parseExpressions(const rapidxml::xml_node<> * const series_node) const {
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
       for (rapidxml::xml_node<> *expression = XMLHelper::getChildNode(series_node, "EXPR"); expression; ID++, expression = expression->next_sibling("EXPR") ) {
          model.addState(toString(ID), false);
-         // Currently unused
-         bool monotone = XMLHelper::getAttribute(monotone, expression, "mono", false);
-         if (!monotone)
-            fillNormal(ID, expression);
-         else
-            fillMonotone(ID, expression);
+
+         // Self-loop assuring possibility of a value change
+         model.addConditions(ID, ID, std::move(std::string("tt")));
+
+         // Labelled transition to the next measurement
+         std::string values;
+         XMLHelper::getAttribute(values, expression, "values");
+         model.addConditions(ID, ID + 1, std::move(values));
       }
 
       // Add a final state that marks succesful time series walk

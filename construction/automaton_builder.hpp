@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// AutomatonBuilder transform graph of the automaton into set of transitions that know values necessary for transition to be feasible.
-/// Correspondence to the states of the automaton itself assured by storing the source in the transition and correct ordering of the vector of transitions.
+/// Automaton is provided with string labels on the edges that are parsed and resolved for the graph.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonBuilder {
 	const Model & model; ///< Model that holds the data
@@ -38,29 +38,9 @@ class AutomatonBuilder {
       }
    }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARSING FUNCTIONS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-
-   std::vector<std::string> getAtoms(const std::string & label) const {
-      std::vector<std::string> atoms;
-      bool reading = false;
-      std::string atom;
-      for (std::size_t pos = 0; pos < label.length(); pos++) {
-         char ch = label[pos];
-         if (!(isalpha(ch) || isdigit(ch) || ch == '<' || ch == '>' || ch == '=' || ch == '!' || ch == '|' || ch == '&' || ch == '(' || ch == ')'))
-            throw std::runtime_error(std::string("String: ").append(label).append(" contains invalid character: ").append(&ch).c_str());
-         if (!(ch == '!' || ch == '|' || ch == '&' || ch == '(' || ch == ')'))
-            atom.push_back(ch);
-         else if (!atom.empty() && atom.compare("tt") && atom.compare("ff"))
-            atoms.push_back(std::move(atom));
-      }
-      if (!atom.empty() && atom.compare("tt") && atom.compare("ff"))
-         atoms.push_back(std::move(atom));
-
-      return atoms;
-   }
-
+   /**
+    * Create a set with values from the range [start, end]
+    */
    const std::set<std::size_t> fillInterval(const std::size_t start, const std::size_t end) const {
       std::set<std::size_t> interval;
       for (std::size_t pos = start; pos <= end; pos++) {
@@ -69,17 +49,73 @@ class AutomatonBuilder {
       return interval;
    }
 
+   /**
+    * For each atom decide its valuation in the current state
+    */
+   const std::map<std::string, bool> getValuation(const std::vector<std::string> & atoms,
+      const std::vector<std::pair<SpecieID, std::set<std::size_t> > > & values, const Levels & levels) const {
+
+      // Go through atoms
+      std::map<std::string, bool> valuation;
+      for (std::size_t atom_num = 0; atom_num < atoms.size(); atom_num++) {
+         auto value = values[atom_num];
+         // Atom is valid, if the species' level is in the range
+         bool is_valid = value.second.find(levels[value.first]) != value.second.end();
+         valuation.insert(std::make_pair(atoms[atom_num], is_valid));
+      }
+
+      return valuation;
+   }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PARSING FUNCTIONS:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+
+   /**
+    * Obtain a vector of individual atoms form the label (their values will then be resolved for valuation).
+    */
+   std::vector<std::string> getAtoms(const std::string & label) const {
+      std::vector<std::string> atoms;
+      std::string atom;
+
+      // Go through the label
+      for (std::size_t pos = 0; pos < label.length(); pos++) {
+         char ch = label[pos];
+         if (!(isalpha(ch) || isdigit(ch) || ch == '<' || ch == '>' || ch == '=' || ch == '!' || ch == '|' || ch == '&' || ch == '(' || ch == ')'))
+            throw std::runtime_error(std::string("String: ").append(label).append(" contains invalid character: ").append(&ch).c_str());
+
+         // If the atom is not a logic symbol, add it to current atom, otherwise store the atom, if any
+         if (!(ch == '!' || ch == '|' || ch == '&' || ch == '(' || ch == ')'))
+            atom.push_back(ch);
+         else if (!atom.empty() && atom.compare("tt") && atom.compare("ff"))
+            atoms.push_back(std::move(atom));
+      }
+      // Store the last atom, if any (only if the atom is the formula itself)
+      if (!atom.empty() && atom.compare("tt") && atom.compare("ff"))
+         atoms.push_back(std::move(atom));
+
+      return atoms;
+   }
+
+
+   /**
+    * For each atom, compute possible values of the specie in which the atom is true
+    */
    std::vector<std::pair<SpecieID, std::set<std::size_t> > > getValues(const std::vector<std::string> atoms) const {
       std::vector<std::pair<SpecieID, std::set<std::size_t> > > values;
+
       for (auto atom = atoms.begin(); atom != atoms.end(); atom++) {
+         // Find comparison operator
          std::size_t symbol = atom->find_first_of("<>=");
          if (symbol == std::string::npos)
             throw std::invalid_argument(std::string("No comparison operator found in the atom ").append(*atom));
 
+         // Find ID of the specie mentioned in the atom
          SpecieID ID = model.findID(atom->substr(0, symbol));
          if (ID == ~0)
             throw std::invalid_argument(std::string("Invalid specie name in the atom ").append(*atom));
 
+         // Find a value the specie is compared to
          std::size_t value;
          try {
             value = boost::lexical_cast<size_t, std::string>(atom->substr(symbol+1));
@@ -88,6 +124,7 @@ class AutomatonBuilder {
             throw std::runtime_error("boost::lexical_cast<size_t, std::string>(atom->substr(0, symbol-1) failed");
          }
 
+         // Fill in all the values satisfying the atom
          if (atom->find("<") != std::string::npos)
             values.push_back(std::make_pair(ID, fillInterval(value, model.getMax(ID))));
          else if (atom->find("=") != std::string::npos)
@@ -98,20 +135,16 @@ class AutomatonBuilder {
       return values;
    }
 
-   const std::map<std::string, bool> getValuation(const std::vector<std::string> & atoms,
-      const std::vector<std::pair<SpecieID, std::set<std::size_t> > > & values, const Levels & levels) const {
-      std::map<std::string, bool> valuation;
-      for (std::size_t atom_num = 0; atom_num < atoms.size(); atom_num++) {
-         auto value = values[atom_num];
-         bool is_valid = value.second.find(levels[value.first]) != value.second.end();
-         valuation.insert(std::make_pair(atoms[atom_num], is_valid));
-      }
-      return valuation;
-   }
-
+   /**
+    * Computes a vector containing all Levels that are acceptable for a transition with a given label.
+    */
    AllowedValues getAllowed(const std::string & label) const {
+      // Get atoms of the lable
       auto atoms = getAtoms(label);
+      // Decide in which activation levels of species those atoms are true
       auto values = getValues(atoms);
+
+      // Try all combinations of values that are possible and for each resolve the label
       AllowedValues allowed;
       Levels iterated = mins;
       do {
@@ -119,6 +152,7 @@ class AutomatonBuilder {
          if (FormulaeParser::resolve(valuation, label))
             allowed.push_back(iterated);
       } while (iterate(maxes, mins, iterated));
+
       return allowed;
    }
 
