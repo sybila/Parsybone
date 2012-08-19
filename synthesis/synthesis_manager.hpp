@@ -69,6 +69,10 @@ class SynthesisManager {
 			// Output what has been synthetized (colors, witnesses)
 			output->outputRound();
 		}
+
+      // Output mask if requested
+      if (user_options.outputMask())
+         coloring_parser.outputComputed(analyzer->getMask());
 	}
 
 	/**
@@ -99,7 +103,7 @@ class SynthesisManager {
     void colorProduct() {
 		// Get initial coloring
 		Paramset starting;
-		if(coloring_parser.input())
+      if(user_options.inputMask())
 			starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum())];
 		else
 			starting = split_manager->createStartingParameters();

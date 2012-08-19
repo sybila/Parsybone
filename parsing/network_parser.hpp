@@ -257,7 +257,7 @@ class NetworkParser {
 		std::set<std::vector<bool> > specified; // Used for possibility of partial specification
 
 		// Step into first PARAM tag, end when the current node does not have next sibling (all PARAM tags were parsed)
-		for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM"); parameter; parameter = parameter->next_sibling("PARAM") ) {
+      for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM", false); parameter; parameter = parameter->next_sibling("PARAM") ) {
 			// Get the mask string.
 			if ( XMLHelper::getAttribute(context, parameter, "context") ) {
 				if (!XMLHelper::getAttribute(target_value, parameter, "value", false))

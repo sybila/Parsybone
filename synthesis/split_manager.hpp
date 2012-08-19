@@ -54,7 +54,7 @@ class SplitManager {
 		// Compute number of full rounds
 
 		// Check if it fits together with number from mask
-		if (coloring_parser.input())
+      if (user_options.inputMask())
 			if (coloring_parser.getColors().size() != rounds_count)
 				throw std::runtime_error(std::string("Rounds computed from bitmask: ").append(boost::lexical_cast<std::string>(coloring_parser.getColors().size()))
 				                         .append(" does not equal round count computed from model: ")

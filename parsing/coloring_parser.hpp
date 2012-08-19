@@ -18,26 +18,21 @@
 /// @attention Mask file always needs to have number of bytes dividable by Parameters size. If the last set is smaller, it must be shifted to the right!
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ColoringParser {
-	// Data storage
-	std::vector<Paramset> colors_sets;
+   std::vector<Paramset> colors_sets; ///< Vector of paramsets as they are read from the file - note, that this step reads the WHOLE file
 
 	// File-based values
-	std::ifstream::pos_type file_size;
-	std::ifstream input_file;
-	std::ofstream output_file;
+   std::ifstream::pos_type file_size; ///< size of the whole file
+   std::ifstream input_file; ///< file to reads the bits from
+   std::ofstream output_file; ///< file to write the bits to
 
-	// Info
-	bool input_mask;
-	bool output_mask;
-
-public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Basic constructor - should be used only for the single object shared throught the program
-	 */
-	ColoringParser() : input_mask(false), output_mask(false) { }
+   ColoringParser(const ColoringParser & other); ///< Forbidden copy constructor.
+   ColoringParser& operator=(const ColoringParser & other); ///< Forbidden assignment operator.
+
+public:
+   ColoringParser() {} ///< default constructor
 
 	/**
 	 * Only opens the file with the data stream.
@@ -45,7 +40,7 @@ public:
 	 * @param filename	path to the file to read from 
 	 */
 	void openFile(const std::string filename) {
-        input_file.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+      input_file.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
 		if (input_file.fail()) 
 			throw std::runtime_error(std::string("Failed to open input coloring mask file: ").append(filename).c_str());
 		file_size = input_file.tellg();
@@ -53,8 +48,7 @@ public:
 			throw std::runtime_error("Bitmask file has incorrect number of bits - it must be dividable by the size of Paramset.");
 		if (file_size / sizeof(Paramset) > colors_sets.max_size())
 			throw std::runtime_error("Bitmask is bigger than a possible size of the vector, can not be used due to memory boundaries.");
-		input_file.seekg(0, std::ios::beg);
-		input_mask = true;
+      input_file.seekg(0, std::ios::beg);
 	}
 
 	/**
@@ -66,7 +60,6 @@ public:
         output_file.open(filename.c_str(), std::ios::out | std::ios::binary);
 		if (output_file.fail()) 
 			throw std::runtime_error(std::string("Failed to open output coloring mask file: ").append(filename).c_str());
-		output_mask = true;
 	}
 
 	/**
@@ -109,20 +102,6 @@ public:
 // CONSTANT GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @return	true if the mask was provided on the input
-	 */
-	inline const bool input() const {
-		return input_mask;
-	}
-
-    /**
-	 * @return	true if the mask is requested on the output
-	 */
-	inline const bool output() const {
-		return output_mask;
-	}
-
-	/**
 	 * @return masks for all colors that can be used
 	 */
 	inline const std::vector<Paramset> & getColors() const {
@@ -137,4 +116,4 @@ public:
 	}
 } coloring_parser; // Single program-shared output file
 
-#endif
+#endif // PARSYBONE_COLORING_PARSER_INCLUDED

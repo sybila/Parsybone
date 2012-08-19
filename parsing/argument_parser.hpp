@@ -92,12 +92,14 @@ class ArgumentParser {
 			case 'm':
 				testLast(switch_num, argument->size());
 				coloring_parser.openFile(*(++argument));
+            user_options.use_in_mask = true;
 				return;
 
             // Open file to fill a color mask
 			case 'M':
 				testLast(switch_num, argument->size());
 				coloring_parser.createOutput(*(++argument));
+            user_options.use_out_mask = true;
 				return;
 
 			// Get data for distributed computation

@@ -102,10 +102,6 @@ public:
 			}
 			output_streamer.output(results_str, "");
 		}
-
-		// Output mask if requested
-		if (coloring_parser.output())
-			coloring_parser.outputComputed(analyzer.getMask());
 	}
 };
 

@@ -52,7 +52,7 @@ public:
 		parser.parseArguments(arguments, input_stream);
 
 		// Parse mask if necessary
-		if (coloring_parser.input())
+      if (user_options.inputMask())
 			coloring_parser.parseMask();
 
 		output_streamer.output(verbose_str, "Model parsing started.", OutputStreamer::important);
