@@ -22,7 +22,7 @@ class BasicStructureBuilder {
 	// Provided with constructor
 	const Model & model; ///< Model that holds the data
 	const std::size_t species_count; ///< Number of species of the model
-    BasicStructure & structure; ///< KipkeStructure to fill
+   BasicStructure & structure; ///< KipkeStructure to fill
 
 	// Computed
 	std::size_t states_count; ///< Number of states in this KS (exponential in number of species)
@@ -134,15 +134,17 @@ public:
 		Levels levels(species_count, 0);
 
 		// Create states 
-		for(StateID ID = 0; ID < states_count; ID++) {
+      StateID ID = 0;
+      do {
 			// Fill the structure with the state
 			structure.addState(ID, levels, std::move(createLabel(levels)));
 			storeNeigbours(ID, levels, maxes);
-			// Generate new state for the next round
-			iterate(maxes, mins, levels);
+         // Generate new state for the next round
 			// Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop
 			transition_count += structure.getTransitionCount(ID) - model.getSpeciesCount() + 1;
-		}
+         ID++;
+      } while (iterate(maxes, mins, levels));
+
 		output_streamer.output(stats_str, "Number of possible transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
 				.output(transition_count, OutputStreamer::no_newl).output(".");
 		output_streamer.output(stats_str, "Lowest activation state is: ", OutputStreamer::no_newl | OutputStreamer::tab).output(structure.getString(0), OutputStreamer::no_newl)

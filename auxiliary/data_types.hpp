@@ -57,7 +57,7 @@ typedef std::size_t SpecieID;
 typedef std::vector<std::size_t> Levels;
 
 /// Transitible values in a state of BA
-typedef std::vector<std::set<std::size_t> > AllowedValues;
+typedef std::vector<Levels > AllowedValues;
 
 /// Label of a regulation
 enum EdgeConstrain {pos_cons, neg_cons, none_cons};

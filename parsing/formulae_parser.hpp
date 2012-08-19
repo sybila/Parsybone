@@ -121,7 +121,7 @@ public:
          // Divide formula by the operator and remove its outer parenthesis, then descend recursivelly
          std::string first = formula.substr(1, division_pos - 1);
          std::string second = formula.substr(division_pos + 1, formula.size() - division_pos - 2);
-         result = is_or ? resolve(valuation, first) | resolve(valuation, second) : resolve(valuation, first) | resolve(valuation, second);
+         result = is_or ? resolve(valuation, first) | resolve(valuation, second) : resolve(valuation, first) & resolve(valuation, second);
       }
       // Return the value based on valuations of its parts
       return negate ? !result : result;

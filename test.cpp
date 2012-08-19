@@ -35,6 +35,7 @@ bool testFormulaeParser() {
 	formulas.push_back("!B");
 	formulas.push_back("(ff|A)");
 	formulas.push_back("(A|B)");
+   formulas.push_back("!(A&B)");
 	formulas.push_back("(!(A&A)|!B)");
 
 	for (auto formula_it = formulas.begin(); formula_it != formulas.end(); formula_it++) {
