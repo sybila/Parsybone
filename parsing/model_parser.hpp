@@ -12,6 +12,7 @@
 #include "../auxiliary/output_streamer.hpp"
 #include "automaton_parser.hpp"
 #include "network_parser.hpp"
+#include "time_series_parser.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ModelParser parses provided input stream and stores data in the provided Model object.
@@ -96,8 +97,16 @@ public:
 		NetworkParser network_parser(model);
 		network_parser.parse(model_node);
 
-      AutomatonParser automaton_parser(model);
-      automaton_parser.parse(model_node);
+      if (model_node->first_node("AUTOMATON")) {
+         AutomatonParser automaton_parser(model);
+         automaton_parser.parse(model_node);
+      }
+      else if (model_node->first_node("SERIES")) {
+         TimeSeriesParser series_parser(model);
+         series_parser.parse(model_node);
+      }
+      else
+         throw std::invalid_argument("AUTOMATON or SERIES tag missing - no property to be tested found.");
     }
 };
 

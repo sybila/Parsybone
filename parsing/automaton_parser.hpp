@@ -86,13 +86,13 @@ public:
 	/**
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.
 	 */
-	void parse(const rapidxml::xml_node<> * const current_node) {
+   void parse(const rapidxml::xml_node<> * const model_node) {
 		// Parse Buchi Automaton
 		output_streamer.output(verbose_str, "Started reading of the Buchi automaton.");
 		// Parse states
-		firstParse(XMLHelper::getChildNode(current_node, "AUTOMATON"));
+      firstParse(XMLHelper::getChildNode(model_node, "AUTOMATON"));
 		// Parse transition for the states from the previous parse
-		secondParse(XMLHelper::getChildNode(current_node, "AUTOMATON"));
+      secondParse(XMLHelper::getChildNode(model_node, "AUTOMATON"));
 	}
 };
 

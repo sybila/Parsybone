@@ -54,5 +54,6 @@ HEADERS += \
     ../../parsing/xml_helper.hpp \
     ../../parsing/network_parser.hpp \
     ../../parsing/formulae_parser.hpp \
-    ../../parsing/automaton_parser.hpp
+    ../../parsing/automaton_parser.hpp \
+    ../../parsing/time_series_parser.hpp
 
