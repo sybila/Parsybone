@@ -80,7 +80,7 @@ public:
    const std::vector<std::string> getCosts(const std::vector<std::size_t> cost_vals) const {
       std::vector<std::string> costs;
       forEach(cost_vals, [&](const std::size_t cost){
-         if (cost != ~0)
+         if (cost != ~static_cast<std::size_t>(0))
             costs.push_back(toString(cost - 1));
       });
       return costs;

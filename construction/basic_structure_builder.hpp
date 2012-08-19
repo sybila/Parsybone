@@ -102,7 +102,7 @@ class BasicStructureBuilder {
 			state_string += ",";
 		}
 		// End the state
-		state_string.back() = ')';
+      state_string[state_string.length() - 1] = ')';
 
 		return state_string;
 	}

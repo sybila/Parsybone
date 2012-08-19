@@ -55,7 +55,7 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 	inline void addState(const StateID KS_ID, const StateID BA_ID, const bool initial, const bool final, const Levels & species_level) {
 		// Create the state label
 		std::string label = structure.getString(KS_ID);
-		label.back() = ';';
+      label[label.length() - 1] = ';';
 		label += automaton.getString(BA_ID).substr(1);
 
 		states.push_back(ProdState(getProductID(KS_ID, BA_ID), std::move(label), KS_ID, BA_ID, initial, final, species_level));

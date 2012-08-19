@@ -92,7 +92,7 @@ public:
    static bool resolve (const std::map<std::string, bool> & valuation, std::string formula) {
       // If there is a ! symbol, negate the formula and remove it
       bool negate = false; bool result;
-      if (formula.front() == '!') {
+      if (formula[0] == '!') {
          negate = true;
          formula = formula.substr(1);
       }

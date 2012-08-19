@@ -65,8 +65,8 @@ private:
 		// Data are accesible from within the model class
 		friend class Model;
 
+      std::string name; ///< Label of the state
 		std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
-		std::string name; ///< Label of the state
 		bool final; ///< stores the information whether the state is final
 
 		std::vector<Egde> edges; ///< edges in Buchi Automaton (Target ID, edge label)
@@ -174,7 +174,7 @@ public:
 			ID = boost::lexical_cast<SpecieID, std::string>(name);
 		}
 		catch (boost::bad_lexical_cast) { // Try lookup by name
-			std::for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
+         std::for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
 				if (spec.name.compare(name) == 0)
 				ID = spec.ID;
 			});

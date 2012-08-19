@@ -153,7 +153,7 @@ class WitnessSearcher {
 
       // Store parametrization numbers with their BFS level (Cost)
       forEach(storage.getCost(), [&members, &param_num](std::size_t current){
-         if (current != ~0)
+         if (current != ~static_cast<std::size_t>(0))
             members[current].push_back(param_num);
          param_num++;
       });
@@ -220,7 +220,7 @@ public:
                else
                   path.append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second)).append(",");
             }
-            path.back() = '}';
+            path[path.length() - 1] = '}';
             // Add the string
             acceptable_paths.push_back(std::move(path));
          }

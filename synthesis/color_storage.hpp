@@ -183,7 +183,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    const std::size_t getMaxDepth () const {
       std::size_t depth = 0;
-      forEach(cost_val, [&depth](std::size_t current){depth = my_max((current == ~0 ? 0 : current), depth);});
+      forEach(cost_val, [&depth](std::size_t current){depth = my_max((current == ~static_cast<std::size_t>(0) ? 0 : current), depth);});
       return depth;
    }
 
@@ -254,7 +254,7 @@ public:
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 		// Return all, if all requested
-		if (color_mask == ~0)
+      if (color_mask == ~static_cast<std::size_t>(0))
 			return neigbours;
 
 		std::vector<Paramset> restricted;

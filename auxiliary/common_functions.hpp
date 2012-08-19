@@ -70,7 +70,7 @@ void increase(typename std::vector<integral_T>::reference val) {val++;}
  * increases boolean value to true
  */
 template<>
-void increase<bool>(typename std::vector<bool>::reference val) {val = true;}
+void increase<bool>(std::vector<bool>::reference val) {val = true;}
 
 /**
  * Iterates values from left to right if it is possible. If so, return true, otherwise return false.
