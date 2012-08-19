@@ -167,7 +167,7 @@ public:
 	 *
 	 * @return	ID of the specie with the specified name if there is such, otherwise ~0
 	 */
-	const SpecieID findID(const std::string name) const {
+   const SpecieID findID(const std::string & name) const {
 		SpecieID ID = ~0;
 		try { // Try direct translation
 			ID = boost::lexical_cast<SpecieID, std::string>(name);
@@ -187,7 +187,7 @@ public:
 	 *
 	 * @return	number of the state with the specified name if there is such, otherwise ~0
 	 */
-	const SpecieID findNumber(const std::string name) const {
+   const SpecieID findNumber(const std::string & name) const {
 		StateID ID = ~0;
 		try { // Try direct translation
 			ID = boost::lexical_cast<StateID, std::string>(name);

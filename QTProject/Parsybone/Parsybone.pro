@@ -2,7 +2,7 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= qt
 
-INCLUDEPATH += "C:/Program Files/boost_1_50_0"
+INCLUDEPATH += "C:/Program Files (x86)/boost/boost_1_44"
 
 QMAKE_CXXFLAGS += -std=gnu++0x
 

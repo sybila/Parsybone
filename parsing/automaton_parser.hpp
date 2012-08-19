@@ -20,14 +20,17 @@ class AutomatonParser {
 	 */
 	void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
 		// Regulation data
-		std::string label_string; std::size_t target_ID;
+      std::string label_string; std::string traget_str; std::size_t target_ID;
 
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
 		for (rapidxml::xml_node<> * edge = XMLHelper::getChildNode(state_node, "EDGE"); edge; edge = edge->next_sibling("EDGE")) {
 			// Get the mask string.
 			XMLHelper::getAttribute(label_string, edge, "label");
 			// Get max value and conver to integer.
-			XMLHelper::getAttribute(target_ID, edge, "target");
+         XMLHelper::getAttribute(traget_str, edge, "target");
+         target_ID = model.findNumber(traget_str);
+         if (target_ID > model.getSpeciesCount())
+            throw std::invalid_argument(std::string("Incorrect value as a target of the state ").append(toString(source_ID)));
 
 			// Add a new regulation to the specified target
 			model.addConditions(source_ID, target_ID, std::move(label_string));
