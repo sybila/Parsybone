@@ -100,14 +100,18 @@ public:
       if (model_node->first_node("AUTOMATON")) {
          AutomatonParser automaton_parser(model);
          automaton_parser.parse(model_node);
+         if ((model_node->first_node("AUTOMATON"))->next_sibling("AUTOMATON") || model_node->first_node("SERIES"))
+            throw std::invalid_argument("multiple occurences of property specification (AUTOMATON or SERIES tag)");
       }
       else if (model_node->first_node("SERIES")) {
          TimeSeriesParser series_parser(model);
          series_parser.parse(model_node);
+         if ((model_node->first_node("SERIES"))->next_sibling("SERIES") || model_node->first_node("AUTOMATON"))
+            throw std::invalid_argument("multiple occurences of property specification (AUTOMATON or SERIES tag)");
       }
       else
          throw std::invalid_argument("AUTOMATON or SERIES tag missing - no property to be tested found.");
-    }
+   }
 };
 
 #endif PARSYBONE_MODEL_PARSER_INCLUDED
