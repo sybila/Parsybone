@@ -1,16 +1,63 @@
 \documentclass[12pt]{article}
 \title{Parsybone manual}
-\author{Adam Streck}
+\author{Adam Streck \\
+		Systems Biology laboratory}
 \usepackage{alltt}
+\usepackage{a4wide}
 
 \begin{document}
-  \maketitle
+\maketitle
 
+\section{Introduction}
+\texttt{Parsybone} is a command-line tool for analysis of qualitative models of gene regulatory networks, mainly for synthesis of their kinetic parameters. For this purpose, the tool reads a models in the form of so-called \emph{Thomas network} and analyses it using a method of \emph{colored} LTL model checking. The model checking procedure is based on the behaviour description provided in the form of B\"uchi automaton. Features of this tool include:
+
+\begin{itemize}
+\item Reduction of parameter space by application of edge constrains.
+\item Enumeration of shortest witnesses for synthesized parameters.
+\item Enumeration of robustness values for synthesized parameters.
+\item Computation in distributed environment.
+\end{itemize}
 \section{Model specification}
-Model is contained within the \texttt{MODEL} tag. \\
-All numerical values can be integers only.
+Model is provided in a single XML file, which has to start with the \texttt{MODEL} tag. This file holds specification for the model, restrictions on parametrizations and description of a required property in the form of B\"uchi automaton.
 
+\subsection{Regulatory network description}
+Regulatory network is contained within a single \texttt{STRUCTURE} tag. This tag has no attributes
+%Well, not really, now it has to contain "unspec" attribute.
+and works only as a container for species. 
+
+Each specie is held within a \texttt{SPECIE} tag. This tag has 2 mandatory attributes:
+\begin{itemize}
+\item \texttt{name} Name of the specie, currently used for a reference in B\"{u}chi automaton.
+\item \texttt{max} Maximal value the specie can have. Note, that minimal value is always zero.
+\end{itemize}
+Each specie that is a target of a regulation must have its incoming interactions and their respective regulatory contexts specified. These information are hold within an \texttt{INTERACTIONS} and \texttt{REGULATIONS} tag respectively.
+
+\texttt{INTERACTIONS} suits only as a container for \texttt{INTER} tags. Each of these tags holds a description of a single incoming regulation of the specie within the following 2-4 attributes.
+\begin{itemize}
+\item \texttt{source} Index of the specie (numbered from zero) that is a source of this interaction. 
+\item \texttt{threshold} Lowest value of the source specie that activates this interaction.
+\item \texttt{label} This can be + or - which means that this regulation must behave as an activation or an inhibition. This attribute is not mandatory. 
+\item \texttt{observ} 1 if the edge is requested to be observable, 0 otherwise. This attribute is not mandatory. 
+\end{itemize}
+
+In the same fashion, \texttt{REGULATIONS} tag suits only as a container for \texttt{REGUL} tags. These tags are used to store a kinetic parameter for each of possible regulatory contexts. To provide such a description, \texttt{REGUL} tag holds following two attributes:
+\begin{itemize}
+\item \texttt{mask} String of the form $\{0,1\}*$ that describes which regulations are active within this context. Symbol at position $i$ corresponds to an $i$-th interaction, where $1$ denotes its presence and $0$ absence in this regulatory context.
+\item \texttt{t\_value} Target value for given regulatory context - must be a value from the range $[0,max]$ or $-1$ which means that this value in not known.
+\end{itemize}
+% Currently all regulations (exponentially many w.r.t. incoming interactions) must be explicitly specified.
+
+\subsection{Description of requirements}
+Logical property which is checked during the verification is described within an \texttt{AUTOMATON} tag using the B\"{u}chi automaton. Automaton is described as a series of succesive states, each having a set of outgoing transitions.
+Each state is described in a single \texttt{STATE} tag, that has a single mandatory attribute \texttt{final}. This attribute can have values $1$ or $0$ meaning saying if this state is a final state or not.
+
+Within a state tag, there must be a single \texttt{TRANSITIONS} tag. This again suits only as a holder for following \texttt{TRANS} tags. Each of these tags describes a single outgoing transition using following two attributes:
+\begin{itemize}
+\item \texttt{label} Atomic propositions or a dual clause of atomic propositions. Each AP is in the form: SpecieName$*$Value where Value is an integer and $*$ is one of $<,=,>$. AP can also be a negation of previous written !AP. This attribute can also attain a $tt$ value for always true or $ff$ for always false. \\
+\item \texttt{target} Index of a state that is reachable if the property is true. This corresponds to an order in which the states are described in the model file, whilst the first state has an index of $0$.
+\end{itemize}
 \subsection{Example}
+This is a simple, unnamed example of a small regulatory network and together with a B\"uchi automaton that controls an existence of a short time series describing a transition from the state where both the species are inactive to the state where they are both active.
 \begin{alltt}
 <MODEL>
    <STRUCTURE unspec="error">
@@ -36,71 +83,58 @@ All numerical values can be integers only.
    <AUTOMATON>
       <STATE final="0">
          <TRANSITIONS>
-            <TRANS label="SampleOne=1" target="1" />
-            <TRANS label="SampleOne=0" target="0" />
+            <TRANS label="tt" target="0" />
+            <TRANS label="SampleOne=0&SampleTwo=0" target="1" />
+         </TRANSITIONS>
+      </STATE final="0">
+         <TRANSITIONS>
+            <TRANS label="tt" target="1" />
+            <TRANS label="SampleOne=1&SampleTwo=1" target="2" />
          </TRANSITIONS>
       </STATE>
       <STATE final="1">
          <TRANSITIONS>
-            <TRANS label="SampleOne=1" target="2" />
-            <TRANS label="SampleOne=0" target="0" />
-         </TRANSITIONS>
-      </STATE>
-      <STATE final="0">
-         <TRANSITIONS>
-            <TRANS label="SampleOne=1" target="2" />
-            <TRANS label="SampleOne=0" target="1" />
+            <TRANS label="ff" target="2" />
          </TRANSITIONS>
       </STATE>
    </AUTOMATON>
 </MODEL>
 \end{alltt}
-\subsection{Description of model}
-Model is described within \texttt{STRUCTURE} tag.
 
-\subsubsection {\texttt{STRUCTURE} }
-\texttt{unspec} Currently unused, supposed do delimit handling of unspecified regulations. \\
-\texttt{STRUCTURE} holds \texttt{SPECIES}
-
-\subsubsection {\texttt{SPECIE}}
-\texttt{name} Name of the specie, currently used for a reference in B\"{u}chi automaton. \\
-\texttt{max} Maximal value the specie can have. Minimal is always zero.\\
-\texttt{SPECIE} holds container of \texttt{INTERACTIONS} and container of \texttt{REGULATIONS}. 
-
-\subsubsection {\texttt{INTER}}
-\texttt{source} Index of the specie (numbered from zero) the is a source of the interaction. \\
-\texttt{threshold} Lowest value of the source specie that activates this interaction. \\
-\texttt{label} + or - or empty. This attribute is not mandatory. \\
-\texttt{observ} 1 if the edge is requested to be observable, 0 otherwise
-
-\subsubsection {\texttt{REGUL}}
-\texttt{mask} Boolean mask over all incoming interactions (1 for active, 0 for non-active) \\
-\texttt{t\_value} Target value for given regulatory context - must be a value the state can occur in or -1, meaning this value is a parameter. \\
-Currently all regulations (exponentially many w.r.t. incomming interactions) must be explicitly specified.
-
-\subsection{Description of property}
-Property is described within \texttt{AUTOMATON} tag using the B\"{u}chi automaton.
-
-\subsubsection {\texttt{AUTOMATON} }
-\texttt{AUTOMATON} holds \texttt{STATES}
-
-\subsubsection {\texttt{STATE}}
-\texttt{final} 1 if the state is final, 0 otherwise\\
-\texttt{STATE} holds container of \texttt{TRANSITIONS}.
-
-\subsubsection {\texttt{TRANS}}
-\texttt{label} Atomic propositions or dual clause of atomic propositions or $tt$ for always true. Each AP is in the form: SpecieName$*$Value where Value is an integer and $*$ is one of $<,=,>$. AP can also be a negation of previous written !AP. \\
-\texttt{target} Index of a state (indexed from 0) that is reachable if the property is true.
-
-\subsubsection {Creating B\"{u}chi automaton}
-It is important to keep in mind that B\"{u}chi automata (BA) are non-deterministic. \\
-To create BA for a time serie (TS), create a sequence of states that contain two transitions:
+\section{Execution parameters}
+The syntax for the execution is as follows:
+\begin{alltt}
+Parsybone input_file
+          [-bcrstvwW]
+          [-m input_mask_file]
+          [-M output_mask_file]
+          [-F output_file]
+          [-D process_ID process_number]
+\end{alltt}
+Most of the possible execution parameters are just switches, their meaning is following:
 \begin{itemize}
-\item One with label $tt$ to itself.
-\item One leading to next state with label that requests all the species to have values requested by the TS.
+\item[b] When displaying witness, add also a states of the B\"uchi automaton.
+\item[c] Display synthesized parametrizations in the form $[value_1, value_2,..., value_n]$, where order of the values corresponds to an order of regulations within the file.
+\item[r] Display robustness of each synthesized parametrization.
+\item[s] Display numerical statistics during the computation.
+\item[t] Says that required property is a time series.
+\item[v] Verbose - display progress information during computation.
+\item[w] Display all the shortest witnesses for each synthesized parametrization.
 \end{itemize}
-Last state is only required to have a transition by parse, it can be anything and lead anywhere..., I use $tt$ to itself. \\
-To achive monotonicity, it is necessary to put other states between those for two measuerements that are reached when value, that is required to be monotene changes and the state has transition to itself only if that value does not change its value other way around.
+Program also allows to check the same model against multiple properties - this is done using an ouput intermediate file. This file describes which parametrizations have been syntesized and is created using the -M parameter. During following verification, this file can be provided as an input, reducing the number of parametrizations to begin with.
+
+Computed results can be stored in a separated file. This file is provided using a -F parameter. Note, that even when using an external file, progress data are still displayed on the screen.
+
+Last parameter is used for a distribution. This parameter exactly says to compute only a sub-part of parametrization space. When using a -D parameter, user has to provide a \texttt{process\_number} value, which denotes final number of processes involved - parametrization space is then divided into this many parts, and a \texttt{process\_ID} value saying which part of the parametrization space is to be computed by this process.
+
+%\subsubsection {Creating B\"{u}chi automaton}
+%It is important to keep in mind that B\"{u}chi automata (BA) are non-deterministic. \\
+%To create BA for a time series (TS), create a sequence of states that contain two transitions:
+%\begin{itemize}
+%\item One with label $tt$ to itself.
+%\item One leading to next state with label that requests all the species to have values requested by the TS.
+%\end{itemize}
+%Last state is only required to have a transition by parse, it can be anything and lead anywhere..., I use $tt$ to itself. \\
+%To achieve monotonicity, it is necessary to put other states between those for two measurements that are reached when value, that is required to be monotone changes and the state has transition to itself only if that value does not change its value other way around.
 
 \end{document}
-
