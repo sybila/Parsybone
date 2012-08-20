@@ -25,12 +25,16 @@ class FormulaeParser {
       switch (error) {
          case err_parent:
             err_str = "wrong parenthesis placement";
+            break;
           case err_symbols:
             err_str = "invalid symbol appereance";
+            break;
           case err_notfound:
             err_str = "specified variable was not found in the list";
+            break;
           default:
             err_str = "unknown error";
+            break;
       }
       throw std::runtime_error(std::string("error while parsing a formula \"").append(formula).append("\" ").append(err_str));
    }
