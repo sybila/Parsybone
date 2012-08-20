@@ -71,11 +71,11 @@ class NetworkParser {
 	 * @return	enumeration item with given specification
 	 */
 	static const UnspecifiedParameters getUnspecType(std::string unspec_type) {
-		if      (unspec_type.compare("error"))
+      if      (unspec_type.compare("error") == 0)
 			return error_reg;
-		else if (unspec_type.compare("basal"))
+      else if (unspec_type.compare("basal") == 0)
 			return basal_reg;
-		else if (unspec_type.compare("param"))
+      else if (unspec_type.compare("param") == 0)
 			return param_reg;
 		else
 			throw std::runtime_error("Wrong value given as an uspec attribute.");
@@ -88,7 +88,7 @@ class NetworkParser {
 	const UnspecifiedParameters getUnspecified(const rapidxml::xml_node<> * const specie_node) const {
 		std::string unspec_str; UnspecifiedParameters unspec;
 		// Try to get the value, otherwise use param_reg
-		if (XMLHelper::getAttribute(unspec_str, specie_node, "unspec_str", false))
+      if (XMLHelper::getAttribute(unspec_str, specie_node, "undef", false))
 			unspec = getUnspecType(unspec_str);
 		else
 			unspec = param_reg;

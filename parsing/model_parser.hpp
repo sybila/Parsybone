@@ -100,6 +100,8 @@ public:
          automaton_parser.parse(model_node);
          if ((model_node->first_node("AUTOMATON"))->next_sibling("AUTOMATON") || model_node->first_node("SERIES"))
             throw std::invalid_argument("multiple occurences of property specification (AUTOMATON or SERIES tag)");
+         if (user_options.analysis())
+             throw std::invalid_argument("advancet analysis methods not available for the general LTL propery, wrong usage of argument -r, -w or -W");
       }
       else if (model_node->first_node("SERIES")) {
          TimeSeriesParser series_parser(model);

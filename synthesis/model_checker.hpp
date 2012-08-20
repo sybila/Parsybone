@@ -22,6 +22,7 @@ class ModelChecker {
 	// Information
 	const ProductStructure & product; ///< Product on which the computation will be conducted
 	Range synthesis_range; ///< First and one beyond last color to be computed in this round
+   StateID starting_state; ///< State from which the synthesis goes during the general LTL search
 
 	// Coloring storage
 	ColorStorage & storage; ///< Class that actually stores colors during the computation
@@ -232,8 +233,9 @@ class ModelChecker {
 				else
 					transferUpdates(ID, storage.getColor(ID) & restrict_mask);
 			}
-			else
-				transferUpdates(ID, storage.getColor(ID) & restrict_mask);
+         else
+            transferUpdates(ID, storage.getColor(ID));
+
 			// Erase completed update from the set
 			updates.erase(ID);
 
@@ -246,8 +248,11 @@ class ModelChecker {
 			}
 		} while (!updates.empty());
 
-		// After the coloring, pass cost to the coloring (and computed colors = starting - not found)
-		storage.setResults(BFS_reach, ~to_find & starting);
+		// After the coloring, pass cost to the coloring (and computed colors = starting - not found)		
+      if (user_options.timeSeries())
+         storage.setResults(BFS_reach, ~to_find & starting);
+      else if (starting_state != ~static_cast<std::size_t>(0))
+         storage.setResults(storage.getColor(starting_state));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +273,7 @@ class ModelChecker {
 		BFS_level = 0; // Set sterting number of BFS
 		next_updates.clear(); // Ensure emptiness of the next round
 		BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)
-		next_round_storage = storage; // Copy starting values
+      next_round_storage = storage; // Copy starting values
 	}
 
 	ModelChecker(const ModelChecker & other); ///< Forbidden copy constructor.
@@ -295,6 +300,7 @@ public:
 	void startColoring(const StateID ID, const Paramset parameters, const Range & _range) {
 		prepareCheck(parameters, _range);
 		transferUpdates(ID, parameters); // Transfer updates from the start of the detection
+      starting_state = ID;
 		doColoring();
 	}
 
@@ -307,6 +313,7 @@ public:
 	 */
 	void startColoring(const Paramset parameters, const std::set<StateID> & _updates, const Range & _range){
 		prepareCheck(parameters, _range, _updates);
+      starting_state = ~static_cast<std::size_t>(0);
 		doColoring();
 	}
 };

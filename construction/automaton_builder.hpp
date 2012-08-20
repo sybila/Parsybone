@@ -198,11 +198,11 @@ public:
 	void buildAutomaton() {
 		output_streamer.output(stats_str, "Costructing Buchi automaton.");
 		output_streamer.output(stats_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
-			.output(model.getStateCount(), OutputStreamer::no_newl).output(".");
+			.output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
 		std::size_t transition_count = 0;
 
 		// List throught all the automaton states
-		for (StateID ID = 0; ID < model.getStateCount(); ID++) {
+		for (StateID ID = 0; ID < model.getStatesCount(); ID++) {
 			// Fill auxiliary data
 			automaton.addState(ID, model.isFinal(ID));
 			// Add transitions for this state

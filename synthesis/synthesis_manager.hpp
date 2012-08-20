@@ -90,7 +90,7 @@ class SynthesisManager {
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
          if (!paramset_helper.none(final_it->second) && !user_options.timeSeries())
-			detectCycle(*final_it);
+            detectCycle(*final_it);
 
 			// Store results from this final state
 			analyzer->storeResults(Coloring(final_it->first, storage.get()->getColor(final_it->first)));
@@ -138,8 +138,8 @@ class SynthesisManager {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SynthesisManager(const SynthesisManager & other);            // Forbidden copy constructor.
-	SynthesisManager& operator=(const SynthesisManager & other); // Forbidden assignment operator.
+   SynthesisManager(const SynthesisManager & other); ///< Forbidden copy constructor.
+   SynthesisManager& operator=(const SynthesisManager & other); ///< Forbidden assignment operator.
 
 public:
 	/**

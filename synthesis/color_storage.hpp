@@ -87,7 +87,7 @@ public:
 	}
 
 	/**
-	 * Just passes a new cost vector
+    * Fills after time series check finished
 	 *
 	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use ~0
 	 */
@@ -95,6 +95,14 @@ public:
 		cost_val = new_cost;
 		acceptable = resulting;
 	}
+   /**
+    * Fills after a general LTL check finihsed
+    *
+    * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use ~0
+    */
+   void setResults(const Paramset resulting) {
+      acceptable = resulting;
+   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARAMTERS HANDLING

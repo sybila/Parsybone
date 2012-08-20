@@ -29,7 +29,7 @@ class AutomatonParser {
 			// Get max value and conver to integer.
          XMLHelper::getAttribute(traget_str, edge, "target");
          target_ID = model.findNumber(traget_str);
-         if (target_ID >= model.getSpeciesCount())
+         if (target_ID >= model.getStatesCount())
             throw std::invalid_argument(std::string("Incorrect value as a target of the state ").append(toString(source_ID)));
 
 			// Add a new regulation to the specified target
