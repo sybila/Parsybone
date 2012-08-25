@@ -140,7 +140,29 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	Model(const Model & other); ///< Forbidden copy constructor.
+   /**
+    * Sorts parametrs by parametrizations values increasingly from the left.
+    */
+   void sortParameters() {
+      // Check all species
+      forEach(species,[&](ModelSpecie & specie){
+         // Sort parameters of the specie
+         std::sort(specie.parameters.begin(), specie.parameters.end(), [](const Parameter & a, const Parameter & b) -> bool {
+            auto a_it = a.first.begin(); auto b_it = b.first.begin();
+            // Go from the left
+            while (a_it != a.first.end()){
+               if (*a_it > *b_it)
+                  return true;
+               else if(*a_it < *b_it)
+                  return false;
+               a_it++; b_it++;
+            }
+            throw std::runtime_error("Multiple context definitions detected.");
+         });
+      });
+   }
+
+   Model(const Model & other); ///< Forbidden copy constructor.
 	Model& operator=(const Model & other); ///< Forbidden assignment operator.
 
 public:

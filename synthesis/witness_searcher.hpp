@@ -23,7 +23,7 @@ class WitnessSearcher {
    /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget)
    std::vector<std::set<std::pair<StateID, StateID> > > transitions;
    /// Vector storing for each parametrization initial states it reached
-   std::vector<std::vector<StateID> > initials;
+   std::vector<std::set<StateID> > initials;
 
    std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string)
 
@@ -65,7 +65,7 @@ class WitnessSearcher {
          if (which & marker) {
             transitions[param].insert(trans.begin(), trans.end());
             if (initial)
-               initials[param].push_back(path[depth]);
+               initials[param].insert(path[depth]);
          }
          marker >>= 1;
       }
@@ -220,7 +220,10 @@ public:
                else
                   path.append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second)).append(",");
             }
-            path[path.length() - 1] = '}';
+            if (path.length() == 1)
+               path.append("}");
+            else
+               path[path.length() - 1] = '}';
             // Add the string
             acceptable_paths.push_back(std::move(path));
          }
@@ -238,7 +241,7 @@ public:
    /**
     * @return  a vector of IDs of intial states
     */
-   const std::vector<std::vector<StateID> > & getInitials() const {
+   const std::vector<std::set<StateID> > & getInitials() const {
       return initials;
    }
 };

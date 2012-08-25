@@ -157,7 +157,7 @@ class NetworkParser {
             throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the specie list"));
          bool is_regulator = false;
          forEach(model.getRegulations(specie_ID),[&](const Model::Regulation & regulation){
-            is_regulator = regulation.source == ID;
+            is_regulator = is_regulator ? true : (regulation.source == ID);
          });
          if (!is_regulator)
             throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the regulators list"));
@@ -274,6 +274,7 @@ class NetworkParser {
 		}
 
 		addUnspecified(specified, specie_ID, unspec);
+      model.sortParameters();
 	}
 
 	/**
