@@ -21,7 +21,7 @@ class OutputStreamer {
 	std::ostream * stats_stream; ///< Stream to output overall statistics
 	std::ostream * result_stream;	///< Stream to output results of coloring
 
-	// True if these streams are assigned a file
+   /// True if these streams are assigned a file
 	bool error_file, verbose_file, stats_file, result_file;
 
 	StreamType last_stream_type;	///< Used to ease usage of output - last stream is stored and used if no new is specified.

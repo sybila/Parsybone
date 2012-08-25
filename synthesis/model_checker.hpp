@@ -161,10 +161,12 @@ class ModelChecker {
 			StateID target_ID = product.getTargetID(ID, trans_num);
 
 			// Test if it is a possibility for a loop, if there is nothing outcoming, add to self-loop (if it is still possible)
-			if (loop_params && (KS_state == product.getKSID(target_ID)) ) {
-				loop_params &= passed;
-				StateID BA_ID = product.getBAID(target_ID);
-				BA_presence[BA_ID] = true;
+         if (KS_state == product.getKSID(target_ID) ) {
+            loop_params &= passed;
+            if(loop_params) {
+               StateID BA_ID = product.getBAID(target_ID);
+               BA_presence[BA_ID] = true;
+            }
 			}
 			// Else add normally and remove from the loop
 			else if (passed) {

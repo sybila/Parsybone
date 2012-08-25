@@ -73,7 +73,7 @@ class ArgumentParser {
 	 *
 	 * @param argument	iterator pointer to the string to read
 	 */
-   void parseSwitches(std::vector<std::string>::const_iterator & argument, std::vector<std::string>::const_iterator & last_pos){
+   void parseSwitches(std::vector<std::string>::const_iterator & argument, const std::vector<std::string>::const_iterator & last_pos){
 		for (std::size_t switch_num = 1; switch_num < argument->size(); switch_num++) {
 			switch ((*argument)[switch_num]) {
 
@@ -98,27 +98,27 @@ class ArgumentParser {
 
             // Open file to read a color mask
 			case 'm':
-            testLast(switch_num, argument->size()); testFollowers(argument, last_pos);
+            testLast(switch_num, argument->size()); testFollowers(argument + 1, last_pos);
 				coloring_parser.openFile(*(++argument));
             user_options.use_in_mask = true;
 				return;
 
             // Open file to fill a color mask
 			case 'M':
-            testLast(switch_num, argument->size()); testFollowers(argument, last_pos);
+            testLast(switch_num, argument->size()); testFollowers(argument + 1, last_pos);
             coloring_parser.createOutput(*(++argument));
             user_options.use_out_mask = true;
 				return;
 
 			// Get data for distributed computation
 			case 'd':
-            testLast(switch_num, argument->size()); testFollowers(argument, last_pos, 2);
+            testLast(switch_num, argument->size()); testFollowers(argument + 1, last_pos, 2);
 				getDistribution(*(argument+1), *(argument+2)); argument += 2;
 				return;
 
 			// Redirecting results output to a file by a parameter
 			case 'f':
-            testLast(switch_num, argument->size()); testFollowers(argument, last_pos);
+            testLast(switch_num, argument->size()); testFollowers(argument + 1, last_pos);
 				output_streamer.createStreamFile(results_str, *(++argument));
 				return;
 
@@ -167,6 +167,5 @@ public:
 			throw (std::invalid_argument("Model file (file with a .dbm suffix) is missing."));
 	}
 };
-
 
 #endif

@@ -54,7 +54,16 @@ class RobustnessCompute {
             continue;
          // Otherwise, set number to the number of exist under this parametrization
          for (StateID ID = 0; ID < product.getStateCount(); ID++) {
-            markings[ID].exits[param_num] = storage.getNeighbours(ID, true, current_mask).size();
+            auto succs = storage.getNeighbours(ID, true, current_mask);
+            StateID max_BA = 0;
+            forEach(succs, [&](StateID & ID){
+               max_BA = my_max(max_BA, product.getBAID(ID));
+            });
+            std::size_t exits = 0;
+            forEach(succs, [&](StateID & ID){
+               exits += static_cast<std::size_t>(max_BA == product.getBAID(ID));
+            });
+            markings[ID].exits[param_num] = exits;
          }
       }
    }
@@ -112,7 +121,7 @@ public:
       auto transitions = searcher.getTransitions();
 
       // Cycle through the levels of the DFS procedure
-      for (std::size_t round_num = 0; round_num < storage.getMaxDepth() + 1; round_num++) {
+      for (std::size_t round_num = 0; round_num < storage.getMaxDepth(); round_num++) {
          // Update markings from the previous round
          forEach(markings, [](Marking & marking) {
             marking.current_prob = marking.next_prob;
@@ -124,9 +133,7 @@ public:
          for (std::size_t param_num = 0; param_num != paramset_helper.getParamsetSize(); param_num++) {
             // For the parametrization cycle through transitions
             forEach(transitions[param_num], [&](std::pair<StateID, StateID> trans) {
-               // Well, this takes a bit of imagination to grasp. Point is, that the interesting node in not the final one, but the one before it
-               // so it is necessary not to lower the Robustness any further when in pre-final node.
-               std::size_t divisor = product.isFinal(trans.second) ? 1 : markings[trans.first].exits[param_num]; // Count succesor
+               std::size_t divisor = markings[trans.first].exits[param_num]; // Count succesor
                // Add probabilities
                if (divisor)
                   markings[trans.second].next_prob[param_num] += markings[trans.first].current_prob[param_num] / divisor ;

@@ -34,8 +34,8 @@ class ParametrizationsBuilder {
 	 *
 	 * @param is_observable	stores true if the regulation is observable
 	 * @param ID	ID of the specie that undergoes the test
-     * @param param_num	index of tested parameter
-     * @param regul_num	index of regulation whose constrains are tested
+    * @param param_num	index of tested parameter
+    * @param regul_num	index of regulation whose constrains are tested
 	 * @param subcolor	coloring for this specie that is tested
 	 *
 	 * @return	true if constrains are satisfied
@@ -183,15 +183,15 @@ class ParametrizationsBuilder {
 		valid.ID = ID;
 
 		// Reference data
-        auto parameters = model.getParameters(ID);
+      auto parameters = model.getParameters(ID);
 		
 		// Create boundaries for iteration
-        std::vector<std::size_t> bottom_color(parameters.size());
-        std::vector<std::size_t> top_color(parameters.size());
-        valid.possible_count = getBoundaries(ID, bottom_color, top_color);
+      std::vector<std::size_t> bottom_color(parameters.size());
+      std::vector<std::size_t> top_color(parameters.size());
+      valid.possible_count = getBoundaries(ID, bottom_color, top_color);
 		
 		// Test all the subcolors and save feasible
-        testColors(std::move(valid), ID, bottom_color, top_color);
+      testColors(std::move(valid), ID, bottom_color, top_color);
 	}
 
 	ParametrizationsBuilder(const ParametrizationsBuilder & other); ///< Forbidden copy constructor.

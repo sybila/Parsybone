@@ -70,67 +70,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\auxiliary\common_functions.hpp" />
-    <ClInclude Include="..\auxiliary\data_types.hpp" />
-    <ClInclude Include="..\auxiliary\output_streamer.hpp" />
-    <ClInclude Include="..\auxiliary\template.hpp" />
-    <ClInclude Include="..\auxiliary\time_manager.hpp" />
-    <ClInclude Include="..\auxiliary\user_options.hpp" />
-    <ClInclude Include="..\coloring\model_checker.hpp" />
-    <ClInclude Include="..\coloring\parameters_functions.hpp" />
-    <ClInclude Include="..\coloring\split_manager.hpp" />
-    <ClInclude Include="..\coloring\synthesis_manager.hpp" />
-    <ClInclude Include="..\parsing\argument_parser.hpp" />
-    <ClInclude Include="..\parsing\coloring_parser.hpp" />
-    <ClInclude Include="..\parsing\constrains_parser.hpp" />
-    <ClInclude Include="..\parsing\model.hpp" />
-    <ClInclude Include="..\parsing\model_parser.hpp" />
-    <ClInclude Include="..\rapidxml-1.13\rapidxml.hpp" />
-    <ClInclude Include="..\rapidxml-1.13\rapidxml_iterators.hpp" />
-    <ClInclude Include="..\rapidxml-1.13\rapidxml_print.hpp" />
-    <ClInclude Include="..\rapidxml-1.13\rapidxml_utils.hpp" />
-    <ClInclude Include="..\reforging\automaton_builder.hpp" />
-    <ClInclude Include="..\reforging\automaton_interface.hpp" />
-    <ClInclude Include="..\reforging\automaton_structure.hpp" />
-    <ClInclude Include="..\reforging\basic_structure.hpp" />
-    <ClInclude Include="..\reforging\basic_structure_builder.hpp" />
-    <ClInclude Include="..\reforging\color_storage.hpp" />
-    <ClInclude Include="..\reforging\functions_builder.hpp" />
-    <ClInclude Include="..\reforging\functions_structure.hpp" />
-    <ClInclude Include="..\reforging\graph_interface.hpp" />
-    <ClInclude Include="..\reforging\parametrized_structure.hpp" />
-    <ClInclude Include="..\reforging\parametrized_structure_builder.hpp" />
-    <ClInclude Include="..\reforging\product_builder.hpp" />
-    <ClInclude Include="..\reforging\product_structure.hpp" />
-    <ClInclude Include="..\results\coloring_analyzer.hpp" />
-    <ClInclude Include="..\results\output_manager.hpp" />
-    <ClInclude Include="..\results\per_color_storage.hpp" />
-    <ClInclude Include="..\results\witness_searcher.hpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Models\3node.dbm" />
-    <None Include="..\Models\4node.dbm" />
-    <None Include="..\Models\Bacteriophage_lambda.dbm" />
-    <None Include="..\Models\Bacteriophage_lambda_labelled.dbm" />
-    <None Include="..\Models\Bacteriophage_lambda_labelled_observable.dbm" />
-    <None Include="..\Models\Bacteriophage_lambda_valued.dbm" />
-    <None Include="..\Models\fifo2.dbm" />
-    <None Include="..\Models\GS_cell_cycle.dbm" />
-    <None Include="..\Models\IRMA_hard.dbm" />
-    <None Include="..\Models\IRMA_mask.cbm" />
-    <None Include="..\Models\IRMA_medium.dbm" />
-    <None Include="..\Models\IRMA_simple.dbm" />
-    <None Include="..\Models\K4.dbm" />
-    <None Include="..\Models\Test.cbm" />
-    <None Include="..\Models\Test_labels.dbm" />
-    <None Include="..\Models\Test_LTL.dbm" />
-    <None Include="..\Models\Test_multitresh.dbm" />
-    <None Include="..\Models\Test_multival.dbm" />
-    <None Include="..\Models\Test_sink.dbm" />
-    <None Include="..\Models\Test_TS.dbm" />
     <None Include="..\README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
