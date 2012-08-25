@@ -117,7 +117,7 @@ class ModelChecker {
 	 */
 	void markLevels(const Paramset colors) {
 		// If all is found, end
-		if (!to_find)
+      if (!to_find || !(to_find & colors))
 			return;
 
 		// Which are new
@@ -225,11 +225,11 @@ class ModelChecker {
 		// While there are updates, pass them to succesing vertices
 		do  {
 			// Within updates, find the one with most bits
-			StateID ID = getStrongestUpdate();
+         StateID ID = getStrongestUpdate();
 			// Check if this is not the last round
          if (user_options.timeSeries()) {
 				if (product.isFinal(ID))
-					markLevels(storage.getColor(ID));
+               markLevels(storage.getColor(ID));
 				else
 					transferUpdates(ID, storage.getColor(ID) & restrict_mask);
 			}
@@ -241,7 +241,7 @@ class ModelChecker {
 
          // If there this round is finished, but there are still paths to find
          if (updates.empty() && to_find ) {
-            updates = next_updates; next_updates.clear();
+            updates = std::move(next_updates);
             storage = next_round_storage;
             restrict_mask = to_find;
             BFS_level++; // Increase level

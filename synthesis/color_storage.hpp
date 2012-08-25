@@ -26,8 +26,11 @@ class ColorStorage {
 		/// Holder of the computed information for a single state
 		State(const StateID _ID, const std::size_t states_num) : ID(_ID), parameters(0) {
 			parameters = 0; ///< Reaching paramset itself
-			predecessors.resize(states_num, 0); ///< Paramset of what came form a state with given ID
-			successors.resize(states_num, 0); ///< Paramset of what was passed to a state with given ID
+         // Add storage for predecessors and sucessors, if necessary
+         if (user_options.analysis()) {
+            predecessors.resize(states_num, 0); ///< Paramset of what came form a state with given ID
+            successors.resize(states_num, 0); ///< Paramset of what was passed to a state with given ID
+         }
 		}
 	};
 	
@@ -35,7 +38,7 @@ class ColorStorage {
 	/// This vector stores so-called COST value i.e. number of steps required to reach the final state in TS.
 	/// If it is not reachable, cost is set to ~0.
 	std::vector<std::size_t> cost_val;
-	Paramset acceptable; ///< Additional value that stores paramset computed in this orund
+   Paramset acceptable; ///< Additional value that stores paramset computed in this round
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -75,7 +78,7 @@ public:
 			// Reset merged parameters
 			state.parameters = 0;
 			// Reset parameters from predecessors, if there were new values
-			if (user_options.witnesses()) {
+         if (user_options.analysis()) {
 				for(auto pred_it = state.predecessors.begin(); pred_it != state.predecessors.end(); pred_it++) {
 					*pred_it = 0;
 				}
