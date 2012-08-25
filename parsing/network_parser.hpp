@@ -167,7 +167,8 @@ class NetworkParser {
 		std::vector<bool> mask;
       auto regulations = model.getRegulations(specie_ID);
 		for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
-			mask.push_back( std::find(sources.begin(), sources.end(), toString(regulations[regul_num].source)) == sources.end() );
+         mask.push_back(std::find(sources.begin(), sources.end(), toString(regulations[regul_num].source)) != sources.end()
+                        || std::find(sources.begin(), sources.end(), model.getName(regulations[regul_num].source)) != sources.end());
 		}
 
 		// Add a new regulation to the specified target

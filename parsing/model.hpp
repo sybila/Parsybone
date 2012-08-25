@@ -141,20 +141,21 @@ private:
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
-    * Sorts parametrs by parametrizations values increasingly from the left.
+    * Sorts parametrs by parametrizations values increasingly from the right.
+    * Ordering for three species would be none, 1, 2, 3, 12, 13, 23, 123
     */
    void sortParameters() {
       // Check all species
       forEach(species,[&](ModelSpecie & specie){
          // Sort parameters of the specie
          std::sort(specie.parameters.begin(), specie.parameters.end(), [](const Parameter & a, const Parameter & b) -> bool {
-            auto a_it = a.first.begin(); auto b_it = b.first.begin();
-            // Go from the left
-            while (a_it != a.first.end()){
+            auto a_it = a.first.rbegin(); auto b_it = b.first.rbegin();
+            // Go from the right
+            while (a_it != a.first.rend()){
                if (*a_it > *b_it)
-                  return true;
-               else if(*a_it < *b_it)
                   return false;
+               else if(*a_it < *b_it)
+                  return true;
                a_it++; b_it++;
             }
             throw std::runtime_error("Multiple context definitions detected.");
