@@ -12,6 +12,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
 #include "paramset_helper.hpp"
+#include "../construction/construction_holder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ColorStorage is auxiliary class to the product and stores colors and possibly predecessors for individual states of the product during the computation.
@@ -20,18 +21,11 @@ class ColorStorage {
 	struct State {
 		StateID ID; ///< unique ID of the state
 		Paramset parameters; ///< 32 bits for each color in this round marking its presence or absence
-		std::vector<Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters)
-		std::vector<Paramset> successors; ///< Stores succesors in the same form
+      std::map<StateID, Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters)
+      std::map<StateID, Paramset> successors; ///< Stores succesors in the same form
 
 		/// Holder of the computed information for a single state
-		State(const StateID _ID, const std::size_t states_num) : ID(_ID), parameters(0) {
-			parameters = 0; ///< Reaching paramset itself
-         // Add storage for predecessors and sucessors, if necessary
-         if (user_options.analysis()) {
-            predecessors.resize(states_num, 0); ///< Paramset of what came form a state with given ID
-            successors.resize(states_num, 0); ///< Paramset of what was passed to a state with given ID
-         }
-		}
+      State(const StateID _ID) : ID(_ID), parameters(0) { }
 	};
 	
 	std::vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data
@@ -43,15 +37,6 @@ class ColorStorage {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Add a new storage for a single state
-	 *
-	 * @param predecessors	vector with IDs of all predecessors of this state
-	 */
-	void addState(const StateID ID, const std::size_t states_num) {
-		states.push_back(State(ID, states_num));
-	}
-
 public:
 	/**
 	 * Constructor allocates necessary memory for further usage (this memory is not supposed to be freed until endo of the computation)
@@ -59,15 +44,62 @@ public:
 	 *
 	 * @param states_count	number of states the structure the data will be saved for has
 	 */
-	ColorStorage(std::size_t states_count) {
-		for (StateID ID = 0; ID < states_count; ID++) {
-			addState(ID, states_count);
+   ColorStorage(const ConstructionHolder & holder) {
+      // Create states
+      const ProductStructure & product = holder.getProduct();
+      for (StateID ID = 0; ID < product.getStateCount(); ID++) {
+         states.push_back(ID);
 		}
+
+      // Add predecessors and succesors paramset storage, if necessary
+      if (user_options.analysis()) {
+         for (StateID ID = 0; ID < product.getStateCount(); ID++) {
+            for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
+               StateID target = product.getTargetID(ID, trans_num);
+               states[ID].successors.insert(std::make_pair(target, 0));
+               states[target].predecessors.insert(std::make_pair(ID, 0));
+            }
+         }
+      }
+
+      // Set additional storage
 		cost_val = std::vector<std::size_t>(paramset_helper.getParamsetSize(), ~0); // Set all to max. value
 		acceptable = 0;
 	}
 
 	ColorStorage() {} ///< Empty constructor for an empty storage
+
+   /**
+    * Function adds values from specified source without explicitly copying them, only through bitwise or (storages must be equal).
+    */
+   void addFrom(const ColorStorage & other) {
+      auto m_state_it = states.begin();
+      auto o_state_it = other.states.begin();
+
+      while (m_state_it != states.end()) {
+         // Copy from paramset
+         m_state_it->parameters |= o_state_it->parameters;
+
+         if (user_options.analysis()) {
+            // Copy from predecessors
+            auto m_preds_it = m_state_it->predecessors.begin();
+            auto o_preds_it = o_state_it->predecessors.begin();
+            while (m_preds_it != m_state_it->predecessors.end()) {
+               m_preds_it->second |= o_preds_it->second;
+               m_preds_it++; o_preds_it++;
+            }
+            // Copy from successors
+            auto m_succs_it = m_state_it->successors.begin();
+            auto o_succs_it = o_state_it->successors.begin();
+            while (m_succs_it != m_state_it->successors.end()) {
+               m_succs_it->second |= o_succs_it->second;
+               m_succs_it++; o_succs_it++;
+            }
+         }
+
+         m_state_it++; o_state_it++;
+      }
+   }
 
 	/**
 	 * Sets all values for all the states to zero. Allocated memory remains.
@@ -80,10 +112,10 @@ public:
 			// Reset parameters from predecessors, if there were new values
          if (user_options.analysis()) {
 				for(auto pred_it = state.predecessors.begin(); pred_it != state.predecessors.end(); pred_it++) {
-					*pred_it = 0;
+               pred_it->second = 0;
 				}
 				for(auto succ_it = state.successors.begin(); succ_it != state.successors.end(); succ_it++) {
-					*succ_it = 0;
+               succ_it->second = 0;
 				}
 			}
 		});
@@ -153,8 +185,8 @@ public:
 	 */
 	inline bool update(const StateID source_ID, const StateID target_ID, const Paramset parameters) {
 		// Mark parameters source and target
-		states[target_ID].predecessors[source_ID] |= parameters;
-		states[source_ID].successors[target_ID] |= parameters;
+      states[target_ID].predecessors.find(source_ID)->second |= parameters;
+      states[source_ID].successors.find(target_ID)->second |= parameters;
 		// Make an actuall update
 		return update(target_ID, parameters);
 	}
@@ -174,7 +206,7 @@ public:
 	void remove(const StateID source_ID, const Paramset remove, const bool successors) {
 		// reference
 		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
-		forEach(neigbours, [remove](Paramset & label){label &= ~remove;});
+      forEach(neigbours, [remove](std::pair<const StateID, Paramset> & neighbour){neighbour.second &= ~remove;});
 	}
 
 	/**
@@ -186,7 +218,7 @@ public:
 	void remove(const StateID source_ID, const StateID target_ID, const Paramset remove, const bool successors) {
 		// reference
 		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
-		neigbours[target_ID] &=~ remove;
+      neigbours.find(target_ID)->second &=~ remove;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,12 +273,10 @@ public:
 		Neighbours color_neigh;
 
 		// Add these from the color
-		StateID neigh_num = 0;
-		forEach(neigbours, [&neigh_num, &color_neigh, color_mask](const Paramset neighbour) {
+      forEach(neigbours, [&color_neigh, color_mask](std::pair<const StateID, Paramset> & neighbour) {
 			// Test if the color is present
-			if ((neighbour & color_mask) != 0)
-				color_neigh.push_back(neigh_num);
-			neigh_num++;
+         if ((neighbour.second & color_mask) != 0)
+            color_neigh.push_back(neighbour.first);
 		});
 
 		return color_neigh;
@@ -264,16 +294,13 @@ public:
 	inline const std::vector<Paramset> getMarking(const StateID ID, const bool successors, const Paramset color_mask = ~0) const {
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
-		// Return all, if all requested
-      if (color_mask == ~static_cast<std::size_t>(0))
-			return neigbours;
 
 		std::vector<Paramset> restricted;
 		// Add only those that contain the value
-		forEach(neigbours, [&restricted, color_mask](const Paramset neighbour) {
+      forEach(neigbours, [&restricted, color_mask](std::pair<const StateID, Paramset> & neighbour) {
 			// Test if the color is present
-			if ((neighbour & color_mask) != 0)
-				restricted.push_back(neighbour);
+         if ((neighbour.second & color_mask) != 0)
+            restricted.push_back(neighbour.second);
 		});
 		return restricted;
 	}

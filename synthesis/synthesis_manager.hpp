@@ -148,7 +148,7 @@ public:
 	SynthesisManager(const ConstructionHolder & _holder) : holder(_holder) {
 		// Create classes that help with the synthesis
 		analyzer.reset(new ColoringAnalyzer(holder));
-		storage.reset(new ColorStorage(holder.getProduct().getStateCount()));
+      storage.reset(new ColorStorage(holder));
 		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
 		model_checker.reset(new ModelChecker(holder, *storage.get()));
 		searcher.reset(new WitnessSearcher(holder, *storage.get()));

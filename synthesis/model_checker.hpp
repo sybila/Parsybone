@@ -149,7 +149,7 @@ class ModelChecker {
 		param_updates.reserve(product.getTransitionCount(ID));
 
 		std::size_t KS_state = product.getKSID(ID);
-		Paramset loop_params = ~0;
+      Paramset loop_params = ~0; // Which of the parameters allow only to remain in this state
 
 		// Cycle through all the transition
 		for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
@@ -242,7 +242,7 @@ class ModelChecker {
          // If there this round is finished, but there are still paths to find
          if (updates.empty() && to_find ) {
             updates = std::move(next_updates);
-            storage = next_round_storage;
+            storage.addFrom(next_round_storage);
             restrict_mask = to_find;
             BFS_level++; // Increase level
 			}
@@ -267,13 +267,13 @@ class ModelChecker {
 	 */
 	void prepareCheck(const Paramset parameters, const Range & _range, std::set<StateID> start_updates = std::set<StateID>()) {
 		starting = to_find = restrict_mask = parameters; // Store which parameters are we searching for
-		updates = start_updates; // Copy starting updates
+      updates = std::move(start_updates); // Copy starting updates
 		synthesis_range = _range; // Copy range of this round
 
 		BFS_level = 0; // Set sterting number of BFS
 		next_updates.clear(); // Ensure emptiness of the next round
 		BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)
-      next_round_storage = storage; // Copy starting values
+      next_round_storage.reset(); // Copy starting values
 	}
 
 	ModelChecker(const ModelChecker & other); ///< Forbidden copy constructor.
@@ -285,6 +285,7 @@ public:
 	 */
     ModelChecker(const ConstructionHolder & holder, ColorStorage & _storage) : product(holder.getProduct()), storage(_storage) {
         BA_presence.resize(holder.getAutomatonStructure().getStateCount(), false);
+        next_round_storage = storage; // Create an identical copy of the storage.
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
