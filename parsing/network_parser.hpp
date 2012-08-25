@@ -150,15 +150,22 @@ class NetworkParser {
 			throw std::runtime_error("boost::split(sources, context, boost::is_any_of(\",\")) failed");
 		}
 
-		// Control existence of the source species
+      // Control existence of the source specie and its presence as a regulator
 		forEach(sources, [&](std::string & source) {
-         if (model.findID(source) >= model.getSpeciesCount())
-			throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the specie list"));
-		});
+         SpecieID ID = model.findID(source);
+         if (ID >= model.getSpeciesCount())
+            throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the specie list"));
+         bool is_regulator = false;
+         forEach(model.getRegulations(specie_ID),[&](const Model::Regulation & regulation){
+            is_regulator = regulation.source == ID;
+         });
+         if (!is_regulator)
+            throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the regulators list"));
+      });
 
 		// Create a mask by comparison of source strings against regulations sources of the specie
 		std::vector<bool> mask;
-		auto regulations = model.getRegulations(specie_ID);
+      auto regulations = model.getRegulations(specie_ID);
 		for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
 			mask.push_back( std::find(sources.begin(), sources.end(), toString(regulations[regul_num].source)) == sources.end() );
 		}
