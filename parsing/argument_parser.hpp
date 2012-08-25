@@ -45,19 +45,35 @@ class ArgumentParser {
 	 *
 	 * @return true if the position is valid, false otherwise
 	 */
-	bool testLast(const std::size_t position, const std::size_t size) {
+   bool testLast(const std::size_t position, const std::size_t size) {
 		if (position + 1 != size) {
 			throw(std::runtime_error(std::string("There are forbidden characters after some switch")));
 		}
 		return true;
 	}
 
+   /**
+    * Some of the switches must be followed by additional argument (i.e. filename).
+    * Such a switch must be followed by parametrizing arguments. This function controls that.
+    *
+    * @return true if the arguments are present, false otherwise
+    */
+   bool testFollowers(std::vector<std::string>::const_iterator argument, const std::vector<std::string>::const_iterator & last_pos, const std::size_t followers_count = 1) {
+      for(std::size_t foll_num = 0; foll_num < followers_count; foll_num++, argument++) {
+         if (argument == last_pos) {
+            throw(std::runtime_error(std::string("There are missing parametrizing arguments after some switch")));
+            return false;
+         }
+      }
+      return true;
+   }
+
 	/**
 	 * Function that parses switches in the string that starts with a "-" symbol
 	 *
 	 * @param argument	iterator pointer to the string to read
 	 */
-	void parseSwitches(std::vector<std::string>::const_iterator & argument){
+   void parseSwitches(std::vector<std::string>::const_iterator & argument, std::vector<std::string>::const_iterator & last_pos){
 		for (std::size_t switch_num = 1; switch_num < argument->size(); switch_num++) {
 			switch ((*argument)[switch_num]) {
 
@@ -82,27 +98,27 @@ class ArgumentParser {
 
             // Open file to read a color mask
 			case 'm':
-				testLast(switch_num, argument->size());
+            testLast(switch_num, argument->size()); testFollowers(argument, last_pos);
 				coloring_parser.openFile(*(++argument));
             user_options.use_in_mask = true;
 				return;
 
             // Open file to fill a color mask
 			case 'M':
-				testLast(switch_num, argument->size());
-				coloring_parser.createOutput(*(++argument));
+            testLast(switch_num, argument->size()); testFollowers(argument, last_pos);
+            coloring_parser.createOutput(*(++argument));
             user_options.use_out_mask = true;
 				return;
 
 			// Get data for distributed computation
 			case 'd':
-				testLast(switch_num, argument->size());
+            testLast(switch_num, argument->size()); testFollowers(argument, last_pos, 2);
 				getDistribution(*(argument+1), *(argument+2)); argument += 2;
 				return;
 
 			// Redirecting results output to a file by a parameter
 			case 'f':
-				testLast(switch_num, argument->size());
+            testLast(switch_num, argument->size()); testFollowers(argument, last_pos);
 				output_streamer.createStreamFile(results_str, *(++argument));
 				return;
 
@@ -130,7 +146,7 @@ public:
 		for (auto argument = arguments.begin(); argument != arguments.end(); argument++) {
 			// There can be multiple switches after "-" so go through them in the loop
 			if ((*argument)[0] == '-') {
-				parseSwitches(argument);
+            parseSwitches(argument, arguments.end());
 			}
 
 			// If it is a model file

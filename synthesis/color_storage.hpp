@@ -73,6 +73,7 @@ public:
     * Function adds values from specified source without explicitly copying them, only through bitwise or (storages must be equal).
     */
    void addFrom(const ColorStorage & other) {
+
       auto m_state_it = states.begin();
       auto o_state_it = other.states.begin();
 
