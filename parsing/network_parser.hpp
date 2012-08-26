@@ -299,6 +299,9 @@ class NetworkParser {
 			if(!XMLHelper::getAttribute(basal, specie, "basal", false))
 				basal = 0;
 
+         if (basal > max)
+            throw std::invalid_argument(std::string("Basal value is greater than maximal value for specie ").append(toString(ID)));
+
 			// Create a new specie
 			model.addSpecie(name, max, basal);
 		}

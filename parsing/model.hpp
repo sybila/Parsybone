@@ -141,7 +141,7 @@ private:
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
-    * Sorts parametrs by parametrizations values increasingly from the right.
+    * Sorts parametrs by parametrizations values increasingly from the left. Context with more regulators goes after the one with less regulators.
     * Ordering for three species would be none, 1, 2, 3, 12, 13, 23, 123
     */
    void sortParameters() {
@@ -149,14 +149,24 @@ private:
       forEach(species,[&](ModelSpecie & specie){
          // Sort parameters of the specie
          std::sort(specie.parameters.begin(), specie.parameters.end(), [](const Parameter & a, const Parameter & b) -> bool {
+            // Control number of active regulators - specie with less regulators is considered bigger
             auto a_it = a.first.rbegin(); auto b_it = b.first.rbegin();
-            // Go from the right
+            std::size_t on_a = 0; std::size_t on_b = 0;
             while (a_it != a.first.rend()){
-               if (*a_it > *b_it)
+               on_a += *a_it++;
+               on_b += *b_it++;
+            }
+            if (on_a != on_b)
+               return on_a < on_b; // A goes first if it has less regulators
+
+            // If numbers of activer regulators are equal, bigger is the one who has regulators sorted on the left
+            auto a_it2 = a.first.begin(); auto b_it2 = b.first.begin();
+            while (a_it2 != a.first.end()){
+               if (*a_it2 > *b_it2)
+                  return true; // A goes first if it has mostleft context
+               else if(*a_it2 < *b_it2)
                   return false;
-               else if(*a_it < *b_it)
-                  return true;
-               a_it++; b_it++;
+               a_it2++; b_it2++;
             }
             throw std::runtime_error("Multiple context definitions detected.");
          });
