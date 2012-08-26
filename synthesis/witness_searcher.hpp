@@ -55,9 +55,9 @@ class WitnessSearcher {
       // Go from the end till the lastly reached node
       for (std::size_t step = 0; step < depth; step++) {
          trans.push_back(std::make_pair(path[step+1], path[step]));
-         markings[path[step]].succeeded = which; // Mark found for given parametrizations
+         markings[path[step]].succeeded |= which; // Mark found for given parametrizations
       }
-      markings[path[depth]].succeeded = which;
+      markings[path[depth]].succeeded |= which;
 
       // Add transitions to the parametrizations that allow them
       Paramset marker = paramset_helper.getLeftOne();
