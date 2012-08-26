@@ -269,7 +269,10 @@ class NetworkParser {
 			// Get the mask string.
 			if ( XMLHelper::getAttribute(context, parameter, "context") ) {
 				if (!XMLHelper::getAttribute(target_value, parameter, "value", false))
-					target_value = - 1;
+               target_value = -1;
+            if (target_value < -1 || target_value > model.getMax(specie_ID))
+               throw std::invalid_argument(std::string("Target value of a regulation out of the specie's range in somer regulation of specie").append(toString(specie_ID)));
+
 				fillFromContext(context, specified, specie_ID, target_value);
 			}
 		}
