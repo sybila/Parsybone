@@ -123,6 +123,8 @@ class AutomatonBuilder {
             output_streamer.output(error_str, std::string("Error while parsing a propery subformula ").append(*atom).append(": ").append(e.what()));
             throw std::runtime_error("boost::lexical_cast<size_t, std::string>(atom->substr(0, symbol-1) failed");
          }
+         if (value < model.getMin(ID) || value > model.getMax(ID))
+            throw std::invalid_argument(std::string("Value of the specie out of specie range in the atom ").append(*atom));
 
          // Fill in all the values satisfying the atom
          if (atom->find("<") != std::string::npos)
