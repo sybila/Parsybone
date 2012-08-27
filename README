@@ -19,8 +19,20 @@ Output:
 	Data from the "verbose" stream are printed on lines starting with * 
 	Data from the "statistics" stream are printed on lines starting with #
 	Data from the "error" stream are printed on lines starting with !
+	
 	Results are printed without preposition in the form:
-	acceptable_parametrization_number:actual_parametrization_values:[cost]:[robustness_value]:[{comma_separated_array_of_transitions_within_paths_with_lowest_cost}]
+	acceptable_parametrization_number:actual_parametrization_values:[cost]:[robustness_value]:[{time_series_walks_transitions}]
+	- acceptable_parametrization_number; "\d" :
+		this number uniquely marks given parametrization and it corresponds to n-th leftmost iteration of target value corresponding to possible parametrization
+	- actual_parametrization_values; "\((\d,)*\d\)" :
+		values are of the form and each value corresponds to a single kinetic parameter, parameters are ordere increasingly by specie and for a single specie by iteration of the leftmost value
+	- cost; "\d" : 
+		a lenght in transitions of a shortest time series walk this parametrization is able to reproduce
+	- robustness_value; "\d\.\d" :
+		probability value of reaching the final state, robustness is always non-zero
+	- time_series_walks_transitions; "\{(X>X,)*X>X\}" where X is either "\d" or "\((\d,)*\d;\d\)"
+		sequence of transitions that occur in time series walks for this parametrization, state can be described either by its ID or by actuall values of the state in the form "(specie_0,..,specie_n;automaton)"
+		
 	
 Arguments:
 	Parsybone model_file.dbm [-rsvwW] [-d process_ID number_of_processes] [-f results_file] [-m input_mask_file] [-M output_mask_file]
