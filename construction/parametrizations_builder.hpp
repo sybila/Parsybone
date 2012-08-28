@@ -105,7 +105,7 @@ class ParametrizationsBuilder {
 			}
 
 			// Check observability, if it is required
-            if (!is_observable && regulations[regul_num].observable)
+         if (!is_observable && regulations[regul_num].observable)
 				return false;
 		}
 
@@ -132,6 +132,9 @@ class ParametrizationsBuilder {
 			if (testSubcolor(ID, subcolor))
 				valid.push_back(subcolor);
 		} while (iterate(top_color, bottom_color, subcolor));
+
+		if (valid.subcolors.empty())
+			throw std::runtime_error(std::string("No valid parametrization found for the specie ").append(toString(ID)));
 
 		// Add computed subcolors
 		parametrizations.colors.push_back(std::move(valid));
