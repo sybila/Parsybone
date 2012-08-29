@@ -63,7 +63,7 @@ public:
 
       // output numbers
       output_streamer.output(split_manager.getRoundNum(), OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
-                     .output(split_manager.getRoundCount(), OutputStreamer::no_newl);
+                     .output(split_manager.getRoundCount(), OutputStreamer::no_newl).output(":", OutputStreamer::no_newl);
 
       // add a new line if the result is not streamed to a file and there is any
       if (!output_streamer.isResultInFile())

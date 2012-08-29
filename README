@@ -10,7 +10,7 @@ Requirements:
 	Boost libraries v1.4.4
 	
 Building:
-	Apart from the boost libraries there are no additional dependencies. Makefile for the Unix* make tool is in the GCCProject folder.
+	Apart from the boost libraries there are no additional dependencies. For g++ one should currently specify usage of C++11 (-std=c++0x parameter).
 
 Execution:
 	Parsybone reads the model in a .dbm file, displays results and comments on the standard output and errors on the standard error output.
@@ -61,7 +61,7 @@ Model:
 	Attributes:	
 	1) 	ver:
 		Occurece: mandatory
-		Value: must be 1.0
+		Value: should be 1.0 for this form of the model
 
 	<STRUCTURE>
 	Occurence: single, mandatory

@@ -7,7 +7,8 @@
  */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This is the entry point of the program and also the only .cpp file used.
+/// Parsybone tool version 1.0.
+/// @file This is the entry point of the program and also the only .cpp file used.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "auxiliary/time_manager.hpp"
@@ -21,11 +22,11 @@
 #include "synthesis/synthesis_manager.hpp"
 
 /**
- * Linear execution of succesive parts of the parameter synthesis
+ * Linear execution of succesive parts of the parameter synthesis.
  */
 int main(int argc, char* argv[]) {
 	time_manager.startClock("runtime");
-	ConstructionHolder holder; ///< Object that will hold all the constructed data structures that are used as reference
+   ConstructionHolder holder; ///< Object that will hold all the constructed data structures that are used as reference.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
@@ -40,7 +41,7 @@ int main(int argc, char* argv[]) {
 		holder.fillModel(model);
 	}
 	catch (std::exception & e) {
-		output_streamer.output(error_str, std::string("Error occured while parsing input: ").append(e.what()));
+      output_streamer.output(error_str, std::string("Error occured while parsing input: \"").append(e.what()).append("\"."));
 		return 1;
 	}
 
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]) {
 		construction_manager.construct();
 	}
 	catch (std::exception & e) {
-		output_streamer.output(error_str, std::string("Error occured while constructing data structures: ").append(e.what()));
+      output_streamer.output(error_str, std::string("Error occured while constructing data structures: \"").append(e.what()).append("\"."));
 		return 2;
 	}
 
@@ -68,7 +69,7 @@ int main(int argc, char* argv[]) {
 		synthesis_manager.doSynthesis();
 	} 
 	catch (std::exception & e) {
-		output_streamer.output(error_str, std::string("Error occured while syntetizing the parameters: ").append(e.what()));
+      output_streamer.output(error_str, std::string("Error occured while syntetizing the parameters: \"").append(e.what()).append("\"."));
 		return 3;
 	}
 
