@@ -13,18 +13,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ProductBuilder creates the an automaton corresponding to the synchronous product of BA and KS.
-/// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4
+/// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ProductBuilder {
-	const ParametrizedStructure & structure; ///< Provides info about KS states
-	const AutomatonStructure & automaton; ///< Provides info about BA states
-	ProductStructure & product; ///< Product to build
+   const ParametrizedStructure & structure; ///< Provides info about KS states.
+   const AutomatonStructure & automaton; ///< Provides info about BA states.
+   ProductStructure & product; ///< Product to build.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Given this source BA state, find out all the target BA that are reachable under this KS state
+    * Given this source BA state, find out all the target BA that are reachable under this KS state.
 	 *
 	 * @param KS_ID	source KS state
 	 * @param BA_ID	source BA state
@@ -47,7 +47,7 @@ class ProductBuilder {
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Create set with indexes of final and initial states of the product
+    * Create set with indexes of final and initial states of the product.
 	 */
 	void markStates() {
 		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStateCount(); ba_state_num++) {
@@ -104,7 +104,7 @@ class ProductBuilder {
 
 public:
 	/**
-	 * Constructor just attaches the references of data holders
+    * Constructor just attaches the references of data holders.
 	 */
 	ProductBuilder(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product)
 		: structure(_structure), automaton(_automaton), product(_product){ }
@@ -115,7 +115,7 @@ public:
 	void buildProduct() {
 		output_streamer.output(stats_str, "Computing Synchronous product of the Buchi automaton and parametrized Kripke structure.");
 		output_streamer.output(stats_str,"Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
-				.output(structure.getStateCount() * automaton.getStateCount(), OutputStreamer::no_newl).output(".");
+                     .output(structure.getStateCount() * automaton.getStateCount(), OutputStreamer::no_newl).output(".");
 		std::size_t transition_count = 0;
 
 		// Creates states and their transitions
@@ -129,7 +129,7 @@ public:
 		markStates();
 
 		output_streamer.output(stats_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
-				.output(transition_count, OutputStreamer::no_newl).output(".");
+                     .output(transition_count, OutputStreamer::no_newl).output(".");
 	}
 };
 

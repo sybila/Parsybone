@@ -11,28 +11,26 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// This class stores feasible subcolors for each specie are stored with that specie ( a vector of all the possibilities for parametrization for this specie).
+/// @attention Subcolor means partial parametrizatrization ~ full parametrization of a single specie.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizationsHolder {
 	friend class ParametrizationsBuilder;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NEW TYPES AND DATA:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Holds all the feasible subcolors for single Specie w.r.t. edge constrains
 	struct SpecieColors {
-		SpecieID ID; ///< Unique ID of the specie
-		std::vector<std::vector<std::size_t> > subcolors; ///< Feasible subcolors of the specie
-		std::size_t possible_count; ///< Total number of subcolors possible for the specie(even those unfesible)
-		std::size_t acceptable_count; ///< Number of subcolors this state really has (equal to the subcolors.size())
+      SpecieID ID; ///< Unique ID of the specie.
+      std::vector<std::vector<std::size_t> > subcolors; ///< Feasible subcolors of the specie.
+      std::size_t possible_count; ///< Total number of subcolors possible for the specie(even those unfesible).
+      std::size_t acceptable_count; ///< Number of subcolors this state really has (equal to the subcolors.size()).
 
-		/// Add as new subcolor (to the end of the vector)
+      /// Add as new subcolor (to the end of the vector).
 		void push_back (std::vector<std::size_t> subcolor) {
 			subcolors.push_back(subcolor);
 			acceptable_count = subcolors.size(); // Add a reference value
 		}
 	};
 
-	/// Storage for all the vectors of subcolors for each specie
+   /// Storage for all the vectors of subcolors for each specie.
 	std::vector<SpecieColors> colors;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +40,7 @@ class ParametrizationsHolder {
 	ParametrizationsHolder& operator=(const ParametrizationsHolder & other); ///< Forbidden assignment operator.
 
 public:
-	ParametrizationsHolder() {} ///< Default empty constructor, needed to create an empty object that will be filled
+   ParametrizationsHolder() {} ///< Default empty constructor, needed to create an empty object that will be filled.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS
@@ -119,7 +117,7 @@ public:
 
 	/**
 	 * This function creates a string containing a parametrization from its ordinal number.
-	 * The string is in the form [specie_1_context_1, specie_2_context_2,...,specie_m_context_n]
+    * The string is in the form [specie_1_context_1, specie_2_context_2,...,specie_m_context_n].
 	 *
 	 * @param number	ordinal number of the parametrization to be converted
 	 *
@@ -168,7 +166,7 @@ public:
 			number = number % divisor;
 		}
 
-	return specie_vals;
+      return specie_vals;
 	}
 };
 

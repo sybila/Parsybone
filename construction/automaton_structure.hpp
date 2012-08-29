@@ -31,7 +31,7 @@ struct AutState : public AutomatonStateProperty<AutTransitionion> {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// AutomatonStructure stores B\"uchi automaton with edges labelled by values the KS can be in for the transition to be allowed.
-/// AutomatonStructure data can be set only form the AutomatonStructureBuilder object. Rest of the code can access the data only via constant getters.
+/// AutomatonStructure data can be set only from the AutomatonStructureBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonStructure : public AutomatonInterface<AutState> {
 	friend class AutomatonBuilder;
@@ -66,7 +66,7 @@ class AutomatonStructure : public AutomatonInterface<AutState> {
 	AutomatonStructure& operator=(const AutomatonStructure & other); ///< Forbidden assignment operator.
 
 public:
-	AutomatonStructure() {} ///< Default empty constructor
+   AutomatonStructure() {} ///< Default empty constructor.
 
 	/**
     * Checks if a transition of the BA is possible in the current state of a KS.

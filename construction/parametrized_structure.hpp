@@ -13,21 +13,21 @@
 #include "../auxiliary/common_functions.hpp"
 #include "graph_interface.hpp"
 
-/// Storing a single transition to neighbour state together with its transition function
+/// Storing a single transition to neighbour state together with its transition function.
 struct ParTransitionion : public TransitionProperty {
-	std::size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another
+   std::size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
 	std::vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
 	ParTransitionion(const StateID target_ID, const std::size_t _step_size, std::vector<bool>&& _transitive_values)
-		: TransitionProperty(target_ID), step_size(_step_size), transitive_values(std::move(_transitive_values)) {} ///< Simple filler, assigns values to all the variables
+      : TransitionProperty(target_ID), step_size(_step_size), transitive_values(std::move(_transitive_values)) {} ///< Simple filler, assigns values to all the variables.
 };
 
 /// Simple state enriched with transition functions
 struct ParState : public StateProperty<ParTransitionion> {
-	Levels species_level; ///< species_level[i] = activation level of specie i
+   Levels species_level; ///< Species_level[i] = activation level of specie i.
 
 	ParState(const StateID ID, const Levels& _species_level, const std::string && label)
-		: StateProperty<ParTransitionion>(ID, std::move(label)), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables
+      : StateProperty<ParTransitionion>(ID, std::move(label)), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables.
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,8 +35,7 @@ struct ParState : public StateProperty<ParTransitionion> {
 /// Each transition contains a function that causes it with explicit enumeration of values from the function that are transitive.
 /// To easily search for the values in the parameter bitmask, step_size of the function is added
 /// - that is the value saying how many bits of mask share the the same value for the function.
-/// ParametrizedStructure data can be set only form the ParametrizedStructureBuilder object.
-/// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
+/// ParametrizedStructure data can be set only from the ParametrizedStructureBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizedStructure : public GraphInterface<ParState> {
 	friend class ParametrizedStructureBuilder;
@@ -63,8 +62,8 @@ class ParametrizedStructure : public GraphInterface<ParState> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ParametrizedStructure(const ParametrizedStructure & other); ///<  Forbidden copy constructor.
-	ParametrizedStructure& operator=(const ParametrizedStructure & other); ///<  Forbidden assignment operator.
+   ParametrizedStructure(const ParametrizedStructure & other); ///< Forbidden copy constructor.
+   ParametrizedStructure& operator=(const ParametrizedStructure & other); ///< Forbidden assignment operator.
 
 public:
 	ParametrizedStructure() {} ///<  Default empty constructor

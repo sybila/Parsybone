@@ -14,21 +14,21 @@
 #include "automaton_structure.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// AutomatonBuilder transform graph of the automaton into set of transitions that know values necessary for transition to be feasible.
+/// AutomatonBuilder transform graph of the automaton into set of labeled transitions.
 /// Automaton is provided with string labels on the edges that are parsed and resolved for the graph.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonBuilder {
-	const Model & model; ///< Model that holds the data
-	AutomatonStructure & automaton; ///< Automaton that will be created
+   const Model & model; ///< Model that holds the data.
+   AutomatonStructure & automaton; ///< Automaton that will be created.
 
-   Levels maxes; ///< Maximal activity levels of the species
-   Levels mins; ///< Minimal activity levels of the species
+   Levels maxes; ///< Maximal activity levels of the species.
+   Levels mins; ///< Minimal activity levels of the species.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION FUNCTIONS:
+// COMPUTATION METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
    /**
-    * Compute a vector of maximal levels and store information about states
+    * Compute a vector of maximal levels and store information about states.
     */
    void computeBoundaries() {
       for(std::size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
@@ -39,7 +39,7 @@ class AutomatonBuilder {
    }
 
    /**
-    * Create a set with values from the range [start, end]
+    * Create a set with values from the range [start, end].
     */
    const std::set<std::size_t> fillInterval(const std::size_t start, const std::size_t end) const {
       std::set<std::size_t> interval;
@@ -50,11 +50,10 @@ class AutomatonBuilder {
    }
 
    /**
-    * For each atom decide its valuation in the current state
+    * For each atom decide its valuation in the current state.
     */
-   const std::map<std::string, bool> getValuation(const std::vector<std::string> & atoms,
-      const std::vector<std::pair<SpecieID, std::set<std::size_t> > > & values, const Levels & levels) const {
-
+   const std::map<std::string, bool> getValuation(const std::vector<std::string> & atoms, const std::vector<std::pair<SpecieID, std::set<std::size_t> > > & values,
+                                                  const Levels & levels) const {
       // Go through atoms
       std::map<std::string, bool> valuation;
       for (std::size_t atom_num = 0; atom_num < atoms.size(); atom_num++) {
@@ -68,7 +67,7 @@ class AutomatonBuilder {
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARSING FUNCTIONS:
+// PARSING METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
    /**
@@ -99,7 +98,7 @@ class AutomatonBuilder {
 
 
    /**
-    * For each atom, compute possible values of the specie in which the atom is true
+    * For each atom, compute possible values of the specie in which the atom is true.
     */
    std::vector<std::pair<SpecieID, std::set<std::size_t> > > getValues(const std::vector<std::string> atoms) const {
       std::vector<std::pair<SpecieID, std::set<std::size_t> > > values;
@@ -159,19 +158,19 @@ class AutomatonBuilder {
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING FUNCTIONS:
+// CONSTRUCTING METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	AutomatonBuilder(const AutomatonBuilder & other); ///< Forbidden copy constructor.
 	AutomatonBuilder& operator=(const AutomatonBuilder & other); ///< Forbidden assignment operator.
 
 	/**
-	 * Creates transitions from labelled edges of BA and passes them to automaton structure
+    * Creates transitions from labelled edges of BA and passes them to automaton structure.
 	 *
 	 * @param state_num	index of the state of BA 
 	 * @param start_position	index of the last transition created
 	 */
 	void addTransitions(const StateID ID, std::size_t & transition_count) const {
-		const std::vector<Model::Egde> & edges = model.getEdges(ID); 
+      const std::vector<Model::Egde> & edges = model.getEdges(ID);
 
 		// Transform each edge into transition and pass it to the automaton
 		for (std::size_t edge_num = 0; edge_num < model.getEdges(ID).size(); edge_num++) {
@@ -187,14 +186,14 @@ class AutomatonBuilder {
 
 public:
 	/**
-	 * Constructor just attaches the references to data holders
+    * Constructor computes boundaries of the state space and passes references.
 	 */
    AutomatonBuilder(const Model & _model, AutomatonStructure & _automaton) : model(_model), automaton(_automaton) {
       computeBoundaries();
 	}
 
 	/**
-	 * Create the transitions from the model and fill the automaton with them
+    * Create the transitions from the model and fill the automaton with them.
 	 */
 	void buildAutomaton() {
 		output_streamer.output(stats_str, "Costructing Buchi automaton.");

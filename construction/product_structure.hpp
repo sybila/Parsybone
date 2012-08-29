@@ -13,16 +13,16 @@
 #include "../construction/automaton_structure.hpp"
 #include "../construction/parametrized_structure.hpp"
 
-/// Storing a single transition to a neighbour state together with its transition function
+/// Storing a single transition to a neighbour state together with its transition function.
 struct ProdTransitiontion : public TransitionProperty {
-	std::size_t step_size; ///<  How many bits of a parameter space bitset is needed to get from one targe value to another
+   std::size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
 	std::vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
 	ProdTransitiontion(const StateID target_ID, const std::size_t _step_size, const std::vector<bool>& _transitive_values)
-		: TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {} ///< Simple filler, assigns values to all the variables
+      : TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {} ///< Simple filler, assigns values to all the variables.
 };
 
-// State of the product - same as the state of parametrized structure but together with BA state
+/// State of the product - same as the state of parametrized structure but put together with a BA state.
 struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
 	StateID KS_ID; ///< ID of an original KS state this one is built from
 	StateID BA_ID; ///< ID of an original BA state this one is built from
@@ -37,20 +37,20 @@ struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
 /// This is the final step of construction - a structure that is acutally used during the computation. For simplicity, it copies data from its predecessors (BA and PKS).
 /// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4.
 ///
-/// ProductStructure data can be set only form the ProductBuilder object.
+/// ProductStructure data can be set only from the ProductBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ProductStructure : public AutomatonInterface<ProdState> {
 	friend class ProductBuilder;
 	
 	// References to data predecessing data structures
-	const ParametrizedStructure & structure; ///< Stores info about KS states, used in the getString function
-	const AutomatonStructure & automaton; ///< Stores info about BA states, used in the getString function
+   const ParametrizedStructure & structure; ///< Stores info about KS states, used in the getString function.
+   const AutomatonStructure & automaton; ///< Stores info about BA states, used in the getString function.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS (can be used only from ProductBuilder)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Add a new state, only with ID and levels
+    * Add a new state, only with ID and levels.
 	 */
 	inline void addState(const StateID KS_ID, const StateID BA_ID, const bool initial, const bool final, const Levels & species_level) {
 		// Create the state label
@@ -62,9 +62,9 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 	}
 
 	/**
+    * Add a new transition with all its values.
+    *
 	 * @param ID	add data to the state with this IS
-	 *
-	 * Add a new transition with all its values
 	 */
 	inline void addTransition(const StateID ID, const StateID target_ID, const std::size_t step_size, const std::vector<bool> & transitive_values) {
 		states[ID].transitions.push_back(ProdTransitiontion(target_ID, step_size, transitive_values));
@@ -73,12 +73,12 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProductStructure(const ProductStructure & other);            // Forbidden copy constructor.
-	ProductStructure& operator=(const ProductStructure & other); // Forbidden assignment operator.
+   ProductStructure(const ProductStructure & other); ///< Forbidden copy constructor.
+   ProductStructure& operator=(const ProductStructure & other); ///< Forbidden assignment operator.
 
 public:
 	ProductStructure(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
-		: structure(_structure), automaton(_automaton) { }
+      : structure(_structure), automaton(_automaton) {} ///< Default constructor, only passes the data.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REFORMING GETTERS

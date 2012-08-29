@@ -10,10 +10,15 @@
 #define PARSYBONE_GRAPH_INTERFACE_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// @file This file holds abstract basis for a graph with states and transitions between the states.
+/// Graph is parametrized by state and state is parametrized by transition. Basic state and transition are also defined here.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// This is just a very simple basis for a transition in a graph.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct TransitionProperty {
-   /// unique ID of the state
+   /// Unique ID of the state.
    StateID target_ID;
 
    /**
@@ -27,15 +32,15 @@ struct TransitionProperty {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename Transition>
 struct StateProperty {
-   /// unique ID of the state
+   /// Unique ID of the state.
    StateID ID;
-   /// label of the state (usually a number or series of numbers) descibing this state
+   /// Label of the state (usually a number or series of numbers) descibing the state.
    std::string label;
-   /// Graph or automaton transitions, basically it is an edge with a label
+   /// Graph or automaton transitions, basically it is an edge with a label.
    std::vector<Transition> transitions;
 
    /**
-    * Basic constructor fills in the ID.
+    * Basic constructor that fills in the ID and label.
     */
    StateProperty<Transition>(const StateID _ID, const std::string && _label) : ID(_ID), label(std::move(_label)) { }
 };
@@ -47,7 +52,7 @@ struct StateProperty {
 template <typename StateT>
 class GraphInterface {
 protected:
-	std::vector<StateT> states;
+   std::vector<StateT> states; ///< Vector holding states of the graph.
 
 public:
 	/**

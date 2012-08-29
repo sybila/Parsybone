@@ -6,11 +6,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// This is a static helper class able of resolving any preposition logic formula.
 /// Formula construction:
-///   -# \f$tt\f$ (true) and \f$ff\f$ (false) are formulas representing true and false respectively
-///	-# any variable is a formula
-///   -# for \f$\varphi\f$ formula is \f$!\varphi\f$ formula
-///   -# for \f$\psi, \varphi\f$ formulas are \f$(\psi|\varphi)\f$, \f$(\psi&\varphi)\f$ formulas representing logical disjunction and conjunction respectively
-///   -# nothing else is a formula
+///   -# \f$tt\f$ (true) and \f$ff\f$ (false) are formulas representing true and false respectively,
+///	-# any variable is a formula,
+///   -# for \f$\varphi\f$ formula is \f$!\varphi\f$ formula,
+///   -# for \f$\psi, \varphi\f$ formulas are \f$(\psi|\varphi)\f$, \f$(\psi&\varphi)\f$ formulas representing logical disjunction and conjunction respectively,
+///   -# nothing else is a formula.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FormulaeParser {
    enum error_val {err_parent, err_symbols, err_notfound}; ///< Enumeration denoting error type that occured during evaluation / parsing.

@@ -20,15 +20,15 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class BasicStructureBuilder {
 	// Provided with constructor
-	const Model & model; ///< Model that holds the data
-	const std::size_t species_count; ///< Number of species of the model
-   BasicStructure & structure; ///< KipkeStructure to fill
+   const Model & model; ///< Model that holds the data.
+   const std::size_t species_count; ///< Number of species of the model.
+   BasicStructure & structure; ///< KipkeStructure to fill.
 
 	// Computed
-	std::size_t states_count; ///< Number of states in this KS (exponential in number of species)
-	std::vector<std::size_t> index_jumps; ///< Holds index differences between two neighbour states in each direction for each specie
-	Levels maxes; ///< Maximal activity levels of the species
-	Levels mins; ///< Minimal activity levels of the species
+   std::size_t states_count; ///< Number of states in this KS (exponential in number of species).
+   std::vector<std::size_t> index_jumps; ///< Holds index differences between two neighbour states in each direction for each specie.
+   Levels maxes; ///< Maximal activity levels of the species.
+   Levels mins; ///< Minimal activity levels of the species.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING FUNCTIONS:
@@ -127,7 +127,7 @@ public:
 	 */
 	void buildStructure() {
 		output_streamer.output(stats_str, "Computing Kripke Structure.");
-		output_streamer.output(stats_str,"Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab).output(states_count, OutputStreamer::no_newl).output(".");
+      output_streamer.output(stats_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab).output(states_count, OutputStreamer::no_newl).output(".");
 		std::size_t transition_count = 0;
 
 		// Create initial state (by its values)

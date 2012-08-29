@@ -21,9 +21,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizedStructureBuilder {
 	// Provided with the constructor
-	const BasicStructure & basic_structure; ///< Provider of basic KS data
-	const LabelingHolder & regulatory_functions; ///< Provider of implicit functions
-	ParametrizedStructure & structure; ///< KipkeStructure to fill
+   const BasicStructure & basic_structure; ///< Provider of basic KS data.
+   const LabelingHolder & regulatory_functions; ///< Provider of implicit functions.
+   ParametrizedStructure & structure; ///< KipkeStructure to fill.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TESTING FUNCTIONS:
@@ -31,11 +31,11 @@ class ParametrizedStructureBuilder {
 	/**
 	 * Test wheather the current state corresponds to the requirements put on values of the specified species.
 	 * 
-	 * @param source_species	Species that can possibly regulate the target
-	 * @param source_values	In which levels the species have to be for regulation to be active
+    * @param source_species	species that can possibly regulate the target
+    * @param source_values	in which levels the species have to be for regulation to be active
 	 * @param state_levels	activation levels of the current state
 	 *
-	 * @return true it the state satisfy the requirments
+    * @return true it the state satisfy the requirements
 	 */
 	const bool testRegulators(const std::vector<StateID> & source_species, const std::vector<std::vector<std::size_t> > & source_values, const Levels & state_levels) {
 		// List throught regulating species of the function
@@ -55,6 +55,7 @@ class ParametrizedStructureBuilder {
 				return false;
 			}
 		}
+
 		// Return true if all species passed.
 		return true;
 	}
@@ -63,7 +64,7 @@ class ParametrizedStructureBuilder {
 	 * Obtain index of the function that might lead to the specified state based on current activation levels of the species and target state.
 	 * 
 	 * @param neighbour_num	index of the neighbour state. Specie that change is used to determine wich function to use.
-	 * @state_levels	species level of the state we are currently at
+    * @param state_levels	species level of the state we are currently at
 	 *
 	 * @return function that might lead to the next state
 	 */
@@ -125,12 +126,11 @@ class ParametrizedStructureBuilder {
 	}
 
 	/**
-	 * Fill properties of the specified transition for the CMC procedure
+    * Fill properties of the specified transition for the CMC procedure.
 	 * 
 	 * @param ID	ID of this state in KS
 	 * @param neighbour_index	index of the neighbour state. Specie that change is used to determine wich function to use.
 	 * @param state_levels	species level of the state we are currently at
-	 * Data to fill:
 	 * @param function_num	ID of the active function
 	 * @param step_size	step size of the function
 	 * @param transitive_values	those parameter values that does not cause transition
@@ -164,10 +164,10 @@ class ParametrizedStructureBuilder {
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
+    * For each existing neighbour add a transition to the newly created state
+    *
 	 * @param ID	state from which the transitions should lead
 	 * @param state_levels	activation levels in this state
-	 *
-	 * For each existing neighbour add a transition to the newly created state
 	 */
 	void addTransitions(const StateID ID, const Levels & state_levels) {
 		// Go through all the original transitions
@@ -185,19 +185,19 @@ class ParametrizedStructureBuilder {
 		}	
 	}
 	
-	ParametrizedStructureBuilder(const ParametrizedStructureBuilder & other); ///<  Forbidden copy constructor.
-	ParametrizedStructureBuilder& operator=(const ParametrizedStructureBuilder & other); ///<  Forbidden assignment operator.
+   ParametrizedStructureBuilder(const ParametrizedStructureBuilder & other); ///< Forbidden copy constructor.
+   ParametrizedStructureBuilder& operator=(const ParametrizedStructureBuilder & other); ///< Forbidden assignment operator.
 
 public:
 	/**
-	 * Constructor just attaches the references to data holders
+    * Constructor just attaches the references to data holders.
 	 */
 	ParametrizedStructureBuilder(const BasicStructure & _basic_structure, const LabelingHolder & _regulatory_functions, ParametrizedStructure & _structure) 
         : basic_structure(_basic_structure), regulatory_functions(_regulatory_functions), structure(_structure)  {
 	}
 
 	/**
-	 * Create the states from the model and fill the structure with them.
+    * Create the states from the model and fill the structure with them.
 	 */
 	void buildStructure() {
 		output_streamer.output(stats_str, "Merging the kinetic functions and the basic Kripke structure into a parametrized Kripke structure.");
