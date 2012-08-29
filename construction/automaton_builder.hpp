@@ -72,7 +72,7 @@ class AutomatonBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
    /**
-    * Obtain a vector of individual atoms form the label (their values will then be resolved for valuation).
+    * Obtain a vector of individual atoms from the label (their values will then be resolved for valuation).
     */
    std::vector<std::string> getAtoms(const std::string & label) const {
       std::vector<std::string> atoms;
@@ -189,8 +189,7 @@ public:
 	/**
 	 * Constructor just attaches the references to data holders
 	 */
-	AutomatonBuilder(const Model & _model, AutomatonStructure & _automaton) 
-		            : model(_model), automaton(_automaton) {
+   AutomatonBuilder(const Model & _model, AutomatonStructure & _automaton) : model(_model), automaton(_automaton) {
       computeBoundaries();
 	}
 
@@ -200,7 +199,7 @@ public:
 	void buildAutomaton() {
 		output_streamer.output(stats_str, "Costructing Buchi automaton.");
 		output_streamer.output(stats_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
-			.output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
+                     .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
 		std::size_t transition_count = 0;
 
 		// List throught all the automaton states
@@ -212,7 +211,7 @@ public:
 		}
 
 		output_streamer.output(stats_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
-			.output(transition_count, OutputStreamer::no_newl).output(".");
+                     .output(transition_count, OutputStreamer::no_newl).output(".");
 	}
 };
 

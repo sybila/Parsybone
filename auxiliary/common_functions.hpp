@@ -15,7 +15,6 @@
 
 #include "data_types.hpp"
 #include "output_streamer.hpp"
-#include "boost/lexical_cast.hpp"
 
 // Platform dependent min or max
 #ifdef __GNUC__
@@ -29,8 +28,8 @@
 /**
  * Apply function on all the data stored within the object. 
  *
- * @param obj	object storing the data, must have begin() and end() methods
- * @param fun	pointer to the function to apply
+ * @param[in,out] obj	object storing the data, must have begin() and end() methods
+ * @param[in] fun	pointer to the function to apply
  *
  * @return provided function (usually unnamed function)
  */
@@ -43,18 +42,18 @@ Function forEach(Object & obj, Function fun)
 /**
  * Conversion of basic types to std::string data type. If an error occurs, displays it and throws an exception.
  *
- * @param data variable to convert
+ * @param[in] data variable to convert
  *
- * @return converted string
+ * @return  converted string
  */
 template<class basic_T>
 std::string toString(basic_T data) {
 	std::string result;
 	try {
-		 result = std::move(boost::lexical_cast<std::string, basic_T>(data));
+      result = std::move(boost::lexical_cast<std::string, basic_T>(data));
 	} catch (boost::bad_lexical_cast e) {
 		output_streamer.output(error_str, "Error occured while trying to cast a varible", OutputStreamer::no_newl)
-				.output(data, OutputStreamer::no_newl).output(" to a string: ", OutputStreamer::no_newl).output(e.what());
+                     .output(data, OutputStreamer::no_newl).output(" to a string: ", OutputStreamer::no_newl).output(e.what());
 		throw std::runtime_error("boost::lexical_cast<std::string, basic_T>(data)) failed");
 	}
 	return result;
@@ -62,18 +61,28 @@ std::string toString(basic_T data) {
 
 /**
  * increases integral value by 1
+ *
+ * @param[in,out] val  reference to value that will be increased
  */
 template<class integral_T>
 void increase(typename std::vector<integral_T>::reference val) {val++;}
 
 /**
  * increases boolean value to true
+ *
+ * @param[in,out] val  reference to value that will be increased
  */
 template<>
 void increase<bool>(std::vector<bool>::reference val) {val = true;}
 
 /**
  * Iterates values from left to right if it is possible. If so, return true, otherwise return false.
+ *
+ * @param[in] top vector of maximal values each component can reach
+ * @param[in] bottom vector of minimal values each component can reach
+ * @param[in,out] interated   vector of values to iterate
+ *
+ * @return  true if the iteration was valid, false if it caused overflow (iterated > bottom)
  */
 template<class integral_T>
 bool iterate(const std::vector<integral_T> & top, const std::vector<integral_T> & bottom, std::vector<integral_T> & interated) {

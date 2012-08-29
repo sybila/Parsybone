@@ -205,7 +205,7 @@ public:
 
 private:
 	/**
-	 * method that makes formatted ouput
+    * Method that puts the data on the stream
 	 *
 	 * @param stream	reference to the ostream that gets the data
 	 * @param stream_data	provided content
@@ -228,6 +228,6 @@ private:
 		if (!testTrait(no_newl, trait_mask))
 			stream << std::endl;
 	}
-} output_streamer; // Single program-shared output file
+} output_streamer; ///< Single program-shared output object
 
 #endif // PARSYBONE_OUTPUT_STREAMER_INCLUDED

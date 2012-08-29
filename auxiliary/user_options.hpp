@@ -23,11 +23,11 @@ class UserOptions {
 // OPTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
-	bool display_stats; ///< Display data from statistics stream (verbose_str), mainly states and transition counts
+   bool display_stats; ///< Display data from statistics stream (stats_str), mainly states and transition counts
    bool time_series; ///< Work with the property as with a time series (meaning check only reachability property)
 	bool compute_robustness; ///< Should robustness value be computed and displyed?
 	bool compute_wintess; ///< Should witnesses be computed and displayed?
-	bool use_long_witnesses; ///< How witnesses should be displayed?
+   bool use_long_witnesses; ///< How witnesses should be displayed - complete state or only ID?
    bool use_in_mask; ///< Is there a paramset mask on the input?
    bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
 	std::size_t process_number; ///< What is the ID of this process?
@@ -69,7 +69,7 @@ public:
 	 * @return	true if additional analysis will be computed (witnesses/robustness)
 	 */
 	inline const bool analysis() const {
-		return (compute_robustness || compute_wintess);
+      return (compute_robustness | compute_wintess);
 	}
 
 	/**
