@@ -10,25 +10,24 @@
 #define PARSYBONE_ROBUSTNESS_COMPUTE_INCLUDE
 
 #include "witness_searcher.hpp"
-#include <float.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Class responsible for computation of robustness values for each acceptable parametrization.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class RobustnessCompute {
-   const ProductStructure & product; ///< Product reference for state properties
-   const ColorStorage & storage; ///< Constant storage with the actuall data
-   const WitnessSearcher & searcher; ///< Reference to the searcher that contains transitions
+   const ProductStructure & product; ///< Product reference for state properties.
+   const ColorStorage & storage; ///< Constant storage with the actuall data.
+   const WitnessSearcher & searcher; ///< Reference to the searcher that contains transitions.
 
-   /// This structure holds values used in the iterative process of robustness computation
+   /// This structure holds values used in the iterative process of robustness computation.
    struct Marking {
       std::vector<unsigned char> exits; ///< For each parametrization stores a number of transitions this state can be left through under given parametrization.
-      std::vector<double> current_prob; ///< For each parametrization stores current probability of reaching
-      std::vector<double> next_prob; ///< For each parametrizations will store the probability in the next round
+      std::vector<double> current_prob; ///< For each parametrization stores current probability of reaching.
+      std::vector<double> next_prob; ///< For each parametrizations will store the probability in the next round.
    };
 
-   std::vector<Marking> markings; /// Marking of all states
-   std::vector<double> results; /// Resultig probability for each parametrization
+   std::vector<Marking> markings; /// Marking of all states.
+   std::vector<double> results; /// Resultig probability for each parametrization.
 
    /**
     * Clear data objects used throughout the whole computation process.
@@ -43,7 +42,7 @@ class RobustnessCompute {
    }
 
    /**
-    * For each state compute how many exists are under each parametrization
+    * For each state compute how many exists are under each parametrization.
     */
    void computeExits() {
       Paramset current_mask = paramset_helper.getLeftOne();
@@ -69,7 +68,7 @@ class RobustnessCompute {
    }
 
    /**
-    * Set probability of each initial state to 1.0 / number of initial states for this parametrization
+    * Set probability of each initial state to 1.0 / number of used initial states for this parametrization.
     */
    void initiate() {
       // Cycle through vectors of initial states for every parametrization
@@ -84,7 +83,7 @@ class RobustnessCompute {
    }
 
    /**
-    * Compute the resulting values as a sum of probabilites of reaching any state
+    * Compute the resulting values as a sum of probabilites of reaching any state.
     */
    void finish() {
       forEach(product.getFinalStates(), [&](StateID ID) {
@@ -99,7 +98,7 @@ class RobustnessCompute {
 
 public:
    /**
-    * Constructor ensures that data objects used within the whole computation process have appropriate size
+    * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
    RobustnessCompute(const ConstructionHolder & _holder, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
       : product(_holder.getProduct()), storage(_storage), searcher(_searcher) {
@@ -112,7 +111,7 @@ public:
    }
 
    /**
-    * Function that computes robustness values for each parametrization
+    * Function that computes robustness values for each parametrization.
     */
    void compute() {
       clear();
@@ -145,7 +144,7 @@ public:
    }
 
    /**
-    * Reformates the Robustness computed to strings. Nothing is produced for parametrizations with 0 robustness.
+    * Reformes the Robustness values computed to strings. Nothing is produced for parametrizations with 0 robustness.
     *
     * @return  a vector of robustness strings
     */

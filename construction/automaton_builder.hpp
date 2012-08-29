@@ -214,4 +214,4 @@ public:
 	}
 };
 
-#endif
+#endif // PARSYBONE_AUTOMATON_BUILDER_INCLUDED

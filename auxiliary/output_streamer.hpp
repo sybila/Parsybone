@@ -168,7 +168,7 @@ public:
 			}
 			break;
         case results_str:
-            // This is the only stream that is not-formatted.
+            // This is the only stream that is not enhanced.
             break;
 		}
 		// Continue with output, then return this object

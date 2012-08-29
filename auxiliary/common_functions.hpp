@@ -6,8 +6,8 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_COMMON_FUNCTIONS_INCLUDED
-#define PARSYBONE_COMMON_FUNCTIONS_INCLUDED
+#ifndef PARSYBONE_COMMON_METHODS_INCLUDED
+#define PARSYBONE_COMMON_METHODS_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @file This file contains functions that may be usable throughout the whole program, mainly templates.
@@ -100,4 +100,4 @@ bool iterate(const std::vector<integral_T> & top, const std::vector<integral_T> 
 	return true;
 }
 
-#endif // PARSYBONE_COMMON_FUNCTIONS_INCLUDED
+#endif // PARSYBONE_COMMON_METHODS_INCLUDED

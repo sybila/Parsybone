@@ -18,16 +18,16 @@
 /// All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SplitManager {
-	ColorNum all_colors_count; ///< All the parameters
-	ColorNum process_color_count; ///< All the parameters
-	std::size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process
-	RoundNum rounds_count; ///< Number of rounds totally
-	RoundNum round_number; ///< Number of this round (starting from 0)
-	ColorNum round_begin; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters)
-	ColorNum round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters)
+   ColorNum all_colors_count; ///< All the parameters.
+   ColorNum process_color_count; ///< All the parameters.
+   std::size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
+   RoundNum rounds_count; ///< Number of rounds totally.
+   RoundNum round_number; ///< Number of this round (starting from 0).
+   ColorNum round_begin; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
+   ColorNum round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION FUNCTIONS
+// COMPUTATION METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * This function computes index of the first parameter, size of a single round, number of rounds and other auxiliary data members used for splitting.
@@ -57,12 +57,11 @@ class SplitManager {
       if (user_options.inputMask())
 			if (coloring_parser.getColors().size() != rounds_count)
 				throw std::runtime_error(std::string("Rounds computed from bitmask: ").append(boost::lexical_cast<std::string>(coloring_parser.getColors().size()))
-				                         .append(" does not equal round count computed from model: ")
-                                         .append(toString(rounds_count).c_str()));
+                                     .append(" does not equal round count computed from model: ").append(toString(rounds_count).c_str()));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION FUNCTIONS
+// CREATION METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 	/**
@@ -84,16 +83,21 @@ public:
 	void setStartPositions() {
 		round_begin = (user_options.procNum() - 1) * paramset_helper.getParamsetSize();
 		round_end = round_begin + paramset_helper.getParamsetSize();
-		round_number = 0;
+      round_number = 1;
 	}
 
 	/**
 	 * Increase parameter positions so a new round can be computed.
+    *
+    * @return  true if the increase is possible
 	 */
-	void increaseRound() {
-		round_number++;
+   bool increaseRound() {
+      if (++round_number > rounds_count)
+         return false;
+
 		round_begin += (paramset_helper.getParamsetSize() * user_options.procCount());
 		round_end = round_begin + paramset_helper.getParamsetSize();
+      return true;
 	}
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,14 +135,7 @@ public:
 	 * @return	true if this round is not the last
 	 */ 
 	inline const bool lastRound() const {
-		return (round_number + 1) == rounds_count;
-	}
-
-	/**
-	 * @return	true if current round is valid (this round does not correspond to any paramteres)
-	 */ 
-	inline const bool valid() const {
-		return round_number < rounds_count;
+      return round_number == rounds_count;
 	}
 
 	/**
@@ -156,7 +153,7 @@ public:
 	}
 
 	/**
-	 * @return All the parameters of the current round - for the last round, finish has to be cropped.
+    * @return all the parameters of the current round - for the last round, finish has to be cropped
 	 */
 	inline Paramset createStartingParameters() const {
 		if (!lastRound())
@@ -166,4 +163,4 @@ public:
 	}
 };
 
-#endif
+#endif // PARSYBONE_SPLIT_MANAGER_INCLUDED

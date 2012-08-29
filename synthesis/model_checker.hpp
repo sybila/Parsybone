@@ -15,33 +15,33 @@
 #include "paramset_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ModelChecker class solves the parameter synthesis problem by iterative transfer parameters from initial states to final ones.
+/// ModelChecker class solves the parameter synthesis problem by iterative transfer of feasible parametrizations from initial states to final ones.
 /// Functions in model checker use many supporting variables and therefore are quite long, it would not make sense to split them, though.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelChecker {
 	// Information
-	const ProductStructure & product; ///< Product on which the computation will be conducted
-	Range synthesis_range; ///< First and one beyond last color to be computed in this round
-   StateID starting_state; ///< State from which the synthesis goes during the general LTL search
+   const ProductStructure & product; ///< Product on which the computation will be conducted.
+   Range synthesis_range; ///< First and one beyond last color to be computed in this round.
+   StateID starting_state; ///< State from which the synthesis goes during the general LTL search.
 
 	// Coloring storage
-	ColorStorage & storage; ///< Class that actually stores colors during the computation
-	ColorStorage next_round_storage; ///< Class that stores updated colors for next round (prevents multiple transitions through one BFS round)
-	std::set<StateID> updates; ///< Set of states that need to spread their updates
-	std::set<StateID> next_updates; ///< Updates that are sheduled forn the next round
+   ColorStorage & storage; ///< Class that actually stores colors during the computation.
+   ColorStorage next_round_storage; ///< Class that stores updated colors for next round (prevents multiple transitions through one BFS round).
+   std::set<StateID> updates; ///< Set of states that need to spread their updates.
+   std::set<StateID> next_updates; ///< Updates that are sheduled forn the next round.
 
 	// BFS boundaries
-	Paramset starting; ///< Mask of parameters provided for this round
-	Paramset to_find; ///< Mask of parameters that are still not found
-	Paramset restrict_mask; ///< Mask of parameters that are secure to left out
-	std::vector<std::size_t> BFS_reach; ///< In which round this color was found
-	std::size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions
+   Paramset starting; ///< Mask of parameters provided for this round.
+   Paramset to_find; ///< Mask of parameters that are still not found.
+   Paramset restrict_mask; ///< Mask of parameters that are secure to left out.
+   std::vector<std::size_t> BFS_reach; ///< In which round this color was found.
+   std::size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
 
 	// Other
-	std::vector<bool> BA_presence; ///< Vector that marks IDs of BA states under which self-loop is possible this round, used to update only with "sink" parametrizations
+   std::vector<bool> BA_presence; ///< Vector that marks IDs of BA states under which self-loop is possible this round, used to update only with "sink" parametrizations.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTING FUNCTIONS:
+// COMPUTING METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	/**
 	 * Main function of coloring - creates intersection of passing and transition colors to create and update color.
@@ -87,7 +87,7 @@ class ModelChecker {
 	}
 
 	/**
-	 * From all the updates pick the one from the state with most bits
+    * From all the updates pick the one from the state with most bits.
 	 *
 	 * @return	index of the state to start an update from
 	 */
@@ -111,8 +111,7 @@ class ModelChecker {
 
 	/**
 	 * For each found color add this BFS level as a first when the state was updated, if it was not already found.
-     * This function can be called within a single round (
-     *
+    *
 	 * @param colors	current coloring
 	 */
 	void markLevels(const Paramset colors) {
@@ -133,10 +132,10 @@ class ModelChecker {
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COLORING FUNCTIONS:
+// COLORING METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Get stripped parameters for each unique edge (if there are multi-edges, intersect their values)
+    * Get stripped parameters for each unique edge (if there are multi-edges, intersect their values).
 	 *
 	 * @param ID	ID of the source state in the product
 	 * @param parameters	parameters that will be distributed
@@ -258,12 +257,12 @@ class ModelChecker {
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING FUNCTIONS:
+// CONSTRUCTING METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Sets/resets all coloring reference values;
+    * Sets/resets all coloring reference values.
 	 *
-	 * @param parameters	starting parameters for the cycle detection
+    * @param parameters starting parameters for the cycle detection
 	 * @param _range	range of parameters for this coloring round
 	 * @param _updates	states that are will be scheduled for an update in this round
 	 */
@@ -283,11 +282,11 @@ class ModelChecker {
 
 public:
 	/**
-     * Constructor, passes the data and sets up auxiliary storage
+    * Constructor, passes the data and sets up auxiliary storage.
 	 */
-    ModelChecker(const ConstructionHolder & holder, ColorStorage & _storage) : product(holder.getProduct()), storage(_storage) {
-        BA_presence.resize(holder.getAutomatonStructure().getStateCount(), false);
-        next_round_storage = storage; // Create an identical copy of the storage.
+   ModelChecker(const ConstructionHolder & holder, ColorStorage & _storage) : product(holder.getProduct()), storage(_storage) {
+      BA_presence.resize(holder.getAutomatonStructure().getStateCount(), false);
+      next_round_storage = storage; // Create an identical copy of the storage.
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

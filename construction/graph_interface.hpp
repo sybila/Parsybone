@@ -99,4 +99,4 @@ public:
 	}
 };
 
-#endif
+#endif // PARSYBONE_GRAPH_INTERFACE_INCLUDED

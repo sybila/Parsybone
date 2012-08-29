@@ -42,9 +42,9 @@ class SynthesisManager {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Setup everything that needs it for computation in this round
+    * Setup everything that needs it for computation in this round.
 	 */
 	void doPreparation() {
 		// Assure emptyness
@@ -56,7 +56,7 @@ class SynthesisManager {
 	}
 
 	/**
-	 * Store results that have not been stored yet and finalize the round where needed
+    * Store results that have not been stored yet and finalize the round where needed.
 	 */
 	void doConclusion() {
 		total_colors += paramset_helper.count(analyzer->getMask());
@@ -143,7 +143,7 @@ class SynthesisManager {
 
 public:
 	/**
-	 * Constructor builds all the data objects that are used within
+    * Constructor builds all the data objects that are used within.
 	 */
 	SynthesisManager(const ConstructionHolder & _holder) : holder(_holder) {
 		// Create classes that help with the synthesis
@@ -162,21 +162,21 @@ public:
 // SYNTHESIS ENTRY FUNCTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Main synthesis function that iterates through all the rounds of the synthesis
+    * Main synthesis function that iterates through all the rounds of the synthesis.
 	 */
 	void doSynthesis() {
 		time_manager.startClock("coloring");
 
 		// Do the computation for all the rounds
-		for (;split_manager->valid(); split_manager->increaseRound()) {
+      do {
 			doPreparation();
 			doComputation();
 			doConclusion();
-		}
+      } while (split_manager->increaseRound());
 
 		time_manager.ouputClock("coloring");
 		output->outputSummary(total_colors);
 	}
 };
 
-#endif
+#endif // PARSYBONE_SYNTHESIS_MANAGER_INCLUDED

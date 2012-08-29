@@ -11,35 +11,35 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
-#include "paramset_helper.hpp"
 #include "../construction/construction_holder.hpp"
+#include "paramset_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ColorStorage is auxiliary class to the product and stores colors and possibly predecessors for individual states of the product during the computation.
+/// ColorStorage is an auxiliary class to the ProductStructure and stores colors and possibly predecessors for individual states of the product during the computation.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ColorStorage {
 	struct State {
-		StateID ID; ///< unique ID of the state
-		Paramset parameters; ///< 32 bits for each color in this round marking its presence or absence
-      std::map<StateID, Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters)
-      std::map<StateID, Paramset> successors; ///< Stores succesors in the same form
+      StateID ID; ///< Unique ID of the state.
+      Paramset parameters; ///< Bits for each color in this round marking its presence or absence in the state.
+      std::map<StateID, Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters).
+      std::map<StateID, Paramset> successors; ///< Stores succesors in the form (product_ID, parameters).
 
-		/// Holder of the computed information for a single state
+      /// Holder of the computed information for a single state.
       State(const StateID _ID) : ID(_ID), parameters(0) { }
 	};
 	
-	std::vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data
+   std::vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data.
 	/// This vector stores so-called COST value i.e. number of steps required to reach the final state in TS.
 	/// If it is not reachable, cost is set to ~0.
 	std::vector<std::size_t> cost_val;
-   Paramset acceptable; ///< Additional value that stores paramset computed in this round
+   Paramset acceptable; ///< Additional value that stores paramset computed in this round.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION FUNCTIONS
+// CREATION METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 	/**
-	 * Constructor allocates necessary memory for further usage (this memory is not supposed to be freed until endo of the computation)
+    * Constructor allocates necessary memory for further usage (this memory is not supposed to be freed until endo of the computation).
 	 * Every state has predecessors and succesors allocated for EVERY other state, this consumes memory but benefits the complexity of operations.
 	 *
 	 * @param states_count	number of states the structure the data will be saved for has
@@ -67,7 +67,7 @@ public:
 		acceptable = 0;
 	}
 
-	ColorStorage() {} ///< Empty constructor for an empty storage
+   ColorStorage() {} ///< Empty constructor for an empty storage.
 
    /**
     * Function adds values from specified source without explicitly copying them, only through bitwise or (storages must be equal).
@@ -123,7 +123,7 @@ public:
 	}
 
 	/**
-    * Fills after time series check finished
+    * Fills after time series check finished.
 	 *
 	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use ~0
 	 */
@@ -131,8 +131,9 @@ public:
 		cost_val = new_cost;
 		acceptable = resulting;
 	}
+
    /**
-    * Fills after a general LTL check finihsed
+    * Fills after a general LTL check finished.
     *
     * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use ~0
     */
@@ -141,15 +142,15 @@ public:
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARAMTERS HANDLING
+// COLORING HANDLERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Add passed colors to the state
+    * Add passed colors to the state.
 	 *
 	 * @param ID	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
 	 * 
-	 * @return true if there was an actuall update
+    * @return  true if there was an actuall update
 	 */
 	inline bool update(const StateID ID, const Paramset parameters) {
 		// If nothing is new return false
@@ -166,7 +167,7 @@ public:
 	 * @param ID	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
 	 *
-	 * @return true if there would be an update
+    * @return  true if there would be an update
 	 */
 	inline bool soft_update(const StateID ID, const Paramset parameters) {
 		if (states[ID].parameters == (parameters | states[ID].parameters))
@@ -176,13 +177,13 @@ public:
 	}
 
 	/**
-	 * Add passed colors to the state
+    * Add passed colors to the state.
 	 *
 	 * @param source_ID	index of the state that passed this update
 	 * @param target_ID	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
 	 * 
-	 * @return true if there was an actuall update
+    * @return  true if there was an actuall update
 	 */
 	inline bool update(const StateID source_ID, const StateID target_ID, const Paramset parameters) {
 		// Mark parameters source and target
@@ -193,16 +194,16 @@ public:
 	}
 
 	/**
-	 * Removes given paramset from the coloring of the given state
+    * Removes given paramset from the coloring of the given state.
 	 */
 	void remove(const StateID ID, const Paramset remove) {
 		states[ID].parameters &= ~remove;
 	}
 
 	/**
-	 * Removes given paramset from the label of transitions to successors / from predecessors for a given state
+    * Removes given paramset from the label of transitions to successors / from predecessors for a given state.
 	 *
-	 * @param successors	if true, use successors, predecessors otherwise
+    * @param successors if true, use successors, predecessors otherwise
 	 */
 	void remove(const StateID source_ID, const Paramset remove, const bool successors) {
 		// reference
@@ -211,7 +212,7 @@ public:
 	}
 
 	/**
-	 * Removes given paramset from the label of transitions to a single successor / from a single predecessor for a given state
+    * Removes given paramset from the label of transitions to a single successor / from a single predecessor for a given state.
 	 *
 	 * @param target_ID	ID of the state target state to remove parameset from labelling
 	 * @param successors	if true, use successors, predecessors otherwise
@@ -225,6 +226,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+    * @return  max finite cost among parametrizations used this round
+    */
    const std::size_t getMaxDepth () const {
       std::size_t depth = 0;
       forEach(cost_val, [&depth](std::size_t current){depth = my_max((current == ~static_cast<std::size_t>(0) ? 0 : current), depth);});
@@ -234,7 +238,7 @@ public:
 	/**
 	 * @param ID	index of the state to ask for parameters
 	 * 
-	 * @return parameters assigned to the state
+    * @return  parameters assigned to the state
 	 */
 	inline const Paramset & getColor(const StateID ID) const {
 		return states[ID].parameters;
@@ -243,7 +247,7 @@ public:
 	/**
 	 * @param states	indexes of states to ask for parameters
 	 *
-	 * @return queue with all colorings of states
+    * @return  queue with all colorings of states
 	 */
 	const std::vector<Coloring> getColor(const std::vector<StateID> & states) const {
 		// Queue tates colored in basic coloring
@@ -265,7 +269,7 @@ public:
 	 * @param successors	true if successors are required, false if predecessors
 	 * @param color_mask	if specified, restricts neighbour to only those that contain a subset of the parametrizations
 	 *
-	 * @return neigbours for given state
+    * @return  neigbours for given state
 	 */
 	inline const Neighbours getNeighbours(const StateID ID, const bool successors, const Paramset color_mask = ~0) const {
 		// reference
@@ -284,13 +288,13 @@ public:
 	}
 
 	/** 
-	 * Get all the labels on trasintions from given neighbours
+    * Get all the labels on trasintions from given neighbours.
 	 *
 	 * @param ID	index of the state to ask for predecessors
-	 * @param successors	true if successors are required, false if predecessors
+    * @param successors true if successors are required, false if predecessors
 	 * @param color_mask	if specified, restricts neighbour to only those that contain a subset of the parametrizations
 	 *
-	 * @return labelling on the neighbour labels
+    * @return  labelling on the neighbour labels
 	 */
 	inline const std::vector<Paramset> getMarking(const StateID ID, const bool successors, const Paramset color_mask = ~0) const {
 		// reference
@@ -303,27 +307,28 @@ public:
          if ((neighbour.second & color_mask) != 0)
             restricted.push_back(neighbour.second);
 		});
+
 		return restricted;
 	}
 
 	/**
 	 * @param number of the parametrization relative in this round
 	 *
-	 * @return Cost value of a particular parametrization
+    * @return  Cost value of a particular parametrization
 	 */
 	const std::size_t getCost(std::size_t position) const {
 		return cost_val[position];
 	}
 
 	/**
-	 * @return Cost value of all the parametrizations from this round
+    * @return  Cost value of all the parametrizations from this round
 	 */
 	const std::vector<std::size_t> & getCost() const {
 		return cost_val;
 	}
 
 	/**
-	 * @return mask of parametrizations that are computed acceptable in this round
+    * @return  mask of parametrizations that are computed acceptable in this round
 	 */
 	const Paramset & getAcceptable() const {
 		return acceptable;

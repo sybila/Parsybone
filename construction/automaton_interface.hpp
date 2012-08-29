@@ -83,4 +83,4 @@ public:
 	}
 };
 
-#endif
+#endif // PARSYBONE_AUTOMATON_INTERFACE_INCLUDED

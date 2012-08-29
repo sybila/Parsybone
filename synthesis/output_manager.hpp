@@ -18,17 +18,17 @@
 #include "split_manager.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Class that outputs formatted data from results
+/// Class that outputs formatted data from results.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OutputManager {
-   const ColorStorage & storage; ///< Provides current costs
-	const ColoringAnalyzer & analyzer; ///< Provides parametrizations' numbers and exact values
-	const SplitManager & split_manager; ///< Provides round and split information
-	const WitnessSearcher & searcher; ///< Provides witnesses in the form of transitions
-	const RobustnessCompute & robustness; ///< Provides Robustness value
+   const ColorStorage & storage; ///< Provides current costs.
+   const ColoringAnalyzer & analyzer; ///< Provides parametrizations' numbers and exact values.
+   const SplitManager & split_manager; ///< Provides round and split information.
+   const WitnessSearcher & searcher; ///< Provides witnesses in the form of transitions.
+   const RobustnessCompute & robustness; ///< Provides Robustness value.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION FUNCTIONS
+// CREATION METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	OutputManager(const OutputManager & other); ///< Forbidden copy constructor.
 	OutputManager& operator=(const OutputManager & other); ///< Forbidden assignment operator.
@@ -41,53 +41,51 @@ public:
       : storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness) { }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OUTPUT FUNCTIONS
+// OUTPUT METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 	/**
-	 * Output summary after the computation
+    * Output summary after the computation.
 	 *
 	 * @param total_count	number of all feasible colors
 	 */
 	void outputSummary(const std::size_t total_count) {
 		output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(total_count, OutputStreamer::no_newl)
-			.output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount());
+                     .output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount(), OutputStreamer::no_newl).output(".");
 	}
 
 	/**
-	 * Ouputs round number - if there are no data within, then erase the line each round
+    * Outputs round number - if there are no data within, then erase the line each round.
 	 */ 
 	void outputRoundNum() {
-		// Erase the line if outputting results to file or not at all
-        if (output_streamer.isResultInFile())
-			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-		else 
-			output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl);
+      // erase the last line
+      output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 
-		// Output numbers
-		output_streamer.output(split_manager.getRoundNum() + 1, OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
-			           .output(split_manager.getRoundCount(), OutputStreamer::no_newl);
+      // output numbers
+      output_streamer.output(split_manager.getRoundNum(), OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
+                     .output(split_manager.getRoundCount(), OutputStreamer::no_newl);
 
-		// Add white space if outputting to file or not at all, otherwise add a new line
-        if (output_streamer.isResultInFile())
-			output_streamer.output("         ", OutputStreamer::no_newl);
-		else
-			output_streamer.output("");
+      // add a new line if the result is not streamed to a file and there is any
+      if (!output_streamer.isResultInFile())
+         output_streamer.output("");
 
 		output_streamer.flush();
 	}
 
+   /**
+    * Recreate vector of cost values into a vector of strings.
+    */
    const std::vector<std::string> getCosts(const std::vector<std::size_t> cost_vals) const {
       std::vector<std::string> costs;
       forEach(cost_vals, [&](const std::size_t cost){
          if (cost != ~static_cast<std::size_t>(0))
-            costs.push_back(toString(cost - 1));
+            costs.push_back(toString(cost));
       });
       return costs;
    }
 
 	/**
-	 * Display colors synthetized during current round
+    * Display colors synthetized during current round.
 	 */
 	void outputRound() const {
 		// Get referencese
@@ -118,4 +116,4 @@ public:
 	}
 };
 
-#endif
+#endif // PARSYBONE_OUTPUT_MANAGER_INCLUDED

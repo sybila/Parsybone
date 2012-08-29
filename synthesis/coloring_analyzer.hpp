@@ -17,30 +17,28 @@
 class ColoringAnalyzer {
 	friend class SynthesisManager;
 
-	const ParametrizationsHolder & parametrizations; ///< Reference to actuall explicit parametrizations that are further printed
+   const ParametrizationsHolder & parametrizations; ///< Reference to actuall explicit parametrizations that are further printed.
 
-	/// Vector that stores individual states after the coloring procedure
-	std::map<StateID, Paramset> colorings;
+   std::map<StateID, Paramset> colorings; ///< Vector that stores individual states after the coloring procedure.
 
 	ColorNum parameter_begin; ///< Ordinal number of the first parametrization in this round.
 	ColorNum parameter_end; ///< Ordinal number of the last parametrization used in this round.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING FUNCTIONS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
-	ColoringAnalyzer(const ColoringAnalyzer & other); ///< Forbidden copy constructor.
+// CONSTRUCTING METHODS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   ColoringAnalyzer(const ColoringAnalyzer & other); ///< Forbidden copy constructor.
 	ColoringAnalyzer& operator=(const ColoringAnalyzer & other); ///< Forbidden assignment operator.
 
 	/**
-	 * Just past the reference and null variables
+    * Just past the reference and null variables.
 	 */
 	ColoringAnalyzer(const ConstructionHolder & holder) : parametrizations(holder.getParametrizations())  {
 		parameter_begin = parameter_end = 0;
 	} 
 
-
 	/**
-	 * Store requested results for a give state of product
+    * Store requested results for a give state of product.
 	 *
 	 * @param state_coloring	ID of a single state together with its coloring after the synthesis
 	 */
@@ -50,27 +48,28 @@ class ColoringAnalyzer {
 	}
 
 	/**
-	 * Iterates color until it responds to the first parameter of this round
+    * Clears values that might have been used in previous round.
 	 *
 	 * @param round_range	first and one behind last parameter of this round
 	 */
 	void strartNewRound(const Range & round_range) {
 		if (round_range.first < parameter_begin) // Error check
-			throw std::runtime_error("Round start value is lower than start of previous round.");
+         throw std::runtime_error("Round start value is lower than start of previous round");
 
 		colorings.clear();
 		parameter_end = round_range.second;
 		parameter_begin = round_range.first;
 	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REFORMING GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * @param result_parameters	mask of parametrizations that were synthetised
 	 *
-	 * @return ordinal number of the parametrizations that are feasible
+    * @return  ordinal number of the parametrizations that are feasible
 	 */
-	const std::vector<ColorNum> buildNumbers(const Paramset result_parameters) const  {
+   const std::vector<ColorNum> buildNumbers(const Paramset result_parameters) const {
 		// Vector to fill
 		std::vector<ColorNum> numbers;
 		// Store a mask for each color with just its bit on, other off
@@ -89,11 +88,11 @@ class ColoringAnalyzer {
 	}
 
 	/**
-	 * Obtain colors given parameters in the form [fun1, fun2, ...] for specified parameters
+    * Obtain colors given parameters in the form [fun1, fun2, ...] for specified parameters.
 	 *
 	 * @param result_parameters	mask of parametrizations that were synthetised
 	 *
-	 * @return vector of masks and strings of feasible colors in this round
+    * @return  vector of masks and strings of feasible colors in this round
 	 */
 	const std::vector<std::string> buildStrings(const Paramset result_parameters) const {
 		// Vector to fill
@@ -117,7 +116,7 @@ public:
 	/**
 	 * Computes a vector of strings of acceptable colors from this round with their output, as requested by user.
 	 *
-	 * @return vector of strings with numbers of parametrizations and possible their explicit form
+    * @return  vector of strings with numbers of parametrizations and their explicit form
 	 */
 	const std::vector<std::string> getOutput() const {
 		// Vector to fill and return
@@ -149,20 +148,20 @@ public:
 // CONSTANT GETTERS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
 	/**
-	 * Obtain colors given parameters in the form [fun1, fun2, ...] for required state
+    * Obtain colors given parameters in the form [fun1, fun2, ...] for required state.
 	 *
 	 * @param ID	index of the state to get the mask from
 	 *
-	 * @return vector of numbers and strings of colors
+    * @return  vector of numbers and strings of colors
 	 */
 	const std::vector<std::string> getStrings(const StateID ID) const {
 		return buildStrings(getMask(ID));
 	}
 
 	/**
-	 * Obtain colors given parameters in the form [fun1, fun2, ...] for all parameters in this round
+    * Obtain colors given parameters in the form [fun1, fun2, ...] for all parameters in this round.
 	 *
-	 * @return vector of numbers and strings of colors
+    * @return  vector of numbers and strings of colors
 	 */
 	const std::vector<std::string> getStrings() const {
 		return buildStrings(getMask());
@@ -171,7 +170,7 @@ public:
 	/**
 	 * @param ID	index of the state to get the mask from
 	 *
-	 * @return ordinal number of the parametrizations that are acceptable
+    * @return  ordinal number of the parametrizations that are acceptable
 	 */
 	const std::vector<ColorNum> getNumbers(const StateID ID) const {
 		auto coloring = colorings.find(ID);
@@ -182,7 +181,7 @@ public:
 	}
 
 	/**
-	 * @return ordinal numbers of the parametrizations that are acceptable in this round
+    * @return  ordinal numbers of the parametrizations that are acceptable in this round
 	 */
 	const std::vector<ColorNum> getNumbers() const {
 		return buildNumbers(getMask());
@@ -191,7 +190,7 @@ public:
 	/**
 	 * @param ID	index of the state to get the mask from
 	 *
-	 * @return coloring of the given state or 0 if the state is not present
+    * @return  coloring of the given state or 0 if the state is not present
 	 */
 	const Paramset getMask(const StateID ID) const {
 		auto coloring = colorings.find(ID);
@@ -202,9 +201,9 @@ public:
 	}
 
 	/**
-	 * Compute merge of all final colors, creating a coloring with all feasible colors in this round
+    * Compute merge of all final colors, creating a coloring with all feasible colors in this round.
 	 *
-	 * @return all feasible colors in this round
+    * @return  all feasible colors in this round
 	 */
 	const Paramset getMask() const {
 		Paramset all = 0;

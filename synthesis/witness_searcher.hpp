@@ -17,34 +17,34 @@
 /// Procedure is supposed to be first executed and then it can provide results.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class WitnessSearcher {
-   const ProductStructure & product; ///< Product reference for state properties
-   const ColorStorage & storage; ///< Constant storage with the actuall data
+   const ProductStructure & product; ///< Product reference for state properties.
+   const ColorStorage & storage; ///< Constant storage with the actuall data.
 
-   /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget)
+   /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
    std::vector<std::set<std::pair<StateID, StateID> > > transitions;
-   /// Vector storing for each parametrization initial states it reached
+   /// Vector storing for each parametrization initial states it reached.
    std::vector<std::set<StateID> > initials;
 
-   std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string)
+   std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string).
 
-   std::vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position
-   std::vector<Paramset> depth_masks; ///< For each of levels of DFS, stores mask of parametrizations with corresponding cost (those that are not furter used in the DFS)
-   std::size_t depth; ///< Current level of the DFS
+   std::vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position.
+   std::vector<Paramset> depth_masks; ///< For each of levels of DFS, stores mask of parametrizations with corresponding cost (those that are not furter used in the DFS).
+   std::size_t depth; ///< Current level of the DFS.
    std::size_t max_depth; ///< Maximal level of recursion that is possible (maximal Cost in this round).
 
-   /// This structure stores "already tested" paramsets for a state
+   /// This structure stores "already tested" paramsets for a state.
    struct Marking {
       Paramset succeeded; ///< Mask of those parametrizations that have found a paths from this state.
       std::vector<Paramset> busted; ///< Mask of the parametrizations that are guaranteed to not find a path in (Cost - depth) steps.
    };
 
-   std::vector<Marking> markings; ///< Actuall marking of the sates.
+   std::vector<Marking> markings; ///< Actuall marking of the states.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SEARCH FUNCTIONS
+// SEARCH METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
-    * Storest transitions in the form (source, target) within the @var transitions vector, for the path from the final vertex to the one in the current depth of the DFS procedure.
+    * Storest transitions in the form (source, target) within the transitions vector, for the path from the final vertex to the one in the current depth of the DFS procedure.
     *
     * @param which   mask of the parametrizations that allow currently found path
     * @param initil  if true, stores also the last node as an initial one for given parametrizations
@@ -117,10 +117,10 @@ class WitnessSearcher {
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION FUNCTIONS
+// CREATION METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
-    * Clear the data objects used during the computation that may contain some data from the previous round
+    * Clear the data objects used during the computation that may contain some data from the previous round.
     */
    void clearPaths() {
       // Empty strings
@@ -141,7 +141,7 @@ class WitnessSearcher {
    }
 
    /**
-    * Fills a depth_masks vector that specifies which of the parametrizations end at which round
+    * Fills a depth_masks vector that specifies which of the parametrizations end at which round.
     */
    void prepareMasks() {
       // clear the data
@@ -170,7 +170,7 @@ class WitnessSearcher {
 
 public:
    /**
-    * Constructor ensures that data objects used within the whole computation process have appropriate size
+    * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
    WitnessSearcher(const ConstructionHolder & _holder, const ColorStorage & _storage)
       : product(_holder.getProduct()), storage(_storage) {
@@ -201,9 +201,9 @@ public:
    }
 
    /**
-    * Reformats the transitions computed in the round into the strings
+    * Re-formes the transitions computed during the round into strings.
     *
-    * @return  string with all transitions for each resulting parametrization
+    * @return  strings with all transitions for each acceptable parametrization
     */
    const std::vector<std::string> getOutput() const {
       std::vector<std::string> acceptable_paths; // Vector fo actuall data
@@ -211,7 +211,7 @@ public:
       for (auto param_it = transitions.begin(); param_it != transitions.end(); param_it++) {
          if (!param_it->empty()) { // Test for emptyness of the set of transitions
             std::string path = "{";
-            // Reformat based on the user request
+            // Reformes based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
                if (product.isFinal(trans_it->second)) // Skip transitions to the real final state (ones)
                   continue;
@@ -232,7 +232,7 @@ public:
    }
 
    /**
-    * @retur   transitions for each parametrizations in the form (source, target)
+    * @return  transitions for each parametrizations in the form (source, target)
     */
    const std::vector<std::set<std::pair<StateID, StateID> > > & getTransitions() const {
       return transitions;
@@ -246,4 +246,4 @@ public:
    }
 };
 
-#endif
+#endif // PARSYBONE_WITNESS_SEARCHER_INCLUDED
