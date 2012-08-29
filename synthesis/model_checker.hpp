@@ -175,7 +175,7 @@ class ModelChecker {
 			}
 		}	
 
-		// If there is a self-loop, add it for all the BA states (its an intersection of transitible parameters for independent loops)
+      // If there is a self-loop, add it for all the BA states (its an intersection of transitional parameters for independent loops)
 		for(StateID BA_state = 0; BA_state < BA_presence.size(); BA_state++) {
 			if (BA_presence[BA_state]) {
 				if (loop_params) {

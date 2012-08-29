@@ -21,9 +21,9 @@ class ColoringParser {
    std::vector<Paramset> colors_sets; ///< Vector of paramsets as they are read from the file - note, that this step reads the WHOLE file
 
 	// File-based values
-   std::ifstream::pos_type file_size; ///< size of the whole file
-   std::ifstream input_file; ///< file to reads the bits from
-   std::ofstream output_file; ///< file to write the bits to
+   std::ifstream::pos_type file_size; ///< Size of the whole file.
+   std::ifstream input_file; ///< File to reads the bits from.
+   std::ofstream output_file; ///< File to write the bits to.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION FUNCTIONS
@@ -32,7 +32,7 @@ class ColoringParser {
    ColoringParser& operator=(const ColoringParser & other); ///< Forbidden assignment operator.
 
 public:
-   ColoringParser() {} ///< default constructor
+   ColoringParser() {} ///< Ddefault constructor.
 
 	/**
 	 * Only opens the file with the data stream.
@@ -45,9 +45,9 @@ public:
 			throw std::runtime_error(std::string("Failed to open input coloring mask file: ").append(filename).c_str());
 		file_size = input_file.tellg();
 		if (file_size % sizeof(Paramset) != 0)
-			throw std::runtime_error("Bitmask file has incorrect number of bits - it must be dividable by the size of Paramset.");
+         throw std::runtime_error("Bitmask file has incorrect number of bits - it must be dividable by the size of Paramset");
 		if (file_size / sizeof(Paramset) > colors_sets.max_size())
-			throw std::runtime_error("Bitmask is bigger than a possible size of the vector, can not be used due to memory boundaries.");
+         throw std::runtime_error("Bitmask is bigger than a possible size of the vector, can not be used due to memory boundaries");
       input_file.seekg(0, std::ios::beg);
 	}
 
@@ -59,7 +59,7 @@ public:
 	void createOutput(const std::string filename) {
         output_file.open(filename.c_str(), std::ios::out | std::ios::binary);
 		if (output_file.fail()) 
-			throw std::runtime_error(std::string("Failed to open output coloring mask file: ").append(filename).c_str());
+         throw std::runtime_error(std::string("Failed to open an output coloring mask file: ").append(filename).c_str());
 	}
 
 	/**
@@ -86,7 +86,7 @@ public:
 	}
 
 	/**
-	 * Send computed data for this round on the ouput
+    * Send computed data for this round on the ouput.
 	 *
 	 * @param parameters	bitmask of computed feasible colors
 	 */
@@ -114,6 +114,6 @@ public:
 	inline const std::size_t getColorsCount() {
 		return colors_sets.size() * paramset_helper.getParamsetSize();
 	}
-} coloring_parser; // Single program-shared output file
+} coloring_parser; ///< Single program-shared coloring parser object.
 
 #endif // PARSYBONE_COLORING_PARSER_INCLUDED

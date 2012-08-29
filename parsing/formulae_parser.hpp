@@ -13,7 +13,7 @@
 ///   -# nothing else is a formula
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FormulaeParser {
-   enum error_val {err_parent, err_symbols, err_notfound};
+   enum error_val {err_parent, err_symbols, err_notfound}; ///< Enumeration denoting error type that occured during evaluation / parsing.
 
    /**
     * If an exceptional state is reached, this function is used to throw an exception with a text given by the formula and error type .
@@ -36,11 +36,11 @@ class FormulaeParser {
             err_str = "unknown error";
             break;
       }
-      throw std::runtime_error(std::string("error while parsing a formula \"").append(formula).append("\" ").append(err_str));
+      throw std::runtime_error(std::string("Error while parsing a formula \"").append(formula).append("\": ").append(err_str));
    }
 
    /**
-    * Reads the current formula and finds position of current outmost operator and its kind
+    * Reads the current formula and finds position of current outmost operator and its kind.
     */
    static void readFormula(const std::string & formula, bool & is_or, std::size_t & divisor_pos) {
       // Control variables
@@ -88,8 +88,8 @@ public:
    /**
     * Function that returns valuation of the formula based on valuation of its variables.
     *
-    * @param valuation  map of variable valuations in the form (name, value)
-    * @param formula formula to resolve
+    * @param[in] valuation  map of variable valuations in the form (name, value)
+    * @param[in] formula formula to resolve
     *
     * @return true iff valuation of the formula is true
     */

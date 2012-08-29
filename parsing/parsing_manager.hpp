@@ -13,11 +13,11 @@
 #include "model_parser.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Class that manages all of the parsing done by the application. Icludes parsing of arguments and parsing of models.
+/// Class that manages all of the parsing done by the application. Includes parsing of arguments and parsing of models.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParsingManager {
-   std::vector<std::string> arguments; ///< vector containing single arguments from the input
-   Model & model; ///< Model object that will contain all the parsed information from the .dbm file
+   std::vector<std::string> arguments; ///< Vector containing individual arguments from the input.
+   Model & model; ///< Model object that will contain all the parsed information from the *.dbm file.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION FUNCTIONS
@@ -45,7 +45,7 @@ public:
    void parse() {
       std::ifstream input_stream; // Object that will reference input file
 
-      output_streamer.output(verbose_str, "Argument parsing started.", OutputStreamer::important);
+      output_streamer.output(verbose_str, "Arguments parsing started.", OutputStreamer::important);
 
 		// Parse arguments
 		ArgumentParser parser;

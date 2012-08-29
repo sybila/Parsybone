@@ -20,9 +20,6 @@
 #include "construction/product_builder.hpp"
 #include "synthesis/synthesis_manager.hpp"
 
-// program-related data
-const float program_version = 1.0;
-
 /**
  * Linear execution of succesive parts of the parameter synthesis
  */

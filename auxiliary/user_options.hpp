@@ -41,7 +41,7 @@ class UserOptions {
 
 public:
 	/**
-	 * Constructor, sets up default values
+    * Constructor, sets up default values.
 	 */
 	UserOptions() {
       compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = false;
@@ -127,6 +127,6 @@ public:
    inline const std::size_t outputMask() const {
       return use_out_mask;
    }
-} user_options; ///< Single object further used through the program.
+} user_options; ///< Single program-shared user options object.
 
 #endif // PARSYBONE_USER_OPTIONS_INCLUDED

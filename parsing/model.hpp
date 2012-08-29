@@ -22,16 +22,13 @@ class Model {
 	friend class NetworkParser;
    friend class TimeSeriesParser;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NEW TYPES AND DATA:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 	/// Structure that stores regulation of a specie by another one
 	struct Regulation {
-		StateID source; ///< Regulator
-		std::size_t threshold; ///< Level of the regulator requested for the function to work
-		EdgeConstrain constrain; ///< What is requested behaviour
-		bool observable; ///< Must the regulation be observable
+      StateID source; ///< Regulator specie ID.
+      std::size_t threshold; ///< Level of the regulator required for the regulation to be active.
+      EdgeConstrain constrain; ///< What behaviour this regulation must express.
+      bool observable; ///< True if the regulation must be observable.
 
 		Regulation(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain, const bool _observable)
 			: source(_source), threshold(_threshold), constrain(_constrain), observable(_observable) { }
@@ -62,33 +59,32 @@ private:
 	/// Structure that holds data about a single state.
 	struct BuchiAutomatonState {
 	private:
-		// Data are accesible from within the model class
-		friend class Model;
+      friend class Model; //< Data are accesible from within the model class
 
-      std::string name; ///< Label of the state
+      std::string name; ///< Label of the state.
 		std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
-		bool final; ///< stores the information whether the state is final
+      bool final; ///< True if the state is final.
 
-		std::vector<Egde> edges; ///< edges in Buchi Automaton (Target ID, edge label)
+      std::vector<Egde> edges; ///< Edges in Buchi Automaton (Target ID, edge label).
 
 		BuchiAutomatonState(std::string _name, std::size_t _ID, bool _final)
 			: name(_name), ID(_ID), final(_final) {	}
 	};
 
-	/// Structure that stores additional settings
-	struct AdditionalInformation {
-		float ver_number;
-	} additional_information;
+   /// Structure that stores additional information about the model.
+   struct AdditionalInformation {
+      float ver_number;
+   } additional_information; ///< Single object that stores the additional information.
 
 	// Actuall data holders.
 	std::vector<ModelSpecie> species; ///< vector of all species of the model
 	std::vector<BuchiAutomatonState> states; ///< vector of all states of the controlling Buchi automaton
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FILLING FUNCTIONS (can be used only from ModelParser)
+// FILLING FUNCTIONS (can be used only from a ModelParser)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Create a new specie with the provided name, basal and maximal value
+    * Create a new specie with the provided name, basal and maximal value.
 	 *
 	 * @return	index of specie in the vector
 	 */
@@ -122,27 +118,27 @@ private:
 	}
 
 	/**
-	 * Add a new transition - transition is specified by the target state and label
+    * Add a new transition - transition is specified by the target state and label.
 	 */
 	inline void addConditions(StateID source_ID, StateID target_ID, std::string && edge_label) {
 		states[source_ID].edges.push_back(Egde(target_ID, std::move(edge_label)));
 	}
 
-	/**
-	 * Fill additional information
-	 *
-	 * @param ver_number	float number with version of the model
-	 */
-	void addAdditionalInformation(float ver_number) {
-		additional_information.ver_number = ver_number;
-	}
+   /**
+    * Fill in additional information.
+    *
+    * @param ver_number	float number with version of the model
+    */
+   void addAdditionalInformation(float ver_number) {
+      additional_information.ver_number = ver_number;
+   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING FUNCTIONS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Sorts parametrs by parametrizations values increasingly from the left. Context with more regulators goes after the one with less regulators.
-    * Ordering for three species would be none, 1, 2, 3, 12, 13, 23, 123
+    * Ordering for three species would be none, 1, 2, 3, 12, 13, 23, 123.
     */
    void sortParameters() {
       // Check all species
@@ -177,7 +173,7 @@ private:
 	Model& operator=(const Model & other); ///< Forbidden assignment operator.
 
 public:
-	Model() {} ///< Default empty constructor
+   Model() {} ///< Default empty constructor.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
@@ -197,7 +193,7 @@ public:
 	}
 
 	/**
-	 * Finds numerical ID of the specie based on its name or ID string
+    * Finds numerical ID of the specie based on its name or ID string.
 	 *
 	 * @return	ID of the specie with the specified name if there is such, otherwise ~0
 	 */
@@ -217,7 +213,7 @@ public:
 
 
 	/**
-	 * Finds ordinal number of the BA state based on its name or number string
+    * Finds ordinal number of the BA state based on its name or number string.
 	 *
 	 * @return	number of the state with the specified name if there is such, otherwise ~0
 	 */

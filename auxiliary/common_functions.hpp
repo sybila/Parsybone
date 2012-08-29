@@ -52,7 +52,7 @@ std::string toString(basic_T data) {
 	try {
       result = std::move(boost::lexical_cast<std::string, basic_T>(data));
 	} catch (boost::bad_lexical_cast e) {
-		output_streamer.output(error_str, "Error occured while trying to cast a varible", OutputStreamer::no_newl)
+      output_streamer.output(error_str, "Error occured while trying to cast a variable", OutputStreamer::no_newl)
                      .output(data, OutputStreamer::no_newl).output(" to a string: ", OutputStreamer::no_newl).output(e.what());
 		throw std::runtime_error("boost::lexical_cast<std::string, basic_T>(data)) failed");
 	}
@@ -60,7 +60,7 @@ std::string toString(basic_T data) {
 }
 
 /**
- * increases integral value by 1
+ * Increases integral value by 1.
  *
  * @param[in,out] val  reference to value that will be increased
  */
@@ -68,7 +68,7 @@ template<class integral_T>
 void increase(typename std::vector<integral_T>::reference val) {val++;}
 
 /**
- * increases boolean value to true
+ * Sets boolean value to true.
  *
  * @param[in,out] val  reference to value that will be increased
  */

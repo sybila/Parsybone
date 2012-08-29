@@ -22,7 +22,7 @@
 /// Most of the possible semantics mistakes are under control and cause exceptions.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class NetworkParser {
-	Model & model; ///< Reference to the model object that will be filled
+   Model & model; ///< Reference to the model object that will be filled.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TRANSLATORS:
@@ -37,7 +37,7 @@ class NetworkParser {
 		XMLHelper::getAttribute(source, regulation, "source");
 		source_ID = model.findID(source);
 		if (source_ID >= model.getSpeciesCount())
-			throw std::invalid_argument(std::string("ID of a regulation of the specie ").append(toString(target_ID)).append(" is incorrect."));
+         throw std::invalid_argument(std::string("ID of a regulation of the specie ").append(toString(target_ID)).append(" is incorrect"));
 
 		return source_ID;
 	}
@@ -52,8 +52,8 @@ class NetworkParser {
 		if(!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
 			threshold = 1;
 		else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
-			throw std::invalid_argument(std::string("threshold of a regulation of specie ").append(toString(source_ID))
-												 .append(" is incorrect (bigger than maximal level of the source or equal to 0)."));
+         throw std::invalid_argument(std::string("Threshold of a regulation of specie ").append(toString(source_ID))
+                                     .append(" is incorrect (bigger than maximal level of the source or equal to 0)"));
 
 		// Test uniqueness of this combination (source, threshold)
 		auto regulations = model.getRegulations(target_ID);
@@ -78,12 +78,12 @@ class NetworkParser {
       else if (unspec_type.compare("param") == 0)
 			return param_reg;
 		else
-			throw std::runtime_error("Wrong value given as an uspec attribute.");
+         throw std::runtime_error("Wrong value given as an uspec attribute");
 	}
 
 	/**
 	 * Obtain an information about how unspecified kinetic parameters should be handled.
-	 * Value is not mandatory, if missing, uses param_reg
+    * Value is not mandatory, if missing, uses param_reg.
 	 */
 	const UnspecifiedParameters getUnspecified(const rapidxml::xml_node<> * const specie_node) const {
 		std::string unspec_str; UnspecifiedParameters unspec;
@@ -109,7 +109,7 @@ class NetworkParser {
 		else if (label.compare("-") == 0)
 			return neg_cons;
 		else
-			throw std::runtime_error("Wrong sing in regulation label.");
+         throw std::runtime_error(std::string("Wrong regulation label").append(label));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ class NetworkParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
-	 * If not provided, attributes are defaulted - threshold to 1, label to none_cons, observable to false
+    * If not provided, attributes are defaulted - threshold to 1, label to none_cons, observable to false.
 	 */
 	void parseRegulations(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		// Regulation data
@@ -138,7 +138,7 @@ class NetworkParser {
 	}
 
 	/**
-	 * Use a string defining context together with a value to create a single kintetic parameter
+    * Use a string defining context together with a value to create a single kintetic parameter.
 	 */
 	void fillFromContext(const std::string context, std::set<std::vector<bool> > & specified, size_t specie_ID, int target_value) const {
 		// Obtain strings of the sources
@@ -168,7 +168,7 @@ class NetworkParser {
       auto regulations = model.getRegulations(specie_ID);
 		for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
          mask.push_back(std::find(sources.begin(), sources.end(), toString(regulations[regul_num].source)) != sources.end()
-                        || std::find(sources.begin(), sources.end(), model.getName(regulations[regul_num].source)) != sources.end());
+            || std::find(sources.begin(), sources.end(), model.getName(regulations[regul_num].source)) != sources.end());
 		}
 
 		// Add a new regulation to the specified target
@@ -334,7 +334,7 @@ class NetworkParser {
 	NetworkParser& operator=(const NetworkParser & other); ///< Forbidden assignment operator.
 
 public:
-	NetworkParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references
+   NetworkParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references.
 
 	/**
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.

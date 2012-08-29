@@ -13,20 +13,20 @@
 #include "../auxiliary/output_streamer.hpp"
 #include "automaton_interface.hpp"
 
-/// Single labelled transition from one state to another
+/// Single labelled transition from one state to another.
 struct AutTransitionion : public TransitionProperty {
-   AllowedValues allowed_values; ///< Allowed values of species for this transition
+   AllowedValues allowed_values; ///< Allowed values of species for this transition.
 
    AutTransitionion(const StateID target_ID, AllowedValues && _allowed_values)
-		: TransitionProperty(target_ID), allowed_values(std::move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables
+      : TransitionProperty(target_ID), allowed_values(std::move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables.
 };
 
 /// Storing a single state of the B\"uchi automaton. This state is extended with a value saying wheter the states is final.
 struct AutState : public AutomatonStateProperty<AutTransitionion> {
 
 	/// Fills data and checks if the state has value  -> is initial
-    AutState(const StateID ID, const bool final, std::string && label)
-        : AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID, std::move(label)) { }
+   AutState(const StateID ID, const bool final, std::string && label)
+      : AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID, std::move(label)) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +69,8 @@ public:
 	AutomatonStructure() {} ///< Default empty constructor
 
 	/**
+    * Checks if a transition of the BA is possible in the current state of a KS.
+    *
 	 * @param ID	source state of the transition
 	 * @param transition_num	ordinal number of the transition
 	 * @param levels	current levels of species i.e. the state of the KS

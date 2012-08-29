@@ -31,12 +31,18 @@
 #include <boost/algorithm/string.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// INPUT/OUTPUT RELATED DATA
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const float program_version = 1.0;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT/OUTPUT RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// What stream to use in output functions
+/// What stream to use in output functions.
 enum StreamType {error_str, results_str, stats_str, verbose_str};
 
-/// Symbol that separates values of a single parametrizations on output
+/// Symbol that separates values of a single parametrizations on output.
 const std::string separator = ":";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,43 +51,43 @@ const std::string separator = ":";
 /// If a regulation is missing, what kind of value it should get?
 enum UnspecifiedParameters {error_reg, basal_reg, param_reg};
 
-/// To store the way a specie value has changed
+/// To store the way a specie value has changed.
 enum Direction {up_dir, stay_dir, down_dir};
 
-/// ID of a graph/automaton state
+/// ID of a graph/automaton state.
 typedef std::size_t StateID; 
 
-/// ID of a specie
+/// ID of a specie.
 typedef std::size_t SpecieID; 
 
-/// vector of activation levels of species used for labelling of states of KS
+/// Vector of activation levels of species used for labelling of states of KS.
 typedef std::vector<std::size_t> Levels;
 
-/// Transitible values in a state of BA
+/// Transitional values in a state of BA.
 typedef std::vector<Levels > AllowedValues;
 
-/// Label of a regulation
+/// Label of a regulation.
 enum EdgeConstrain {pos_cons, neg_cons, none_cons};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// mask of parameters - each bit represents single combination of target values for each function
+/// Mask of parameters - each bit represents single combination of target values for each function.
 typedef unsigned int Paramset;
 
-/// Index of the color - may be a big number
+/// Index of the color - may be a big number.
 typedef long long ColorNum;
 
-/// Index of the color - may be a big number as well
+/// Index of the color - may be a big number as well.
 typedef unsigned long long RoundNum;
 
-/// IDs of predecessors of a state
+/// IDs of predecessors of a state.
 typedef std::vector<StateID> Neighbours;
 
-/// State number and its coloring
+/// State number and its coloring.
 typedef std::pair<StateID, Paramset> Coloring;
 
-/// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not
+/// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not.
 typedef std::pair<ColorNum, ColorNum> Range;
 
 #endif // PARSYBONE_DATA_TYPES_INCLUDED

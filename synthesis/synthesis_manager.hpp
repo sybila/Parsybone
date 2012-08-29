@@ -98,7 +98,7 @@ class SynthesisManager {
 	}
 
 	/**
-	 * Do initial coloring of states - start from initial states and distribute all the transitible parameters.
+    * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
 	 */
     void colorProduct() {
 		// Get initial coloring

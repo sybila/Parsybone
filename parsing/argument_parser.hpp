@@ -19,31 +19,30 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ArgumentParser {
 	/**
-	 * Obtains numbers for distributed synthesis
+    * Obtain parameters for synthesis distribution.
 	 *
-	 * @param argv	reference to the original array of c-strings
-	 * @param arg_n	ordinary number of the previous argument (D-switch)
+    * @param procn   ID of this process (counting from 1)
+    * @param procc   total number of processes in computation
 	 */
-	void getDistribution(std::string procn, std::string procv) {
+   void getDistribution(std::string procn, std::string procc) {
 		// Get numbers
 		try {
 			user_options.process_number = boost::lexical_cast<std::size_t, std::string>(procn);
-			user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(procv);
+         user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(procc);
 		} catch (boost::bad_lexical_cast & e) {
-			std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(procn).append(" ").append(procv).append(". Should be -d this_ID number_of_parts."));
-			throw(std::runtime_error(std::string("Parameter parsing failed.").append(e.what())));
+         std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(procn).append(" ").append(procc).append(". Should be -d proc_number proc_count."));
+         throw(std::runtime_error(std::string("Parameter parsing failed").append(e.what())));
 		}
 		// Assert that process ID is in the range
 		if (user_options.process_number > user_options.processes_count)
-			throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes."));
-		// Skip arguments that are already read
+         throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes"));
 	}
 
 	/**
 	 * Some of the switches must be followed by additional argument (i.e. filename).
 	 * Such a switch must be last in the string of switches, or is not valid. This function controls it.
 	 *
-	 * @return true if the position is valid, false otherwise
+    * @return  true if the position is valid, false otherwise
 	 */
    bool testLast(const std::size_t position, const std::size_t size) {
 		if (position + 1 != size) {
@@ -56,7 +55,7 @@ class ArgumentParser {
     * Some of the switches must be followed by additional argument (i.e. filename).
     * Such a switch must be followed by parametrizing arguments. This function controls that.
     *
-    * @return true if the arguments are present, false otherwise
+    * @return  true if the arguments are present, false otherwise
     */
    bool testFollowers(std::vector<std::string>::const_iterator argument, const std::vector<std::string>::const_iterator & last_pos, const std::size_t followers_count = 1) {
       for(std::size_t foll_num = 0; foll_num < followers_count; foll_num++, argument++) {
@@ -69,7 +68,7 @@ class ArgumentParser {
    }
 
 	/**
-	 * Function that parses switches in the string that starts with a "-" symbol
+    * Function that parses switches in the string that starts with a "-" symbol.
 	 *
 	 * @param argument	iterator pointer to the string to read
 	 */
@@ -132,39 +131,40 @@ class ArgumentParser {
 
 public:
 	/**
-	 * Take all the arguments on the input and store information from them
+    * Take all the arguments on the input and store information from them.
 	 *
-	 * @param argc	passed from main function
+    * @param argc passed from main function
 	 * @param argv	passed from main function
-	 * @param intput_stream	pointer to a file that will be used as an input stream
+    * @param intput_stream pointer to a file that will be used as an input stream
 	 */
 	void parseArguments (const std::vector<std::string> & arguments, std::ifstream & input_stream) {
-		// Control provision of an input file
+      // True after name of the model file is read
 		bool file_parsed = false;
 
-		// Cycle through arguments
-		for (auto argument = arguments.begin(); argument != arguments.end(); argument++) {
+      // Cycle through arguments (skip the first - name of the program)
+      for (auto argument = arguments.begin() + 1; argument != arguments.end(); argument++) {
 			// There can be multiple switches after "-" so go through them in the loop
 			if ((*argument)[0] == '-') {
             parseSwitches(argument, arguments.end());
 			}
-
 			// If it is a model file
 			else if (argument->find(".dbm") != std::string::npos){
 				// If the model is alredy parsed
 				if (file_parsed)
-					throw (std::invalid_argument("Model file (file with a .dbm suffix) occurs multiple times on the input, only a single occurence is allowed."));
+               throw (std::invalid_argument("Model file (file with a .dbm suffix) occurs multiple times on the input, only a single occurence is allowed"));
 				// Attach the stream to the file
 				input_stream.open(*argument, std::ios::in);
 				if (input_stream.fail())
 					throw std::runtime_error(std::string("Program failed to open an intput stream file: ").append(*argument));
 				file_parsed = true;
-			}
+         } else {
+            throw std::runtime_error(std::string("Wrong argument on the input stream: ").append(*argument));
+         }
 		}	
 
-		// Throw an exception if no file was found
+      // Throw an exception if no model file was found
 		if (!file_parsed)
-			throw (std::invalid_argument("Model file (file with a .dbm suffix) is missing."));
+         throw (std::invalid_argument("Model file (file with a .dbm suffix) is missing"));
 	}
 };
 

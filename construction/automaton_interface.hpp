@@ -11,14 +11,14 @@
 
 #include "graph_interface.hpp"
 
-/// A state structure enhanced with information whether it is final and/or initial.
+/// A state structure enhanced with information whether the state is final and/or initial.
 template <typename Transition>
 struct AutomatonStateProperty : public StateProperty<Transition> {
-	bool initial; ///< True if the state is initial
-	bool final; ///< true if this state is final, false otherwise
+   bool initial; ///< True if the state is initial.
+   bool final; ///< True if this state is final.
 
    /**
-    * Adds information if the state is final or initial, passes the rest
+    * Adds information if the state is final or initial, passes the rest.
     */
    AutomatonStateProperty<Transition>(const bool _initial, const bool _final, const StateID ID, const std::string && label)
       : StateProperty<Transition>(ID, std::move(label)), initial(_initial), final(_final) { }
@@ -31,12 +31,12 @@ struct AutomatonStateProperty : public StateProperty<Transition> {
 template<typename StateT>
 class AutomatonInterface : public GraphInterface<StateT> {
 protected:
-	std::vector<StateID> initial_states; ///< Vector with indexes of initial states (in this case only the first state)
-	std::vector<StateID> final_states; ///< Vector with indexes of final states of the BA
+   std::vector<StateID> initial_states; ///< Vector with indexes of initial states (in this case only the first state).
+   std::vector<StateID> final_states; ///< Vector with indexes of final states of the BA.
 
 public:
 	/**
-	 * For given state find out if it is marked as final.
+    * For a given state find out whether it is marked as final.
 	 *
 	 * @param ID	state to test
 	 *

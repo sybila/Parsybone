@@ -11,7 +11,7 @@
 
 #include "../auxiliary/output_streamer.hpp"
 
-// Get system clock reference
+// Get system clock definition
 #ifdef __GNUC__
 #include <sys/time.h>
 #else
@@ -22,11 +22,11 @@
 /// Class that allows to multiple clock for run-time measurement.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class TimeManager {
-	typedef std::pair<std::string, long long> Clock; ///< Clock - contain a start time referenced by a name of the clock
-	std::map<std::string, long long> clocks; ///< vector of clocks
+   typedef std::pair<std::string, long long> Clock; ///< Clock - contain a start time referenced by a name of the clock.
+   std::map<std::string, long long> clocks; ///< Vector of clocks.
 
 	/**
-	 * Clock - independently on the architecture always (unless you have Mac... O.o) count time in ms
+    * Clock - independently on the architecture always (unless you have Mac... O.o) count time in ms.
 	 *
 	 * @return	time in miliseconds
 	 */
@@ -57,7 +57,7 @@ public:
 	}
 
 	/**
-	 * Outputs current runtime of the clock
+    * Outputs current runtime of the clock.
 	 *
 	 * @param clock_name	name of the clock to output (also appears on the output)
 	 */
@@ -66,11 +66,11 @@ public:
 		if (clocks.find(clock_name) != clocks.end()) {
 			long long runtime = getMilliseconds() - clocks.find(clock_name)->second;
 			output_streamer.output(stats_str, "Clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" counted: ", OutputStreamer::no_newl)
-				           .output(runtime, OutputStreamer::no_newl).output("ms.");
+                        .output(runtime, OutputStreamer::no_newl).output("ms.");
 		} else { // If you do not find them, fail
 			output_streamer.output(stats_str, "Requested clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" have not been started until now.");
 		}
 	}
-} time_manager; ///< Single program-shared timing object
+} time_manager; ///< Single program-shared timing object.
 
 #endif // PARSYBONE_TIME_MANAGER_INCLUDED

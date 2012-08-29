@@ -16,12 +16,12 @@
 /// Class that contains methods for standard and special stream output.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OutputStreamer {
-	std::ostream * error_stream; ///< Stream to output minor fails as well as terminal failures
-	std::ostream * verbose_stream; ///< Stream to output work status in case it is requested by user
-	std::ostream * stats_stream; ///< Stream to output overall statistics
-	std::ostream * result_stream;	///< Stream to output results of coloring
+   std::ostream * error_stream; ///< Stream to output minor fails as well as terminal failures.
+   std::ostream * verbose_stream; ///< Stream to output work status in case it is requested by user.
+   std::ostream * stats_stream; ///< Stream to output overall statistics.
+   std::ostream * result_stream;	///< Stream to output results of coloring.
 
-   /// True if these streams are assigned a file
+   /// True if these streams are assigned a file.
 	bool error_file, verbose_file, stats_file, result_file;
 
 	StreamType last_stream_type;	///< Used to ease usage of output - last stream is stored and used if no new is specified.
@@ -34,10 +34,10 @@ public:
 	static Trait no_newl    = 1; ///< After last line no newline symbol will be output.
 	static Trait important  = 2; ///< Add "-- " before and " --" after the ouptut.
 	static Trait rewrite_ln = 4; ///< Return the cursor and start from the beginning of the line.
-	static Trait tab        = 8; ///< Add "   " before the output
+   static Trait tab        = 8; ///< Add "   " before the output.
 
 	/**
-	 * test if given trait is present
+    * Test if given trait is present.
 	 *
 	 * @param tested	number of the tested trait
 	 * @param traits	traits given with the function
@@ -61,7 +61,7 @@ public:
 // CREATION FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Basic constructor - should be used only for the single object shared throught the program
+    * Basic constructor - should be used only for the single object shared throught the program.
 	 */
 	OutputStreamer() { 
 		// Basic direction of the streams
@@ -78,7 +78,7 @@ public:
 	}
 
 	/**
-	 * If some of the streams has been assigned a file, delete that file object
+    * If some of the streams has been assigned a file, delete that file object.
 	 */
 	~OutputStreamer() {
 		if (error_file)
@@ -92,7 +92,7 @@ public:
 	}
 
 	/**
-	 * output on a specified stream
+    * Create a file to which given stream will be redirected.
 	 *
 	 * @param stream_type	enumeration type specifying the type of stream to output to
 	 * @param data	data to output - should be any possible ostream data
@@ -101,7 +101,7 @@ public:
 		// Try to open the file
         std::fstream * file_stream = new std::fstream(filename.c_str(), std::ios::out);
 		if (file_stream->fail()) 
-			throw std::runtime_error(std::string("Program failed to open output stream file: ").append(filename));
+         throw std::runtime_error(std::string("Program failed to open an output stream file: ").append(filename));
 		
 		// Assiciate pointer to the file with one of the streams
 		switch (stream_type) {
@@ -139,14 +139,14 @@ public:
 	}
 
 	/**
-	 * output on a specified stream
+    * Output on a specified stream.
 	 *
 	 * @param stream_type	enumeration type specifying the type of stream to output to
 	 * @param data	data to output - should be any possible ostream data
 	 * @param trait_mask	bitmask of traits for output 
 	 */
 	template <class outputType> 
-    const OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
+   const OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
 		// Update stream
 		last_stream_type = stream_type;
 		switch (stream_type) {
@@ -160,7 +160,7 @@ public:
 				*verbose_stream << "# ";
 			break;
 		case verbose_str:
-			// Start with * - if requseted, remove previous line
+         // Start with * - if requested, remove previous line
 			if (user_options.verbose()) {
 				if (testTrait(rewrite_ln, trait_mask))
 					*verbose_stream << '\r';
@@ -168,7 +168,7 @@ public:
 			}
 			break;
         case results_str:
-            // This is an only stream that is not-formatted.
+            // This is the only stream that is not-formatted.
             break;
 		}
 		// Continue with output, then return this object
@@ -176,14 +176,14 @@ public:
 	}
 
 	/**
-	 * overloaded method that uses the same stream as the last ouput
+    * Overloaded method that uses the same stream as the last ouput.
 	 *
 	 * @param data	data to output - should be any possible ostream data
 	 * @param trait_mask	bitmask of traits for output 
 	 */
 	template <class outputType> 
-    const OutputStreamer & output(const outputType & stream_data, const unsigned int trait_mask = 0) const {
-		// Pick the correct stream and pass the data - output only if requested
+   const OutputStreamer & output(const outputType & stream_data, const unsigned int trait_mask = 0) const {
+      // Pick the correct stream and pass the data - output only if requested
 		switch (last_stream_type) {
 		case error_str:
 			actualOutput(*error_stream, stream_data, trait_mask);	
@@ -205,7 +205,7 @@ public:
 
 private:
 	/**
-    * Method that puts the data on the stream
+    * Method that actually puts the data on the stream.
 	 *
 	 * @param stream	reference to the ostream that gets the data
 	 * @param stream_data	provided content
@@ -228,6 +228,6 @@ private:
 		if (!testTrait(no_newl, trait_mask))
 			stream << std::endl;
 	}
-} output_streamer; ///< Single program-shared output object
+} output_streamer; ///< Single program-shared output object.
 
 #endif // PARSYBONE_OUTPUT_STREAMER_INCLUDED
