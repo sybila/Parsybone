@@ -192,7 +192,7 @@ public:
 	 *
     * @return  coloring of the given state or 0 if the state is not present
 	 */
-	const Paramset getMask(const StateID ID) const {
+	Paramset getMask(const StateID ID) const {
 		auto coloring = colorings.find(ID);
 		if (coloring != colorings.end())
 			return coloring->second;
@@ -205,7 +205,7 @@ public:
 	 *
     * @return  all feasible colors in this round
 	 */
-	const Paramset getMask() const {
+	Paramset getMask() const {
 		Paramset all = 0;
 		for (auto coloring_it = colorings.begin(); coloring_it != colorings.end(); coloring_it++) {
 			all |= coloring_it->second;

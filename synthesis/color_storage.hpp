@@ -229,7 +229,7 @@ public:
    /**
     * @return  max finite cost among parametrizations used this round
     */
-   const std::size_t getMaxDepth () const {
+   std::size_t getMaxDepth () const {
       std::size_t depth = 0;
       forEach(cost_val, [&depth](std::size_t current){depth = my_max((current == ~static_cast<std::size_t>(0) ? 0 : current), depth);});
       return depth;
@@ -316,7 +316,7 @@ public:
 	 *
     * @return  Cost value of a particular parametrization
 	 */
-	const std::size_t getCost(std::size_t position) const {
+	std::size_t getCost(std::size_t position) const {
 		return cost_val[position];
 	}
 

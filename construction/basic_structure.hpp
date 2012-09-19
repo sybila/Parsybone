@@ -79,7 +79,7 @@ public:
 	 *
 	 * @return	ID of the specie that vary between the two states
 	 */
-	inline const std::size_t getSpecieID(const StateID ID, const std::size_t neighbour_index) const {
+	inline std::size_t getSpecieID(const StateID ID, const std::size_t neighbour_index) const {
 		return states[ID].transitions[neighbour_index].changed_specie;
 	}
 
@@ -89,7 +89,7 @@ public:
 	 *
 	 * @return	Direction in which the specie changes
 	 */
-	inline const Direction getDirection(const StateID ID, const std::size_t neighbour_index) const {
+	inline Direction getDirection(const StateID ID, const std::size_t neighbour_index) const {
 		return states[ID].transitions[neighbour_index].change_direction;
 	}
 };

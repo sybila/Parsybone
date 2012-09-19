@@ -54,77 +54,77 @@ public:
 	/**
 	 * @return	true if compute_robustness (robustness output is requested)
 	 */
-	inline const bool robustness() const {
+	inline bool robustness() const {
 		return compute_robustness;
 	}
 
 	/**
 	 * @return	true if witnesses are to be computed
 	 */
-	inline const bool witnesses() const {
+	inline bool witnesses() const {
 		return compute_wintess;
 	}
 
 	/**
 	 * @return	true if additional analysis will be computed (witnesses/robustness)
 	 */
-	inline const bool analysis() const {
+	inline bool analysis() const {
       return (compute_robustness | compute_wintess);
 	}
 
 	/**
 	 * @return	true if use_long_witnesses is set (display state levels instead of just a number)
 	 */
-	inline const bool longWit() const {
+	inline bool longWit() const {
 		return use_long_witnesses;
 	}
 
 	/**
 	 * @return	true if verbose is set (displaying additional information during computation)
 	 */
-	inline const bool verbose() const {
+	inline bool verbose() const {
 		return be_verbose;
 	}
 
 	/**
 	 * @return	true if display_stats is set (displaying statistics of the model)
 	 */
-	inline const bool stats() const {
+	inline bool stats() const {
 		return display_stats;
 	}
 
 	/**
     * @return	true if property is a time series
 	 */
-   inline const bool timeSeries() const {
+	inline bool timeSeries() const {
       return time_series;
 	}
 
 	/**
 	 * @return	number of this process in distributed computation (indexed from 1)
 	 */
-	inline const std::size_t procNum() const {
+	inline std::size_t procNum() const {
 		return process_number;
 	}
 
 	/**
 	 * @return	total number of processes in distributed computation
 	 */
-	inline const std::size_t procCount() const {
+	inline std::size_t procCount() const {
 		return processes_count;
 	}	
 
    /**
     * @return	true if the input mask was provided
     */
-   inline const std::size_t inputMask() const {
+   inline std::size_t inputMask() const {
       return use_in_mask;
    }
 
    /**
     * @return	true if the mask of computation should be printed
     */
-   inline const std::size_t outputMask() const {
+   inline std::size_t outputMask() const {
       return use_out_mask;
    }
 } user_options; ///< Single program-shared user options object.

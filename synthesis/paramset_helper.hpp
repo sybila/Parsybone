@@ -28,7 +28,7 @@ public:
    /**
     * @return  number of parametrizations in a single round
     */
-   inline const static std::size_t getParamsetSize() {
+   inline static std::size_t getParamsetSize() {
       return subset_size;
    }
    /**
@@ -73,7 +73,7 @@ public:
     *
     * @return  Paramset mask
     */
-   const Paramset getMaskFromNums(const std::vector<std::size_t> numbers) const {
+   Paramset getMaskFromNums(const std::vector<std::size_t> numbers) const {
       Paramset full_mask = 0;
       for (auto num = numbers.begin(); num != numbers.end(); num++) {
          if (*num > getParamsetSize())
@@ -153,7 +153,7 @@ public:
     *
     * @return true if none of the paremters is set
     */
-   inline const bool none(Paramset paramset) const {
+   inline bool none(Paramset paramset) const {
       return (paramset == 0);
    }
 
@@ -164,7 +164,7 @@ public:
     *
     * @return  position of the bit in the mask (from the left)
     */
-   inline const std::size_t getBitNum(Paramset paramset) const {
+   inline std::size_t getBitNum(Paramset paramset) const {
       if (count(paramset) != 1)
          throw std::runtime_error("getBitNum called on colorset with different number of on bits than one.");
 

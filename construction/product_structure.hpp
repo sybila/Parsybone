@@ -86,21 +86,21 @@ public:
 	/**
 	 * @return index of this combination of states in the product
 	 */
-	inline const StateID getProductID(const StateID KS_ID, const StateID BA_ID) const {
+	inline StateID getProductID(const StateID KS_ID, const StateID BA_ID) const {
 		return (KS_ID * automaton.getStateCount() + BA_ID);
 	}
 
 	/**
 	 * @return index of BA state form the product
 	 */
-	inline const StateID getBAID(const StateID ID) const {
+	inline StateID getBAID(const StateID ID) const {
 		return states[ID].BA_ID;
 	}
 
 	/**
 	 * @return index of BA state form the product
 	 */
-	inline const StateID getKSID(const StateID ID) const {
+	inline StateID getKSID(const StateID ID) const {
 		return states[ID].KS_ID;
 	}
 
@@ -122,7 +122,7 @@ public:
 	 *
 	 * @return	number of neighbour parameters that share the same value of the function
 	 */
-	inline const std::size_t getStepSize(const StateID ID, const std::size_t transtion_num) const {
+	inline std::size_t getStepSize(const StateID ID, const std::size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].step_size;
 	}
 

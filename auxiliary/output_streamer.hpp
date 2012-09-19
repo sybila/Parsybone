@@ -53,7 +53,7 @@ public:
 	/** 
 	 * @return true if there is a file to output the results
 	 */
-	const bool isResultInFile() const {
+	bool isResultInFile() const {
 		return result_file;
 	}
 

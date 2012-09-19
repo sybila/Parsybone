@@ -86,7 +86,7 @@ public:
 	 *
 	 * @return	number of neighbour parameters that share the same value of the function
 	 */
-	inline const std::size_t getStepSize(const StateID ID, const std::size_t transtion_num) const {
+	inline std::size_t getStepSize(const StateID ID, const std::size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].step_size;
 	}
 

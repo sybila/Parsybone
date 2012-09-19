@@ -81,14 +81,14 @@ public:
 	/**
 	 * @return	size of the parameter space
 	 */
-	inline const std::size_t getParametersCount() const {
+	inline std::size_t getParametersCount() const {
 		return parameter_count;
 	}
 
 	/**
 	 * @return	number of the species
 	 */
-	inline const std::size_t getSpeciesCount() const {
+	inline std::size_t getSpeciesCount() const {
 		return species.size();
 	}
 
@@ -116,14 +116,14 @@ public:
 	/**
 	 * @return	number of regulations for this specie (two to power of number of source species)
 	 */
-	inline const std::size_t getRegulationsCount(const std::size_t ID) const {
+	inline std::size_t getRegulationsCount(const std::size_t ID) const {
 		return species[ID].functions.size();
 	}
 
 	/**
 	 * @return	step_size (how many neigbour parameters share the same value for this regulation)
 	 */
-	const std::size_t getStepSize(const std::size_t ID, const std::size_t regulation) const {
+	std::size_t getStepSize(const std::size_t ID, const std::size_t regulation) const {
 		return species[ID].functions[regulation].step_size;
 	}
 

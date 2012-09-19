@@ -181,14 +181,14 @@ public:
 	/**
 	 * @return	number of the species
 	 */
-	inline const std::size_t getSpeciesCount() const {
+	inline std::size_t getSpeciesCount() const {
 		return species.size();
 	}
 
 	/**
 	 * @return	number of the states
 	 */
-	inline const std::size_t getStatesCount() const {
+	inline std::size_t getStatesCount() const {
 		return states.size();
 	}
 
@@ -197,7 +197,7 @@ public:
 	 *
 	 * @return	ID of the specie with the specified name if there is such, otherwise ~0
 	 */
-   const SpecieID findID(const std::string & name) const {
+	SpecieID findID(const std::string & name) const {
 		SpecieID ID = ~0;
 		try { // Try direct translation
 			ID = boost::lexical_cast<SpecieID, std::string>(name);
@@ -217,7 +217,7 @@ public:
 	 *
 	 * @return	number of the state with the specified name if there is such, otherwise ~0
 	 */
-   const SpecieID findNumber(const std::string & name) const {
+	SpecieID findNumber(const std::string & name) const {
 		StateID ID = ~0;
 		try { // Try direct translation
 			ID = boost::lexical_cast<StateID, std::string>(name);
@@ -241,21 +241,21 @@ public:
 	/**
 	 * @return	minimal value of the specie (always 0)
 	 */
-	inline const std::size_t getMin(const std::size_t ID) const {
+	inline std::size_t getMin(const std::size_t ID) const {
 		return ID ? 0 : 0; // Just to disable a warning
 	}
 
 	/**
 	 * @return	maximal value of the specie
 	 */
-	inline const std::size_t getMax(const std::size_t ID) const {
+	inline std::size_t getMax(const std::size_t ID) const {
 		return species[ID].max_value;
 	}
 
 	/**
 	 * @return	basal value of the specie
 	 */
-	inline const std::size_t getBasal(const std::size_t ID) const {
+	inline std::size_t getBasal(const std::size_t ID) const {
 		return species[ID].basal_value;
 	}
 
@@ -276,7 +276,7 @@ public:
 	/**
 	 * @return	true if the state is final
 	 */
-	inline const bool isFinal(const std::size_t ID) const {
+	inline bool isFinal(const std::size_t ID) const {
 		return states[ID].final;
 	}
 

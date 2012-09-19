@@ -30,7 +30,7 @@ class NetworkParser {
 	/**
 	 * In a current regulation get source of that regulation, if possible.
 	 */
-	const SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID ) const {
+	SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID ) const {
 		std::string source; SpecieID source_ID;
 
 		// Find the source and check correctness
@@ -45,7 +45,7 @@ class NetworkParser {
 	/**
 	 * Obtain a treshold of a current regulation and check if it is correct and unique.
 	 */
-	const std::size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID, const SpecieID source_ID ) const {
+	std::size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID, const SpecieID source_ID ) const {
 		std::size_t threshold;
 
 		// Try to find a threshold, if not present, set to 1
@@ -70,7 +70,7 @@ class NetworkParser {
 	 *
 	 * @return	enumeration item with given specification
 	 */
-	static const UnspecifiedParameters getUnspecType(std::string unspec_type) {
+	static UnspecifiedParameters getUnspecType(std::string unspec_type) {
       if      (unspec_type.compare("error") == 0)
 			return error_reg;
       else if (unspec_type.compare("basal") == 0)
@@ -85,7 +85,7 @@ class NetworkParser {
 	 * Obtain an information about how unspecified kinetic parameters should be handled.
     * Value is not mandatory, if missing, uses param_reg.
 	 */
-	const UnspecifiedParameters getUnspecified(const rapidxml::xml_node<> * const specie_node) const {
+	UnspecifiedParameters getUnspecified(const rapidxml::xml_node<> * const specie_node) const {
 		std::string unspec_str; UnspecifiedParameters unspec;
 		// Try to get the value, otherwise use param_reg
       if (XMLHelper::getAttribute(unspec_str, specie_node, "undef", false))
@@ -100,7 +100,7 @@ class NetworkParser {
 	 *
 	 * @return	enumeration item with given specification
 	 */
-	static const EdgeConstrain readConstrain(const std::string & label) {
+	static EdgeConstrain readConstrain(const std::string & label) {
 		// Test possible options
 		if (label.compare("") == 0)
 			return none_cons;
@@ -137,7 +137,7 @@ class NetworkParser {
 		}
 	}
 
-	const std::size_t getPresentRegulator(const std::string & source_str, const SpecieID target_ID) const{
+	std::size_t getPresentRegulator(const std::string & source_str, const SpecieID target_ID) const{
 		SpecieID ID; std::size_t threshold = 0;
 		auto colon_pos = source_str.find(":");
 		if (colon_pos == std::string::npos)

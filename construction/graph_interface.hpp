@@ -60,7 +60,7 @@ public:
 	 *
 	 * @return integer with size of the graph
 	 */
-	inline const std::size_t getStateCount() const {
+	inline std::size_t getStateCount() const {
 		return states.size();
 	}
 
@@ -71,7 +71,7 @@ public:
 	 *
 	 * @return	integer with number of outcoming transitions 
 	 */
-	inline const std::size_t getTransitionCount(const StateID ID) const {
+	inline std::size_t getTransitionCount(const StateID ID) const {
 		return states[ID].transitions.size();
 	}
 
@@ -83,7 +83,7 @@ public:
 	 *
 	 * @return	ID of the requested target
 	 */
-	inline const StateID getTargetID(const StateID ID, const std::size_t transition_number) const {
+	inline StateID getTargetID(const StateID ID, const std::size_t transition_number) const {
 		return states[ID].transitions[transition_number].target_ID;
 	}
 

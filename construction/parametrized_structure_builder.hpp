@@ -37,7 +37,7 @@ class ParametrizedStructureBuilder {
 	 *
     * @return true it the state satisfy the requirements
 	 */
-	const bool testRegulators(const std::vector<StateID> & source_species, const std::vector<std::vector<std::size_t> > & source_values, const Levels & state_levels) {
+	bool testRegulators(const std::vector<StateID> & source_species, const std::vector<std::vector<std::size_t> > & source_values, const Levels & state_levels) {
 		// List throught regulating species of the function
 		for (std::size_t regulator_num = 0; regulator_num < source_species.size(); regulator_num++) {
 			bool is_included = false; // Remains false if the specie level is not in allowed range
@@ -68,7 +68,7 @@ class ParametrizedStructureBuilder {
 	 *
 	 * @return function that might lead to the next state
 	 */
-	const std::size_t getActiveFunction(const std::size_t specie_ID, const Levels & state_levels) {
+	std::size_t getActiveFunction(const std::size_t specie_ID, const Levels & state_levels) {
 		// Source species that will be tested
 		const std::vector<std::size_t> & source_species = regulatory_functions.getSourceSpecies(specie_ID);
 
@@ -137,7 +137,7 @@ class ParametrizedStructureBuilder {
 	 *
 	 * @return true if there is a possibility of transition, false otherwise
 	 */
-	const bool fillFunctions(const StateID ID, const StateID neighbour_index, const Levels & state_levels,
+	bool fillFunctions(const StateID ID, const StateID neighbour_index, const Levels & state_levels,
 		                     std::size_t & step_size, std::vector<bool> & transitive_values) {
 		// Get ID of the regulated specie
 		const std::size_t specie_ID = basic_structure.getSpecieID(ID, neighbour_index);

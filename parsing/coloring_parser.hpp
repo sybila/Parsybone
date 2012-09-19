@@ -111,7 +111,7 @@ public:
 	/**
 	 * @return number of Parameters e.g. number of rounds of computation
 	 */
-	inline const std::size_t getColorsCount() {
+	inline std::size_t getColorsCount() {
 		return colors_sets.size() * paramset_helper.getParamsetSize();
 	}
 } coloring_parser; ///< Single program-shared coloring parser object.

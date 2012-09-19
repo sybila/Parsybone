@@ -48,7 +48,7 @@ public:
 	/**
 	 * @return	total number of species
 	 */
-	inline const std::size_t getSpecieNum() const {
+	inline std::size_t getSpecieNum() const {
 		return colors.size();
 	}
 
@@ -57,7 +57,7 @@ public:
 	 *
 	 * @return	total number of subcolors this specie could have (all regulatory contexts' combinations)
 	 */
-	inline const std::size_t getAllColorsNum(const SpecieID ID) const {
+	inline std::size_t getAllColorsNum(const SpecieID ID) const {
 		return colors[ID].possible_count;
 	}
 
@@ -66,14 +66,14 @@ public:
 	 *
 	 * @return	total number of subcolors this specie has (allowed regulatory contexts' combinations)
 	 */
-	inline const std::size_t getColorsNum(const SpecieID ID) const {
+	inline std::size_t getColorsNum(const SpecieID ID) const {
 		return colors[ID].acceptable_count;
 	}
 
 	/**
 	 * @return	size of the parameter space used in the computation
 	 */
-	const std::size_t getSpaceSize() const {
+	std::size_t getSpaceSize() const {
 		std::size_t space_size = 1;
 		forEach(colors, [&space_size](const SpecieColors & specie_cols) {
 				  space_size *= specie_cols.acceptable_count;

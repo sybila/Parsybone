@@ -106,7 +106,7 @@ public:
 	/**
 	 * @return	total number of parameters for all the processes
 	 */ 
-	inline const ColorNum getAllColorsCount() const {
+	inline ColorNum getAllColorsCount() const {
 		return all_colors_count;
 	}
 
@@ -120,35 +120,35 @@ public:
 	/**
 	 * @return	number of bits in current round
 	 */
-	inline const ColorNum getRoundSize() const {
+	inline ColorNum getRoundSize() const {
 		return round_end - round_begin;
 	}
 
 	/**
 	 * @return	range with first and one before last parameter to compute for this process
 	 */ 
-	inline const ColorNum getProcColorsCount() const {
+	inline ColorNum getProcColorsCount() const {
 		return process_color_count;
 	}
 
 	/**
 	 * @return	true if this round is not the last
 	 */ 
-	inline const bool lastRound() const {
+	inline bool lastRound() const {
       return round_number == rounds_count;
 	}
 
 	/**
 	 * @return	number of this round
 	 */ 
-	inline const RoundNum getRoundNum() const {
+	inline RoundNum getRoundNum() const {
 		return round_number;
 	}
 
 	/**
 	 * @return	total number of rounds
 	 */ 
-	inline const RoundNum getRoundCount() const {
+	inline RoundNum getRoundCount() const {
 		return rounds_count;
 	}
 

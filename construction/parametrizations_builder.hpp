@@ -146,7 +146,7 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	how many colors are there together
 	 */
-	const std::size_t getBoundaries(const SpecieID ID, std::vector<std::size_t> & bottom_color, std::vector<std::size_t> & top_color) {
+	std::size_t getBoundaries(const SpecieID ID, std::vector<std::size_t> & bottom_color, std::vector<std::size_t> & top_color) {
 		// Obtain all regulations
       auto parameters = model.getParameters(ID);
 		std::size_t colors_num = 1;

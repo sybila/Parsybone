@@ -91,7 +91,7 @@ class ModelChecker {
 	 *
 	 * @return	index of the state to start an update from
 	 */
-	const StateID getStrongestUpdate() const {
+	StateID getStrongestUpdate() const {
 		// Reference value
 		register StateID ID = 0;
 		register Paramset current = 0;
