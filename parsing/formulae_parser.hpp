@@ -9,7 +9,7 @@
 ///   -# \f$tt\f$ (true) and \f$ff\f$ (false) are formulas representing true and false respectively,
 ///	-# any variable is a formula,
 ///   -# for \f$\varphi\f$ formula is \f$!\varphi\f$ formula,
-///   -# for \f$\psi, \varphi\f$ formulas are \f$(\psi|\varphi)\f$, \f$(\psi&\varphi)\f$ formulas representing logical disjunction and conjunction respectively,
+///   -# for \f$\psi, \varphi\f$ formulas are \f$(\psi|\varphi)\f$, \f$(\psi\&\varphi)\f$ formulas representing logical disjunction and conjunction respectively,
 ///   -# nothing else is a formula.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FormulaeParser {

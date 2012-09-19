@@ -137,10 +137,46 @@ class NetworkParser {
 		}
 	}
 
+	const std::size_t getPresentRegulator(const std::string & source_str, const SpecieID target_ID) const{
+		SpecieID ID; std::size_t threshold = 0;
+		auto colon_pos = source_str.find(":");
+		if (colon_pos == std::string::npos)
+			ID = model.findID(source_str);
+		else {
+			ID = model.findID(source_str.substr(0,colon_pos));
+			try {
+				threshold = boost::lexical_cast<std::size_t>(source_str.substr(colon_pos+1));
+			}
+			catch (boost::bad_lexical_cast & e) {
+				output_streamer.output(error_str, std::string("Error while trying to obtain threshold within a regulatory context  ").append(source_str).append(": ").append(e.what()));
+				throw std::runtime_error("boost::lexical_cast<std::size_t>(source.substr(colon_pos+1)) failed");
+			}
+		}
+		if (ID >= model.getSpeciesCount())
+			throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(target_ID)).append(" was not found in the specie list"));
+
+		std::size_t reg_num = static_cast<std::size_t>(~0); std::size_t counter = 0;
+		forEach(model.getRegulations(target_ID),[&](const Model::Regulation & regulation){
+			if (regulation.source == ID)
+				if (colon_pos == std::string::npos || regulation.threshold == threshold)
+				{
+					reg_num = counter;
+					return;
+				}
+			counter++;
+		});
+
+		if (reg_num == static_cast<std::size_t>(~0))
+			throw std::invalid_argument(std::string("Regulator ").append(source_str).append(" of the specie ")
+												 .append(toString(target_ID)).append(" was not found in the regulators list"));
+
+		return reg_num;
+	}
+
 	/**
     * Use a string defining context together with a value to create a single kintetic parameter.
 	 */
-	void fillFromContext(const std::string context, std::set<std::vector<bool> > & specified, size_t specie_ID, int target_value) const {
+	void fillFromContext(const std::string context, std::set<std::vector<bool> > & specified, SpecieID specie_ID, int target_value) const {
 		// Obtain strings of the sources
 		std::vector<std::string> sources;
 		if (!context.empty()) try {
@@ -150,28 +186,12 @@ class NetworkParser {
 			throw std::runtime_error("boost::split(sources, context, boost::is_any_of(\",\")) failed");
 		}
 
-      // Control existence of the source specie and its presence as a regulator
-		forEach(sources, [&](std::string & source) {
-         SpecieID ID = model.findID(source);
-         if (ID >= model.getSpeciesCount())
-            throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the specie list"));
-         bool is_regulator = false;
-         forEach(model.getRegulations(specie_ID),[&](const Model::Regulation & regulation){
-            is_regulator = is_regulator ? true : (regulation.source == ID);
-         });
-         if (!is_regulator)
-            throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(specie_ID)).append(" was not found in the regulators list"));
-      });
+		// Create the mask of present regulators in this context
+		std::vector<bool> mask(model.getRegulations(specie_ID).size(), false);
+		for (auto source_it = sources.begin(); source_it != sources.end(); source_it++)
+			mask[getPresentRegulator(*source_it, specie_ID)] = true;
 
-		// Create a mask by comparison of source strings against regulations sources of the specie
-		std::vector<bool> mask;
-      auto regulations = model.getRegulations(specie_ID);
-		for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
-         mask.push_back(std::find(sources.begin(), sources.end(), toString(regulations[regul_num].source)) != sources.end()
-            || std::find(sources.begin(), sources.end(), model.getName(regulations[regul_num].source)) != sources.end());
-		}
-
-		// Add a new regulation to the specified target
+		// Add the new regulation to the specified target
 		if (!specified.insert(mask).second) {
 			throw std::invalid_argument(std::string("Context redefinition found for the specie ").append(toString(specie_ID)));
 		}

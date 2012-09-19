@@ -26,7 +26,7 @@
  */
 int main(int argc, char* argv[]) {
 	time_manager.startClock("runtime");
-   ConstructionHolder holder; ///< Object that will hold all the constructed data structures that are used as reference.
+    ConstructionHolder holder; ///< Object that will hold all the constructed data structures that are used as reference.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STEP ONE:
