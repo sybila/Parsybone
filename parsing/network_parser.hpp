@@ -137,6 +137,10 @@ class NetworkParser {
 		}
 	}
 
+	/**
+	 * This function obtains a present regulator of a specie as an ordinal number of the regulation in the vector of all regulations of this specie.
+	 * If the source is specified in the form "source:value", only the regulator that has the value as a threshold is accepted.
+	 */
 	std::size_t getPresentRegulator(const std::string & source_str, const SpecieID target_ID) const{
 		SpecieID ID; std::size_t threshold = 0;
 		auto colon_pos = source_str.find(":");

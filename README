@@ -5,36 +5,16 @@ open-source 2012, GNU GPL v3, uses:
 	Boost Libraries ( http://www.boost.org/ )
 	RapidXML ( see http://rapidxml.sourceforge.net/ )
 
+This is a very short introduction to usage of this tool. For a complet user manual, please refer to https://github.com/sybila/Parsybone-manual . Repository with currently used models can be found at https://github.com/sybila/DiscreteModels.	
+
 Requirements:
 	GCC v4.5.0 or Microsoft Visual C++ Compiler 10.0
 	Boost libraries v1.4.4
 	
 Building:
-	Apart from the boost libraries there are no additional dependencies. For g++ one should currently specify usage of C++11 (-std=c++0x parameter).
+	Apart from the boost libraries there are no additional dependencies. Using the g++ one should currently specify usage of C++11 (-std=c++0x parameter).
 
 Execution:
-	Parsybone reads the model in a .dbm file, displays results and comments on the standard output and errors on the standard error output.
-	
-Output:
-	Data from the "verbose" stream are printed on lines starting with * 
-	Data from the "statistics" stream are printed on lines starting with #
-	Data from the "error" stream are printed on lines starting with !
-	
-	Results are printed without preposition in the form:
-	acceptable_parametrization_number:actual_parametrization_values:[cost]:[robustness_value]:[{time_series_walks_transitions}]
-	- acceptable_parametrization_number; "\d" :
-		this number uniquely marks given parametrization and it corresponds to n-th leftmost iteration of target value corresponding to possible parametrization
-	- actual_parametrization_values; "\((\d,)*\d\)" :
-		values are of the form and each value corresponds to a single kinetic parameter, parameters are ordere increasingly by specie and for a single specie by iteration of the leftmost value
-	- cost; "\d" : 
-		a lenght in transitions of a shortest time series walk this parametrization is able to reproduce
-	- robustness_value; "\d\.\d" :
-		probability value of reaching the final state, robustness is always non-zero
-	- time_series_walks_transitions; "\{(X>X,)*X>X\}" where X is either "\d" or "\((\d,)*\d;\d\)"
-		sequence of transitions that occur in time series walks for this parametrization, state can be described either by its ID or by actuall values of the state in the form "(specie_0,..,specie_n;automaton)"
-		
-	
-Arguments:
 	Parsybone model_file.dbm [-rsvwW] [-d process_ID number_of_processes] [-f results_file] [-m input_mask_file] [-M output_mask_file]
 
 	model_file.dbm	name of the file that will be parsed and used, must have .dbm suffix
@@ -50,210 +30,10 @@ Arguments:
 	-m #filename	Name of the file that holds bitmask for used colors
 	-M #filename	Name of the file to ouput bitmask from this computation
 
-Model:
-	Model is an XML based file with the .dbm suffix. For description, following tags are used:
+Output:
+	Data from the "verbose" stream are printed on lines starting with * 
+	Data from the "statistics" stream are printed on lines starting with #
+	Data from the "error" stream are printed on lines starting with !
 	
-	<MODEL>
-	Occurrence: single, mandatory
-	Type: pair
-	Parent: none
-	- Encloses the whole model.
-	Attributes:	
-	1) 	ver:
-		Occurece: mandatory
-		Value: should be 1.0 for this form of the model
-
-	<STRUCTURE>
-	Occurrence: single, mandatory
-	Type: pair
-	Parent: MODEL
-	- Encloses definition of a gene regulatory network.
-	Attributes: none
-	
-	<SPECIE>
-	Occurrence: multiple, mandatory
-	Type: pair
-	Parent: STRUCTURE
-	- Defines a single specie.
-	Attributes:	
-	1) 	name:
-		Occurrence: optional
-		Value: string containing letters and numbers
-		Default: ordinal number of the tag, counting from zero
-		- Name of the specie under which it will be further addressed. If not given, system uses its ordinal number (so the first specie would have name "0").
-		
-	2)	undef:
-		Occurrence: optional
-		Value: basal/param/error
-		Default: param
-		- Tells system how it should handle values of regulatory contexts that are not specified. Basal means using a basal value, param means using all values (parametrized values) and error causes error in case there are unspecified contexts.
-		
-	3)	max:
-		Occurrence: optional
-		Value: natural number
-		Default: 1
-		- Maximal activation level this specie can occur in.
-		
-	4)	basal:
-		Occurrence: optional
-		Value: positive integer
-		Default: 0
-		- Basal activation level of this specie, towards which the specie tends if not specified otherwise.
-	
-
-	<REGUL>
-	Occurrence: multiple, mandatory
-	Type: single
-	Parent: SPECIE	
-	- Defines a single incoming regulation.	
-	Attributes:	
-	1) 	source:
-		Occurrence: mandatory
-		Value: name or the ordinal number of regulating specie
-		- Name of the specie that regulates this one.
-		
-	2)	threshold:
-		Occurrence: optional
-		Value: natural number
-		Default: 1
-		- Lowest activation level of the source specie that activates the regulation.
-		
-	3)	observ:
-		Occurrence: optional
-		Value: + or - or empty
-		Default: empty
-		- Describes nature of the regulation as activation (+) or inhibition (-) or any (empyt).
-		
-	4)	label:
-		Occurrence: optional
-		Value: boolean
-		Default: 0
-		- Specifies if the regulation must be observable (1) or can be unobserved (0).
-		
-	<PARAM>
-	Occurrence: multiple, present if and only if there is no sibling LOGIC tag
-	Type: single
-	Parent: SPECIE	
-	- Defines a single logical parameter.	
-	Attributes:	
-	1) 	context:
-		Occurrence: mandatory
-		Value: comma separated list of active regulations, given by name or ordinal number of the regulator
-		- Defines regulatory context in which this logical parameter is applied.
-		
-	2)	value:
-		Occurrence: optional
-		Value: positive integer or -1
-		Default: -1
-		- Speficies target value of the specie in this regulatory context. If the value is parametrized, it might be any between 0 and maximal value of the specie. In this case, -1 is used as an abbreviation.
-		
-	<LOGIC>
-	Occurrence: single, present if and only if there is no sibling PARAM tag
-	Type: single
-	Parent: SPECIE
-	- Defines parametrization of the specie based on the logical formula over the incoming interactions.
-	Attributes:	
-	1) 	formula:
-		Occurrence: mandatory
-		Value: logical formula (see part Formula construction below), variables are names or ordinal number of regulators
-		- Result target value is given as a valuation of the formula, where a variable denotig a regulator is valuated to 1 if the regulation is active and to 0 otherwise
-		
-	<AUTOMATON>
-	Occurrence: single, present if and only if there is no sibling SERIES tag
-	Type: pair
-	Parent: MODEL
-	- Encloses definition of a Buchi automaton controlling the property.
-	Attributes: none	
-
-	<STATE>
-	Occurrence: multiple, mandatory
-	Type: single
-	Parent: AUTOMATON
-	- Defines a single state of the automaton. First state described is considered to be also initial.
-	Attributes:	
-	1) 	name:
-		Occurrence: optional
-		Value: string containing letters and numbers
-		Default: ordinal number of the tag, counting from zero
-		- Name of the state under which it will be further addressed. If not given, system uses its ordinal number (so the first state would have name "0").
-		
-	2)	final:
-		Occurrence: optional
-		Value: boolean
-		Default: 0
-		- Specifies if the state is final (1) or not (0).
-		
-	<EDGE>
-	Occurrence: multiple, mandatory
-	Type: single
-	Parent: STATE	
-	- Defines a edge leaving from the parent state.	
-	Attributes:	
-	1) 	target:
-		Occurrence: mandatory
-		Value: name or the ordinal number of a target state
-		
-	2)	label:
-		Occurrence: mandatory
-		Value: logical formula (see part Formula construction below), variables are atomic propositions (see part Atomic propositions below)
-		- Conditions that must be met for the edge to be transitible.	
-		
-	
-	<SERIES>
-	Occurrence: single,  present if and only if there is no sibling AUTOMATON tag
-	Type: pair
-	Parent: MODEL
-	- Encloses definition of a Time series that must be reconstructed.
-	Attributes: none	
-	
-	<EXPR>
-	Occurrence: multiple, mandatory
-	Type: single
-	Parent: SERIES	
-	- A single expression measurement in the time series.	
-	Attributes:		
-	1)	values:
-		Occurrence: mandatory
-		Value: logical formula (see part Formula construction below), variables are atomic propositions (see part Atomic propositions below)
-		- Conditions that must be met for the measurement to be reproduced.	
-		
-	
-Formula construction:
-	-# tt and ff are formulas representing true or false respectively
-	-# any variable is a formula
-	-# for A formula is !A formula
-	-# for A,B formulas are (A|B) and (A&B) formulas representing logical disjunction and conjunction respectively; & can be denoted using an XML entity "&amp;"
-	-# nothing else is a formula
-
-Atomic propositions:
-	- atomic proposition are in the form: "specie*value"
-	- specie denotes name or ordinal number of a specie
-	- * denotes comparison operator which may be on from {<,>,=}
-	- value denotes a positive integet with which the value of the specie is compared
-	
-Example:
-	<MODEL ver="1.0">
-		<STRUCTURE>
-			<SPECIE undef="basal">
-				<REGUL source="1" threshold ="1" observ="1" />
-				<REGUL source="0" />			
-				<LOGIC formula="(second&!0)" />
-			</SPECIE>
-			<SPECIE name = "second">
-				<REGUL source="0" />
-				<REGUL source="second" label="+" />			
-				<PARAM context="" value="-1" />
-				<PARAM context="second" value="1" />
-				<PARAM context="0,1" value="-1" />			
-			</SPECIE>
-		</STRUCTURE>
-		<SERIES>
-			<EXPR values="0=0" />
-			<EXPR values="((0=0&amp;second=0)|(0=1&amp;1=1))" />		
-			<EXPR values="(0=1&amp;second=0)" />
-		</SERIES>
-	</MODEL>
-
-
-	
-	
+	Results are printed without prefix in the form:
+	acceptable_parametrization_number:actual_parametrization_values:[cost]:[robustness_value]:[{time_series_walks_transitions}]
