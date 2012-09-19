@@ -80,7 +80,7 @@ class AutomatonBuilder {
       // Go through the label
       for (std::size_t pos = 0; pos < label.length(); pos++) {
          char ch = label[pos];
-         if (!(isalpha(ch) || isdigit(ch) || ch == '<' || ch == '>' || ch == '=' || ch == '!' || ch == '|' || ch == '&' || ch == '(' || ch == ')'))
+         if (!(isspace(ch) || isalpha(ch) || isdigit(ch) || ch == '<' || ch == '>' || ch == '=' || ch == '!' || ch == '|' || ch == '&' || ch == '(' || ch == ')'))
             throw std::runtime_error(std::string("String: ").append(label).append(" contains invalid character: ").append(&ch).c_str());
 
          // If the atom is not a logic symbol, add it to current atom, otherwise store the atom, if any
