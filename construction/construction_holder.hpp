@@ -18,6 +18,8 @@
 #include "product_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Stores pointers to all data objects created for the purpose of the synthesis.
+///
 /// Class stores and provides all the objects that are built during construction phase.
 /// There are two methods employed:
 ///	-# fill* this method obtains a reference for a dynamic object and assigns it to its unique_ptr,

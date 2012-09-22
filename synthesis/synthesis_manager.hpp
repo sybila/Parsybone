@@ -20,6 +20,8 @@
 #include "robustness_compute.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief STEP 3 - Control class for the computation.
+///
 /// Manager of the synthesis procedure - takes the reference data constructed during previous steps and computes and executes the synthesis.
 /// Synthesis is done in three steps:
 ///	-# preparation: empties data and starts a new round.

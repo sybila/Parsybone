@@ -18,6 +18,8 @@
 #include "boost/algorithm/string.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Class for parsing of the regulatory network.
+///
 /// This object is responsible for parsing and translation of data related to the GRN.
 /// Most of the possible semantics mistakes are under control and cause exceptions.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,21 +286,26 @@ class NetworkParser {
 	 */
 	void parseParameters(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		// Parameters data data
-		std::string context; int target_value;
+		std::string context; std::string target_val_str; int target_value;
 		auto unspec = getUnspecified(specie_node);
 		std::set<std::vector<bool> > specified; // Used for possibility of partial specification
 
 		// Step into first PARAM tag, end when the current node does not have next sibling (all PARAM tags were parsed)
       for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM", false); parameter; parameter = parameter->next_sibling("PARAM") ) {
 			// Get the mask string.
-			if ( XMLHelper::getAttribute(context, parameter, "context") ) {
-				if (!XMLHelper::getAttribute(target_value, parameter, "value", false))
-               target_value = -1;
-            if (target_value < -1 || target_value > static_cast<int>(model.getMax(specie_ID)))
-               throw std::invalid_argument(std::string("Target value of a regulation out of the specie's range in some regulation of specie ").append(toString(specie_ID)));
+			XMLHelper::getAttribute(context, parameter, "context");
 
-				fillFromContext(context, specified, specie_ID, target_value);
-			}
+         // Get the targte value (set to -1 if uknown or unspecified) and check it
+         if (!XMLHelper::getAttribute(target_val_str, parameter, "value", false))
+            target_value = -1;
+         if (target_val_str.compare("?") == 0)
+            target_value = -1;
+         else
+            XMLHelper::getAttribute(target_value, parameter, "value", false);
+         if (target_value < -1 || target_value > static_cast<int>(model.getMax(specie_ID)))
+            throw std::invalid_argument(std::string("Target value of a regulation out of the specie's range in some regulation of specie ").append(toString(specie_ID)));
+
+			fillFromContext(context, specified, specie_ID, target_value);
 		}
 
 		addUnspecified(specified, specie_ID, unspec);

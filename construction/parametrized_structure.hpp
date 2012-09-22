@@ -31,6 +31,8 @@ struct ParState : public StateProperty<ParTransitionion> {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Complete Kripke structure with only possible transitions containing encoded kinetic functions.
+///
 /// ParametrizedStructure stores states of the Kripke structure created from the model together with labelled transitions.
 /// Each transition contains a function that causes it with explicit enumeration of values from the function that are transitive.
 /// To easily search for the values in the parameter bitmask, step_size of the function is added

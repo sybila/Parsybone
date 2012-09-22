@@ -6,6 +6,8 @@
 #include "../boost/algorithm/string.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Class able to resolve any logical function in propositional logic.
+///
 /// This is a static helper class able of resolving any preposition logic formula.
 /// Formula construction:
 ///   -# \f$tt\f$ (true) and \f$ff\f$ (false) are formulas representing true and false respectively,

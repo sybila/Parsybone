@@ -12,6 +12,8 @@
 #include "construction_holder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief STEP 2 - Builds all the structures and stores them within a ConstructionHolder.
+///
 /// ConstructionManager overviews the whole process of construction of structures from information contained within a model file.
 /// All the objects constructed are stored within a provided CostructionHolder and further acessible only via constant getters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +62,7 @@ public:
 		holder.fillParametrizedStructure(parametrized_structure);
 
 		output_streamer.output(verbose_str, "Buchi automaton building started.");
-		// Create the B\"uchi automaton
+		// Create the Buchi automaton
 		AutomatonStructure * automaton = new AutomatonStructure; // Set of transitions - controlling automaton
 		AutomatonBuilder automaton_builder(holder.getModel(), *automaton);
 		automaton_builder.buildAutomaton();

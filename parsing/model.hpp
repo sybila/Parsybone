@@ -12,6 +12,8 @@
 #include "../auxiliary/output_streamer.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Storage for data parsed from the model.
+///
 /// Model stores model data in the raw form, almost the same as in the model file itself.
 /// Model data can be set only form the ModelParser object.
 /// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.

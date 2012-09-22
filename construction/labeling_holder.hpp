@@ -12,6 +12,8 @@
 #include "../auxiliary/output_streamer.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Storage for the regulatory graph with kinetic parameters encoded in form of regulatory functions.
+///
 /// LabelingHolder contains basic representation of the Gene Regulatory network in the form of the labeled graph.
 /// Each specie is stored together with its regulations. Each regulation has its step_size value (shared by multiple regulations).
 /// This value represents division of parametrization space and is used for encoding and decoding it into paramset.

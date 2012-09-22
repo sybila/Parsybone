@@ -34,6 +34,8 @@ struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Holds a product structure - the one that is used in coloring procedure.
+///
 /// This is the final step of construction - a structure that is acutally used during the computation. For simplicity, it copies data from its predecessors (BA and PKS).
 /// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4.
 ///

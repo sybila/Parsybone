@@ -14,6 +14,8 @@
 #include "parametrized_structure.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Creates a ParametrizedStructure as a composition of a BasicStructure and ParametrizationsHolder.
+///
 /// ParametrizedStructureBuilder creates the ParametrizedStructure from the model data.
 /// States are read from the basic structure and passed to the parametrized structure, then the transitions are added.
 /// Each transition is supplemented with a label - mask of transitive values and the its function ID.

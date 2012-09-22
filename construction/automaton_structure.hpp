@@ -21,7 +21,7 @@ struct AutTransitionion : public TransitionProperty {
       : TransitionProperty(target_ID), allowed_values(std::move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables.
 };
 
-/// Storing a single state of the B\"uchi automaton. This state is extended with a value saying wheter the states is final.
+/// Storing a single state of the Buchi automaton. This state is extended with a value saying wheter the states is final.
 struct AutState : public AutomatonStateProperty<AutTransitionion> {
 
 	/// Fills data and checks if the state has value  -> is initial
@@ -30,7 +30,9 @@ struct AutState : public AutomatonStateProperty<AutTransitionion> {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// AutomatonStructure stores B\"uchi automaton with edges labelled by values the KS can be in for the transition to be allowed.
+/// \brief A Buchi automaton designed to control some \f$\omega\f$-regular property.
+///
+/// AutomatonStructure stores Buchi automaton with edges labelled by values the KS can be in for the transition to be allowed.
 /// AutomatonStructure data can be set only from the AutomatonStructureBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonStructure : public AutomatonInterface<AutState> {

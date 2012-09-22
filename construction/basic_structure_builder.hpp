@@ -14,6 +14,8 @@
 #include "basic_structure.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Creates a full state space as a simple graph as a BasicStructure object.
+///
 /// BasicStructureBuilder creates the BasicStructure (Simple Kripke Structure) from the model data.
 /// In each iteration of the creation, a new state is generated as a cartesian product of values of the species. All the combinations are used.
 /// Each state is provided with indexes of their neighbours. For each dimension (specie) there are three neighbours, if possible, base on the change of the specie's value - up, stay or down.

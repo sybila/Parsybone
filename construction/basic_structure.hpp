@@ -31,6 +31,8 @@ struct BasState : public StateProperty<BasTransition> {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief A simple structure describing the complete state space.
+///
 /// BasicStructure stores states of the Kripke structure created from the model - each state knows its levels and indexes of all the neighbours.
 /// Order of neighbours of state is (specie 1 down, specie 1 stay, specie 1 up, specie 2 down, ... )
 /// BasicStructure data can be set only form the BasicStructureBuilder object.
