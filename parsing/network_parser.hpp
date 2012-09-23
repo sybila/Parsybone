@@ -104,7 +104,7 @@ class NetworkParser {
 	 */
 	static EdgeConstrain readConstrain(const std::string & label) {
 		// Test possible options
-		if (label.compare("") == 0)
+		if (label.compare("?") == 0)
 			return none_cons;
 		else if (label.compare("+") == 0)
 			return pos_cons;
@@ -130,7 +130,7 @@ class NetworkParser {
 			auto source_ID = getSourceID(regulation, specie_ID);
 			auto threshold = getThreshold(regulation, specie_ID, source_ID);
 			if (!XMLHelper::getAttribute(label, regulation, "label", false))
-				label = "";
+				label = "?";
 			constrain = readConstrain(label);
          observable = XMLHelper::getAttribute(observable, regulation, "observ", false);
 
