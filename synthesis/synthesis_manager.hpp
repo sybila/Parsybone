@@ -106,7 +106,7 @@ class SynthesisManager {
 		// Get initial coloring
 		Paramset starting;
       if(user_options.inputMask())
-			starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum())];
+         starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
 		else
 			starting = split_manager->createStartingParameters();
 

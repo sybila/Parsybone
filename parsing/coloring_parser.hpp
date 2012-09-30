@@ -96,7 +96,8 @@ public:
 		// Cycle through bytes
 		for (std::size_t byte_num = sizeof(parameters); byte_num > 0; byte_num--) {
 			// Take last 8 bits - to save the form, it is needed to shift up till last round 
-			output_file << static_cast<unsigned char>(parameters >> (byte_num-1)*8);
+			unsigned char to_out = static_cast<unsigned char>(parameters >> (byte_num-1)*8);
+			output_file << to_out;
 		}
 	}
 
