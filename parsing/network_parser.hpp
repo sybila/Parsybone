@@ -213,13 +213,15 @@ class NetworkParser {
 		std::vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
 		std::vector<bool> top(model.getRegulations(specie_ID).size(), true);
 		std::vector<bool> tested = bottom;
+		std::map<std::string, bool> valuation;
 		do {
 			// Add current valuations for both a species ID and name (if any)
-			std::map<std::string, bool> valuation;
+			valuation.clear();
 			for (std::size_t regul_num = 0; regul_num < tested.size(); regul_num++) {
 				StateID source_ID = (model.getRegulations(specie_ID))[regul_num].source;
 				valuation.insert(std::make_pair(toString(source_ID), tested[regul_num]));
-				valuation.insert(std::make_pair(model.getName(source_ID), tested[regul_num]));
+				if (model.getName(source_ID).compare(toString(source_ID)) != 0)
+					valuation.insert(std::make_pair(model.getName(source_ID), tested[regul_num]));
 			}
 
 			model.addParameter(specie_ID, tested, FormulaeParser::resolve(valuation, logic));
@@ -309,7 +311,6 @@ class NetworkParser {
 		}
 
 		addUnspecified(specified, specie_ID, unspec);
-      model.sortParameters();
 	}
 
 	/**
@@ -356,6 +357,7 @@ class NetworkParser {
 				parseParameters(specie, ID);
 			}
 		}
+		model.sortParameters();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

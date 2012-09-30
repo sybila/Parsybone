@@ -51,7 +51,7 @@ class WitnessSearcher {
     * @param which   mask of the parametrizations that allow currently found path
     * @param initil  if true, stores also the last node as an initial one for given parametrizations
     */
-   void storeTransitions(const Paramset which, bool initial) {
+   void storeTransitions(const Paramset which, bool initial, std::size_t depth) {
       std::vector<std::pair<StateID, StateID> > trans;  // Temporary storage for the transitions
 
       // Go from the end till the lastly reached node
@@ -85,22 +85,24 @@ class WitnessSearcher {
       if (depth > max_depth)
          throw std::runtime_error("Depth boundary overcome during the DFS procedure.");
 
-      // If this state already has proven to lie on a path to the source, add this possible successors
-      // Note that this works correctly due to the fact, that parametrizations are removed form the BFS during the coloring once they prove acceptable
-      Paramset connected = markings[ID].succeeded & paramset;
-      if (connected)
-         storeTransitions(connected, false);
-
       // If a way to the source was found, apply it as well
       if (product.isInitial(ID))
-         storeTransitions(paramset, true);
+         storeTransitions(paramset, true, depth);
 
       // Remove those with Cost lower than this level of the search (meaning that nothing more that cycles would be found)
       paramset &= ~depth_masks[depth];
 
       // Remove parametrizations that already have proven to be used/useless
-      for (std::size_t level = 1; level <= depth && paramset; level++)
+      for (std::size_t level = 1; level < depth && paramset; level++)
          paramset &= ~markings[ID].busted[level];
+
+      // If this state already has proven to lie on a path to the source, add this possible successors
+      // Note that this works correctly due to the fact, that parametrizations are removed form the BFS during the coloring once they prove acceptable
+      Paramset connected = markings[ID].succeeded & paramset;
+      if (connected)
+         storeTransitions(connected, false, depth);
+
+      paramset &= ~markings[ID].busted[depth];
       markings[ID].busted[depth] |= paramset; // Forbid usage of these parametrizations for depth levels as high or higher than this one
 
       // If there is anything left, pass it further to the predecessors
