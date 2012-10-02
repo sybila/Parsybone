@@ -5,7 +5,7 @@ open-source 2012, GNU GPL v3, uses:
 	Boost Libraries ( http://www.boost.org/ )
 	RapidXML ( see http://rapidxml.sourceforge.net/ )
 
-This is a very short introduction to usage of this tool. For a complet user manual, please refer to https://github.com/sybila/Parsybone-manual . Repository with currently used models can be found at https://github.com/sybila/DiscreteModels.	
+For full manual, refer to Manual.pdf file. For documentation reference refer to Reference.pdf file.
 
 Requirements:
 	GCC v4.5.0 or Microsoft Visual C++ Compiler 10.0
