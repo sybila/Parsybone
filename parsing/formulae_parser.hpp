@@ -100,10 +100,13 @@ public:
    static bool resolve (const std::map<std::string, bool> & valuation, std::string formula) {
       // If there is a ! symbol, negate the formula and remove it
       bool negate = false; bool result;
+
+      boost::trim(formula);
       if (formula[0] == '!') {
          negate = true;
          formula = formula.substr(1);
       }
+      boost::trim(formula);
 
       // Search for any operator, if not found, assume formula to be an atom and return its valuation
       if (formula.find("|") == std::string::npos && formula.find("&") == std::string::npos) {
