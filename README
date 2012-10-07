@@ -1,11 +1,13 @@
-Parsybone (Parameter Synthetizer for Boolean Networks) Release v1.000
+Parsybone (Parameter Synthetizer for Boolean Networks) Release v1.000, 7.10.2012
 Copyright (C) 2012 - Adam Streck
-Systems Biology Laboratory of Masaryk University, Brno
+Systems Biology Laboratory of Masaryk University, Brno ( http://sybila.fi.muni.cz )
 open-source 2012, GNU GPL v3, uses:
 	Boost Libraries ( http://www.boost.org/ )
 	RapidXML ( see http://rapidxml.sourceforge.net/ )
 
-For full manual, refer to Manual.pdf file. For documentation reference refer to Reference.pdf file.
+This is a Release v1.000 of the Parsybone tool. For the newest version check either development tree ( https://github.com/sybila/Parsybone ) or web pages ( 
+
+For full manual, refer to Manual.pdf file. For documentation reference refer to Reference.pdf file. http://sybila.fi.muni.cz/tools )
 
 Requirements:
 	GCC v4.5.0 or Microsoft Visual C++ Compiler 10.0
