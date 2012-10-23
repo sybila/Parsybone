@@ -124,7 +124,7 @@ class ModelChecker {
 		// Which are new
 		Paramset store = to_find & colors;
 		// Remove currently found
-		to_find &= ~colors;
+		to_find &= ~store;
 
 		// Store those that were found in this round
 		for (int color_pos = static_cast<int>(paramset_helper.getParamsetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
@@ -275,6 +275,7 @@ class ModelChecker {
 
 		BFS_level = 0; // Set sterting number of BFS
 		next_updates.clear(); // Ensure emptiness of the next round
+		BFS_reach.clear();
 		BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)
       next_round_storage.reset(); // Copy starting values
 	}

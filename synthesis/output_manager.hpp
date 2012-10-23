@@ -93,6 +93,14 @@ public:
 		auto params = std::move(analyzer.getOutput()); auto param_it = params.begin();
 		auto witnesses = std::move(searcher.getOutput()); auto witness_it = witnesses.begin();
 		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
+\
+		// Control the actual size of vectors - they must be the same
+		if ((params.size() != costs.size()) || (params.size() != witnesses.size()) || (params.size() != robusts.size())) {
+			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizationss: " + toString(params.size()) +
+											", costs:" + toString(costs.size()) + ", witnesses:" + toString(witnesses.size()) +
+											", robustnesses:" + toString(robusts.size());
+			throw std::invalid_argument(sizes_err);
+		}
 
 		// Cycle through parametrizations, display requested data
 		while (param_it != params.end()) {
