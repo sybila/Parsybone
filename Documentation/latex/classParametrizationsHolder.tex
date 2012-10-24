@@ -1,0 +1,181 @@
+\hypertarget{classParametrizationsHolder}{\section{\-Parametrizations\-Holder \-Class \-Reference}
+\label{classParametrizationsHolder}\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}}
+}
+
+
+\-Stores partial parametrizations (functions of each component).  
+
+
+
+
+{\ttfamily \#include $<$parametrizations\-\_\-holder.\-hpp$>$}
+
+\subsection*{\-Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bfseries \-Specie\-Colors}
+\begin{DoxyCompactList}\small\item\em \-Holds all the feasible subcolors for single \-Specie w.\-r.\-t. edge constrains. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classParametrizationsHolder_a3816cd8b510cc5a96da90adca4ff1077}{\hyperlink{classParametrizationsHolder_a3816cd8b510cc5a96da90adca4ff1077}{\-Parametrizations\-Holder} ()}\label{classParametrizationsHolder_a3816cd8b510cc5a96da90adca4ff1077}
+
+\begin{DoxyCompactList}\small\item\em \-Default empty constructor, needed to create an empty object that will be filled. \end{DoxyCompactList}\item 
+std\-::size\-\_\-t \hyperlink{classParametrizationsHolder_a20920a6cdec5de6d3dcaf7e10c59430c}{get\-Specie\-Num} () const 
+\item 
+std\-::size\-\_\-t \hyperlink{classParametrizationsHolder_a7ad5ebfb7e5a52896b9a7ae541e3d7e2}{get\-All\-Colors\-Num} (const \-Specie\-I\-D \-I\-D) const 
+\item 
+std\-::size\-\_\-t \hyperlink{classParametrizationsHolder_a7c1b8e98b4eef781c2e1915ceb036b0e}{get\-Colors\-Num} (const \-Specie\-I\-D \-I\-D) const 
+\item 
+std\-::size\-\_\-t \hyperlink{classParametrizationsHolder_a25073b9f8a1fa65ef34078488717c3b6}{get\-Space\-Size} () const 
+\item 
+const std\-::vector$<$ std\-::size\-\_\-t $>$ \& \hyperlink{classParametrizationsHolder_aa5e1039bfb6ef7e46e628a68f5017b5b}{get\-Color} (const \-Specie\-I\-D \-I\-D, const \-Color\-Num color\-\_\-num) const 
+\item 
+const std\-::vector$<$ std\-::size\-\_\-t $>$ \hyperlink{classParametrizationsHolder_ae1be2f9c2408501150c5eba52d136d60}{get\-Target\-Vals} (const \-Specie\-I\-D \-I\-D, const std\-::size\-\_\-t regul\-\_\-num) const 
+\item 
+const std\-::string \hyperlink{classParametrizationsHolder_ab7ac8a8c80e9acb38983ebf478749bd9}{create\-Color\-String} (\-Color\-Num number) const 
+\item 
+const std\-::vector$<$ \-Color\-Num $>$ \hyperlink{classParametrizationsHolder_a2705dfd955aacf9aa54c8a08d078b132}{get\-Specie\-Vals} (\-Color\-Num number) const 
+\end{DoxyCompactItemize}
+\subsection*{\-Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classParametrizationsHolder_a99090b061b96efab6a781286b8e5975b}{class {\bfseries \-Parametrizations\-Builder}}\label{classParametrizationsHolder_a99090b061b96efab6a781286b8e5975b}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-This class stores feasible subcolors for each specie are stored with that specie ( a vector of all the possibilities for parametrization for this specie). \begin{DoxyAttention}{\-Attention}
+\-Subcolor means partial parametrizatrization $\sim$ full parametrization of a single specie. 
+\end{DoxyAttention}
+
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classParametrizationsHolder_ab7ac8a8c80e9acb38983ebf478749bd9}{\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}!create\-Color\-String@{create\-Color\-String}}
+\index{create\-Color\-String@{create\-Color\-String}!ParametrizationsHolder@{\-Parametrizations\-Holder}}
+\subsubsection[{create\-Color\-String}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::string {\bf \-Parametrizations\-Holder\-::create\-Color\-String} (
+\begin{DoxyParamCaption}
+\item[{\-Color\-Num}]{number}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classParametrizationsHolder_ab7ac8a8c80e9acb38983ebf478749bd9}
+\-This function creates a string containing a parametrization from its ordinal number. \-The string is in the form \mbox{[}specie\-\_\-1\-\_\-context\-\_\-1, specie\-\_\-2\-\_\-context\-\_\-2,...,specie\-\_\-m\-\_\-context\-\_\-n\mbox{]}.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em number} & ordinal number of the parametrization to be converted\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+string representation of given parametrisation 
+\end{DoxyReturn}
+\hypertarget{classParametrizationsHolder_a7ad5ebfb7e5a52896b9a7ae541e3d7e2}{\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}!get\-All\-Colors\-Num@{get\-All\-Colors\-Num}}
+\index{get\-All\-Colors\-Num@{get\-All\-Colors\-Num}!ParametrizationsHolder@{\-Parametrizations\-Holder}}
+\subsubsection[{get\-All\-Colors\-Num}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t {\bf \-Parametrizations\-Holder\-::get\-All\-Colors\-Num} (
+\begin{DoxyParamCaption}
+\item[{const \-Specie\-I\-D}]{\-I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classParametrizationsHolder_a7ad5ebfb7e5a52896b9a7ae541e3d7e2}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the specie to get the number from\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+total number of subcolors this specie could have (all regulatory contexts' combinations) 
+\end{DoxyReturn}
+\hypertarget{classParametrizationsHolder_aa5e1039bfb6ef7e46e628a68f5017b5b}{\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}!get\-Color@{get\-Color}}
+\index{get\-Color@{get\-Color}!ParametrizationsHolder@{\-Parametrizations\-Holder}}
+\subsubsection[{get\-Color}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$std\-::size\-\_\-t$>$\& {\bf \-Parametrizations\-Holder\-::get\-Color} (
+\begin{DoxyParamCaption}
+\item[{const \-Specie\-I\-D}]{\-I\-D, }
+\item[{const \-Color\-Num}]{color\-\_\-num}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classParametrizationsHolder_aa5e1039bfb6ef7e46e628a68f5017b5b}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the specie the requested subcolor belongs to \\
+\hline
+{\em color\-\_\-num} & ordinal number of the requested subcolor\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+requested subcolor from the vector of subcolors of given specie 
+\end{DoxyReturn}
+\hypertarget{classParametrizationsHolder_a7c1b8e98b4eef781c2e1915ceb036b0e}{\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}!get\-Colors\-Num@{get\-Colors\-Num}}
+\index{get\-Colors\-Num@{get\-Colors\-Num}!ParametrizationsHolder@{\-Parametrizations\-Holder}}
+\subsubsection[{get\-Colors\-Num}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t {\bf \-Parametrizations\-Holder\-::get\-Colors\-Num} (
+\begin{DoxyParamCaption}
+\item[{const \-Specie\-I\-D}]{\-I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classParametrizationsHolder_a7c1b8e98b4eef781c2e1915ceb036b0e}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the specie to get the number from\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+total number of subcolors this specie has (allowed regulatory contexts' combinations) 
+\end{DoxyReturn}
+\hypertarget{classParametrizationsHolder_a25073b9f8a1fa65ef34078488717c3b6}{\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}!get\-Space\-Size@{get\-Space\-Size}}
+\index{get\-Space\-Size@{get\-Space\-Size}!ParametrizationsHolder@{\-Parametrizations\-Holder}}
+\subsubsection[{get\-Space\-Size}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t {\bf \-Parametrizations\-Holder\-::get\-Space\-Size} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classParametrizationsHolder_a25073b9f8a1fa65ef34078488717c3b6}
+\begin{DoxyReturn}{\-Returns}
+size of the parameter space used in the computation 
+\end{DoxyReturn}
+\hypertarget{classParametrizationsHolder_a20920a6cdec5de6d3dcaf7e10c59430c}{\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}!get\-Specie\-Num@{get\-Specie\-Num}}
+\index{get\-Specie\-Num@{get\-Specie\-Num}!ParametrizationsHolder@{\-Parametrizations\-Holder}}
+\subsubsection[{get\-Specie\-Num}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t {\bf \-Parametrizations\-Holder\-::get\-Specie\-Num} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classParametrizationsHolder_a20920a6cdec5de6d3dcaf7e10c59430c}
+\begin{DoxyReturn}{\-Returns}
+total number of species 
+\end{DoxyReturn}
+\hypertarget{classParametrizationsHolder_a2705dfd955aacf9aa54c8a08d078b132}{\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}!get\-Specie\-Vals@{get\-Specie\-Vals}}
+\index{get\-Specie\-Vals@{get\-Specie\-Vals}!ParametrizationsHolder@{\-Parametrizations\-Holder}}
+\subsubsection[{get\-Specie\-Vals}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$\-Color\-Num$>$ {\bf \-Parametrizations\-Holder\-::get\-Specie\-Vals} (
+\begin{DoxyParamCaption}
+\item[{\-Color\-Num}]{number}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classParametrizationsHolder_a2705dfd955aacf9aa54c8a08d078b132}
+\-This function takes ordinal number of a parametrization and computes ordinal number of partial parametrizations it is built from.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em number} & ordinal number of the parametrization to be converted\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+ordinal numbers of partial parametrizations in a vector indexed by \-I\-Ds of the species 
+\end{DoxyReturn}
+\hypertarget{classParametrizationsHolder_ae1be2f9c2408501150c5eba52d136d60}{\index{\-Parametrizations\-Holder@{\-Parametrizations\-Holder}!get\-Target\-Vals@{get\-Target\-Vals}}
+\index{get\-Target\-Vals@{get\-Target\-Vals}!ParametrizationsHolder@{\-Parametrizations\-Holder}}
+\subsubsection[{get\-Target\-Vals}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$std\-::size\-\_\-t$>$ {\bf \-Parametrizations\-Holder\-::get\-Target\-Vals} (
+\begin{DoxyParamCaption}
+\item[{const \-Specie\-I\-D}]{\-I\-D, }
+\item[{const std\-::size\-\_\-t}]{regul\-\_\-num}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classParametrizationsHolder_ae1be2f9c2408501150c5eba52d136d60}
+\-This function returns a vector containing target value for a given regulatory contexts for \-A\-L\-L the contexts allowed (in lexicographical order).
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the specie that is regulated \\
+\hline
+{\em regul\-\_\-num} & ordinal number of the regulatory context (in a lexicographical order)\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie) 
+\end{DoxyReturn}
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+construction/parametrizations\-\_\-holder.\-hpp\end{DoxyCompactItemize}

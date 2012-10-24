@@ -1,0 +1,98 @@
+\hypertarget{classBasicStructure}{\section{\-Basic\-Structure \-Class \-Reference}
+\label{classBasicStructure}\index{\-Basic\-Structure@{\-Basic\-Structure}}
+}
+
+
+\-A simple structure describing the complete state space.  
+
+
+
+
+{\ttfamily \#include $<$basic\-\_\-structure.\-hpp$>$}
+
+\-Inheritance diagram for \-Basic\-Structure\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classBasicStructure}
+\end{center}
+\end{figure}
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classBasicStructure_ae2069c7d1d75da4f17093dc50aa35c8c}{\hyperlink{classBasicStructure_ae2069c7d1d75da4f17093dc50aa35c8c}{\-Basic\-Structure} ()}\label{classBasicStructure_ae2069c7d1d75da4f17093dc50aa35c8c}
+
+\begin{DoxyCompactList}\small\item\em \-Default empty constructor, needed to create an empty object that will be filled. \end{DoxyCompactList}\item 
+const \-Levels \& \hyperlink{classBasicStructure_a16e4995e8983e3882015158ef3141dba}{get\-State\-Levels} (const \-State\-I\-D \-I\-D) const 
+\item 
+std\-::size\-\_\-t \hyperlink{classBasicStructure_abba9142ad864c119a657a7c4ea84e074}{get\-Specie\-I\-D} (const \-State\-I\-D \-I\-D, const std\-::size\-\_\-t neighbour\-\_\-index) const 
+\item 
+\-Direction \hyperlink{classBasicStructure_af6bd4e6df2c4fee49d372bc9455543ac}{get\-Direction} (const \-State\-I\-D \-I\-D, const std\-::size\-\_\-t neighbour\-\_\-index) const 
+\end{DoxyCompactItemize}
+\subsection*{\-Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classBasicStructure_ad482d25720baca819f24eed850bd41e2}{class {\bfseries \-Basic\-Structure\-Builder}}\label{classBasicStructure_ad482d25720baca819f24eed850bd41e2}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\hyperlink{classBasicStructure}{\-Basic\-Structure} stores states of the \-Kripke structure created from the model -\/ each state knows its levels and indexes of all the neighbours. \-Order of neighbours of state is (specie 1 down, specie 1 stay, specie 1 up, specie 2 down, ... ) \hyperlink{classBasicStructure}{\-Basic\-Structure} data can be set only form the \hyperlink{classBasicStructureBuilder}{\-Basic\-Structure\-Builder} object. 
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classBasicStructure_af6bd4e6df2c4fee49d372bc9455543ac}{\index{\-Basic\-Structure@{\-Basic\-Structure}!get\-Direction@{get\-Direction}}
+\index{get\-Direction@{get\-Direction}!BasicStructure@{\-Basic\-Structure}}
+\subsubsection[{get\-Direction}]{\setlength{\rightskip}{0pt plus 5cm}\-Direction {\bf \-Basic\-Structure\-::get\-Direction} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const std\-::size\-\_\-t}]{neighbour\-\_\-index}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classBasicStructure_af6bd4e6df2c4fee49d372bc9455543ac}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the state to get the neighbour from \\
+\hline
+{\em neighbour\-\_\-index} & index in the vector of neighbours\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+\-Direction in which the specie changes 
+\end{DoxyReturn}
+\hypertarget{classBasicStructure_abba9142ad864c119a657a7c4ea84e074}{\index{\-Basic\-Structure@{\-Basic\-Structure}!get\-Specie\-I\-D@{get\-Specie\-I\-D}}
+\index{get\-Specie\-I\-D@{get\-Specie\-I\-D}!BasicStructure@{\-Basic\-Structure}}
+\subsubsection[{get\-Specie\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t {\bf \-Basic\-Structure\-::get\-Specie\-I\-D} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const std\-::size\-\_\-t}]{neighbour\-\_\-index}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classBasicStructure_abba9142ad864c119a657a7c4ea84e074}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the state to get the neighbour from \\
+\hline
+{\em neighbour\-\_\-index} & index in the vector of neighbours\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+\-I\-D of the specie that vary between the two states 
+\end{DoxyReturn}
+\hypertarget{classBasicStructure_a16e4995e8983e3882015158ef3141dba}{\index{\-Basic\-Structure@{\-Basic\-Structure}!get\-State\-Levels@{get\-State\-Levels}}
+\index{get\-State\-Levels@{get\-State\-Levels}!BasicStructure@{\-Basic\-Structure}}
+\subsubsection[{get\-State\-Levels}]{\setlength{\rightskip}{0pt plus 5cm}const \-Levels\& {\bf \-Basic\-Structure\-::get\-State\-Levels} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classBasicStructure_a16e4995e8983e3882015158ef3141dba}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the state to get\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+levels of the state 
+\end{DoxyReturn}
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+construction/basic\-\_\-structure.\-hpp\end{DoxyCompactItemize}

@@ -1,0 +1,55 @@
+\hypertarget{classSynthesisManager}{\section{\-Synthesis\-Manager \-Class \-Reference}
+\label{classSynthesisManager}\index{\-Synthesis\-Manager@{\-Synthesis\-Manager}}
+}
+
+
+\-S\-T\-E\-P 3 -\/ \-Control class for the computation.  
+
+
+
+
+{\ttfamily \#include $<$synthesis\-\_\-manager.\-hpp$>$}
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classSynthesisManager_adad655ed16249bcfd9ac67afebfd507f}{\-Synthesis\-Manager} (const \hyperlink{classConstructionHolder}{\-Construction\-Holder} \&\-\_\-holder)
+\item 
+void \hyperlink{classSynthesisManager_a2ec413741cc5a8c1f4f96928abc71012}{do\-Synthesis} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Manager of the synthesis procedure -\/ takes the reference data constructed during previous steps and computes and executes the synthesis. \-Synthesis is done in three steps\-:
+\begin{DoxyEnumerate}
+\item preparation\-: empties data and starts a new round.
+\end{DoxyEnumerate}
+
+synthesis\-: computes the coloring, stored in the storage object and adds data to coloring analyzer if needed.
+\begin{DoxyEnumerate}
+\item conclusion\-: stores additional data and outputs 
+\end{DoxyEnumerate}
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\hypertarget{classSynthesisManager_adad655ed16249bcfd9ac67afebfd507f}{\index{\-Synthesis\-Manager@{\-Synthesis\-Manager}!\-Synthesis\-Manager@{\-Synthesis\-Manager}}
+\index{\-Synthesis\-Manager@{\-Synthesis\-Manager}!SynthesisManager@{\-Synthesis\-Manager}}
+\subsubsection[{\-Synthesis\-Manager}]{\setlength{\rightskip}{0pt plus 5cm}\-Synthesis\-Manager\-::\-Synthesis\-Manager (
+\begin{DoxyParamCaption}
+\item[{const {\bf \-Construction\-Holder} \&}]{\-\_\-holder}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classSynthesisManager_adad655ed16249bcfd9ac67afebfd507f}
+\-Constructor builds all the data objects that are used within. 
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classSynthesisManager_a2ec413741cc5a8c1f4f96928abc71012}{\index{\-Synthesis\-Manager@{\-Synthesis\-Manager}!do\-Synthesis@{do\-Synthesis}}
+\index{do\-Synthesis@{do\-Synthesis}!SynthesisManager@{\-Synthesis\-Manager}}
+\subsubsection[{do\-Synthesis}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Synthesis\-Manager\-::do\-Synthesis} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classSynthesisManager_a2ec413741cc5a8c1f4f96928abc71012}
+\-Main synthesis function that iterates through all the rounds of the synthesis. 
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+synthesis/synthesis\-\_\-manager.\-hpp\end{DoxyCompactItemize}

@@ -1,0 +1,57 @@
+\hypertarget{classFormulaeParser}{\section{\-Formulae\-Parser \-Class \-Reference}
+\label{classFormulaeParser}\index{\-Formulae\-Parser@{\-Formulae\-Parser}}
+}
+
+
+\-Class able to resolve any logical function in propositional logic.  
+
+
+
+
+{\ttfamily \#include $<$formulae\-\_\-parser.\-hpp$>$}
+
+\subsection*{\-Static \-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+static bool \hyperlink{classFormulaeParser_a73e95916637a754033419ac3a4b3c07a}{resolve} (const std\-::map$<$ std\-::string, bool $>$ \&valuation, std\-::string formula)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-This is a static helper class able of resolving any preposition logic formula. \-Formula construction\-:
+\begin{DoxyEnumerate}
+\item $tt$ (true) and $ff$ (false) are formulas representing true and false respectively,
+\begin{DoxyEnumerate}
+\item any variable is a formula,
+\end{DoxyEnumerate}
+\item for $\varphi$ formula is $!\varphi$ formula,
+\item for $\psi, \varphi$ formulas are $(\psi|\varphi)$, $(\psi\&\varphi)$ formulas representing logical disjunction and conjunction respectively,
+\item nothing else is a formula. 
+\end{DoxyEnumerate}
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classFormulaeParser_a73e95916637a754033419ac3a4b3c07a}{\index{\-Formulae\-Parser@{\-Formulae\-Parser}!resolve@{resolve}}
+\index{resolve@{resolve}!FormulaeParser@{\-Formulae\-Parser}}
+\subsubsection[{resolve}]{\setlength{\rightskip}{0pt plus 5cm}static bool {\bf \-Formulae\-Parser\-::resolve} (
+\begin{DoxyParamCaption}
+\item[{const std\-::map$<$ std\-::string, bool $>$ \&}]{valuation, }
+\item[{std\-::string}]{formula}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, static\mbox{]}}}}\label{classFormulaeParser_a73e95916637a754033419ac3a4b3c07a}
+\-Function that returns valuation of the formula based on valuation of its variables.
+
+
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em valuation} & map of variable valuations in the form (name, value) \\
+\hline
+\mbox{\tt in}  & {\em formula} & formula to resolve\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+true iff valuation of the formula is true 
+\end{DoxyReturn}
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+parsing/formulae\-\_\-parser.\-hpp\end{DoxyCompactItemize}

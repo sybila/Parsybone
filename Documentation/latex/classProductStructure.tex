@@ -1,0 +1,138 @@
+\hypertarget{classProductStructure}{\section{\-Product\-Structure \-Class \-Reference}
+\label{classProductStructure}\index{\-Product\-Structure@{\-Product\-Structure}}
+}
+
+
+\-Holds a product structure -\/ the one that is used in coloring procedure.  
+
+
+
+
+{\ttfamily \#include $<$product\-\_\-structure.\-hpp$>$}
+
+\-Inheritance diagram for \-Product\-Structure\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classProductStructure}
+\end{center}
+\end{figure}
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classProductStructure_a1669ec333c66cc802ba2a5f781e4dd41}{\hyperlink{classProductStructure_a1669ec333c66cc802ba2a5f781e4dd41}{\-Product\-Structure} (const \hyperlink{classParametrizedStructure}{\-Parametrized\-Structure} \&\-\_\-structure, const \hyperlink{classAutomatonStructure}{\-Automaton\-Structure} \&\-\_\-automaton)}\label{classProductStructure_a1669ec333c66cc802ba2a5f781e4dd41}
+
+\begin{DoxyCompactList}\small\item\em \-Default constructor, only passes the data. \end{DoxyCompactList}\item 
+\-State\-I\-D \hyperlink{classProductStructure_abc8e244f4cdeaff7bcea7f592a4b2297}{get\-Product\-I\-D} (const \-State\-I\-D \-K\-S\-\_\-\-I\-D, const \-State\-I\-D \-B\-A\-\_\-\-I\-D) const 
+\item 
+\-State\-I\-D \hyperlink{classProductStructure_ad5c76b37b08e6aac431624c229a83958}{get\-B\-A\-I\-D} (const \-State\-I\-D \-I\-D) const 
+\item 
+\-State\-I\-D \hyperlink{classProductStructure_a650c655568c984ec1138f91691693a15}{get\-K\-S\-I\-D} (const \-State\-I\-D \-I\-D) const 
+\item 
+const \-Levels \& \hyperlink{classProductStructure_ae55a35958534cebb974d491ff80fedc1}{get\-State\-Levels} (const \-State\-I\-D \-I\-D) const 
+\item 
+std\-::size\-\_\-t \hyperlink{classProductStructure_ae6905f6bedffcb40115a9ddd2edb1d5a}{get\-Step\-Size} (const \-State\-I\-D \-I\-D, const std\-::size\-\_\-t transtion\-\_\-num) const 
+\item 
+const std\-::vector$<$ bool $>$ \& \hyperlink{classProductStructure_a0b4ed666548d34270779222d4ae31606}{get\-Transitive} (const \-State\-I\-D \-I\-D, const std\-::size\-\_\-t transtion\-\_\-num) const 
+\end{DoxyCompactItemize}
+\subsection*{\-Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classProductStructure_a6c45ddd297f18174168e322ae1b74396}{class {\bfseries \-Product\-Builder}}\label{classProductStructure_a6c45ddd297f18174168e322ae1b74396}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-This is the final step of construction -\/ a structure that is acutally used during the computation. \-For simplicity, it copies data from its predecessors (\-B\-A and \-P\-K\-S). \begin{DoxyAttention}{\-Attention}
+\-States of product are indexed as (\-B\-A\-\_\-state\-\_\-count $\ast$ \-K\-S\-\_\-state\-\_\-\-I\-D + \-B\-A\-\_\-state\-\_\-\-I\-D) -\/ e.\-g. if 3-\/state \-B\-A state ((1,0)x(1)) would be at position 3$\ast$1 + 1 = 4.
+\end{DoxyAttention}
+\hyperlink{classProductStructure}{\-Product\-Structure} data can be set only from the \hyperlink{classProductBuilder}{\-Product\-Builder} object. 
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classProductStructure_ad5c76b37b08e6aac431624c229a83958}{\index{\-Product\-Structure@{\-Product\-Structure}!get\-B\-A\-I\-D@{get\-B\-A\-I\-D}}
+\index{get\-B\-A\-I\-D@{get\-B\-A\-I\-D}!ProductStructure@{\-Product\-Structure}}
+\subsubsection[{get\-B\-A\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}\-State\-I\-D {\bf \-Product\-Structure\-::get\-B\-A\-I\-D} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classProductStructure_ad5c76b37b08e6aac431624c229a83958}
+\begin{DoxyReturn}{\-Returns}
+index of \-B\-A state form the product 
+\end{DoxyReturn}
+\hypertarget{classProductStructure_a650c655568c984ec1138f91691693a15}{\index{\-Product\-Structure@{\-Product\-Structure}!get\-K\-S\-I\-D@{get\-K\-S\-I\-D}}
+\index{get\-K\-S\-I\-D@{get\-K\-S\-I\-D}!ProductStructure@{\-Product\-Structure}}
+\subsubsection[{get\-K\-S\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}\-State\-I\-D {\bf \-Product\-Structure\-::get\-K\-S\-I\-D} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classProductStructure_a650c655568c984ec1138f91691693a15}
+\begin{DoxyReturn}{\-Returns}
+index of \-B\-A state form the product 
+\end{DoxyReturn}
+\hypertarget{classProductStructure_abc8e244f4cdeaff7bcea7f592a4b2297}{\index{\-Product\-Structure@{\-Product\-Structure}!get\-Product\-I\-D@{get\-Product\-I\-D}}
+\index{get\-Product\-I\-D@{get\-Product\-I\-D}!ProductStructure@{\-Product\-Structure}}
+\subsubsection[{get\-Product\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}\-State\-I\-D {\bf \-Product\-Structure\-::get\-Product\-I\-D} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-K\-S\-\_\-\-I\-D, }
+\item[{const \-State\-I\-D}]{\-B\-A\-\_\-\-I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classProductStructure_abc8e244f4cdeaff7bcea7f592a4b2297}
+\begin{DoxyReturn}{\-Returns}
+index of this combination of states in the product 
+\end{DoxyReturn}
+\hypertarget{classProductStructure_ae55a35958534cebb974d491ff80fedc1}{\index{\-Product\-Structure@{\-Product\-Structure}!get\-State\-Levels@{get\-State\-Levels}}
+\index{get\-State\-Levels@{get\-State\-Levels}!ProductStructure@{\-Product\-Structure}}
+\subsubsection[{get\-State\-Levels}]{\setlength{\rightskip}{0pt plus 5cm}const \-Levels\& {\bf \-Product\-Structure\-::get\-State\-Levels} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classProductStructure_ae55a35958534cebb974d491ff80fedc1}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the state to get the data from\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+species level 
+\end{DoxyReturn}
+\hypertarget{classProductStructure_ae6905f6bedffcb40115a9ddd2edb1d5a}{\index{\-Product\-Structure@{\-Product\-Structure}!get\-Step\-Size@{get\-Step\-Size}}
+\index{get\-Step\-Size@{get\-Step\-Size}!ProductStructure@{\-Product\-Structure}}
+\subsubsection[{get\-Step\-Size}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t {\bf \-Product\-Structure\-::get\-Step\-Size} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const std\-::size\-\_\-t}]{transtion\-\_\-num}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classProductStructure_ae6905f6bedffcb40115a9ddd2edb1d5a}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the state to get the data from \\
+\hline
+{\em transition\-\_\-num} & index of the transition to get the data from\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+number of neighbour parameters that share the same value of the function 
+\end{DoxyReturn}
+\hypertarget{classProductStructure_a0b4ed666548d34270779222d4ae31606}{\index{\-Product\-Structure@{\-Product\-Structure}!get\-Transitive@{get\-Transitive}}
+\index{get\-Transitive@{get\-Transitive}!ProductStructure@{\-Product\-Structure}}
+\subsubsection[{get\-Transitive}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$bool$>$\& {\bf \-Product\-Structure\-::get\-Transitive} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const std\-::size\-\_\-t}]{transtion\-\_\-num}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classProductStructure_a0b4ed666548d34270779222d4ae31606}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & \-I\-D of the state to get the data from \\
+\hline
+{\em transition\-\_\-num} & index of the transition to get the data from\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+target values that are includete in non-\/transitive parameters that have to be removed 
+\end{DoxyReturn}
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+construction/product\-\_\-structure.\-hpp\end{DoxyCompactItemize}

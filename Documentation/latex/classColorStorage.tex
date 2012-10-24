@@ -1,0 +1,356 @@
+\hypertarget{classColorStorage}{\section{\-Color\-Storage \-Class \-Reference}
+\label{classColorStorage}\index{\-Color\-Storage@{\-Color\-Storage}}
+}
+
+
+\-An auxiliary class to the \hyperlink{classProductStructure}{\-Product\-Structure} and stores colors and possibly predecessors for individual states of the product during the computation.  
+
+
+
+
+{\ttfamily \#include $<$color\-\_\-storage.\-hpp$>$}
+
+\subsection*{\-Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bfseries \-State}
+\end{DoxyCompactItemize}
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classColorStorage_adf7976d864b12f389b98bd6fa103e05d}{\-Color\-Storage} (const \hyperlink{classConstructionHolder}{\-Construction\-Holder} \&holder)
+\item 
+\hypertarget{classColorStorage_a767d39265e155a8248c542077cfd659b}{\hyperlink{classColorStorage_a767d39265e155a8248c542077cfd659b}{\-Color\-Storage} ()}\label{classColorStorage_a767d39265e155a8248c542077cfd659b}
+
+\begin{DoxyCompactList}\small\item\em \-Empty constructor for an empty storage. \end{DoxyCompactList}\item 
+void \hyperlink{classColorStorage_aff6195f205660f815b170679f90b23f3}{add\-From} (const \hyperlink{classColorStorage}{\-Color\-Storage} \&other)
+\item 
+void \hyperlink{classColorStorage_a28df40cbd88c30ab37be0eb8ac868007}{reset} ()
+\item 
+void \hyperlink{classColorStorage_abae0ceed27174b8f9e4587630b9892cf}{set\-Results} (const std\-::vector$<$ std\-::size\-\_\-t $>$ \&new\-\_\-cost, const \-Paramset resulting)
+\item 
+void \hyperlink{classColorStorage_adb546fbf8f96051ab9b5e3a5cad18245}{set\-Results} (const \-Paramset resulting)
+\item 
+bool \hyperlink{classColorStorage_af46acc0ee8c25915ea683b64b5a9559d}{update} (const \-State\-I\-D \-I\-D, const \-Paramset parameters)
+\item 
+bool \hyperlink{classColorStorage_a34a7ebb10ac5e2f20039082bb55bb650}{soft\-\_\-update} (const \-State\-I\-D \-I\-D, const \-Paramset parameters)
+\item 
+bool \hyperlink{classColorStorage_a3a70ab5e653b3c34909b5ea7a16888eb}{update} (const \-State\-I\-D source\-\_\-\-I\-D, const \-State\-I\-D target\-\_\-\-I\-D, const \-Paramset parameters)
+\item 
+void \hyperlink{classColorStorage_aabf4f8151046e9ec96996f09733ac62e}{remove} (const \-State\-I\-D \-I\-D, const \-Paramset \hyperlink{classColorStorage_aabf4f8151046e9ec96996f09733ac62e}{remove})
+\item 
+void \hyperlink{classColorStorage_a174710660000f1fdf51c0f15bc5d29b9}{remove} (const \-State\-I\-D source\-\_\-\-I\-D, const \-Paramset \hyperlink{classColorStorage_aabf4f8151046e9ec96996f09733ac62e}{remove}, const bool successors)
+\item 
+void \hyperlink{classColorStorage_af721239710649771ecb27d0713f9d6d1}{remove} (const \-State\-I\-D source\-\_\-\-I\-D, const \-State\-I\-D target\-\_\-\-I\-D, const \-Paramset \hyperlink{classColorStorage_aabf4f8151046e9ec96996f09733ac62e}{remove}, const bool successors)
+\item 
+std\-::size\-\_\-t \hyperlink{classColorStorage_afe60ca128d4151deedfcb5ba623c328d}{get\-Max\-Depth} () const 
+\item 
+const \-Paramset \& \hyperlink{classColorStorage_a591beaa3906026ebe5313a9b2f3a1f57}{get\-Color} (const \-State\-I\-D \-I\-D) const 
+\item 
+const std\-::vector$<$ \-Coloring $>$ \hyperlink{classColorStorage_aca489cd7f6bff18444ffd84ab82b3d17}{get\-Color} (const std\-::vector$<$ \-State\-I\-D $>$ \&states) const 
+\item 
+const \-Neighbours \hyperlink{classColorStorage_adf86df0971b697e53951f61b8098db1b}{get\-Neighbours} (const \-State\-I\-D \-I\-D, const bool successors, const \-Paramset color\-\_\-mask=$\sim$0) const 
+\item 
+const std\-::vector$<$ \-Paramset $>$ \hyperlink{classColorStorage_a2d3ff1e015edc1477d908943ef832322}{get\-Marking} (const \-State\-I\-D \-I\-D, const bool successors, const \-Paramset color\-\_\-mask=$\sim$0) const 
+\item 
+std\-::size\-\_\-t \hyperlink{classColorStorage_a0c605e23a407dfe5e7f89a5347bef859}{get\-Cost} (std\-::size\-\_\-t position) const 
+\item 
+const std\-::vector$<$ std\-::size\-\_\-t $>$ \& \hyperlink{classColorStorage_a10ba68916d345d514b3b6f9af282c3a9}{get\-Cost} () const 
+\item 
+const \-Paramset \& \hyperlink{classColorStorage_a97502ca9be7ca5a5a5c222423356c508}{get\-Acceptable} () const 
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\hypertarget{classColorStorage_adf7976d864b12f389b98bd6fa103e05d}{\index{\-Color\-Storage@{\-Color\-Storage}!\-Color\-Storage@{\-Color\-Storage}}
+\index{\-Color\-Storage@{\-Color\-Storage}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{\-Color\-Storage}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Color\-Storage\-::\-Color\-Storage} (
+\begin{DoxyParamCaption}
+\item[{const {\bf \-Construction\-Holder} \&}]{holder}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_adf7976d864b12f389b98bd6fa103e05d}
+\-Constructor allocates necessary memory for further usage (this memory is not supposed to be freed until endo of the computation). \-Every state has predecessors and succesors allocated for \-E\-V\-E\-R\-Y other state, this consumes memory but benefits the complexity of operations.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em states\-\_\-count} & number of states the structure the data will be saved for has \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classColorStorage_aff6195f205660f815b170679f90b23f3}{\index{\-Color\-Storage@{\-Color\-Storage}!add\-From@{add\-From}}
+\index{add\-From@{add\-From}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{add\-From}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Color\-Storage\-::add\-From} (
+\begin{DoxyParamCaption}
+\item[{const {\bf \-Color\-Storage} \&}]{other}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_aff6195f205660f815b170679f90b23f3}
+\-Function adds values from specified source without explicitly copying them, only through bitwise or (storages must be equal). \hypertarget{classColorStorage_a97502ca9be7ca5a5a5c222423356c508}{\index{\-Color\-Storage@{\-Color\-Storage}!get\-Acceptable@{get\-Acceptable}}
+\index{get\-Acceptable@{get\-Acceptable}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{get\-Acceptable}]{\setlength{\rightskip}{0pt plus 5cm}const \-Paramset\& {\bf \-Color\-Storage\-::get\-Acceptable} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a97502ca9be7ca5a5a5c222423356c508}
+\begin{DoxyReturn}{\-Returns}
+mask of parametrizations that are computed acceptable in this round 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_a591beaa3906026ebe5313a9b2f3a1f57}{\index{\-Color\-Storage@{\-Color\-Storage}!get\-Color@{get\-Color}}
+\index{get\-Color@{get\-Color}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{get\-Color}]{\setlength{\rightskip}{0pt plus 5cm}const \-Paramset\& {\bf \-Color\-Storage\-::get\-Color} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a591beaa3906026ebe5313a9b2f3a1f57}
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & index of the state to ask for parameters\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+parameters assigned to the state 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_aca489cd7f6bff18444ffd84ab82b3d17}{\index{\-Color\-Storage@{\-Color\-Storage}!get\-Color@{get\-Color}}
+\index{get\-Color@{get\-Color}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{get\-Color}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$\-Coloring$>$ {\bf \-Color\-Storage\-::get\-Color} (
+\begin{DoxyParamCaption}
+\item[{const std\-::vector$<$ \-State\-I\-D $>$ \&}]{states}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_aca489cd7f6bff18444ffd84ab82b3d17}
+
+\begin{DoxyParams}{\-Parameters}
+{\em states} & indexes of states to ask for parameters\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+queue with all colorings of states 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_a0c605e23a407dfe5e7f89a5347bef859}{\index{\-Color\-Storage@{\-Color\-Storage}!get\-Cost@{get\-Cost}}
+\index{get\-Cost@{get\-Cost}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{get\-Cost}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t {\bf \-Color\-Storage\-::get\-Cost} (
+\begin{DoxyParamCaption}
+\item[{std\-::size\-\_\-t}]{position}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a0c605e23a407dfe5e7f89a5347bef859}
+
+\begin{DoxyParams}{\-Parameters}
+{\em number} & of the parametrization relative in this round\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+\-Cost value of a particular parametrization 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_a10ba68916d345d514b3b6f9af282c3a9}{\index{\-Color\-Storage@{\-Color\-Storage}!get\-Cost@{get\-Cost}}
+\index{get\-Cost@{get\-Cost}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{get\-Cost}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$std\-::size\-\_\-t$>$\& {\bf \-Color\-Storage\-::get\-Cost} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a10ba68916d345d514b3b6f9af282c3a9}
+\begin{DoxyReturn}{\-Returns}
+\-Cost value of all the parametrizations from this round 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_a2d3ff1e015edc1477d908943ef832322}{\index{\-Color\-Storage@{\-Color\-Storage}!get\-Marking@{get\-Marking}}
+\index{get\-Marking@{get\-Marking}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{get\-Marking}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$\-Paramset$>$ {\bf \-Color\-Storage\-::get\-Marking} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const bool}]{successors, }
+\item[{const \-Paramset}]{color\-\_\-mask = {\ttfamily $\sim$0}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a2d3ff1e015edc1477d908943ef832322}
+\-Get all the labels on trasintions from given neighbours.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & index of the state to ask for predecessors \\
+\hline
+{\em successors} & true if successors are required, false if predecessors \\
+\hline
+{\em color\-\_\-mask} & if specified, restricts neighbour to only those that contain a subset of the parametrizations\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+labelling on the neighbour labels 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_afe60ca128d4151deedfcb5ba623c328d}{\index{\-Color\-Storage@{\-Color\-Storage}!get\-Max\-Depth@{get\-Max\-Depth}}
+\index{get\-Max\-Depth@{get\-Max\-Depth}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{get\-Max\-Depth}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t {\bf \-Color\-Storage\-::get\-Max\-Depth} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_afe60ca128d4151deedfcb5ba623c328d}
+\begin{DoxyReturn}{\-Returns}
+max finite cost among parametrizations used this round 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_adf86df0971b697e53951f61b8098db1b}{\index{\-Color\-Storage@{\-Color\-Storage}!get\-Neighbours@{get\-Neighbours}}
+\index{get\-Neighbours@{get\-Neighbours}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{get\-Neighbours}]{\setlength{\rightskip}{0pt plus 5cm}const \-Neighbours {\bf \-Color\-Storage\-::get\-Neighbours} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const bool}]{successors, }
+\item[{const \-Paramset}]{color\-\_\-mask = {\ttfamily $\sim$0}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_adf86df0971b697e53951f61b8098db1b}
+\-Get all the neigbours for this color from this state.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & index of the state to ask for predecessors \\
+\hline
+{\em successors} & true if successors are required, false if predecessors \\
+\hline
+{\em color\-\_\-mask} & if specified, restricts neighbour to only those that contain a subset of the parametrizations\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+neigbours for given state 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_aabf4f8151046e9ec96996f09733ac62e}{\index{\-Color\-Storage@{\-Color\-Storage}!remove@{remove}}
+\index{remove@{remove}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{remove}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Color\-Storage\-::remove} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const \-Paramset}]{remove}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_aabf4f8151046e9ec96996f09733ac62e}
+\-Removes given paramset from the coloring of the given state. \hypertarget{classColorStorage_a174710660000f1fdf51c0f15bc5d29b9}{\index{\-Color\-Storage@{\-Color\-Storage}!remove@{remove}}
+\index{remove@{remove}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{remove}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Color\-Storage\-::remove} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{source\-\_\-\-I\-D, }
+\item[{const \-Paramset}]{remove, }
+\item[{const bool}]{successors}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a174710660000f1fdf51c0f15bc5d29b9}
+\-Removes given paramset from the label of transitions to successors / from predecessors for a given state.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em successors} & if true, use successors, predecessors otherwise \\
+\hline
+\end{DoxyParams}
+\hypertarget{classColorStorage_af721239710649771ecb27d0713f9d6d1}{\index{\-Color\-Storage@{\-Color\-Storage}!remove@{remove}}
+\index{remove@{remove}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{remove}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Color\-Storage\-::remove} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{source\-\_\-\-I\-D, }
+\item[{const \-State\-I\-D}]{target\-\_\-\-I\-D, }
+\item[{const \-Paramset}]{remove, }
+\item[{const bool}]{successors}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_af721239710649771ecb27d0713f9d6d1}
+\-Removes given paramset from the label of transitions to a single successor / from a single predecessor for a given state.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em target\-\_\-\-I\-D} & \-I\-D of the state target state to remove parameset from labelling \\
+\hline
+{\em successors} & if true, use successors, predecessors otherwise \\
+\hline
+\end{DoxyParams}
+\hypertarget{classColorStorage_a28df40cbd88c30ab37be0eb8ac868007}{\index{\-Color\-Storage@{\-Color\-Storage}!reset@{reset}}
+\index{reset@{reset}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{reset}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Color\-Storage\-::reset} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a28df40cbd88c30ab37be0eb8ac868007}
+\-Sets all values for all the states to zero. \-Allocated memory remains. \hypertarget{classColorStorage_abae0ceed27174b8f9e4587630b9892cf}{\index{\-Color\-Storage@{\-Color\-Storage}!set\-Results@{set\-Results}}
+\index{set\-Results@{set\-Results}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{set\-Results}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Color\-Storage\-::set\-Results} (
+\begin{DoxyParamCaption}
+\item[{const std\-::vector$<$ std\-::size\-\_\-t $>$ \&}]{new\-\_\-cost, }
+\item[{const \-Paramset}]{resulting}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_abae0ceed27174b8f9e4587630b9892cf}
+\-Fills after time series check finished.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em new\-\_\-cost} & a vector of lenght $|$parameter\-\_\-set$|$ containing cost values. \-If the value does not exist (state is not reachable), use $\sim$0 \\
+\hline
+\end{DoxyParams}
+\hypertarget{classColorStorage_adb546fbf8f96051ab9b5e3a5cad18245}{\index{\-Color\-Storage@{\-Color\-Storage}!set\-Results@{set\-Results}}
+\index{set\-Results@{set\-Results}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{set\-Results}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Color\-Storage\-::set\-Results} (
+\begin{DoxyParamCaption}
+\item[{const \-Paramset}]{resulting}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_adb546fbf8f96051ab9b5e3a5cad18245}
+\-Fills after a general \-L\-T\-L check finished.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em new\-\_\-cost} & a vector of lenght $|$parameter\-\_\-set$|$ containing cost values. \-If the value does not exist (state is not reachable), use $\sim$0 \\
+\hline
+\end{DoxyParams}
+\hypertarget{classColorStorage_a34a7ebb10ac5e2f20039082bb55bb650}{\index{\-Color\-Storage@{\-Color\-Storage}!soft\-\_\-update@{soft\-\_\-update}}
+\index{soft\-\_\-update@{soft\-\_\-update}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{soft\-\_\-update}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-Color\-Storage\-::soft\-\_\-update} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const \-Paramset}]{parameters}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a34a7ebb10ac5e2f20039082bb55bb650}
+\-Return true if the state would be updated, false otherwise.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & index of the state to fill \\
+\hline
+{\em parameters} & to add -\/ if empty, add all, otherwise use bitwise or\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+true if there would be an update 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_af46acc0ee8c25915ea683b64b5a9559d}{\index{\-Color\-Storage@{\-Color\-Storage}!update@{update}}
+\index{update@{update}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{update}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-Color\-Storage\-::update} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{\-I\-D, }
+\item[{const \-Paramset}]{parameters}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_af46acc0ee8c25915ea683b64b5a9559d}
+\-Add passed colors to the state.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em \-I\-D} & index of the state to fill \\
+\hline
+{\em parameters} & to add -\/ if empty, add all, otherwise use bitwise or\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+true if there was an actuall update 
+\end{DoxyReturn}
+\hypertarget{classColorStorage_a3a70ab5e653b3c34909b5ea7a16888eb}{\index{\-Color\-Storage@{\-Color\-Storage}!update@{update}}
+\index{update@{update}!ColorStorage@{\-Color\-Storage}}
+\subsubsection[{update}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-Color\-Storage\-::update} (
+\begin{DoxyParamCaption}
+\item[{const \-State\-I\-D}]{source\-\_\-\-I\-D, }
+\item[{const \-State\-I\-D}]{target\-\_\-\-I\-D, }
+\item[{const \-Paramset}]{parameters}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classColorStorage_a3a70ab5e653b3c34909b5ea7a16888eb}
+\-Add passed colors to the state.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em source\-\_\-\-I\-D} & index of the state that passed this update \\
+\hline
+{\em target\-\_\-\-I\-D} & index of the state to fill \\
+\hline
+{\em parameters} & to add -\/ if empty, add all, otherwise use bitwise or\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+true if there was an actuall update 
+\end{DoxyReturn}
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+synthesis/color\-\_\-storage.\-hpp\end{DoxyCompactItemize}

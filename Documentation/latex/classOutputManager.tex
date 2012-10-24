@@ -1,0 +1,82 @@
+\hypertarget{classOutputManager}{\section{\-Output\-Manager \-Class \-Reference}
+\label{classOutputManager}\index{\-Output\-Manager@{\-Output\-Manager}}
+}
+
+
+\-Class that outputs formatted resulting data.  
+
+
+
+
+{\ttfamily \#include $<$output\-\_\-manager.\-hpp$>$}
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classOutputManager_a02dfccbf1f4e1f4f61e7e7e8a2a97978}{\-Output\-Manager} (const \hyperlink{classColorStorage}{\-Color\-Storage} \&\-\_\-storage, const \hyperlink{classColoringAnalyzer}{\-Coloring\-Analyzer} \&\-\_\-analyzer, const \hyperlink{classSplitManager}{\-Split\-Manager} \&\-\_\-split\-\_\-manager, \hyperlink{classWitnessSearcher}{\-Witness\-Searcher} \&\-\_\-searcher, \hyperlink{classRobustnessCompute}{\-Robustness\-Compute} \&\-\_\-robustness)
+\item 
+void \hyperlink{classOutputManager_ad2fc6aa32779d30f69c600e5810126de}{output\-Summary} (const std\-::size\-\_\-t total\-\_\-count)
+\item 
+void \hyperlink{classOutputManager_aa3a6094bc7631bf8596fa29ff3e8e9e3}{output\-Round\-Num} ()
+\item 
+const std\-::vector$<$ std\-::string $>$ \hyperlink{classOutputManager_a7deb5d1b9ddb74848f9ea2e67cf47463}{get\-Costs} (const std\-::vector$<$ std\-::size\-\_\-t $>$ cost\-\_\-vals) const 
+\item 
+void \hyperlink{classOutputManager_af5e0986744d368e7e3e850d8ec7767b3}{output\-Round} () const 
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\hypertarget{classOutputManager_a02dfccbf1f4e1f4f61e7e7e8a2a97978}{\index{\-Output\-Manager@{\-Output\-Manager}!\-Output\-Manager@{\-Output\-Manager}}
+\index{\-Output\-Manager@{\-Output\-Manager}!OutputManager@{\-Output\-Manager}}
+\subsubsection[{\-Output\-Manager}]{\setlength{\rightskip}{0pt plus 5cm}\-Output\-Manager\-::\-Output\-Manager (
+\begin{DoxyParamCaption}
+\item[{const {\bf \-Color\-Storage} \&}]{\-\_\-storage, }
+\item[{const {\bf \-Coloring\-Analyzer} \&}]{\-\_\-analyzer, }
+\item[{const {\bf \-Split\-Manager} \&}]{\-\_\-split\-\_\-manager, }
+\item[{{\bf \-Witness\-Searcher} \&}]{\-\_\-searcher, }
+\item[{{\bf \-Robustness\-Compute} \&}]{\-\_\-robustness}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classOutputManager_a02dfccbf1f4e1f4f61e7e7e8a2a97978}
+\-Simple constructor that only passes the references. 
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classOutputManager_a7deb5d1b9ddb74848f9ea2e67cf47463}{\index{\-Output\-Manager@{\-Output\-Manager}!get\-Costs@{get\-Costs}}
+\index{get\-Costs@{get\-Costs}!OutputManager@{\-Output\-Manager}}
+\subsubsection[{get\-Costs}]{\setlength{\rightskip}{0pt plus 5cm}const std\-::vector$<$std\-::string$>$ {\bf \-Output\-Manager\-::get\-Costs} (
+\begin{DoxyParamCaption}
+\item[{const std\-::vector$<$ std\-::size\-\_\-t $>$}]{cost\-\_\-vals}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classOutputManager_a7deb5d1b9ddb74848f9ea2e67cf47463}
+\-Recreate vector of cost values into a vector of strings. \hypertarget{classOutputManager_af5e0986744d368e7e3e850d8ec7767b3}{\index{\-Output\-Manager@{\-Output\-Manager}!output\-Round@{output\-Round}}
+\index{output\-Round@{output\-Round}!OutputManager@{\-Output\-Manager}}
+\subsubsection[{output\-Round}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Output\-Manager\-::output\-Round} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classOutputManager_af5e0986744d368e7e3e850d8ec7767b3}
+\-Display colors synthetized during current round. \hypertarget{classOutputManager_aa3a6094bc7631bf8596fa29ff3e8e9e3}{\index{\-Output\-Manager@{\-Output\-Manager}!output\-Round\-Num@{output\-Round\-Num}}
+\index{output\-Round\-Num@{output\-Round\-Num}!OutputManager@{\-Output\-Manager}}
+\subsubsection[{output\-Round\-Num}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Output\-Manager\-::output\-Round\-Num} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classOutputManager_aa3a6094bc7631bf8596fa29ff3e8e9e3}
+\-Outputs round number -\/ if there are no data within, then erase the line each round. \hypertarget{classOutputManager_ad2fc6aa32779d30f69c600e5810126de}{\index{\-Output\-Manager@{\-Output\-Manager}!output\-Summary@{output\-Summary}}
+\index{output\-Summary@{output\-Summary}!OutputManager@{\-Output\-Manager}}
+\subsubsection[{output\-Summary}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Output\-Manager\-::output\-Summary} (
+\begin{DoxyParamCaption}
+\item[{const std\-::size\-\_\-t}]{total\-\_\-count}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classOutputManager_ad2fc6aa32779d30f69c600e5810126de}
+\-Output summary after the computation.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em total\-\_\-count} & number of all feasible colors \\
+\hline
+\end{DoxyParams}
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+synthesis/output\-\_\-manager.\-hpp\end{DoxyCompactItemize}

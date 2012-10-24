@@ -1,0 +1,55 @@
+\hypertarget{classTimeManager}{\section{\-Time\-Manager \-Class \-Reference}
+\label{classTimeManager}\index{\-Time\-Manager@{\-Time\-Manager}}
+}
+
+
+\-Class that allows to multiple clock for run-\/time measurement.  
+
+
+
+
+{\ttfamily \#include $<$time\-\_\-manager.\-hpp$>$}
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classTimeManager_ac5210ba53dc521013e545ed5af34eab9}{start\-Clock} (const std\-::string clock\-\_\-name)
+\item 
+void \hyperlink{classTimeManager_ac9335bd758afc61eb6d935a9a0d3cbe5}{ouput\-Clock} (const std\-::string clock\-\_\-name) const 
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classTimeManager_ac9335bd758afc61eb6d935a9a0d3cbe5}{\index{\-Time\-Manager@{\-Time\-Manager}!ouput\-Clock@{ouput\-Clock}}
+\index{ouput\-Clock@{ouput\-Clock}!TimeManager@{\-Time\-Manager}}
+\subsubsection[{ouput\-Clock}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Time\-Manager\-::ouput\-Clock} (
+\begin{DoxyParamCaption}
+\item[{const std\-::string}]{clock\-\_\-name}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classTimeManager_ac9335bd758afc61eb6d935a9a0d3cbe5}
+\-Outputs current runtime of the clock.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em clock\-\_\-name} & name of the clock to output (also appears on the output) \\
+\hline
+\end{DoxyParams}
+\hypertarget{classTimeManager_ac5210ba53dc521013e545ed5af34eab9}{\index{\-Time\-Manager@{\-Time\-Manager}!start\-Clock@{start\-Clock}}
+\index{start\-Clock@{start\-Clock}!TimeManager@{\-Time\-Manager}}
+\subsubsection[{start\-Clock}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Time\-Manager\-::start\-Clock} (
+\begin{DoxyParamCaption}
+\item[{const std\-::string}]{clock\-\_\-name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classTimeManager_ac5210ba53dc521013e545ed5af34eab9}
+\-Starts a clock with given name and, if it is requsted by user, outputs the info.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em clock\-\_\-name} & unique \-I\-D of the clock that will also be send on the output \\
+\hline
+\end{DoxyParams}
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+auxiliary/time\-\_\-manager.\-hpp\end{DoxyCompactItemize}

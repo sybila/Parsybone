@@ -1,0 +1,48 @@
+\hypertarget{classAutomatonBuilder}{\section{\-Automaton\-Builder \-Class \-Reference}
+\label{classAutomatonBuilder}\index{\-Automaton\-Builder@{\-Automaton\-Builder}}
+}
+
+
+\-Transform graph of the automaton into a set of labeled transitions in an \hyperlink{classAutomatonStructure}{\-Automaton\-Structure} object.  
+
+
+
+
+{\ttfamily \#include $<$automaton\-\_\-builder.\-hpp$>$}
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classAutomatonBuilder_a4b3c036d169a841be91dbe80d2763863}{\-Automaton\-Builder} (const \hyperlink{classModel}{\-Model} \&\-\_\-model, \hyperlink{classAutomatonStructure}{\-Automaton\-Structure} \&\-\_\-automaton)
+\item 
+void \hyperlink{classAutomatonBuilder_a2d57606d9d7fe169a5a2ac7a79338565}{build\-Automaton} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-This builder creates a basic automaton controlling property -\/ this automaton is based on the \hyperlink{classAutomatonInterface}{\-Automaton\-Interface}. \-Automaton is provided with string labels on the edges that are parsed and resolved for the graph. 
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\hypertarget{classAutomatonBuilder_a4b3c036d169a841be91dbe80d2763863}{\index{\-Automaton\-Builder@{\-Automaton\-Builder}!\-Automaton\-Builder@{\-Automaton\-Builder}}
+\index{\-Automaton\-Builder@{\-Automaton\-Builder}!AutomatonBuilder@{\-Automaton\-Builder}}
+\subsubsection[{\-Automaton\-Builder}]{\setlength{\rightskip}{0pt plus 5cm}\-Automaton\-Builder\-::\-Automaton\-Builder (
+\begin{DoxyParamCaption}
+\item[{const {\bf \-Model} \&}]{\-\_\-model, }
+\item[{{\bf \-Automaton\-Structure} \&}]{\-\_\-automaton}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classAutomatonBuilder_a4b3c036d169a841be91dbe80d2763863}
+\-Constructor computes boundaries of the state space and passes references. 
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classAutomatonBuilder_a2d57606d9d7fe169a5a2ac7a79338565}{\index{\-Automaton\-Builder@{\-Automaton\-Builder}!build\-Automaton@{build\-Automaton}}
+\index{build\-Automaton@{build\-Automaton}!AutomatonBuilder@{\-Automaton\-Builder}}
+\subsubsection[{build\-Automaton}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Automaton\-Builder\-::build\-Automaton} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classAutomatonBuilder_a2d57606d9d7fe169a5a2ac7a79338565}
+\-Create the transitions from the model and fill the automaton with them. 
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+construction/automaton\-\_\-builder.\-hpp\end{DoxyCompactItemize}
