@@ -14,7 +14,7 @@
 #include "basic_structure_builder.hpp"
 #include "parametrizations_builder.hpp"
 #include "labeling_builder.hpp"
-#include "parametrized_structure_builder.hpp"
+#include "unparametrized_structure_builder.hpp"
 #include "product_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ class ConstructionHolder {
 	std::unique_ptr<ParametrizationsHolder> parametrizations;
 	std::unique_ptr<Model> model;
 	std::unique_ptr<LabelingHolder> labeling;
-	std::unique_ptr<ParametrizedStructure> structure;
+	std::unique_ptr<UnparametrizedStructure> structure;
 	std::unique_ptr<ProductStructure> product;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ private:
 		labeling.reset(_labeling);
 	}
 
-	void fillParametrizedStructure(ParametrizedStructure * _structure) {
+	void fillUnparametrizedStructure(UnparametrizedStructure * _structure) {
 		structure.reset(_structure);
 	}
 
@@ -98,7 +98,7 @@ public:
 		return *labeling.get();
 	}
 
-	const ParametrizedStructure & getParametrizedStructure() const {
+	const UnparametrizedStructure & getUnparametrizedStructure() const {
 		return *structure.get();
 	}
 

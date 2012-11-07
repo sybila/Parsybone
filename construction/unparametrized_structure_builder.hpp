@@ -6,26 +6,26 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_PARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
-#define PARSYBONE_PARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
+#ifndef PARSYBONE_UNPARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
+#define PARSYBONE_UNPARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
 
 #include "basic_structure.hpp"
 #include "labeling_holder.hpp"
-#include "parametrized_structure.hpp"
+#include "unparametrized_structure.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Creates a ParametrizedStructure as a composition of a BasicStructure and ParametrizationsHolder.
+/// \brief Creates a UnparametrizedStructure as a composition of a BasicStructure and ParametrizationsHolder.
 ///
-/// ParametrizedStructureBuilder creates the ParametrizedStructure from the model data.
-/// States are read from the basic structure and passed to the parametrized structure, then the transitions are added.
+/// UnparametrizedStructureBuilder creates the UnparametrizedStructure from the model data.
+/// States are read from the basic structure and passed to the unparametrized structure, then the transitions are added.
 /// Each transition is supplemented with a label - mask of transitive values and the its function ID.
 /// This expects semantically correct data from BasicStructure and FunctionsStructure.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ParametrizedStructureBuilder {
+class UnparametrizedStructureBuilder {
 	// Provided with the constructor
    const BasicStructure & basic_structure; ///< Provider of basic KS data.
    const LabelingHolder & regulatory_functions; ///< Provider of implicit functions.
-   ParametrizedStructure & structure; ///< KipkeStructure to fill.
+   UnparametrizedStructure & structure; ///< KipkeStructure to fill.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TESTING METHODS:
@@ -187,14 +187,14 @@ class ParametrizedStructureBuilder {
 		}	
 	}
 	
-   ParametrizedStructureBuilder(const ParametrizedStructureBuilder & other); ///< Forbidden copy constructor.
-   ParametrizedStructureBuilder& operator=(const ParametrizedStructureBuilder & other); ///< Forbidden assignment operator.
+	UnparametrizedStructureBuilder(const UnparametrizedStructureBuilder & other); ///< Forbidden copy constructor.
+	UnparametrizedStructureBuilder& operator=(const UnparametrizedStructureBuilder & other); ///< Forbidden assignment operator.
 
 public:
 	/**
     * Constructor just attaches the references to data holders.
 	 */
-	ParametrizedStructureBuilder(const BasicStructure & _basic_structure, const LabelingHolder & _regulatory_functions, ParametrizedStructure & _structure) 
+	UnparametrizedStructureBuilder(const BasicStructure & _basic_structure, const LabelingHolder & _regulatory_functions, UnparametrizedStructure & _structure)
         : basic_structure(_basic_structure), regulatory_functions(_regulatory_functions), structure(_structure)  {
 	}
 
@@ -218,4 +218,4 @@ public:
 	}
 };
 
-#endif // PARSYBONE_PARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
+#endif // PARSYBONE_UNPARAMETRIZED_STRUCTURE_BUILDER_INCLUDED

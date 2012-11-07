@@ -55,11 +55,11 @@ public:
 		basic_structure_builder.buildStructure();
 		holder.fillBasicStructure(basic_structure);
 
-		// Create the PKS
-		ParametrizedStructure * parametrized_structure = new ParametrizedStructure; // Kripke structure that has transitions labelled with functions
-		ParametrizedStructureBuilder parametrized_structure_builder(holder.getBasicStructure(), holder.getLabeling(), *parametrized_structure);
-		parametrized_structure_builder.buildStructure();
-		holder.fillParametrizedStructure(parametrized_structure);
+		// Create the UKS
+		UnparametrizedStructure * unparametrized_structure = new UnparametrizedStructure; // Kripke structure that has transitions labelled with functions
+		UnparametrizedStructureBuilder unparametrized_structure_builder(holder.getBasicStructure(), holder.getLabeling(), *unparametrized_structure);
+		unparametrized_structure_builder.buildStructure();
+		holder.fillUnparametrizedStructure(unparametrized_structure);
 
 		output_streamer.output(verbose_str, "Buchi automaton building started.");
 		// Create the Buchi automaton
@@ -70,8 +70,8 @@ public:
 
 		output_streamer.output(verbose_str, "Product building started.");
 		// Create the product
-		ProductStructure * product_structure = new ProductStructure(holder.getParametrizedStructure(), holder.getAutomatonStructure());
-		ProductBuilder product_builder(holder.getParametrizedStructure(), holder.getAutomatonStructure(), *product_structure);
+		ProductStructure * product_structure = new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomatonStructure());
+		ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(), *product_structure);
 		product_builder.buildProduct();
 		holder.fillProduct(product_structure);
    }

@@ -153,7 +153,7 @@ class ParametrizationsBuilder {
 		
 		// Cycle through regulations
       for (std::size_t regul_num = 0; regul_num < parameters.size(); regul_num++) {
-			// If the target value is parametrized, add all the values
+         // If the target value is unknown, add all the values
          if (parameters[regul_num].second < 0) {
             bottom_color[regul_num] = model.getMin(ID);
 				top_color[regul_num] = model.getMax(ID);

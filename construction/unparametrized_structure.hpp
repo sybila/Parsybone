@@ -6,8 +6,8 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_PARAMETRIZED_STRUCTURE_INCLUDED
-#define PARSYBONE_PARAMETRIZED_STRUCTURE_INCLUDED
+#ifndef PARSYBONE_UNPARAMETRIZED_STRUCTURE_INCLUDED
+#define PARSYBONE_UNPARAMETRIZED_STRUCTURE_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../auxiliary/common_functions.hpp"
@@ -33,17 +33,17 @@ struct ParState : public StateProperty<ParTransitionion> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Complete Kripke structure with only possible transitions containing encoded kinetic functions.
 ///
-/// ParametrizedStructure stores states of the Kripke structure created from the model together with labelled transitions.
+/// UnparametrizedStructure stores states of the Kripke structure created from the model together with labelled transitions.
 /// Each transition contains a function that causes it with explicit enumeration of values from the function that are transitive.
 /// To easily search for the values in the parameter bitmask, step_size of the function is added
 /// - that is the value saying how many bits of mask share the the same value for the function.
-/// ParametrizedStructure data can be set only from the ParametrizedStructureBuilder object.
+/// UnparametrizedStructure data can be set only from the UnparametrizedStructureBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ParametrizedStructure : public GraphInterface<ParState> {
-	friend class ParametrizedStructureBuilder;
+class UnparametrizedStructure : public GraphInterface<ParState> {
+	friend class UnparametrizedStructureBuilder;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FILLING METHODS (can be used only from ParametrizedStructureBuilder)
+// FILLING METHODS (can be used only from UnparametrizedStructureBuilder)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Add a new state, only with ID and levels
@@ -64,11 +64,11 @@ class ParametrizedStructure : public GraphInterface<ParState> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   ParametrizedStructure(const ParametrizedStructure & other); ///< Forbidden copy constructor.
-   ParametrizedStructure& operator=(const ParametrizedStructure & other); ///< Forbidden assignment operator.
+   UnparametrizedStructure(const UnparametrizedStructure & other); ///< Forbidden copy constructor.
+   UnparametrizedStructure& operator=(const UnparametrizedStructure & other); ///< Forbidden assignment operator.
 
 public:
-	ParametrizedStructure() {} ///<  Default empty constructor
+   UnparametrizedStructure() {} ///<  Default empty constructor
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS
@@ -103,4 +103,4 @@ public:
 	}
 };
 
-#endif // PARSYBONE_PARAMETRIZED_STRUCTURE_INCLUDED
+#endif // PARSYBONE_UNPARAMETRIZED_STRUCTURE_INCLUDED

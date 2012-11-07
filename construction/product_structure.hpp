@@ -11,7 +11,7 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../construction/automaton_structure.hpp"
-#include "../construction/parametrized_structure.hpp"
+#include "../construction/unparametrized_structure.hpp"
 
 /// Storing a single transition to a neighbour state together with its transition function.
 struct ProdTransitiontion : public TransitionProperty {
@@ -22,7 +22,7 @@ struct ProdTransitiontion : public TransitionProperty {
       : TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {} ///< Simple filler, assigns values to all the variables.
 };
 
-/// State of the product - same as the state of parametrized structure but put together with a BA state.
+/// State of the product - same as the state of UKS but put together with a BA state.
 struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
 	StateID KS_ID; ///< ID of an original KS state this one is built from
 	StateID BA_ID; ///< ID of an original BA state this one is built from
@@ -36,7 +36,7 @@ struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Holds a product structure - the one that is used in coloring procedure.
 ///
-/// This is the final step of construction - a structure that is acutally used during the computation. For simplicity, it copies data from its predecessors (BA and PKS).
+/// This is the final step of construction - a structure that is acutally used during the computation. For simplicity, it copies data from its predecessors (BA and UKS).
 /// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4.
 ///
 /// ProductStructure data can be set only from the ProductBuilder object.
@@ -45,7 +45,7 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 	friend class ProductBuilder;
 	
 	// References to data predecessing data structures
-   const ParametrizedStructure & structure; ///< Stores info about KS states, used in the getString function.
+	const UnparametrizedStructure & structure; ///< Stores info about KS states, used in the getString function.
    const AutomatonStructure & automaton; ///< Stores info about BA states, used in the getString function.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ class ProductStructure : public AutomatonInterface<ProdState> {
    ProductStructure& operator=(const ProductStructure & other); ///< Forbidden assignment operator.
 
 public:
-	ProductStructure(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
+   ProductStructure(const UnparametrizedStructure & _structure, const AutomatonStructure & _automaton)
       : structure(_structure), automaton(_automaton) {} ///< Default constructor, only passes the data.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

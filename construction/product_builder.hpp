@@ -18,7 +18,7 @@
 /// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ProductBuilder {
-   const ParametrizedStructure & structure; ///< Provides info about KS states.
+   const UnparametrizedStructure & structure; ///< Provides info about KS states.
    const AutomatonStructure & automaton; ///< Provides info about BA states.
    ProductStructure & product; ///< Product to build.
 
@@ -69,7 +69,7 @@ class ProductBuilder {
 	}
 
 	/**
-	 * Create state of the product as a combination of a single BA and a single PKS state
+	 * Create state of the product as a combination of a single BA and a single UKS state
 	 *
 	 * @param KS_ID	source in the KS
 	 * @param BA_ID	source in the BA
@@ -108,14 +108,14 @@ public:
 	/**
     * Constructor just attaches the references of data holders.
 	 */
-	ProductBuilder(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product)
+	ProductBuilder(const UnparametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product)
 		: structure(_structure), automaton(_automaton), product(_product){ }
 
 	/**
-	 * Create the the synchronous product of the provided BA and PKS.
+	 * Create the the synchronous product of the provided BA and UKS.
 	 */
 	void buildProduct() {
-		output_streamer.output(stats_str, "Computing Synchronous product of the Buchi automaton and parametrized Kripke structure.");
+		output_streamer.output(stats_str, "Computing Synchronous product of the Buchi automaton and Unparametrized Kripke structure.");
 		output_streamer.output(stats_str,"Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
                      .output(structure.getStateCount() * automaton.getStateCount(), OutputStreamer::no_newl).output(".");
 		std::size_t transition_count = 0;

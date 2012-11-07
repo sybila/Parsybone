@@ -288,7 +288,7 @@ class NetworkParser {
 	 */
 	void parseParameters(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		// Parameters data data
-		std::string context; std::string target_val_str; int target_value;
+		std::string context; std::string target_val_str; int target_value = -1;
 		auto unspec = getUnspecified(specie_node);
 		std::set<std::vector<bool> > specified; // Used for possibility of partial specification
 
