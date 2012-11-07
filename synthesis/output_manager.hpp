@@ -94,11 +94,15 @@ public:
 		auto witnesses = std::move(searcher.getOutput()); auto witness_it = witnesses.begin();
 		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
 \
-		// Control the actual size of vectors - they must be the same
-		if ((params.size() != costs.size()) || (params.size() != witnesses.size()) || (params.size() != robusts.size())) {
-			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizationss: " + toString(params.size()) +
-											", costs:" + toString(costs.size()) + ", witnesses:" + toString(witnesses.size()) +
-											", robustnesses:" + toString(robusts.size());
+		// Control the actual size of vectors - they must be the same, if the vectors are employed
+		if (user_options.timeSeries() && (params.size() != costs.size())) {
+			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
+			throw std::invalid_argument(sizes_err);
+		} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
+			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
+			throw std::invalid_argument(sizes_err);
+		} else if (user_options.robustness() && (params.size() != robusts.size())) {
+			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
 			throw std::invalid_argument(sizes_err);
 		}
 
