@@ -54,8 +54,8 @@ class NetworkParser {
 		if(!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
 			threshold = 1;
 		else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
-         throw std::invalid_argument(std::string("Threshold of a regulation of specie ").append(toString(source_ID))
-                                     .append(" is incorrect (bigger than maximal level of the source or equal to 0)"));
+			throw std::invalid_argument(std::string("Threshold ").append(toString(threshold)).append(" of a regulation of specie ").append(toString(source_ID))
+												 .append(" with maximal level of ").append(toString(model.getMax(source_ID))).append(" is incorrect"));
 
 		// Test uniqueness of this combination (source, threshold)
 		auto regulations = model.getRegulations(target_ID);
@@ -154,7 +154,7 @@ class NetworkParser {
 				threshold = boost::lexical_cast<std::size_t>(source_str.substr(colon_pos+1));
 			}
 			catch (boost::bad_lexical_cast & e) {
-				output_streamer.output(error_str, std::string("Error while trying to obtain threshold within a regulatory context  ").append(source_str).append(": ").append(e.what()));
+				output_streamer.output(error_str, std::string("Error while trying to obtain threshold within a regulatory context ").append(source_str).append(": ").append(e.what()));
 				throw std::runtime_error("boost::lexical_cast<std::size_t>(source.substr(colon_pos+1)) failed");
 			}
 		}
@@ -180,6 +180,26 @@ class NetworkParser {
 	}
 
 	/**
+	 * Controls coherence of regulations - this is only necessary for multi-edge models, where two different thresholds could contradict each other.
+	 *
+	 * @return true if the regulation is coherent, false otherwise
+	 */
+	bool isContextCoherent(const SpecieID specie_ID, const std::vector<bool> & context) const {
+		auto regulations = model.getRegulations(specie_ID);
+
+		// Compare all pair
+		for (std::size_t i = 0; i < regulations.size(); i++) {
+			for (std::size_t j = 0; j < regulations.size(); j++) {
+				if (regulations[i].source == regulations[j].source && i != j)
+					// Return false if there are two present regulations with the same source
+					if (context[i] & context[j])
+						return false;
+			}
+		}
+		return true;
+	}
+
+	/**
     * Use a string defining context together with a value to create a single kintetic parameter.
 	 */
 	void fillFromContext(const std::string context, std::set<std::vector<bool> > & specified, SpecieID specie_ID, int target_value) const {
@@ -197,9 +217,12 @@ class NetworkParser {
 		for (auto source_it = sources.begin(); source_it != sources.end(); source_it++)
 			mask[getPresentRegulator(*source_it, specie_ID)] = true;
 
-		// Add the new regulation to the specified target
-		if (!specified.insert(mask).second) {
-			throw std::invalid_argument(std::string("Context redefinition found for the specie ").append(toString(specie_ID)));
+		// Add the new regulatory context, if it is coherent and not yet present
+		if (!isContextCoherent(specie_ID, mask)){
+			throw std::invalid_argument("Context " + context + " of specie " + toString(specie_ID) + " is incoherent");
+		}
+		else if (!specified.insert(mask).second) {
+			throw std::invalid_argument("Context redefinition found for the specie " + toString(specie_ID));
 		}
 
 		model.addParameter(specie_ID, mask, target_value);
@@ -215,11 +238,21 @@ class NetworkParser {
 		std::vector<bool> tested = bottom;
 		std::map<std::string, bool> valuation;
 		do {
+			if (!isContextCoherent(specie_ID, tested))
+				continue;
+
 			// Add current valuations for both a species ID and name (if any)
 			valuation.clear();
 			for (std::size_t regul_num = 0; regul_num < tested.size(); regul_num++) {
 				StateID source_ID = (model.getRegulations(specie_ID))[regul_num].source;
+				std::string source_name = model.getName(source_ID);
+				std::size_t threshold = (model.getRegulations(specie_ID))[regul_num].threshold;
+
 				valuation.insert(std::make_pair(toString(source_ID), tested[regul_num]));
+				valuation.insert(std::make_pair(source_name, tested[regul_num]));
+				valuation.insert(std::make_pair(toString(source_ID) + ":" + toString(threshold), tested[regul_num]));
+				valuation.insert(std::make_pair(source_name + ":" + toString(threshold), tested[regul_num]));
+
 				if (model.getName(source_ID).compare(toString(source_ID)) != 0)
 					valuation.insert(std::make_pair(model.getName(source_ID), tested[regul_num]));
 			}
@@ -240,7 +273,7 @@ class NetworkParser {
 
 		do {
 			// If tested option is new (not already present in the specified vector)
-			if (specified.insert(tested).second) {
+			if (specified.insert(tested).second && isContextCoherent(specie_ID, tested)) {
 				switch (unspec) {
 					case basal_reg:
 						model.addParameter(specie_ID, tested, model.getBasal(specie_ID));
