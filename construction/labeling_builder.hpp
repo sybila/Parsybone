@@ -124,9 +124,8 @@ class LabelingBuilder {
       const std::vector<Model::Regulation> & regulations = model.getRegulations(specie_ID);
 		// Add all the values between 0 and max
       for (auto regul_it = regulations.begin(); regul_it != regulations.end(); regul_it++)
-         if (!source_species.empty())
-            if (source_species.back() != regul_it->source)
-               source_species.push_back(regul_it->source);
+         if (source_species.empty() || (source_species.back() != regul_it->source))
+            source_species.push_back(regul_it->source);
 
 		return source_species;
 	}
