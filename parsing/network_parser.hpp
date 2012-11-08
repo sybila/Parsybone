@@ -141,10 +141,12 @@ class NetworkParser {
 
 	/**
 	 * This function obtains a present regulator of a specie as an ordinal number of the regulation in the vector of all regulations of this specie.
-	 * If the source is specified in the form "source:value", only the regulator that has the value as a threshold is accepted.
+	 * If the source is specified in the form "source:value", only the regulator that has the value as a threshold is accepted. If no value is present, threshold of 1 is defaulted.
 	 */
 	std::size_t getPresentRegulator(const std::string & source_str, const SpecieID target_ID) const{
-		SpecieID ID; std::size_t threshold = 0;
+		SpecieID ID;
+		std::size_t threshold = 1; // Defaulted threshold value
+
 		auto colon_pos = source_str.find(":");
 		if (colon_pos == std::string::npos)
 			ID = model.findID(source_str);
@@ -158,14 +160,14 @@ class NetworkParser {
 				throw std::runtime_error("boost::lexical_cast<std::size_t>(source.substr(colon_pos+1)) failed");
 			}
 		}
+
 		if (ID >= model.getSpeciesCount())
 			throw std::invalid_argument(std::string("One of the regulators of the specie ").append(toString(target_ID)).append(" was not found in the specie list"));
 
 		std::size_t reg_num = static_cast<std::size_t>(~0); std::size_t counter = 0;
 		forEach(model.getRegulations(target_ID),[&](const Model::Regulation & regulation){
 			if (regulation.source == ID)
-				if (colon_pos == std::string::npos || regulation.threshold == threshold)
-				{
+				if (colon_pos == std::string::npos || regulation.threshold == threshold) {
 					reg_num = counter;
 					return;
 				}
@@ -201,6 +203,8 @@ class NetworkParser {
 
 	/**
     * Use a string defining context together with a value to create a single kintetic parameter.
+    * Presence of a regulator can be given as one of: name, name:threshold, ID, ID:threshold.
+    * Context is described using present regulators.
 	 */
 	void fillFromContext(const std::string context, std::set<std::vector<bool> > & specified, SpecieID specie_ID, int target_value) const {
 		// Obtain strings of the sources
@@ -220,7 +224,7 @@ class NetworkParser {
 		// Add the new regulatory context, if it is coherent and not yet present
 		if (!isContextCoherent(specie_ID, mask)){
 			throw std::invalid_argument("Context " + context + " of specie " + toString(specie_ID) + " is incoherent");
-		}
+		} // Throw an exception if the context is already present
 		else if (!specified.insert(mask).second) {
 			throw std::invalid_argument("Context redefinition found for the specie " + toString(specie_ID));
 		}
@@ -229,14 +233,17 @@ class NetworkParser {
 	}
 
 	/**
-	 * Use a logic formula to create all kinetic parameters for a specie
+	 * Use a logic formula to create all kinetic parameters for a specie.
+	 * Presence of a regulator can be given as one of: name, name:threshold, ID, ID:threshold.
+	 * Context is given as a valuation of a formula.
 	 */
 	void fillFromLogic(const std::string logic, size_t specie_ID) const {
 		// Get reference values
 		std::vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
 		std::vector<bool> top(model.getRegulations(specie_ID).size(), true);
 		std::vector<bool> tested = bottom;
-		std::map<std::string, bool> valuation;
+		std::map<std::string, bool> valuation; // Atomic propositions about presence of regulators (true for present, false for absent)
+
 		do {
 			if (!isContextCoherent(specie_ID, tested))
 				continue;
@@ -244,17 +251,16 @@ class NetworkParser {
 			// Add current valuations for both a species ID and name (if any)
 			valuation.clear();
 			for (std::size_t regul_num = 0; regul_num < tested.size(); regul_num++) {
+				// Get the current regulation propeties
 				StateID source_ID = (model.getRegulations(specie_ID))[regul_num].source;
 				std::string source_name = model.getName(source_ID);
 				std::size_t threshold = (model.getRegulations(specie_ID))[regul_num].threshold;
 
+				// Fill in the proposition about the presente of the regulator for all possible combinations depicting its name
 				valuation.insert(std::make_pair(toString(source_ID), tested[regul_num]));
 				valuation.insert(std::make_pair(source_name, tested[regul_num]));
 				valuation.insert(std::make_pair(toString(source_ID) + ":" + toString(threshold), tested[regul_num]));
 				valuation.insert(std::make_pair(source_name + ":" + toString(threshold), tested[regul_num]));
-
-				if (model.getName(source_ID).compare(toString(source_ID)) != 0)
-					valuation.insert(std::make_pair(model.getName(source_ID), tested[regul_num]));
 			}
 
 			model.addParameter(specie_ID, tested, FormulaeParser::resolve(valuation, logic));
