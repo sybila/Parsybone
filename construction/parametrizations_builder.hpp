@@ -35,9 +35,8 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	true if constrains are satisfied
 	 */
-   bool testConstrains(bool & is_observable, const SpecieID ID, const std::size_t param_num, const std::size_t regul_num, const std::vector<std::size_t> & subcolor) const {
+	void testConstrains(bool & mon_plus, bool & mon_minus, const SpecieID ID, const std::size_t param_num, const std::size_t regul_num, const std::vector<std::size_t> & subcolor) const {
       // Get reference data
-      const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
       const std::vector<Model::Parameter> & parameters = model.getParameters(ID);
 
       // Copy mask of the regulation and turn of tested regulation
@@ -45,61 +44,91 @@ class ParametrizationsBuilder {
       other[regul_num] = false;
 
       // Cycle through regulations again until you find context just without current regulation
-		std::size_t regul_comp = 0;
-		while (true) {
-         // If context is missing
-         if (regul_comp >= parameters.size())
-            throw std::runtime_error("Not fount other complementary regulation for some regulation.");
-			// If context is found
+      std::size_t regul_comp;
+      for (regul_comp = 0; regul_comp <= parameters.size(); regul_comp++) {
+         // If context is found, break, remembering its number
          if (parameters[regul_comp].first == other)
-				break;
-			regul_comp++;
+            break;
 		}
+		if (regul_comp >= parameters.size())
+			throw std::runtime_error("Not fount other complementary regulation for some regulation.");
 
-		// Test observability
-      is_observable = is_observable | (subcolor[param_num] != subcolor[regul_comp]);
-
-		// Test if the requirements are satisfied, if not, return false
-      if (((regulations[regul_num].constrain == pos_cons) && (subcolor[param_num] < subcolor[regul_comp])) ||
-          ((regulations[regul_num].constrain == neg_cons) && (subcolor[param_num] > subcolor[regul_comp])))
-         return false;
-
-		return true;	
+		// Assign monotonicity values
+		mon_plus &= subcolor[param_num] >= subcolor[regul_comp];
+		mon_minus &= subcolor[param_num] <= subcolor[regul_comp];
 	}
 	
 	/**
-    * Tests if given subcolor on a given specie can satisfy given requirements.
+	 * Return true if the label (edge constrain) of the regulation is satisfied, false otherwise. All labels can be resolved based only on whether mon+ and mon- are true.
+	 * @param	mon_plus	true if the parametrization satisfies mon+
+	 * @param	mon_minus	true if the parametrization satisfies mon-
+	 * @param	label	canonical form of edge label given as a string
+	 *
+	 * @return	true if the edge constrain is satisfied
+	 */
+	bool resolveLabel(const bool & mon_plus, const bool & mon_minus, const std::string label) const {
+		// Define further constants
+		const bool obs_plus = !mon_minus;
+		const bool obs_minus = !mon_plus;
+
+		// Find the constrain and return its valuation
+		if (label.compare(Label::mon_plus) == 0)
+			return mon_plus;
+		else if (label.compare(Label::mon_minus) == 0)
+			return mon_minus;
+		else if (label.compare(Label::mon) == 0)
+			return mon_plus | mon_minus;
+		else if (label.compare(Label::obs_plus) == 0)
+			return obs_plus;
+		else if (label.compare(Label::obs_minus) == 0)
+			return obs_minus;
+		else if (label.compare(Label::obs) == 0)
+			return obs_plus | obs_minus;
+		else if (label.compare(Label::plus) == 0)
+			return obs_plus & mon_plus;
+		else if (label.compare(Label::minus) == 0)
+			return obs_minus & mon_minus;
+		else if (label.compare(Label::plus_minus) == 0)
+			return obs_plus & obs_minus;
+		else {
+			throw std::invalid_argument("resolveLabel(" + toString(mon_plus) + ", " + toString(mon_minus) + ", " + label + ") failed");
+			return false;
+		}
+	}
+
+	/**
+	 * Tests if given subparametrization on a given specie can satisfy given requirements.
 	 *
 	 * @param ID	ID of the specie to test contexts in
 	 * @param subcolor	unique valuation of all regulatory contexts
 	 *
-	 * @return	true if the regulation is feasible
+	 * @return	true if the subparametrization is feasible
 	 */
-	bool testSubcolor (const SpecieID ID, const std::vector<std::size_t> & subcolor) const {
+	bool testSubparametrization (const SpecieID ID, const std::vector<std::size_t> & subparam) const {
 		// get referecnces to Specie data
       const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
       const std::vector<Model::Parameter> & parameters = model.getParameters(ID);
 		
-      // Cycle through regulation
+		// Cycle through all species's regulators
       for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
-      // Skip if there are no requirements
-         if (regulations[regul_num].constrain == none_cons && !regulations[regul_num].observable)
-				continue;
-      bool is_observable = false;
-
-      // Cycle through regulations and test constrains
-      for (std::size_t param_num = 0; param_num < parameters.size(); param_num++) {
-         // Skip if the regulation does not contain requested regulation
-         if (!parameters[param_num].first[regul_num])
+         // Skip if there are no requirements (free label)
+         if (regulations[regul_num].label.compare(Label::free) == 0)
             continue;
 
-         // Test contrains and return false, if sign constrain is not satisfied
-         if(!testConstrains(is_observable, ID, param_num, regul_num, subcolor))
-            return false;
-			}
+         // Set up initial satisfiability
+         bool mon_plus = true, mon_minus = true;
+         // For each parameter containing the reugulator in parametrization control its satisfaction
+         for (std::size_t param_num = 0; param_num < parameters.size(); param_num++) {
+            // Skip if the contexts does not contain requested regulation
+            if (!parameters[param_num].first[regul_num])
+               continue;
 
-			// Check observability, if it is required
-         if (!is_observable && regulations[regul_num].observable)
+            // Control satisfiability of the basic constrains
+            testConstrains(mon_plus, mon_minus, ID, param_num, regul_num, subparam);
+         }
+
+			// Test obtained knowledge agains the label itself - return false if the label is not satisfied
+			if (!resolveLabel(mon_plus, mon_minus, regulations[regul_num].label))
 				return false;
 		}
 
@@ -123,7 +152,7 @@ class ParametrizationsBuilder {
 		// Cycle through all colors
 		do {
 			// Test is it is feasieble, if so, save it
-			if (testSubcolor(ID, subcolor))
+			if (testSubparametrization(ID, subcolor))
 				valid.push_back(subcolor);
 		} while (iterate(top_color, bottom_color, subcolor));
 

@@ -29,11 +29,10 @@ public:
 	struct Regulation {
       StateID source; ///< Regulator specie ID.
       std::size_t threshold; ///< Level of the regulator required for the regulation to be active.
-      EdgeConstrain constrain; ///< What behaviour this regulation must express.
-      bool observable; ///< True if the regulation must be observable.
+      std::string label; ///< A behavioural constrain on this edge.
 
-		Regulation(const StateID _source, const std::size_t _threshold, const EdgeConstrain _constrain, const bool _observable)
-			: source(_source), threshold(_threshold), constrain(_constrain), observable(_observable) { }
+		Regulation(const StateID _source, const std::size_t _threshold, const std::string _label)
+			: source(_source), threshold(_threshold), label(_label) { }
 	};
 
 	typedef std::pair<std::vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value)
@@ -98,8 +97,8 @@ private:
 	/**
 	 * Add a new regulation to the specie. Regulation is stored with the target, not the source.
 	 */
-	inline void addRegulation(size_t source_ID, size_t target_ID, size_t threshold, EdgeConstrain constrain, const bool observable) {
-		species[target_ID].regulations.push_back(std::move(Regulation(source_ID, threshold, constrain, observable)));
+	inline void addRegulation(size_t source_ID, size_t target_ID, size_t threshold, std::string label) {
+		species[target_ID].regulations.push_back(std::move(Regulation(source_ID, threshold, label)));
 	}
 
 	/**

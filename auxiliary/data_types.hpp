@@ -45,6 +45,20 @@ enum StreamType {error_str, results_str, stats_str, verbose_str};
 /// Symbol that separates values of a single parametrizations on output.
 const std::string separator = ":";
 
+/// Definition of edge labels:
+namespace Label {
+   const std::string free = "free";
+   const std::string mon_plus = "mon+";
+   const std::string mon_minus = "mon-";
+   const std::string mon = "mon";
+   const std::string obs_plus = "obs+";
+   const std::string obs_minus = "obs-";
+   const std::string obs = "obs";
+   const std::string plus = "+";
+   const std::string minus = "-";
+   const std::string plus_minus = "+-";
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DATA RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,9 +79,6 @@ typedef std::vector<std::size_t> Levels;
 
 /// Transitional values in a state of BA.
 typedef std::vector<Levels > AllowedValues;
-
-/// Label of a regulation.
-enum EdgeConstrain {pos_cons, neg_cons, none_cons};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION RELATED TYPES
