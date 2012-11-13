@@ -38,7 +38,7 @@ class NetworkParser {
 		XMLHelper::getAttribute(source, regulation, "source");
 		source_ID = model.findID(source);
 		if (source_ID >= model.getSpeciesCount())
-			throw std::invalid_argument("ID of a regulation of the specie " + toString(target_ID) + " is incorrect");
+			throw std::invalid_argument("ID of a regulation of the specie " + toString(model.getName(target_ID)) + " is incorrect");
 
 		return source_ID;
 	}
@@ -53,14 +53,13 @@ class NetworkParser {
 		if(!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
 			threshold = 1;
 		else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
-			throw std::invalid_argument("threshold " + toString(threshold) + " of a regulation of specie " + toString(source_ID) +
-												 " with maximal level of " + toString(model.getMax(source_ID)) + " is either below 1 or above the maximal activation level");
+			throw std::invalid_argument("the threshold' value " + toString(threshold) + " is not within the range of the regulator " + toString(model.getName(source_ID)));
 
 		// Test uniqueness of this combination (source, threshold)
 		auto regulations = model.getRegulations(target_ID);
-		forEach(regulations, [threshold,source_ID](Model::Regulation & regulation) {
+		forEach(regulations, [&,threshold,source_ID](Model::Regulation & regulation) {
 			if (threshold == regulation.threshold && source_ID == regulation.source)
-				throw std::invalid_argument("multiple definition of a regulation of a specie " + toString(source_ID));
+				throw std::invalid_argument("multiple definition of a regulation of a specie " + toString(model.getName(source_ID)));
 		});
 
 		return threshold;
@@ -119,7 +118,7 @@ class NetworkParser {
 				label.compare(Label::mon) && label.compare(Label::mon_plus) && label.compare(Label::mon_minus) &&
 				label.compare(Label::obs) && label.compare(Label::obs_plus) && label.compare(Label::obs_minus) &&
 				label.compare(Label::plus) && label.compare(Label::minus) && label.compare(Label::plus_minus))
-				throw std::invalid_argument("label on regulation of the specie " + toString(specie_ID) + " has an incorrect label \"" + label + "\"");
+				throw std::invalid_argument("label on regulation of the specie " + toString(model.getName(specie_ID)) + " has an incorrect label \"" + label + "\"");
 
 			// Add a new regulation to the specified target
 			model.addRegulation(source_ID, specie_ID, threshold, label);
@@ -149,7 +148,7 @@ class NetworkParser {
 		}
 
 		if (ID >= model.getSpeciesCount())
-			throw std::invalid_argument("One of the regulators of the specie " + toString(target_ID) + " was not found in the specie list");
+			throw std::invalid_argument("One of the regulators of the specie " + toString(model.getName(target_ID)) + " was not found in the specie list");
 
 		std::size_t reg_num = static_cast<std::size_t>(~0); std::size_t counter = 0;
 		forEach(model.getRegulations(target_ID),[&](const Model::Regulation & regulation){
@@ -162,7 +161,7 @@ class NetworkParser {
 		});
 
 		if (reg_num == static_cast<std::size_t>(~0))
-			throw std::invalid_argument("regulator " + source_str + " of the specie " + toString(target_ID) + " was not found in the list of regulators");
+			throw std::invalid_argument("regulator " + source_str + " of the specie " + toString(model.getName(target_ID)) + " was not found in the list of regulators");
 
 		return reg_num;
 	}
@@ -209,10 +208,10 @@ class NetworkParser {
 
 		// Add the new regulatory context, if it is coherent and not yet present
 		if (!isContextCoherent(specie_ID, mask)){
-			throw std::invalid_argument("context " + context + " of the specie " + toString(specie_ID) + " is incoherent");
+			throw std::invalid_argument("context " + context + " of the specie " + toString(model.getName(specie_ID)) + " is incoherent");
 		} // Throw an exception if the context is already present
 		else if (!specified.insert(mask).second) {
-			throw std::invalid_argument("context redefinition found for the specie " + toString(specie_ID));
+			throw std::invalid_argument("context redefinition found for the specie " + toString(model.getName(specie_ID)));
 		}
 
 		model.addParameter(specie_ID, mask, target_value);
@@ -276,7 +275,7 @@ class NetworkParser {
 						break;
 
 					case error_reg:
-						throw std::runtime_error("some required parameter specification is missing for the specie " + toString(specie_ID));
+						throw std::runtime_error("some required parameter specification is missing for the specie " + toString(model.getName(specie_ID)));
 						break;
 				}
 			}
@@ -295,7 +294,7 @@ class NetworkParser {
 		// If the tag is present, use it
 		if (logic != 0) {
 			if (logic->next_sibling("LOGIC") || logic->next_sibling("PARAM"))
-				throw std::invalid_argument("LOGIC tag does not stay alone in the definition of the specie " + toString(specie_ID));
+				throw std::invalid_argument("LOGIC tag does not stay alone in the definition of the specie " + toString(model.getName(specie_ID)));
 
 			// Get and apply the formula
 			std::string formula;
@@ -325,12 +324,13 @@ class NetworkParser {
          // Get the targte value (set to -1 if uknown or unspecified) and check it
          if (!XMLHelper::getAttribute(target_val_str, parameter, "value", false))
             target_value = -1;
-         if (target_val_str.compare("?") == 0)
+         else if (target_val_str.compare("?") == 0)
             target_value = -1;
-         else
+         else {
             XMLHelper::getAttribute(target_value, parameter, "value", false);
-         if (target_value < -1 || target_value > static_cast<int>(model.getMax(specie_ID)))
-            throw std::invalid_argument("target value of a regulation out of the specie's range in some regulation of specie " + toString(specie_ID));
+            if (target_value < 0 || target_value > static_cast<int>(model.getMax(specie_ID)))
+               throw std::invalid_argument("target value " + toString(target_value) + " out of range for specie " + toString(model.getName(specie_ID)));
+         }
 
 			fillFromContext(context, specified, specie_ID, target_value);
 		}
@@ -343,6 +343,8 @@ class NetworkParser {
 	 * If not provided, attributes are defaulted - name is equal to ordinal number starting from 0, max to 1 and basal value to 0.
 	 */
 	void firstParse(const rapidxml::xml_node<> * const structure_node) const {
+		// TODO add control that specie's name is already used
+
 		// Specie data
 		std::string name; size_t max; size_t basal;
 
