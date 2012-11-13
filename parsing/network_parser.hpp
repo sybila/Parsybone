@@ -10,7 +10,6 @@
 #define PARSYBONE_NETWORK_PARSER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
-#include "../auxiliary/common_functions.hpp"
 #include "formulae_parser.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
@@ -200,7 +199,7 @@ class NetworkParser {
 			boost::split(sources, context, boost::is_any_of(","));
 		} catch (std::exception & e) {
 			output_streamer.output(error_str, std::string("Error occured while parsing a context. ").append(e.what()));
-			throw std::runtime_error("boost::split(sources, context, boost::is_any_of(\",\")) failed");
+			throw std::runtime_error("boost::split(\"sources\", " + context + ", \"boost::is_any_of(\",\")\") failed");
 		}
 
 		// Create the mask of present regulators in this context
@@ -210,10 +209,10 @@ class NetworkParser {
 
 		// Add the new regulatory context, if it is coherent and not yet present
 		if (!isContextCoherent(specie_ID, mask)){
-			throw std::invalid_argument("Context " + context + " of specie " + toString(specie_ID) + " is incoherent");
+			throw std::invalid_argument("context " + context + " of the specie " + toString(specie_ID) + " is incoherent");
 		} // Throw an exception if the context is already present
 		else if (!specified.insert(mask).second) {
-			throw std::invalid_argument("Context redefinition found for the specie " + toString(specie_ID));
+			throw std::invalid_argument("context redefinition found for the specie " + toString(specie_ID));
 		}
 
 		model.addParameter(specie_ID, mask, target_value);
@@ -277,7 +276,7 @@ class NetworkParser {
 						break;
 
 					case error_reg:
-						throw std::runtime_error(std::string("Some required parameter specification is missing for the specie ").append(toString(specie_ID)));
+						throw std::runtime_error("some required parameter specification is missing for the specie " + toString(specie_ID));
 						break;
 				}
 			}
@@ -296,7 +295,7 @@ class NetworkParser {
 		// If the tag is present, use it
 		if (logic != 0) {
 			if (logic->next_sibling("LOGIC") || logic->next_sibling("PARAM"))
-				throw std::invalid_argument(std::string("LOGIC tag does not stay alone in the specie ").append(toString(specie_ID)));
+				throw std::invalid_argument("LOGIC tag does not stay alone in the definition of the specie " + toString(specie_ID));
 
 			// Get and apply the formula
 			std::string formula;
@@ -331,7 +330,7 @@ class NetworkParser {
          else
             XMLHelper::getAttribute(target_value, parameter, "value", false);
          if (target_value < -1 || target_value > static_cast<int>(model.getMax(specie_ID)))
-            throw std::invalid_argument(std::string("Target value of a regulation out of the specie's range in some regulation of specie ").append(toString(specie_ID)));
+            throw std::invalid_argument("target value of a regulation out of the specie's range in some regulation of specie " + toString(specie_ID));
 
 			fillFromContext(context, specified, specie_ID, target_value);
 		}
@@ -361,7 +360,7 @@ class NetworkParser {
 				basal = 0;
 
          if (basal > max)
-            throw std::invalid_argument(std::string("Basal value is greater than maximal value for specie ").append(toString(ID)));
+            throw std::invalid_argument("basal value is greater than maximal value for specie " + toString(ID));
 
 			// Create a new specie
 			model.addSpecie(name, max, basal);

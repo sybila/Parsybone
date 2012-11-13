@@ -2,7 +2,6 @@
 #define PARSYBONE_AUTOMATON_PARSER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
-#include "../auxiliary/common_functions.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
 

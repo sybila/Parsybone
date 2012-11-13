@@ -10,6 +10,7 @@
 #define PARSYBONE_TRANSLATOR_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
+#include "../auxiliary/common_functions.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Methods used for translation of string data to variables during model parsing.
@@ -32,8 +33,8 @@ namespace Translator {
 			try {
 				mask.push_back(boost::lexical_cast<bool, char>(ch));
 			} catch (boost::bad_lexical_cast e) {
-				output_streamer.output(error_str, std::string("Error occured while parsing a regulation: ").append(e.what()));
-				throw std::runtime_error("boost::lexical_cast<size_t, char>(temp_attr->value()) failed");
+			output_streamer.output(error_str, "std::string(""Error occured while parsing a regulation: " + e.what());
+				throw std::runtime_error("boost::lexical_cast<size_t, char>(" + toString(temp_attr->value()) ") failed");
 			}
 		});
 		return mask;
