@@ -25,6 +25,27 @@
 #define my_min min
 #endif
 
+// Header for demangle function
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
+
+/**
+ * Return string with name of the used type, based on the architecture.
+ *
+ * @param type_info  a structure holding infromation about the type whose name is requested
+ *
+ * @return a string with the demangle name of the type
+ */
+std::string demangle(const std::type_info & type_info) {
+   #ifdef __GNUC__
+      int status;
+      return std::string(abi::__cxa_demangle(type_info.name(), 0, 0, &status));
+   #else
+      return std::string(type_info.name());
+   #endif
+}
+
 /**
  * Apply function on all the data stored within the object. 
  *

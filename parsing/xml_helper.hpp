@@ -10,6 +10,7 @@
 #define PARSYBONE_XML_HELPER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
+#include "../auxiliary/common_functions.hpp"
 
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_iterators.hpp"
@@ -35,7 +36,7 @@ namespace XMLHelper {
 		return_node = current_node->first_node(node_name);
 		if (return_node == 0) {
 			if (mandatory)
-				throw std::runtime_error(std::string("Parser did not found the mandatory ").append(node_name).append(" node"));
+				throw std::runtime_error("parser did not found the mandatory " + toString(node_name) + " node");
 			else
 				return 0;
 		}
@@ -60,7 +61,7 @@ namespace XMLHelper {
 		// Check if the attribute has been required
 		if (temp_attr == 0) {
 			if (mandatory)
-				throw std::runtime_error(std::string("Parser did not found the mandatory attribute ").append(attribute_name));
+				throw std::runtime_error("parser did not found the mandatory attribute " + toString(attribute_name));
 			else
 				return false;
 		}
@@ -69,8 +70,8 @@ namespace XMLHelper {
 			try {
 				requested_data = boost::lexical_cast<returnType, char*>(temp_attr->value());
 			} catch (boost::bad_lexical_cast e) {
-				output_streamer.output(error_str, std::string("Error while parsing an attribute ").append(attribute_name).append(": ").append(e.what()));
-				throw std::runtime_error("boost::lexical_cast<" + std::string(typeid(returnType).name()) + ", char*>(" + std::string(temp_attr->value()) + ") failed");
+				output_streamer.output(error_str, "Error while parsing an attribute " + toString(attribute_name) + ": " + e.what() + ".");
+				throw std::runtime_error("boost::lexical_cast<" + demangle(typeid(returnType)) + ", char*>(" + std::string(temp_attr->value()) + ") failed");
 			}
 		}
 		return true;
