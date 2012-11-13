@@ -70,7 +70,7 @@ namespace XMLHelper {
 				requested_data = boost::lexical_cast<returnType, char*>(temp_attr->value());
 			} catch (boost::bad_lexical_cast e) {
 				output_streamer.output(error_str, std::string("Error while parsing an attribute ").append(attribute_name).append(": ").append(e.what()));
-				throw std::runtime_error("boost::lexical_cast<returnType, char*>(temp_attr->value()) failed");
+				throw std::runtime_error("boost::lexical_cast<" + std::string(typeid(returnType).name()) + ", char*>(" + std::string(temp_attr->value()) + ") failed");
 			}
 		}
 		return true;

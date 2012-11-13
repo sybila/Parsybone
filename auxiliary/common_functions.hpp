@@ -54,7 +54,7 @@ std::string toString(basic_T data) {
 	} catch (boost::bad_lexical_cast e) {
       output_streamer.output(error_str, "Error occured while trying to cast a variable", OutputStreamer::no_newl)
                      .output(data, OutputStreamer::no_newl).output(" to a string: ", OutputStreamer::no_newl).output(e.what());
-		throw std::runtime_error("boost::lexical_cast<std::string, basic_T>(data)) failed");
+      throw std::runtime_error("boost::lexical_cast<std::string," + std::string(typeid(basic_T).name()) + ">(\"data\")) failed");
 	}
 	return result;
 }
