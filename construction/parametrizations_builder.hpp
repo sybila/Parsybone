@@ -28,7 +28,8 @@ class ParametrizationsBuilder {
 	/** 
     * Test specific constrain on given color - this function checks both observability and the edge constrain.
 	 *
-    * @param is_observable stores true if the regulation is observable
+	 * @param activating	a reference to the variable storing true iff the regulation has observable activating effect
+	 * @param inhibiting a reference to the variable storing true iff the regulation has observable inhibiting effect
 	 * @param ID	ID of the specie that undergoes the test
     * @param param_num	index of tested parameter
     * @param regul_num	index of regulation whose constrains are tested
@@ -36,7 +37,7 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	true if constrains are satisfied
 	 */
-	void testConstrains(bool & mon_plus, bool & mon_minus, const SpecieID ID, const std::size_t param_num, const std::size_t regul_num, const std::vector<std::size_t> & subcolor) const {
+	void testConstrains(bool & activating, bool & inhibiting, const SpecieID ID, const std::size_t param_num, const std::size_t regul_num, const std::vector<std::size_t> & subcolor) const {
       // Get reference data
       const std::vector<Model::Parameter> & parameters = model.getParameters(ID);
 
@@ -54,24 +55,24 @@ class ParametrizationsBuilder {
 		if (regul_comp >= parameters.size())
 			throw std::runtime_error("Not fount other complementary regulation for some regulation.");
 
-		// Assign monotonicity values
-		mon_plus &= subcolor[param_num] >= subcolor[regul_comp];
-		mon_minus &= subcolor[param_num] <= subcolor[regul_comp];
+		// Assign regulation aspects
+		activating |= subcolor[param_num] > subcolor[regul_comp];
+		inhibiting |= subcolor[param_num] < subcolor[regul_comp];
 	}
 	
 	/**
 	 * Return true if the label (edge constrain) of the regulation is satisfied, false otherwise. All labels can be resolved based only on whether mon+ and mon- are true.
-	 * @param	mon_plus	true if the parametrization satisfies mon+
-	 * @param	mon_minus	true if the parametrization satisfies mon-
+	 * @param	activating	true if the parametrization satisfies +
+	 * @param	inhibiting	true if the parametrization satisfies -
 	 * @param	label	canonical form of edge label given as a string
 	 *
 	 * @return	true if the edge constrain is satisfied
 	 */
-	bool resolveLabel(const bool & mon_plus, const bool & mon_minus, const std::string label) const {
+	bool resolveLabel(const bool & activating, const bool & inhibiting, const std::string label) const {
 		// Fill the atomic propositions
 		FormulaeParser::Vals values;
-		values.insert(FormulaeParser::Val("+", !mon_minus));
-		values.insert(FormulaeParser::Val("-", !mon_plus));
+		values.insert(FormulaeParser::Val("+", activating));
+		values.insert(FormulaeParser::Val("-", inhibiting));
 
 		std::string formula;
 
@@ -117,8 +118,8 @@ class ParametrizationsBuilder {
          if (regulations[regul_num].label.compare(Label::Free) == 0)
             continue;
 
-         // Set up initial satisfiability
-         bool mon_plus = true, mon_minus = true;
+         // Prepare variables storing info about observable effects of this component
+         bool activating = false, inhibiting = false;
          // For each parameter containing the reugulator in parametrization control its satisfaction
          for (std::size_t param_num = 0; param_num < parameters.size(); param_num++) {
             // Skip if the contexts does not contain requested regulation
@@ -126,11 +127,11 @@ class ParametrizationsBuilder {
                continue;
 
             // Control satisfiability of the basic constrains
-            testConstrains(mon_plus, mon_minus, ID, param_num, regul_num, subparam);
+            testConstrains(activating, inhibiting, ID, param_num, regul_num, subparam);
          }
 
 			// Test obtained knowledge agains the label itself - return false if the label is not satisfied
-			if (!resolveLabel(mon_plus, mon_minus, regulations[regul_num].label))
+			if (!resolveLabel(activating, inhibiting, regulations[regul_num].label))
 				return false;
 		}
 
