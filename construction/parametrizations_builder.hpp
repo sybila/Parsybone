@@ -166,6 +166,32 @@ class ParametrizationsBuilder {
 		parametrizations.colors.push_back(std::move(valid));
 	}
 
+	/**
+	 * @param context regulatory context to test
+	 * @param ID	ID of the regulated specie
+	 *
+	 * @return true if the context denotes self-regulation
+	 */
+	bool isSelfRegulation(const std::vector<bool> & context, const StateID ID,  std::size_t & position) {
+		position = INF;
+		for (std::size_t reg_num = 0; reg_num < context.size(); reg_num++) {
+			if (context[reg_num]) {
+				if (position == INF) {
+					position = reg_num;
+				}
+				else {
+					position = INF;
+					return false;
+				}
+			}
+		}
+
+		if (position != INF && (model.getRegulations(ID))[ID].source == ID)
+			 return true;
+
+		return false;
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
@@ -184,16 +210,24 @@ class ParametrizationsBuilder {
 		std::size_t colors_num = 1;
 		
 		// Cycle through regulations
-      for (std::size_t regul_num = 0; regul_num < parameters.size(); regul_num++) {
+		for (std::size_t param_num = 0; param_num < parameters.size(); param_num++) {
          // If the target value is unknown, add all the values
-         if (parameters[regul_num].second < 0) {
-            bottom_color[regul_num] = model.getMin(ID);
-				top_color[regul_num] = model.getMax(ID);
-				colors_num *= (model.getMax(ID) + 1);
-			}
+         if (parameters[param_num].second < 0) {
+            std::size_t position = INF;
+            top_color[param_num] = model.getMax(ID);
+
+            // Optimization - minimal value is at most one below the threshold
+            if (!isSelfRegulation(parameters[param_num].first, ID, position))
+               bottom_color[param_num] = model.getMin(ID);
+            else
+               bottom_color[param_num] = my_max(model.getMin(ID), (model.getRegulations(ID))[position].threshold - 1);
+
+            // Increase the counter of the parameter set size
+            colors_num *= (top_color[param_num] - bottom_color[param_num] + 1);
+         }
 			// Otherwise add just given value
 			else  {
-            bottom_color[regul_num] = top_color[regul_num] = parameters[regul_num].second;
+				bottom_color[param_num] = top_color[param_num] = parameters[param_num].second;
 				colors_num *= 1;
 			}
 		}

@@ -30,7 +30,7 @@ class ColorStorage {
 	
    std::vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data.
 	/// This vector stores so-called COST value i.e. number of steps required to reach the final state in TS.
-	/// If it is not reachable, cost is set to ~0.
+	/// If it is not reachable, cost is set to INF.
 	std::vector<std::size_t> cost_val;
    Paramset acceptable; ///< Additional value that stores paramset computed in this round.
 
@@ -63,7 +63,7 @@ public:
       }
 
       // Set additional storage
-		cost_val = std::vector<std::size_t>(paramset_helper.getParamsetSize(), ~0); // Set all to max. value
+      cost_val = std::vector<std::size_t>(paramset_helper.getParamsetSize(), INF); // Set all to max. value
 		acceptable = 0;
 	}
 
@@ -125,7 +125,7 @@ public:
 	/**
     * Fills after time series check finished.
 	 *
-	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use ~0
+	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use INF
 	 */
 	void setResults(const std::vector<std::size_t> & new_cost, const Paramset resulting) {
 		cost_val = new_cost;
@@ -135,7 +135,7 @@ public:
    /**
     * Fills after a general LTL check finished.
     *
-    * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use ~0
+    * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use INF
     */
    void setResults(const Paramset resulting) {
       acceptable = resulting;
@@ -271,7 +271,7 @@ public:
 	 *
     * @return  neigbours for given state
 	 */
-	inline const Neighbours getNeighbours(const StateID ID, const bool successors, const Paramset color_mask = ~0) const {
+	inline const Neighbours getNeighbours(const StateID ID, const bool successors, const Paramset color_mask = INF) const {
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 		// Data to fill
@@ -296,7 +296,7 @@ public:
 	 *
     * @return  labelling on the neighbour labels
 	 */
-	inline const std::vector<Paramset> getMarking(const StateID ID, const bool successors, const Paramset color_mask = ~0) const {
+	inline const std::vector<Paramset> getMarking(const StateID ID, const bool successors, const Paramset color_mask = INF) const {
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 

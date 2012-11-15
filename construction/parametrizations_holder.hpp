@@ -78,7 +78,7 @@ public:
 	std::size_t getSpaceSize() const {
 		std::size_t space_size = 1;
 		forEach(colors, [&space_size](const SpecieColors & specie_cols) {
-				  space_size *= specie_cols.acceptable_count;
+			space_size *= specie_cols.acceptable_count;
 		});
 		return space_size;
 	}

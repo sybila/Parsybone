@@ -143,7 +143,7 @@ class NetworkParser {
 		if (ID >= model.getSpeciesCount())
 			throw std::invalid_argument("One of the regulators of the specie " + toString(model.getName(target_ID)) + " was not found in the specie list");
 
-		std::size_t reg_num = static_cast<std::size_t>(~0); std::size_t counter = 0;
+		std::size_t reg_num = INF; std::size_t counter = 0;
 		forEach(model.getRegulations(target_ID),[&](const Model::Regulation & regulation){
 			if (regulation.source == ID)
 				if (colon_pos == std::string::npos || regulation.threshold == threshold) {
@@ -153,7 +153,7 @@ class NetworkParser {
 			counter++;
 		});
 
-		if (reg_num == static_cast<std::size_t>(~0))
+		if (reg_num == INF)
 			throw std::invalid_argument("regulator " + source_str + " of the specie " + toString(model.getName(target_ID)) + " was not found in the list of regulators");
 
 		return reg_num;

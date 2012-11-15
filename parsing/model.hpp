@@ -196,10 +196,10 @@ public:
 	/**
     * Finds numerical ID of the specie based on its name or ID string.
 	 *
-	 * @return	ID of the specie with the specified name if there is such, otherwise ~0
+	 * @return	ID of the specie with the specified name if there is such, otherwise INF
 	 */
 	SpecieID findID(const std::string & name) const {
-		SpecieID ID = ~0;
+		SpecieID ID = INF;
 		try { // Try direct translation
 			ID = boost::lexical_cast<SpecieID, std::string>(name);
 		}
@@ -216,10 +216,10 @@ public:
 	/**
     * Finds ordinal number of the BA state based on its name or number string.
 	 *
-	 * @return	number of the state with the specified name if there is such, otherwise ~0
+	 * @return	number of the state with the specified name if there is such, otherwise INF
 	 */
 	SpecieID findNumber(const std::string & name) const {
-		StateID ID = ~0;
+		StateID ID = INF;
 		try { // Try direct translation
 			ID = boost::lexical_cast<StateID, std::string>(name);
 		}

@@ -72,7 +72,7 @@ class ModelChecker {
 				temporary <<= bits_in_step;
 				// If transitive, add ones for the width of the step
 				if (transitive_values[value_num]) {
-					Paramset add = ~0;
+					Paramset add = INF;
 					add >>= (paramset_helper.getParamsetSize() - bits_in_step);
 					temporary |= add;
 				}
@@ -150,7 +150,7 @@ class ModelChecker {
 		param_updates.reserve(product.getTransitionCount(ID));
 
 		std::size_t KS_state = product.getKSID(ID);
-      Paramset loop_params = ~0; // Which of the parameters allow only to remain in this state
+		Paramset loop_params = INF; // Which of the parameters allow only to remain in this state
 
 		// Cycle through all the transition
 		for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
@@ -276,7 +276,7 @@ class ModelChecker {
 		BFS_level = 0; // Set sterting number of BFS
 		next_updates.clear(); // Ensure emptiness of the next round
 		BFS_reach.clear();
-		BFS_reach.resize(paramset_helper.getParamsetSize(), ~0); // Begin with infinite reach (symbolized by ~0)
+		BFS_reach.resize(paramset_helper.getParamsetSize(), INF); // Begin with infinite reach (symbolized by INF)
       next_round_storage.reset(); // Copy starting values
 	}
 

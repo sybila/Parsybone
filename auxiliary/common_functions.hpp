@@ -16,6 +16,8 @@
 #include "data_types.hpp"
 #include "output_streamer.hpp"
 
+const std::size_t INF = static_cast<std::size_t>(~0); ///< this value represents infinite value - used for showing that a variable is unset
+
 // Platform dependent min or max
 #ifdef __GNUC__
 #define my_max std::max
