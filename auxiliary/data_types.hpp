@@ -45,18 +45,17 @@ enum StreamType {error_str, results_str, stats_str, verbose_str};
 /// Symbol that separates values of a single parametrizations on output.
 const std::string separator = ":";
 
-/// Definition of edge labels:
+/// Definition of naming abbreviations for edge labels:
 namespace Label {
-   const std::string free = "free";
-   const std::string mon_plus = "mon+";
-   const std::string mon_minus = "mon-";
-   const std::string mon = "mon";
-   const std::string obs_plus = "obs+";
-   const std::string obs_minus = "obs-";
-   const std::string obs = "obs";
-   const std::string plus = "+";
-   const std::string minus = "-";
-   const std::string plus_minus = "+-";
+   const std::string Activating = "Activating";
+   const std::string ActivatingOnly = "ActivatingOnly";
+   const std::string Inhibiting = "Inhibiting";
+   const std::string InhibitingOnly = "InhibitingOnly";
+   const std::string NotActivating = "NotActivating";
+   const std::string NotInhibiting = "NotInhibiting";
+   const std::string Observable = "Observable";
+   const std::string NotObservable = "NotObservable";
+   const std::string Free = "Free";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

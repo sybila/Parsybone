@@ -12,6 +12,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/common_functions.hpp"
 #include "../parsing/model.hpp"
+#include "../parsing/formulae_parser.hpp"
 #include "parametrizations_holder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,33 +68,34 @@ class ParametrizationsBuilder {
 	 * @return	true if the edge constrain is satisfied
 	 */
 	bool resolveLabel(const bool & mon_plus, const bool & mon_minus, const std::string label) const {
-		// Define further constants
-		const bool obs_plus = !mon_minus;
-		const bool obs_minus = !mon_plus;
+		// Fill the atomic propositions
+		FormulaeParser::Vals values;
+		values.insert(FormulaeParser::Val("+", mon_plus));
+		values.insert(FormulaeParser::Val("-", mon_minus));
+
+		std::string formula;
 
 		// Find the constrain and return its valuation
-		if (label.compare(Label::mon_plus) == 0)
-			return mon_plus;
-		else if (label.compare(Label::mon_minus) == 0)
-			return mon_minus;
-		else if (label.compare(Label::mon) == 0)
-			return mon_plus | mon_minus;
-		else if (label.compare(Label::obs_plus) == 0)
-			return obs_plus;
-		else if (label.compare(Label::obs_minus) == 0)
-			return obs_minus;
-		else if (label.compare(Label::obs) == 0)
-			return obs_plus | obs_minus;
-		else if (label.compare(Label::plus) == 0)
-			return obs_plus & mon_plus;
-		else if (label.compare(Label::minus) == 0)
-			return obs_minus & mon_minus;
-		else if (label.compare(Label::plus_minus) == 0)
-			return obs_plus & obs_minus;
-		else {
-			throw std::invalid_argument("resolveLabel(" + toString(mon_plus) + ", " + toString(mon_minus) + ", " + label + ") failed");
-			return false;
-		}
+		if (label.compare(Label::Activating) == 0)
+			formula = "+";
+		else if (label.compare(Label::ActivatingOnly) == 0)
+			formula = "(+ & !-)";
+		else if (label.compare(Label::Inhibiting) == 0)
+			formula = "-";
+		else if (label.compare(Label::InhibitingOnly) == 0)
+			formula = "(- & !+)";
+		else if (label.compare(Label::NotActivating) == 0)
+			formula = "!+";
+		else if (label.compare(Label::NotInhibiting) == 0)
+			formula = "!-";
+		else if (label.compare(Label::Observable) == 0)
+			formula = "(+ | -)";
+		else if (label.compare(Label::NotObservable) == 0)
+			formula = "!(+ | -)";
+		else
+			formula = label;
+
+		return (FormulaeParser::resolve(values, formula));
 	}
 
 	/**
@@ -112,7 +114,7 @@ class ParametrizationsBuilder {
 		// Cycle through all species's regulators
       for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
          // Skip if there are no requirements (free label)
-         if (regulations[regul_num].label.compare(Label::free) == 0)
+         if (regulations[regul_num].label.compare(Label::Free) == 0)
             continue;
 
          // Set up initial satisfiability

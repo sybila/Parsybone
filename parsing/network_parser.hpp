@@ -111,14 +111,7 @@ class NetworkParser {
 			auto source_ID = getSourceID(regulation, specie_ID);
 			auto threshold = getThreshold(regulation, specie_ID, source_ID);
 			if (!XMLHelper::getAttribute(label, regulation, "label", false))
-				label = Label::free;
-
-			// Control if the label is correct
-			if (label.compare(Label::free) &&
-				label.compare(Label::mon) && label.compare(Label::mon_plus) && label.compare(Label::mon_minus) &&
-				label.compare(Label::obs) && label.compare(Label::obs_plus) && label.compare(Label::obs_minus) &&
-				label.compare(Label::plus) && label.compare(Label::minus) && label.compare(Label::plus_minus))
-				throw std::invalid_argument("label on regulation of the specie " + toString(model.getName(specie_ID)) + " has an incorrect label \"" + label + "\"");
+				label = Label::Free;
 
 			// Add a new regulation to the specified target
 			model.addRegulation(source_ID, specie_ID, threshold, label);

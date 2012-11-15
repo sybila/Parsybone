@@ -89,6 +89,9 @@ class FormulaeParser {
    }
 
 public:
+   typedef std::map<std::string, bool> Vals; ///< Valuation of atomic propositions
+   typedef std::pair<std::string, bool> Val; ///< A single proposition valuation
+
    /**
     * Function that returns valuation of the formula based on valuation of its variables.
     *
@@ -97,7 +100,7 @@ public:
     *
     * @return true iff valuation of the formula is true
     */
-   static bool resolve (const std::map<std::string, bool> & valuation, std::string formula) {
+   static bool resolve (const Vals & valuation, std::string formula) {
       // If there is a ! symbol, negate the formula and remove it
       bool negate = false; bool result;
 
