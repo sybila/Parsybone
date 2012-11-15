@@ -70,8 +70,8 @@ class ParametrizationsBuilder {
 	bool resolveLabel(const bool & mon_plus, const bool & mon_minus, const std::string label) const {
 		// Fill the atomic propositions
 		FormulaeParser::Vals values;
-		values.insert(FormulaeParser::Val("+", mon_plus));
-		values.insert(FormulaeParser::Val("-", mon_minus));
+		values.insert(FormulaeParser::Val("+", !mon_minus));
+		values.insert(FormulaeParser::Val("-", !mon_plus));
 
 		std::string formula;
 
