@@ -22,6 +22,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <regex>
 #include <set>
 #include <string>
 #include <stdexcept>

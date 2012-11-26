@@ -146,7 +146,7 @@ public:
       // Cycle through arguments (skip the first - name of the program)
       for (auto argument = arguments.begin() + 1; argument != arguments.end(); argument++) {
 			// There can be multiple switches after "-" so go through them in the loop
-			if ((*argument)[0] == '-') {
+			if (std::regex_match(*argument, std::regex("-.*"))) {
             parseSwitches(argument, arguments.end());
 			}
 			// If it is a model file

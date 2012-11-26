@@ -35,6 +35,7 @@ class UserOptions {
    bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
 	std::size_t process_number; ///< What is the ID of this process?
 	std::size_t processes_count; ///< How many processes are included in the computation?
+	std::string model_name; ///< What is the name of the model?
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION METHODS
@@ -49,6 +50,7 @@ public:
 	UserOptions() {
       compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = false;
 		process_number = processes_count = 1;
+		model_name = "";
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,6 +131,13 @@ public:
     */
    inline std::size_t outputMask() const {
       return use_out_mask;
+   }
+
+   /**
+    * @return  name of the model being used
+    */
+   inline std::string modelName() const {
+      return model_name;
    }
 } user_options; ///< Single program-shared user options object.
 
