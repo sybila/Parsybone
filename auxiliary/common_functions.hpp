@@ -35,7 +35,7 @@ const size_t INF = static_cast<size_t>(~0); ///< this value represents infinite 
 /**
  * Return string with name of the used type, based on the architecture.
  *
- * @param type_info  a structure holding infromation about the type whose name is requested
+ * @param[in] type_info  a structure holding infromation about the type whose name is requested
  *
  * @return a string with the demangle name of the type
  */
@@ -46,6 +46,33 @@ string demangle(const type_info & type_info) {
 #else
    return string(type_info.name());
 #endif
+}
+
+/**
+ * Python-like range function - returns a vector of values in the range [begin,end[.
+ *
+ * @param[in] begin  first number in the range
+ * @param[in] end    first number not in the range
+ * @return  vector of values from the range [begin,end[
+ */
+template<typename T>
+vector<T> range(const T begin, const T end) {
+    vector<T> my_arr(end - begin);
+    for (int i = 0; i < end - begin; i++) {
+        my_arr[i] = begin + i;
+    }
+    return my_arr;
+}
+
+/**
+ * Python-like range function - returns a vector of values in the range [0,end[.
+ *
+ * @param[in] end    first number not in the range
+ * @return  vector of values from the range [0,end[
+ */
+template<typename T>
+vector<T> range(const T end) {
+    return range(0, end);
 }
 
 /**
