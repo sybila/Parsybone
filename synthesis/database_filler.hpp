@@ -2,6 +2,7 @@
 #define PARSYBONE_DATABASE_FILLER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
+#include "../auxiliary/user_options.hpp"
 #include "SQLAdapter.hpp"
 
 class DatabaseFiller {
@@ -14,7 +15,7 @@ public:
    }
 
    openDatabase() {
-
+      string database_name = user_options.modelName();
       adapter = SQLAdapter();
    }
 };
