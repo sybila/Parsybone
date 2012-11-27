@@ -36,6 +36,12 @@ public:
       statement = nullptr;
    }
 
+   size_t getColumnCount() const {
+      if (statement == nullptr)
+         throw runtime_error("invoked column count on a null statement");
+      return sqlite3_column_count(statement);
+   }
+
    /**
     *
     */
