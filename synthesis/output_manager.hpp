@@ -13,6 +13,7 @@
 #include "../construction/product_structure.hpp"
 #include "color_storage.hpp"
 #include "coloring_analyzer.hpp"
+#include "database_filler.hpp"
 #include "witness_searcher.hpp"
 #include "robustness_compute.hpp"
 #include "split_manager.hpp"
@@ -27,50 +28,56 @@ class OutputManager {
    const WitnessSearcher & searcher; ///< Provides witnesses in the form of transitions.
    const RobustnessCompute & robustness; ///< Provides Robustness value.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	OutputManager(const OutputManager & other); ///< Forbidden copy constructor.
-	OutputManager& operator=(const OutputManager & other); ///< Forbidden assignment operator.
+   DatabaseFiller & database; ///< Fills data to the database.
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // CREATION METHODS
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   OutputManager(const OutputManager & other); ///< Forbidden copy constructor.
+   OutputManager& operator=(const OutputManager & other); ///< Forbidden assignment operator.
 
 public:
 	/**
 	 * Simple constructor that only passes the references.
 	 */
-   OutputManager(const ColorStorage & _storage, const ColoringAnalyzer & _analyzer, const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-      : storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness) { }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OUTPUT METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-public:
-	/**
-    * Output summary after the computation.
-	 *
-	 * @param total_count	number of all feasible colors
-	 */
-	void outputSummary(const size_t total_count) {
-		output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(total_count, OutputStreamer::no_newl)
-                     .output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount(), OutputStreamer::no_newl).output(".");
+	OutputManager(const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
+					  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
+		: storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {
+		database.connect();
+		database.creteTables();
 	}
 
-	/**
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// OUTPUT METHODS
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+public:
+   /**
+    * Output summary after the computation.
+    *
+    * @param total_count	number of all feasible colors
+    */
+   void outputSummary(const size_t total_count) {
+      output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(total_count, OutputStreamer::no_newl)
+            .output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount(), OutputStreamer::no_newl).output(".");
+   }
+
+   /**
     * Outputs round number - if there are no data within, then erase the line each round.
-	 */ 
-	void outputRoundNum() {
+    */
+   void outputRoundNum() {
       // erase the last line
       output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 
       // output numbers
       output_streamer.output(split_manager.getRoundNum(), OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
-                     .output(split_manager.getRoundCount(), OutputStreamer::no_newl).output(":", OutputStreamer::no_newl);
+            .output(split_manager.getRoundCount(), OutputStreamer::no_newl).output(":", OutputStreamer::no_newl);
 
       // add a new line if the result is not streamed to a file and there is any
       if (!output_streamer.isResultInFile())
          output_streamer.output("");
 
-		output_streamer.flush();
-	}
+      output_streamer.flush();
+   }
 
    /**
     * Recreate vector of cost values into a vector of strings.
@@ -78,54 +85,54 @@ public:
    const vector<string> getCosts(const vector<size_t> cost_vals) const {
       vector<string> costs;
       forEach(cost_vals, [&](const size_t cost){
-         if (cost != ~static_cast<size_t>(0))
-            costs.push_back(toString(cost));
-      });
-      return costs;
-   }
+              if (cost != ~static_cast<size_t>(0))
+              costs.push_back(toString(cost));
+   });
+   return costs;
+}
 
-	/**
-    * Display colors synthetized during current round.
+/**
+	 * Display colors synthetized during current round.
 	 */
-	void outputRound() const {
-		// Get referencese
-		auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
-		auto params = move(analyzer.getOutput()); auto param_it = params.begin();
-		auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
-		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
-\
-		// Control the actual size of vectors - they must be the same, if the vectors are employed
-		if (user_options.timeSeries() && (params.size() != costs.size())) {
-			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
-			throw invalid_argument(sizes_err);
-		} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
-			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
-			throw invalid_argument(sizes_err);
-		} else if (user_options.robustness() && (params.size() != robusts.size())) {
-			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
-			throw invalid_argument(sizes_err);
-		}
-
-		// Cycle through parametrizations, display requested data
-		while (param_it != params.end()) {
-         output_streamer.output(results_str, *(param_it++), OutputStreamer::no_newl);
-			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
-
-         if (user_options.timeSeries())
-            output_streamer.output(results_str, *(cost_it++), OutputStreamer::no_newl);
-         output_streamer.output(results_str, separator, OutputStreamer::no_newl);
-
-         if (user_options.robustness())
-            output_streamer.output(results_str, *(robust_it++), OutputStreamer::no_newl);
-
-			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
-
-         if (user_options.witnesses())
-            output_streamer.output(results_str, *(witness_it++), OutputStreamer::no_newl);
-
-			output_streamer.output(results_str, "");
-		}
+void outputRound() const {
+	// Get referencese
+	auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
+	auto params = move(analyzer.getOutput()); auto param_it = params.begin();
+	auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
+	auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
+	\
+	// Control the actual size of vectors - they must be the same, if the vectors are employed
+	if (user_options.timeSeries() && (params.size() != costs.size())) {
+		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
+		throw invalid_argument(sizes_err);
+	} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
+		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
+		throw invalid_argument(sizes_err);
+	} else if (user_options.robustness() && (params.size() != robusts.size())) {
+		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
+		throw invalid_argument(sizes_err);
 	}
+
+	// Cycle through parametrizations, display requested data
+	while (param_it != params.end()) {
+		output_streamer.output(results_str, *(param_it++), OutputStreamer::no_newl);
+		output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+
+		if (user_options.timeSeries())
+			output_streamer.output(results_str, *(cost_it++), OutputStreamer::no_newl);
+		output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+
+		if (user_options.robustness())
+			output_streamer.output(results_str, *(robust_it++), OutputStreamer::no_newl);
+
+		output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+
+		if (user_options.witnesses())
+			output_streamer.output(results_str, *(witness_it++), OutputStreamer::no_newl);
+
+		output_streamer.output(results_str, "");
+	}
+}
 };
 
 #endif // PARSYBONE_OUTPUT_MANAGER_INCLUDED

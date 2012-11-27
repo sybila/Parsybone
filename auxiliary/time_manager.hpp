@@ -25,26 +25,26 @@ class TimeManager {
    typedef pair<string, long long> Clock; ///< Clock - contain a start time referenced by a name of the clock.
    map<string, long long> clocks; ///< Vector of clocks.
 
-	/**
+   /**
     * Clock - independently on the architecture always (unless you have Mac... O.o) count time in ms.
-	 *
-	 * @return	time in miliseconds
-	 */
-	#ifdef __GNUC__
+    *
+    * @return	time in miliseconds
+    */
+#ifdef __GNUC__
 	long long getMilliseconds() const {
 		timeval tv;
 		gettimeofday(&tv, 0);
 		return tv.tv_sec*1000 + tv.tv_usec/1000;
 	}
-	#else
+#else
 	long long getMilliseconds() const {
 		return GetTickCount();
 	}
-	#endif
+#endif
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// RUN METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// RUN METHODS
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 	/**
 	 * Starts a clock with given name and, if it is requsted by user, outputs the info.
@@ -53,11 +53,11 @@ public:
 	 */
 	void startClock(const string clock_name) {
 		clocks.insert(make_pair(clock_name, getMilliseconds()));
-      output_streamer.output(stats_str, "Started clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(".");
+		output_streamer.output(stats_str, "Started clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(".");
 	}
 
 	/**
-    * Outputs current runtime of the clock.
+	 * Outputs current runtime of the clock.
 	 *
 	 * @param clock_name	name of the clock to output (also appears on the output)
 	 */
@@ -66,7 +66,7 @@ public:
 		if (clocks.find(clock_name) != clocks.end()) {
 			long long runtime = getMilliseconds() - clocks.find(clock_name)->second;
 			output_streamer.output(stats_str, "Clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" counted: ", OutputStreamer::no_newl)
-                        .output(runtime, OutputStreamer::no_newl).output("ms.");
+					.output(runtime, OutputStreamer::no_newl).output("ms.");
 		} else { // If you do not find them, fail
 			output_streamer.output(stats_str, "Requested clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(" have not been started until now.");
 		}

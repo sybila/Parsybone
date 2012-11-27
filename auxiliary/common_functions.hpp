@@ -40,16 +40,16 @@ const size_t INF = static_cast<size_t>(~0); ///< this value represents infinite 
  * @return a string with the demangle name of the type
  */
 string demangle(const type_info & type_info) {
-   #ifdef __GNUC__
-      int status;
-      return string(abi::__cxa_demangle(type_info.name(), 0, 0, &status));
-   #else
-      return string(type_info.name());
-   #endif
+#ifdef __GNUC__
+   int status;
+   return string(abi::__cxa_demangle(type_info.name(), 0, 0, &status));
+#else
+   return string(type_info.name());
+#endif
 }
 
 /**
- * Apply function on all the data stored within the object. 
+ * Apply function on all the data stored within the object.
  *
  * @param[in,out] obj	object storing the data, must have begin() and end() methods
  * @param[in] fun	pointer to the function to apply
@@ -59,7 +59,7 @@ string demangle(const type_info & type_info) {
 template<class Object, class Function>
 Function forEach(Object & obj, Function fun)
 {
-	return for_each(obj.begin(), obj.end(), fun);
+   return for_each(obj.begin(), obj.end(), fun);
 }
 
 /**
@@ -73,11 +73,11 @@ template<class basic_T>
 string toString(basic_T data) {
 	string result;
 	try {
-      result = move(lexical_cast<string, basic_T>(data));
+		result = move(lexical_cast<string, basic_T>(data));
 	} catch (bad_lexical_cast e) {
-      output_streamer.output(error_str, "Error occured while trying to cast a variable", OutputStreamer::no_newl)
-                     .output(data, OutputStreamer::no_newl).output(" to a string: ", OutputStreamer::no_newl).output(e.what());
-      throw runtime_error("lexical_cast<string," + string(typeid(basic_T).name()) + ">(\"data\")) failed");
+		output_streamer.output(error_str, "Error occured while trying to cast a variable", OutputStreamer::no_newl)
+				.output(data, OutputStreamer::no_newl).output(" to a string: ", OutputStreamer::no_newl).output(e.what());
+		throw runtime_error("lexical_cast<string," + string(typeid(basic_T).name()) + ">(\"data\")) failed");
 	}
 	return result;
 }

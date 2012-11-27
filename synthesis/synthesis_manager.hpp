@@ -32,22 +32,23 @@
 class SynthesisManager {
 	const ConstructionHolder & holder; ///< Holder of all the reference data.
 
-	unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis
-	unique_ptr<ModelChecker> model_checker; ///< Class for synthesis
-	unique_ptr<OutputManager> output; ///< Class for output
-	unique_ptr<SplitManager> split_manager; ///< Control of independent rounds
-	unique_ptr<ColorStorage> storage; ///< Class that holds
-	unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses
-	unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness
+	unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis.
+	unique_ptr<DatabaseFiller> database; ///< Class to output to a SQLite database;
+	unique_ptr<ModelChecker> model_checker; ///< Class for synthesis.
+	unique_ptr<OutputManager> output; ///< Class for output.
+	unique_ptr<SplitManager> split_manager; ///< Control of independent rounds.
+	unique_ptr<ColorStorage> storage; ///< Class that holds.
+	unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
+	unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness.
 
 	/// Overall statistics
 	size_t total_colors;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SYNTHESIS CONTROL
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// SYNTHESIS CONTROL
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-    * Setup everything that needs it for computation in this round.
+	 * Setup everything that needs it for computation in this round.
 	 */
 	void doPreparation() {
 		// Assure emptyness
@@ -59,7 +60,7 @@ class SynthesisManager {
 	}
 
 	/**
-    * Store results that have not been stored yet and finalize the round where needed.
+	 * Store results that have not been stored yet and finalize the round where needed.
 	 */
 	void doConclusion() {
 		total_colors += paramset_helper.count(analyzer->getMask());
@@ -73,13 +74,13 @@ class SynthesisManager {
 			output->outputRound();
 		}
 
-      // Output mask if requested
-      if (user_options.outputMask())
-         coloring_parser.outputComputed(analyzer->getMask());
+		// Output mask if requested
+		if (user_options.outputMask())
+			coloring_parser.outputComputed(analyzer->getMask());
 	}
 
 	/**
-	 * Entry point of the parameter synthesis. 
+	 * Entry point of the parameter synthesis.
 	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
@@ -92,8 +93,8 @@ class SynthesisManager {
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
-         if (!paramset_helper.none(final_it->second) && !user_options.timeSeries())
-            detectCycle(*final_it);
+			if (!paramset_helper.none(final_it->second) && !user_options.timeSeries())
+				detectCycle(*final_it);
 
 			// Store results from this final state
 			analyzer->storeResults(Coloring(final_it->first, storage.get()->getColor(final_it->first)));
@@ -101,13 +102,13 @@ class SynthesisManager {
 	}
 
 	/**
-    * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
+	 * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
 	 */
-    void colorProduct() {
+	void colorProduct() {
 		// Get initial coloring
 		Paramset starting;
-      if(user_options.inputMask())
-         starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
+		if(user_options.inputMask())
+			starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
 		else
 			starting = split_manager->createStartingParameters();
 
@@ -138,48 +139,49 @@ class SynthesisManager {
 		model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange());
 	}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   SynthesisManager(const SynthesisManager & other); ///< Forbidden copy constructor.
-   SynthesisManager& operator=(const SynthesisManager & other); ///< Forbidden assignment operator.
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// CREATION
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	SynthesisManager(const SynthesisManager & other); ///< Forbidden copy constructor.
+	SynthesisManager& operator=(const SynthesisManager & other); ///< Forbidden assignment operator.
 
 public:
-	/**
+   /**
     * Constructor builds all the data objects that are used within.
-	 */
-	SynthesisManager(const ConstructionHolder & _holder) : holder(_holder) {
-		// Create classes that help with the synthesis
-		analyzer.reset(new ColoringAnalyzer(holder));
+    */
+   SynthesisManager(const ConstructionHolder & _holder) : holder(_holder) {
+      // Create classes that help with the synthesis
+      analyzer.reset(new ColoringAnalyzer(holder));
       storage.reset(new ColorStorage(holder));
-		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
-		model_checker.reset(new ModelChecker(holder, *storage.get()));
-		searcher.reset(new WitnessSearcher(holder, *storage.get()));
-		robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
-      output.reset(new OutputManager(*storage, *analyzer, *split_manager, *searcher, *robustness));
+      split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
+      model_checker.reset(new ModelChecker(holder, *storage.get()));
+      searcher.reset(new WitnessSearcher(holder, *storage.get()));
+      robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
+      database.reset(new DatabaseFiller(holder));
+      output.reset(new OutputManager(*storage, *database, *analyzer, *split_manager, *searcher, *robustness));
 
-		total_colors = 0;
-	}
+      total_colors = 0;
+   }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SYNTHESIS ENTRY FUNCTION
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // SYNTHESIS ENTRY FUNCTION
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
     * Main synthesis function that iterates through all the rounds of the synthesis.
-	 */
-	void doSynthesis() {
-		time_manager.startClock("coloring");
+    */
+   void doSynthesis() {
+      time_manager.startClock("coloring");
 
-		// Do the computation for all the rounds
+      // Do the computation for all the rounds
       do {
-			doPreparation();
-			doComputation();
-			doConclusion();
+         doPreparation();
+         doComputation();
+         doConclusion();
       } while (split_manager->increaseRound());
 
-		time_manager.ouputClock("coloring");
-		output->outputSummary(total_colors);
-	}
+      time_manager.ouputClock("coloring");
+      output->outputSummary(total_colors);
+   }
 };
 
 #endif // PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
