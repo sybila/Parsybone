@@ -20,12 +20,12 @@
 /// @attention Mask file always needs to have number of bytes dividable by Parameters size. If the last set is smaller, it must be shifted to the right!
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ColoringParser {
-   std::vector<Paramset> colors_sets; ///< Vector of paramsets as they are read from the file - note, that this step reads the WHOLE file
+   vector<Paramset> colors_sets; ///< Vector of paramsets as they are read from the file - note, that this step reads the WHOLE file
 
 	// File-based values
-   std::ifstream::pos_type file_size; ///< Size of the whole file.
-   std::ifstream input_file; ///< File to reads the bits from.
-   std::ofstream output_file; ///< File to write the bits to.
+   ifstream::pos_type file_size; ///< Size of the whole file.
+   ifstream input_file; ///< File to reads the bits from.
+   ofstream output_file; ///< File to write the bits to.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION METHODS
@@ -41,16 +41,16 @@ public:
 	 *
 	 * @param filename	path to the file to read from 
 	 */
-	void openFile(const std::string filename) {
-      input_file.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+	void openFile(const string filename) {
+      input_file.open(filename.c_str(), ios::in | ios::binary | ios::ate);
 		if (input_file.fail()) 
-			throw std::runtime_error(std::string("Failed to open input coloring mask file: ").append(filename).c_str());
+			throw runtime_error(string("Failed to open input coloring mask file: ").append(filename).c_str());
 		file_size = input_file.tellg();
 		if (file_size % sizeof(Paramset) != 0)
-         throw std::runtime_error("Bitmask file has incorrect number of bits - it must be dividable by the size of Paramset");
+         throw runtime_error("Bitmask file has incorrect number of bits - it must be dividable by the size of Paramset");
 		if (file_size / sizeof(Paramset) > colors_sets.max_size())
-         throw std::runtime_error("Bitmask is bigger than a possible size of the vector, can not be used due to memory boundaries");
-      input_file.seekg(0, std::ios::beg);
+         throw runtime_error("Bitmask is bigger than a possible size of the vector, can not be used due to memory boundaries");
+      input_file.seekg(0, ios::beg);
 	}
 
 	/**
@@ -58,10 +58,10 @@ public:
 	 *
 	 * @param filename	path to the file to read from 
 	 */
-	void createOutput(const std::string filename) {
-        output_file.open(filename.c_str(), std::ios::out | std::ios::binary);
+	void createOutput(const string filename) {
+        output_file.open(filename.c_str(), ios::out | ios::binary);
 		if (output_file.fail()) 
-         throw std::runtime_error(std::string("Failed to open an output coloring mask file: ").append(filename).c_str());
+         throw runtime_error(string("Failed to open an output coloring mask file: ").append(filename).c_str());
 	}
 
 	/**
@@ -69,14 +69,14 @@ public:
 	 */
 	void parseMask() {
 		// Read bytemaks
-		char * byteblock = new char [static_cast<std::size_t>(file_size)];
+		char * byteblock = new char [static_cast<size_t>(file_size)];
 		input_file.read(byteblock, file_size);
 
 		// Cycle through bytemasks and reforge them into Parameters
-		for (std::size_t shade_num = 0; shade_num < file_size / sizeof(Paramset); shade_num++) {
+		for (size_t shade_num = 0; shade_num < file_size / sizeof(Paramset); shade_num++) {
 			Paramset temp = 0;
 			// Read bytes and move them to the front of the Parameters, when possible
-			for (std::size_t byte_num = 0; byte_num < sizeof(Paramset); byte_num++) {
+			for (size_t byte_num = 0; byte_num < sizeof(Paramset); byte_num++) {
 				temp <<= 8;
 				char val = byteblock[shade_num*sizeof(Paramset) + byte_num];
 				temp += static_cast<unsigned char>(val);
@@ -94,7 +94,7 @@ public:
 	 */
 	void outputComputed(const Paramset parameters) {
 		// Cycle through bytes
-		for (std::size_t byte_num = sizeof(parameters); byte_num > 0; byte_num--) {
+		for (size_t byte_num = sizeof(parameters); byte_num > 0; byte_num--) {
 			// Take last 8 bits - to save the form, it is needed to shift up till last round 
 			unsigned char to_out = static_cast<unsigned char>(parameters >> (byte_num-1)*8);
 			output_file << to_out;
@@ -107,14 +107,14 @@ public:
 	/**
 	 * @return masks for all colors that can be used
 	 */
-	inline const std::vector<Paramset> & getColors() const {
+	inline const vector<Paramset> & getColors() const {
 		return colors_sets;
 	}
 
 	/**
 	 * @return number of Parameters e.g. number of rounds of computation
 	 */
-	inline std::size_t getColorsCount() {
+	inline size_t getColorsCount() {
 		return colors_sets.size() * paramset_helper.getParamsetSize();
 	}
 } coloring_parser; ///< Single program-shared coloring parser object.

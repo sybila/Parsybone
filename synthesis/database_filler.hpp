@@ -14,6 +14,7 @@ public:
    }
 
    openDatabase() {
+
       adapter = SQLAdapter();
    }
 };

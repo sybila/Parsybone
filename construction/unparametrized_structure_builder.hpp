@@ -39,15 +39,15 @@ class UnparametrizedStructureBuilder {
 	 *
     * @return true it the state satisfy the requirements
 	 */
-	bool testRegulators(const std::vector<StateID> & source_species, const std::vector<std::vector<std::size_t> > & source_values, const Levels & state_levels) {
+	bool testRegulators(const vector<StateID> & source_species, const vector<vector<size_t> > & source_values, const Levels & state_levels) {
 		// List throught regulating species of the function
-		for (std::size_t regulator_num = 0; regulator_num < source_species.size(); regulator_num++) {
+		for (size_t regulator_num = 0; regulator_num < source_species.size(); regulator_num++) {
 			bool is_included = false; // Remains false if the specie level is not in allowed range
 			const StateID ID = source_species[regulator_num]; // real ID of the regulator
 
 			// Does current level of the specie belongs to the levels that are required?
-			std::for_each(source_values[regulator_num].begin(), source_values[regulator_num].end(), [&]
-				(std::size_t feasible_level) {
+			for_each(source_values[regulator_num].begin(), source_values[regulator_num].end(), [&]
+				(size_t feasible_level) {
 					if (feasible_level == state_levels[ID])
 						is_included = true;
 			});
@@ -70,13 +70,13 @@ class UnparametrizedStructureBuilder {
 	 *
 	 * @return function that might lead to the next state
 	 */
-	std::size_t getActiveFunction(const std::size_t specie_ID, const Levels & state_levels) {
+	size_t getActiveFunction(const size_t specie_ID, const Levels & state_levels) {
 		// Source species that will be tested
-		const std::vector<std::size_t> & source_species = regulatory_functions.getSourceSpecies(specie_ID);
+		const vector<size_t> & source_species = regulatory_functions.getSourceSpecies(specie_ID);
 
 		// Cycle until the function is found
 		bool found = false;
-		for (std::size_t regul_num = 0; regul_num < regulatory_functions.getRegulationsCount(specie_ID); regul_num++) {
+		for (size_t regul_num = 0; regul_num < regulatory_functions.getRegulationsCount(specie_ID); regul_num++) {
 			const auto source_vals = regulatory_functions.getSourceValues(specie_ID, regul_num);
 
 			found = testRegulators(source_species, source_vals, state_levels);
@@ -84,7 +84,7 @@ class UnparametrizedStructureBuilder {
 			if (found) 
 				return regul_num;
 		} 
-		throw std::runtime_error("Active function in some state not found.");
+		throw runtime_error("Active function in some state not found.");
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -99,26 +99,26 @@ class UnparametrizedStructureBuilder {
 	 *
 	 * @return mask of transitivity - false means the value is not allowed for this transition
 	 */
-	std::vector<bool> fillTransitivityData(const Direction direction, const std::size_t current_specie_level, const std::vector<std::size_t> & possible_values){
+	vector<bool> fillTransitivityData(const Direction direction, const size_t current_specie_level, const vector<size_t> & possible_values){
 		// Vector to fill
-		std::vector<bool> transitive_values;
+		vector<bool> transitive_values;
 		// Based on direction of the change create a mask of transitivity for all parameter values
 		if (direction == up_dir) {
-			std::for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const std::size_t value){
+			for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const size_t value){
 				if (value < current_specie_level + 1) // If the value is not at least as high as the target
 					transitive_values.push_back(false);
 				else transitive_values.push_back(true);
 			});
 		}
 		else if (direction == stay_dir){
-			std::for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const std::size_t value){
+			for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const size_t value){
 				if (value != current_specie_level) // If the value is not same as the target
 					transitive_values.push_back(false);
 				else transitive_values.push_back(true);
 			});
 		}
 		else if (direction == down_dir) {
-			std::for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const std::size_t value){
+			for_each(possible_values.begin(), possible_values.end(),[current_specie_level, &transitive_values](const size_t value){
 				if (value > current_specie_level - 1) // If the value is not at least as low as the target
 					transitive_values.push_back(false);
 				else transitive_values.push_back(true);
@@ -140,18 +140,18 @@ class UnparametrizedStructureBuilder {
 	 * @return true if there is a possibility of transition, false otherwise
 	 */
 	bool fillFunctions(const StateID ID, const StateID neighbour_index, const Levels & state_levels,
-		                     std::size_t & step_size, std::vector<bool> & transitive_values) {
+		                     size_t & step_size, vector<bool> & transitive_values) {
 		// Get ID of the regulated specie
-		const std::size_t specie_ID = basic_structure.getSpecieID(ID, neighbour_index);
+		const size_t specie_ID = basic_structure.getSpecieID(ID, neighbour_index);
 
 		// Find out which function is currently active
-		std::size_t function_num = getActiveFunction(specie_ID, state_levels);
+		size_t function_num = getActiveFunction(specie_ID, state_levels);
 
 		// Fill the step size
 		step_size = regulatory_functions.getStepSize(specie_ID, function_num);
 
 		// Fill data about transitivity using provided values
-		transitive_values = std::move(fillTransitivityData(basic_structure.getDirection(ID, neighbour_index),  state_levels[specie_ID], 
+		transitive_values = move(fillTransitivityData(basic_structure.getDirection(ID, neighbour_index),  state_levels[specie_ID], 
 			                                               regulatory_functions.getPossibleValues(specie_ID, function_num)));
 
 		// Check if there even is a transition
@@ -173,16 +173,16 @@ class UnparametrizedStructureBuilder {
 	 */
 	void addTransitions(const StateID ID, const Levels & state_levels) {
 		// Go through all the original transitions
-		for (std::size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(ID); trans_num++) {
+		for (size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(ID); trans_num++) {
 			// Data to fill
 			StateID target_ID = basic_structure.getTargetID(ID, trans_num); // ID of the state the transition leads to
-			std::size_t step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
-			std::vector<bool> transitive_values; // Which of possible are used (in this case)
+			size_t step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
+			vector<bool> transitive_values; // Which of possible are used (in this case)
 
 			// Fill data about the transition and check if it is even feasible
 			if (fillFunctions(ID, trans_num, state_levels, step_size, transitive_values)) {
 				// Add the transition
-				structure.addTransition(ID, target_ID, step_size, std::move(transitive_values));
+				structure.addTransition(ID, target_ID, step_size, move(transitive_values));
 			}
 		}	
 	}
@@ -209,7 +209,7 @@ public:
 
 			// Create a new state from the known data
 			const Levels & state_levels = basic_structure.getStateLevels(ID);
-			const std::string & label = basic_structure.getString(ID);
+			const string & label = basic_structure.getString(ID);
 			structure.addState(ID, state_levels, label);
 
 			// Add all the transitions

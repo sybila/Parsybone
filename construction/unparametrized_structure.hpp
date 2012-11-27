@@ -15,19 +15,19 @@
 
 /// Storing a single transition to neighbour state together with its transition function.
 struct ParTransitionion : public TransitionProperty {
-   std::size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-	std::vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
+   size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
+	vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
-	ParTransitionion(const StateID target_ID, const std::size_t _step_size, std::vector<bool>&& _transitive_values)
-      : TransitionProperty(target_ID), step_size(_step_size), transitive_values(std::move(_transitive_values)) {} ///< Simple filler, assigns values to all the variables.
+	ParTransitionion(const StateID target_ID, const size_t _step_size, vector<bool>&& _transitive_values)
+      : TransitionProperty(target_ID), step_size(_step_size), transitive_values(move(_transitive_values)) {} ///< Simple filler, assigns values to all the variables.
 };
 
 /// Simple state enriched with transition functions
 struct ParState : public StateProperty<ParTransitionion> {
    Levels species_level; ///< Species_level[i] = activation level of specie i.
 
-	ParState(const StateID ID, const Levels& _species_level, const std::string && label)
-      : StateProperty<ParTransitionion>(ID, std::move(label)), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables.
+	ParState(const StateID ID, const Levels& _species_level, const string && label)
+      : StateProperty<ParTransitionion>(ID, move(label)), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables.
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,8 +48,8 @@ class UnparametrizedStructure : public GraphInterface<ParState> {
 	/**
 	 * Add a new state, only with ID and levels
 	 */
-	inline void addState(const StateID ID, const Levels& species_level, const std::string label) {
-		states.push_back(ParState(ID, species_level, std::move(label)));
+	inline void addState(const StateID ID, const Levels& species_level, const string label) {
+		states.push_back(ParState(ID, species_level, move(label)));
 	}
 
 	/**
@@ -57,8 +57,8 @@ class UnparametrizedStructure : public GraphInterface<ParState> {
 	 *
 	 * Add a new transition to the source specie, containg necessary edge labels for the CMC
 	 */
-	inline void addTransition(const StateID ID, const StateID target_ID, const std::size_t step_size, std::vector<bool>&& transitive_values) {
-		states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, std::move(transitive_values)));
+	inline void addTransition(const StateID ID, const StateID target_ID, const size_t step_size, vector<bool>&& transitive_values) {
+		states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, move(transitive_values)));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ public:
 	 *
 	 * @return	number of neighbour parameters that share the same value of the function
 	 */
-	inline std::size_t getStepSize(const StateID ID, const std::size_t transtion_num) const {
+	inline size_t getStepSize(const StateID ID, const size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].step_size;
 	}
 
@@ -98,7 +98,7 @@ public:
 	 *
 	 * @return	target values that are includete in non-transitive parameters that have to be removed
 	 */
-	inline const std::vector<bool> & getTransitive(const StateID ID, const std::size_t transtion_num) const {
+	inline const vector<bool> & getTransitive(const StateID ID, const size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].transitive_values;
 	}
 };

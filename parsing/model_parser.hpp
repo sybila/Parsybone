@@ -23,11 +23,11 @@
 class ModelParser {
    // Provided with constructor
    Model & model; ///< Reference to the model object that will be filled
-   std::ifstream * input_stream; ///< File to parse the data from
+   ifstream * input_stream; ///< File to parse the data from
 
 	// Created with and for parsing
    rapidxml::xml_document<>  model_xml; ///< Main parsing node
-   std::unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
+   unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARSING:
@@ -36,20 +36,20 @@ class ModelParser {
       // Temporaries
       rapidxml::xml_node<> *current_node;
       float file_version;
-      std::string unspec;
+      string unspec;
 
 		// Step into first MODEL (main) tag
 		current_node = model_xml.first_node();
 		if (strcmp(current_node->name(), "MODEL") != 0)
-			throw std::runtime_error(std::string("Parsed found out that input does not start with the tag <MODEL> but with the <")
+			throw runtime_error(string("Parsed found out that input does not start with the tag <MODEL> but with the <")
 											 .append(current_node->name()).append("> instead").c_str());
       // Find a version number
 		XMLHelper::getAttribute(file_version, current_node, "ver");
       if (file_version < program_version) {
-         output_streamer.output(verbose_str, std::string("Version of the file (").append(toString(file_version)).append(") is lower than version of the program (")
+         output_streamer.output(verbose_str, string("Version of the file (").append(toString(file_version)).append(") is lower than version of the program (")
                         .append(toString(program_version)).append("). Some data can be missing in the file."));
       } else if (file_version > program_version) {
-         output_streamer.output(verbose_str, std::string("Version of the file (").append(toString(file_version)).append(") is higher than version of the program (")
+         output_streamer.output(verbose_str, string("Version of the file (").append(toString(file_version)).append(") is higher than version of the program (")
                         .append(toString(program_version)).append("). Some functionality  of the program can be missing."));
       }
       // Pass additional information (version number)
@@ -66,21 +66,21 @@ class ModelParser {
 	 */
 	void createDocument() {
 		// Copy input data from stream into a string line by line
-		std::string input_line, input_data;
-         for (int lineno = 1; std::getline(*input_stream, input_line); ++lineno) {
+		string input_line, input_data;
+         for (int lineno = 1; getline(*input_stream, input_line); ++lineno) {
 			input_data += input_line + "\n";
 		}
 
 		// Copy data from String to newly created c-string
 		parsed_data.reset(new char[input_data.size() + 1]);
-		std::strcpy(parsed_data.get(), input_data.c_str());
+		strcpy(parsed_data.get(), input_data.c_str());
 
 		// Setup the parser with the c-string
 		try {
 			model_xml.parse<0>(parsed_data.get());
 		} catch (rapidxml::parse_error e) {
-         output_streamer.output(error_str, std::string("Error occured while trying to reconstruct xml document from the stream: ").append(e.what()).append("."));
-         throw std::runtime_error("Rapidxml::xml_document<>.parse(char *) failed");
+         output_streamer.output(error_str, string("Error occured while trying to reconstruct xml document from the stream: ").append(e.what()).append("."));
+         throw runtime_error("Rapidxml::xml_document<>.parse(char *) failed");
 		}
 	}
 	
@@ -88,7 +88,7 @@ class ModelParser {
 	ModelParser& operator=(const ModelParser & other); ///< Forbidden assignment operator.
 
 public:
-	ModelParser(Model & _model, std::ifstream * _input_stream) : model( _model), input_stream(_input_stream) {} ///< Simple constructor, passes references
+	ModelParser(Model & _model, ifstream * _input_stream) : model( _model), input_stream(_input_stream) {} ///< Simple constructor, passes references
 
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.
@@ -106,19 +106,19 @@ public:
          AutomatonParser automaton_parser(model);
          automaton_parser.parse(model_node);
          if ((model_node->first_node("AUTOMATON"))->next_sibling("AUTOMATON") || model_node->first_node("SERIES"))
-            throw std::invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
+            throw invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
          if (user_options.analysis())
-            throw std::invalid_argument("Advancet analysis methods not available for the general LTL propery, wrong usage of argument -r, -w or -W");
+            throw invalid_argument("Advancet analysis methods not available for the general LTL propery, wrong usage of argument -r, -w or -W");
       }
       else if (model_node->first_node("SERIES")) {
          TimeSeriesParser series_parser(model);
          series_parser.parse(model_node);
          if ((model_node->first_node("SERIES"))->next_sibling("SERIES") || model_node->first_node("AUTOMATON"))
-            throw std::invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
+            throw invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
          user_options.time_series = true;
       }
       else
-         throw std::invalid_argument("AUTOMATON or SERIES tag missing - no property to be tested found");
+         throw invalid_argument("AUTOMATON or SERIES tag missing - no property to be tested found");
    }
 };
 

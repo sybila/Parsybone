@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
       holder.fillModel(model);
    }
    catch (std::exception & e) {
-      output_streamer.output(error_str, std::string("Error occured while parsing input: \"").append(e.what()).append("\"."));
+      output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
       return 1;
    }
 
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
       construction_manager.construct();
    }
    catch (std::exception & e) {
-      output_streamer.output(error_str, std::string("Error occured while constructing data structures: \"").append(e.what()).append("\"."));
+      output_streamer.output(error_str, string("Error occured while constructing data structures: \"").append(e.what()).append("\"."));
       return 2;
    }
 
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
       synthesis_manager.doSynthesis();
    }
    catch (std::exception & e) {
-      output_streamer.output(error_str, std::string("Error occured while syntetizing the parameters: \"").append(e.what()).append("\"."));
+      output_streamer.output(error_str, string("Error occured while syntetizing the parameters: \"").append(e.what()).append("\"."));
       return 3;
    }
 

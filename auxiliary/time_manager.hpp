@@ -22,8 +22,8 @@
 /// \brief Class that allows to multiple clock for run-time measurement.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class TimeManager {
-   typedef std::pair<std::string, long long> Clock; ///< Clock - contain a start time referenced by a name of the clock.
-   std::map<std::string, long long> clocks; ///< Vector of clocks.
+   typedef pair<string, long long> Clock; ///< Clock - contain a start time referenced by a name of the clock.
+   map<string, long long> clocks; ///< Vector of clocks.
 
 	/**
     * Clock - independently on the architecture always (unless you have Mac... O.o) count time in ms.
@@ -51,8 +51,8 @@ public:
 	 *
 	 * @param clock_name	unique ID of the clock that will also be send on the output
 	 */
-	void startClock(const std::string clock_name) {
-		clocks.insert(std::make_pair(clock_name, getMilliseconds()));
+	void startClock(const string clock_name) {
+		clocks.insert(make_pair(clock_name, getMilliseconds()));
       output_streamer.output(stats_str, "Started clock ", OutputStreamer::no_newl).output(clock_name, OutputStreamer::no_newl).output(".");
 	}
 
@@ -61,7 +61,7 @@ public:
 	 *
 	 * @param clock_name	name of the clock to output (also appears on the output)
 	 */
-	void ouputClock(const std::string clock_name) const {
+	void ouputClock(const string clock_name) const {
 		// Find the clock and output time difference
 		if (clocks.find(clock_name) != clocks.end()) {
 			long long runtime = getMilliseconds() - clocks.find(clock_name)->second;

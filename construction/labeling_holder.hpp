@@ -24,32 +24,32 @@ class LabelingHolder {
 
    /// Storing a regulatory function in explicit form.
 	struct RegulatoryFunction {
-      std::size_t step_size; ///< How many neighbour parameters have the same value for this function.
-      std::vector<std::size_t> possible_values; ///< Levels towards which this function can regulate.
-      std::vector<std::vector<std::size_t> > source_values;  ///< Values at which the regulations are active.
+      size_t step_size; ///< How many neighbour parameters have the same value for this function.
+      vector<size_t> possible_values; ///< Levels towards which this function can regulate.
+      vector<vector<size_t> > source_values;  ///< Values at which the regulations are active.
 
-		RegulatoryFunction(const std::size_t _step_size, std::vector<std::size_t> && _possible_values, std::vector<std::vector<std::size_t> > && _source_values)
-         : step_size(_step_size), possible_values(std::move(_possible_values)), source_values(std::move(_source_values)){} ///< Simple filler, assigns values to all the variables.
+		RegulatoryFunction(const size_t _step_size, vector<size_t> && _possible_values, vector<vector<size_t> > && _source_values)
+         : step_size(_step_size), possible_values(move(_possible_values)), source_values(move(_source_values)){} ///< Simple filler, assigns values to all the variables.
 	};
 	
    /// Storing a sigle specie with its regulations.
 	struct Specie {
-      std::string name; ///< Real name of the specie.
-      std::size_t ID; ///< Reference number.
-      std::vector<std::size_t> specie_values; ///< Levels this specie can occur in.
-      std::vector<std::size_t> source_species; ///< IDs of regulators.
+      string name; ///< Real name of the specie.
+      size_t ID; ///< Reference number.
+      vector<size_t> specie_values; ///< Levels this specie can occur in.
+      vector<size_t> source_species; ///< IDs of regulators.
 
-      std::vector<RegulatoryFunction> functions; ///< Regulatory functions - set of all possible regulatory kinetics.
+      vector<RegulatoryFunction> functions; ///< Regulatory functions - set of all possible regulatory kinetics.
 	
-		Specie(const std::string _name, const std::size_t _ID, std::vector<std::size_t> && _specie_values, std::vector<std::size_t> && _source_species)
-           : name(_name), ID(_ID), specie_values(std::move(_specie_values)), source_species(std::move(_source_species)) {} ///< Simple filler, assigns values to all the variables.
+		Specie(const string _name, const size_t _ID, vector<size_t> && _specie_values, vector<size_t> && _source_species)
+           : name(_name), ID(_ID), specie_values(move(_specie_values)), source_species(move(_source_species)) {} ///< Simple filler, assigns values to all the variables.
 	};
 
    /// Vector of all the species together with their Regulatory functions.
-	std::vector<Specie> species;
+	vector<Specie> species;
 
    /// Total number of parameters (colors).
-	std::size_t parameter_count;
+	size_t parameter_count;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING METHODS (can be used only from LabelingBuilder)
@@ -59,16 +59,16 @@ class LabelingHolder {
 	 *
 	 * @param source_ID	ID of the spicie whose function this is
 	 */
-	inline void addRegulatoryFunction(const std::size_t target_ID, const std::size_t step_sizes, 
-                                     std::vector<std::size_t> && possible_values, std::vector<std::vector<std::size_t> > && source_values) {
-		species[target_ID].functions.push_back(RegulatoryFunction(step_sizes, std::move(possible_values), std::move(source_values)));
+	inline void addRegulatoryFunction(const size_t target_ID, const size_t step_sizes, 
+                                     vector<size_t> && possible_values, vector<vector<size_t> > && source_values) {
+		species[target_ID].functions.push_back(RegulatoryFunction(step_sizes, move(possible_values), move(source_values)));
 	}
 
 	/**
     * Add a new specie - consists of its name within a string, ID, possible values vector and source species IDs vector.
 	 */
-	inline void addSpecie(const std::string name, const std::size_t ID, std::vector<std::size_t> && specie_values, std::vector<std::size_t> && source_species) {
-		species.push_back(Specie(name, ID, std::move(specie_values), std::move(source_species)));
+	inline void addSpecie(const string name, const size_t ID, vector<size_t> && specie_values, vector<size_t> && source_species) {
+		species.push_back(Specie(name, ID, move(specie_values), move(source_species)));
 	}
 
 	LabelingHolder(const LabelingHolder & other); ///< Forbidden copy constructor.
@@ -83,63 +83,63 @@ public:
 	/**
 	 * @return	size of the parameter space
 	 */
-	inline std::size_t getParametersCount() const {
+	inline size_t getParametersCount() const {
 		return parameter_count;
 	}
 
 	/**
 	 * @return	number of the species
 	 */
-	inline std::size_t getSpeciesCount() const {
+	inline size_t getSpeciesCount() const {
 		return species.size();
 	}
 
 	/**
 	 * @return	name of the specie with given ID
 	 */
-	inline const std::string & getSpecieName(const std::size_t ID) const {
+	inline const string & getSpecieName(const size_t ID) const {
 		return species[ID].name;
 	}
 
 	/**
 	 * @return	all the values the specie can occur in
 	 */
-	inline const std::vector<std::size_t> & getSpecieValues(const std::size_t ID) const {
+	inline const vector<size_t> & getSpecieValues(const size_t ID) const {
 		return species[ID].specie_values;
 	}
 
 	/**
 	 * @return	IDs of all the species that regulate this specie
 	 */
-	inline const std::vector<std::size_t> & getSourceSpecies(const std::size_t ID) const {
+	inline const vector<size_t> & getSourceSpecies(const size_t ID) const {
 		return species[ID].source_species;
 	}
 
 	/**
 	 * @return	number of regulations for this specie (two to power of number of source species)
 	 */
-	inline std::size_t getRegulationsCount(const std::size_t ID) const {
+	inline size_t getRegulationsCount(const size_t ID) const {
 		return species[ID].functions.size();
 	}
 
 	/**
 	 * @return	step_size (how many neigbour parameters share the same value for this regulation)
 	 */
-	std::size_t getStepSize(const std::size_t ID, const std::size_t regulation) const {
+	size_t getStepSize(const size_t ID, const size_t regulation) const {
 		return species[ID].functions[regulation].step_size;
 	}
 
 	/**
 	 * @return	values this function can possibly regulate to
 	 */
-	const std::vector<std::size_t> & getPossibleValues(const std::size_t ID, const std::size_t regulation) const {
+	const vector<size_t> & getPossibleValues(const size_t ID, const size_t regulation) const {
 		return species[ID].functions[regulation].possible_values;
 	}
 
 	/**
 	 * @return	for each source specie all the values that if it is within them, it allows this function
 	 */
-	const std::vector<std::vector<std::size_t> > & getSourceValues(const std::size_t ID, const std::size_t regulation) const {
+	const vector<vector<size_t> > & getSourceValues(const size_t ID, const size_t regulation) const {
 		return species[ID].functions[regulation].source_values;
 	}
 };

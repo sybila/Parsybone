@@ -33,9 +33,9 @@ class UserOptions {
    bool use_long_witnesses; ///< How witnesses should be displayed - complete state or only ID?
    bool use_in_mask; ///< Is there a paramset mask on the input?
    bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
-	std::size_t process_number; ///< What is the ID of this process?
-	std::size_t processes_count; ///< How many processes are included in the computation?
-	std::string model_name; ///< What is the name of the model?
+	size_t process_number; ///< What is the ID of this process?
+	size_t processes_count; ///< How many processes are included in the computation?
+	string model_name; ///< What is the name of the model?
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION METHODS
@@ -108,35 +108,35 @@ public:
 	/**
 	 * @return	number of this process in distributed computation (indexed from 1)
 	 */
-	inline std::size_t procNum() const {
+	inline size_t procNum() const {
 		return process_number;
 	}
 
 	/**
 	 * @return	total number of processes in distributed computation
 	 */
-	inline std::size_t procCount() const {
+	inline size_t procCount() const {
 		return processes_count;
 	}	
 
    /**
     * @return	true if the input mask was provided
     */
-   inline std::size_t inputMask() const {
+   inline size_t inputMask() const {
       return use_in_mask;
    }
 
    /**
     * @return	true if the mask of computation should be printed
     */
-   inline std::size_t outputMask() const {
+   inline size_t outputMask() const {
       return use_out_mask;
    }
 
    /**
     * @return  name of the model being used
     */
-   inline std::string modelName() const {
+   inline string modelName() const {
       return model_name;
    }
 } user_options; ///< Single program-shared user options object.

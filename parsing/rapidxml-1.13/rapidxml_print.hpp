@@ -398,9 +398,9 @@ namespace rapidxml
     //! \param flags Flags controlling how XML is printed.
     //! \return Output stream.
     template<class Ch> 
-    inline std::basic_ostream<Ch> &print(std::basic_ostream<Ch> &out, const xml_node<Ch> &node, int flags = 0)
+    inline basic_ostream<Ch> &print(basic_ostream<Ch> &out, const xml_node<Ch> &node, int flags = 0)
     {
-        print(std::ostream_iterator<Ch>(out), node, flags);
+        print(ostream_iterator<Ch>(out), node, flags);
         return out;
     }
 
@@ -409,7 +409,7 @@ namespace rapidxml
     //! \param node Node to be printed.
     //! \return Output stream.
     template<class Ch> 
-    inline std::basic_ostream<Ch> &operator <<(std::basic_ostream<Ch> &out, const xml_node<Ch> &node)
+    inline basic_ostream<Ch> &operator <<(basic_ostream<Ch> &out, const xml_node<Ch> &node)
     {
         return print(out, node);
     }

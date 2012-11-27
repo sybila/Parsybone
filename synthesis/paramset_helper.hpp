@@ -21,7 +21,7 @@
 /// @attention Parametrizations in an Paramset are ordered in an ascending order.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParamsetHelper {
-   const static std::size_t subset_size = sizeof(Paramset) * 8; ///< Size in bits of a single subset of parametrization space.
+   const static size_t subset_size = sizeof(Paramset) * 8; ///< Size in bits of a single subset of parametrization space.
    const static Paramset all = static_cast<Paramset>(INF); ///< Parametrization set with all the bits set to 1.
 
 public:
@@ -31,7 +31,7 @@ public:
    /**
     * @return  number of parametrizations in a single round
     */
-   inline static std::size_t getParamsetSize() {
+   inline static size_t getParamsetSize() {
       return subset_size;
    }
    /**
@@ -58,10 +58,10 @@ public:
     *
     * @return vector containing a paramset with a single parametrization for each parametrization in input paramset
     */
-   std::vector<Paramset> getSingleMasks(Paramset paramset) const {
-      std::vector<Paramset> masks;
+   vector<Paramset> getSingleMasks(Paramset paramset) const {
+      vector<Paramset> masks;
       Paramset mask = getLeftOne();
-      for (std::size_t counter = 0; counter < getParamsetSize(); counter++) {
+      for (size_t counter = 0; counter < getParamsetSize(); counter++) {
          if (mask & paramset)
             masks.push_back(mask);
          mask >>= 1;
@@ -76,11 +76,11 @@ public:
     *
     * @return  Paramset mask
     */
-   Paramset getMaskFromNums(const std::vector<std::size_t> numbers) const {
+   Paramset getMaskFromNums(const vector<size_t> numbers) const {
       Paramset full_mask = 0;
       for (auto num = numbers.begin(); num != numbers.end(); num++) {
          if (*num > getParamsetSize())
-            throw std::runtime_error("Mask asked for number bigger that is the size of Paramset mask.");
+            throw runtime_error("Mask asked for number bigger that is the size of Paramset mask.");
          full_mask |= 1 << (getParamsetSize() - (*num + 1));
       }
       return full_mask;
@@ -106,7 +106,7 @@ public:
     */
    inline Paramset swap(Paramset paramset) const {
       Paramset new_params = 0;
-      for (std::size_t param_num = 0; param_num < getParamsetSize(); param_num++) {
+      for (size_t param_num = 0; param_num < getParamsetSize(); param_num++) {
          new_params <<= 1;
          if (paramset % 2)
             new_params |= 1;
@@ -123,7 +123,7 @@ public:
     *
     * @return  copy of input with descending order of paramset
     */
-   inline Paramset swap(Paramset paramset, const std::size_t shift) const {
+   inline Paramset swap(Paramset paramset, const size_t shift) const {
       paramset = swap(paramset);
       paramset >>= shift;
       return paramset;
@@ -167,12 +167,12 @@ public:
     *
     * @return  position of the bit in the mask (from the left)
     */
-   inline std::size_t getBitNum(Paramset paramset) const {
+   inline size_t getBitNum(Paramset paramset) const {
       if (count(paramset) != 1)
-         throw std::runtime_error("getBitNum called on colorset with different number of on bits than one.");
+         throw runtime_error("getBitNum called on colorset with different number of on bits than one.");
 
       // Shift bits until you reach the one that is on
-      std::size_t bit_num = 0;
+      size_t bit_num = 0;
       for (; bit_num < getParamsetSize(); bit_num++, paramset >>= 1) {
          if (paramset % 2)
             break;

@@ -37,23 +37,23 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	true if constrains are satisfied
 	 */
-	void testConstrains(bool & activating, bool & inhibiting, const SpecieID ID, const std::size_t param_num, const std::size_t regul_num, const std::vector<std::size_t> & subcolor) const {
+	void testConstrains(bool & activating, bool & inhibiting, const SpecieID ID, const size_t param_num, const size_t regul_num, const vector<size_t> & subcolor) const {
       // Get reference data
-      const std::vector<Model::Parameter> & parameters = model.getParameters(ID);
+      const vector<Model::Parameter> & parameters = model.getParameters(ID);
 
       // Copy mask of the regulation and turn of tested regulation
-      std::vector<bool> other(parameters[param_num].first);
+      vector<bool> other(parameters[param_num].first);
       other[regul_num] = false;
 
       // Cycle through regulations again until you find context just without current regulation
-      std::size_t regul_comp;
+      size_t regul_comp;
       for (regul_comp = 0; regul_comp <= parameters.size(); regul_comp++) {
          // If context is found, break, remembering its number
          if (parameters[regul_comp].first == other)
             break;
 		}
 		if (regul_comp >= parameters.size())
-			throw std::runtime_error("Not fount other complementary regulation for some regulation.");
+			throw runtime_error("Not fount other complementary regulation for some regulation.");
 
 		// Assign regulation aspects
 		activating |= subcolor[param_num] > subcolor[regul_comp];
@@ -68,13 +68,13 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	true if the edge constrain is satisfied
 	 */
-	bool resolveLabel(const bool & activating, const bool & inhibiting, const std::string label) const {
+	bool resolveLabel(const bool & activating, const bool & inhibiting, const string label) const {
 		// Fill the atomic propositions
 		FormulaeParser::Vals values;
 		values.insert(FormulaeParser::Val("+", activating));
 		values.insert(FormulaeParser::Val("-", inhibiting));
 
-		std::string formula;
+		string formula;
 
 		// Find the constrain and return its valuation
 		if (label.compare(Label::Activating) == 0)
@@ -107,13 +107,13 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	true if the subparametrization is feasible
 	 */
-	bool testSubparametrization (const SpecieID ID, const std::vector<std::size_t> & subparam) const {
+	bool testSubparametrization (const SpecieID ID, const vector<size_t> & subparam) const {
 		// get referecnces to Specie data
-      const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
-      const std::vector<Model::Parameter> & parameters = model.getParameters(ID);
+      const vector<Model::Regulation> & regulations = model.getRegulations(ID);
+      const vector<Model::Parameter> & parameters = model.getParameters(ID);
 		
 		// Cycle through all species's regulators
-      for (std::size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
+      for (size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
          // Skip if there are no requirements (free label)
          if (regulations[regul_num].label.compare(Label::Free) == 0)
             continue;
@@ -121,7 +121,7 @@ class ParametrizationsBuilder {
          // Prepare variables storing info about observable effects of this component
          bool activating = false, inhibiting = false;
          // For each parameter containing the reugulator in parametrization control its satisfaction
-         for (std::size_t param_num = 0; param_num < parameters.size(); param_num++) {
+         for (size_t param_num = 0; param_num < parameters.size(); param_num++) {
             // Skip if the contexts does not contain requested regulation
             if (!parameters[param_num].first[regul_num])
                continue;
@@ -148,9 +148,9 @@ class ParametrizationsBuilder {
 	 * @param bottom_color	low bound on possible contexts
 	 * @param top_color	top bound on possible contexts
 	 */
-    void testColors(ParametrizationsHolder::SpecieColors && valid, const SpecieID ID, const std::vector<std::size_t> & bottom_color, const std::vector<std::size_t> & top_color) {
+    void testColors(ParametrizationsHolder::SpecieColors && valid, const SpecieID ID, const vector<size_t> & bottom_color, const vector<size_t> & top_color) {
 		// Cycle through all possible subcolors for this specie
-		std::vector<std::size_t> subcolor(bottom_color);
+		vector<size_t> subcolor(bottom_color);
 
 		// Cycle through all colors
 		do {
@@ -160,10 +160,10 @@ class ParametrizationsBuilder {
 		} while (iterate(top_color, bottom_color, subcolor));
 
 		if (valid.subcolors.empty())
-			throw std::runtime_error(std::string("No valid parametrization found for the specie ").append(toString(ID)));
+			throw runtime_error(string("No valid parametrization found for the specie ").append(toString(ID)));
 
 		// Add computed subcolors
-		parametrizations.colors.push_back(std::move(valid));
+		parametrizations.colors.push_back(move(valid));
 	}
 
 	/**
@@ -172,9 +172,9 @@ class ParametrizationsBuilder {
 	 *
 	 * @return true if the context denotes self-regulation
 	 */
-	bool isSelfRegulation(const std::vector<bool> & context, const StateID ID,  std::size_t & position) {
+	bool isSelfRegulation(const vector<bool> & context, const StateID ID,  size_t & position) {
 		position = INF;
-		for (std::size_t reg_num = 0; reg_num < context.size(); reg_num++) {
+		for (size_t reg_num = 0; reg_num < context.size(); reg_num++) {
 			if (context[reg_num]) {
 				if (position == INF) {
 					position = reg_num;
@@ -204,16 +204,16 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	how many colors are there together
 	 */
-	std::size_t getBoundaries(const SpecieID ID, std::vector<std::size_t> & bottom_color, std::vector<std::size_t> & top_color) {
+	size_t getBoundaries(const SpecieID ID, vector<size_t> & bottom_color, vector<size_t> & top_color) {
 		// Obtain all regulations
       auto parameters = model.getParameters(ID);
-		std::size_t colors_num = 1;
+		size_t colors_num = 1;
 		
 		// Cycle through regulations
-		for (std::size_t param_num = 0; param_num < parameters.size(); param_num++) {
+		for (size_t param_num = 0; param_num < parameters.size(); param_num++) {
          // If the target value is unknown, add all the values
          if (parameters[param_num].second < 0) {
-            std::size_t position = INF;
+            size_t position = INF;
             top_color[param_num] = model.getMax(ID);
 
             // Optimization - minimal value is at most one below the threshold
@@ -249,12 +249,12 @@ class ParametrizationsBuilder {
       auto parameters = model.getParameters(ID);
 		
 		// Create boundaries for iteration
-      std::vector<std::size_t> bottom_color(parameters.size());
-      std::vector<std::size_t> top_color(parameters.size());
+      vector<size_t> bottom_color(parameters.size());
+      vector<size_t> top_color(parameters.size());
       valid.possible_count = getBoundaries(ID, bottom_color, top_color);
 		
 		// Test all the subcolors and save feasible
-      testColors(std::move(valid), ID, bottom_color, top_color);
+      testColors(move(valid), ID, bottom_color, top_color);
 	}
 
 	ParametrizationsBuilder(const ParametrizationsBuilder & other); ///< Forbidden copy constructor.

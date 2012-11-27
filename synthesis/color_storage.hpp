@@ -21,17 +21,17 @@ class ColorStorage {
 	struct State {
       StateID ID; ///< Unique ID of the state.
       Paramset parameters; ///< Bits for each color in this round marking its presence or absence in the state.
-      std::map<StateID, Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters).
-      std::map<StateID, Paramset> successors; ///< Stores succesors in the form (product_ID, parameters).
+      map<StateID, Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters).
+      map<StateID, Paramset> successors; ///< Stores succesors in the form (product_ID, parameters).
 
       /// Holder of the computed information for a single state.
       State(const StateID _ID) : ID(_ID), parameters(0) { }
 	};
 	
-   std::vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data.
+	vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data.
 	/// This vector stores so-called COST value i.e. number of steps required to reach the final state in TS.
 	/// If it is not reachable, cost is set to INF.
-	std::vector<std::size_t> cost_val;
+	vector<size_t> cost_val;
    Paramset acceptable; ///< Additional value that stores paramset computed in this round.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,16 +54,16 @@ public:
       // Add predecessors and succesors paramset storage, if necessary
       if (user_options.analysis()) {
          for (StateID ID = 0; ID < product.getStateCount(); ID++) {
-            for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
+            for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
                StateID target = product.getTargetID(ID, trans_num);
-               states[ID].successors.insert(std::make_pair(target, 0));
-               states[target].predecessors.insert(std::make_pair(ID, 0));
+               states[ID].successors.insert(make_pair(target, 0));
+               states[target].predecessors.insert(make_pair(ID, 0));
             }
          }
       }
 
       // Set additional storage
-      cost_val = std::vector<std::size_t>(paramset_helper.getParamsetSize(), INF); // Set all to max. value
+      cost_val = vector<size_t>(paramset_helper.getParamsetSize(), INF); // Set all to max. value
 		acceptable = 0;
 	}
 
@@ -107,7 +107,7 @@ public:
 	 */ 
 	void reset() {
 		// Clear each state
-		std::for_each(states.begin(), states.end(),[&](State & state) {
+		for_each(states.begin(), states.end(),[&](State & state) {
 			// Reset merged parameters
 			state.parameters = 0;
 			// Reset parameters from predecessors, if there were new values
@@ -127,7 +127,7 @@ public:
 	 *
 	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use INF
 	 */
-	void setResults(const std::vector<std::size_t> & new_cost, const Paramset resulting) {
+	void setResults(const vector<size_t> & new_cost, const Paramset resulting) {
 		cost_val = new_cost;
 		acceptable = resulting;
 	}
@@ -208,7 +208,7 @@ public:
 	void remove(const StateID source_ID, const Paramset remove, const bool successors) {
 		// reference
 		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
-      forEach(neigbours, [remove](std::pair<const StateID, Paramset> & neighbour){neighbour.second &= ~remove;});
+		forEach(neigbours, [remove](pair<const StateID, Paramset> & neighbour){neighbour.second &= ~remove;});
 	}
 
 	/**
@@ -229,9 +229,9 @@ public:
    /**
     * @return  max finite cost among parametrizations used this round
     */
-   std::size_t getMaxDepth () const {
-      std::size_t depth = 0;
-      forEach(cost_val, [&depth](std::size_t current){depth = my_max((current == ~static_cast<std::size_t>(0) ? 0 : current), depth);});
+   size_t getMaxDepth () const {
+      size_t depth = 0;
+      forEach(cost_val, [&depth](size_t current){depth = my_max((current == ~static_cast<size_t>(0) ? 0 : current), depth);});
       return depth;
    }
 
@@ -249,12 +249,12 @@ public:
 	 *
     * @return  queue with all colorings of states
 	 */
-	const std::vector<Coloring> getColor(const std::vector<StateID> & states) const {
+	const vector<Coloring> getColor(const vector<StateID> & states) const {
 		// Queue tates colored in basic coloring
-		std::vector<Coloring> colors; 
+		vector<Coloring> colors;
 
 		// Get the states and their colors
-		std::for_each(states.begin(), states.end(), [&](const StateID ID) {
+		for_each(states.begin(), states.end(), [&](const StateID ID) {
 			colors.push_back(Coloring(ID, getColor(ID)));
 		});
 
@@ -278,7 +278,7 @@ public:
 		Neighbours color_neigh;
 
 		// Add these from the color
-      forEach(neigbours, [&color_neigh, color_mask](std::pair<const StateID, Paramset> & neighbour) {
+		forEach(neigbours, [&color_neigh, color_mask](pair<const StateID, Paramset> & neighbour) {
 			// Test if the color is present
          if ((neighbour.second & color_mask) != 0)
             color_neigh.push_back(neighbour.first);
@@ -296,13 +296,13 @@ public:
 	 *
     * @return  labelling on the neighbour labels
 	 */
-	inline const std::vector<Paramset> getMarking(const StateID ID, const bool successors, const Paramset color_mask = INF) const {
+	inline const vector<Paramset> getMarking(const StateID ID, const bool successors, const Paramset color_mask = INF) const {
 		// reference
 		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
 
-		std::vector<Paramset> restricted;
+		vector<Paramset> restricted;
 		// Add only those that contain the value
-      forEach(neigbours, [&restricted, color_mask](std::pair<const StateID, Paramset> & neighbour) {
+		forEach(neigbours, [&restricted, color_mask](pair<const StateID, Paramset> & neighbour) {
 			// Test if the color is present
          if ((neighbour.second & color_mask) != 0)
             restricted.push_back(neighbour.second);
@@ -316,14 +316,14 @@ public:
 	 *
     * @return  Cost value of a particular parametrization
 	 */
-	std::size_t getCost(std::size_t position) const {
+	size_t getCost(size_t position) const {
 		return cost_val[position];
 	}
 
 	/**
     * @return  Cost value of all the parametrizations from this round
 	 */
-	const std::vector<std::size_t> & getCost() const {
+	const vector<size_t> & getCost() const {
 		return cost_val;
 	}
 

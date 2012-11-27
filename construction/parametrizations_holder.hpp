@@ -21,19 +21,19 @@ class ParametrizationsHolder {
 	/// Holds all the feasible subcolors for single Specie w.r.t. edge constrains
 	struct SpecieColors {
       SpecieID ID; ///< Unique ID of the specie.
-      std::vector<std::vector<std::size_t> > subcolors; ///< Feasible subcolors of the specie.
-      std::size_t possible_count; ///< Total number of subcolors possible for the specie(even those unfesible).
-      std::size_t acceptable_count; ///< Number of subcolors this state really has (equal to the subcolors.size()).
+      vector<vector<size_t> > subcolors; ///< Feasible subcolors of the specie.
+      size_t possible_count; ///< Total number of subcolors possible for the specie(even those unfesible).
+      size_t acceptable_count; ///< Number of subcolors this state really has (equal to the subcolors.size()).
 
       /// Add as new subcolor (to the end of the vector).
-		void push_back (std::vector<std::size_t> subcolor) {
+		void push_back (vector<size_t> subcolor) {
 			subcolors.push_back(subcolor);
 			acceptable_count = subcolors.size(); // Add a reference value
 		}
 	};
 
    /// Storage for all the vectors of subcolors for each specie.
-	std::vector<SpecieColors> colors;
+	vector<SpecieColors> colors;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER METHODS
@@ -50,7 +50,7 @@ public:
 	/**
 	 * @return	total number of species
 	 */
-	inline std::size_t getSpecieNum() const {
+	inline size_t getSpecieNum() const {
 		return colors.size();
 	}
 
@@ -59,7 +59,7 @@ public:
 	 *
 	 * @return	total number of subcolors this specie could have (all regulatory contexts' combinations)
 	 */
-	inline std::size_t getAllColorsNum(const SpecieID ID) const {
+	inline size_t getAllColorsNum(const SpecieID ID) const {
 		return colors[ID].possible_count;
 	}
 
@@ -68,15 +68,15 @@ public:
 	 *
 	 * @return	total number of subcolors this specie has (allowed regulatory contexts' combinations)
 	 */
-	inline std::size_t getColorsNum(const SpecieID ID) const {
+	inline size_t getColorsNum(const SpecieID ID) const {
 		return colors[ID].acceptable_count;
 	}
 
 	/**
 	 * @return	size of the parameter space used in the computation
 	 */
-	std::size_t getSpaceSize() const {
-		std::size_t space_size = 1;
+	size_t getSpaceSize() const {
+		size_t space_size = 1;
 		forEach(colors, [&space_size](const SpecieColors & specie_cols) {
 			space_size *= specie_cols.acceptable_count;
 		});
@@ -89,8 +89,8 @@ public:
 	 *
 	 * @return	requested subcolor from the vector of subcolors of given specie
 	 */
-	inline const std::vector<std::size_t> & getColor(const SpecieID ID, const ColorNum color_num) const {
-		return colors[ID].subcolors[static_cast<std::size_t>(color_num)];
+	inline const vector<size_t> & getColor(const SpecieID ID, const ColorNum color_num) const {
+		return colors[ID].subcolors[static_cast<size_t>(color_num)];
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,9 +104,9 @@ public:
 	 *
 	 * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
 	 */
-	const std::vector<std::size_t> getTargetVals(const SpecieID ID, const std::size_t regul_num) const {
+	const vector<size_t> getTargetVals(const SpecieID ID, const size_t regul_num) const {
 		//Data to fill
-		std::vector<std::size_t> all_target_vals;
+		vector<size_t> all_target_vals;
 		all_target_vals.reserve(colors[ID].subcolors.size());
 
 		// Store values for given regulation
@@ -125,17 +125,17 @@ public:
 	 *
 	 * @return string representation of given parametrisation
 	 */
-	const std::string createColorString(ColorNum number) const {
+	const string createColorString(ColorNum number) const {
 		// compute numbers of partial parametrizations for each component
-		const std::vector<ColorNum> color_parts = std::move(getSpecieVals(number));
+		const vector<ColorNum> color_parts = move(getSpecieVals(number));
 
-		std::string color_str = "(";
+		string color_str = "(";
 		// cycle through the species
 		for (SpecieID ID = 0; ID < getSpecieNum(); ID++) {
 			auto color = getColor(ID, color_parts[ID]);
 			// fill partial parametrization of the specie
 			for (auto it = color.begin(); it != color.end(); it++) {
-				color_str += boost::lexical_cast<std::string, std::size_t>(*it);
+				color_str += lexical_cast<string, size_t>(*it);
 				color_str += ",";
 			}
 		}
@@ -152,9 +152,9 @@ public:
 	 *
 	 * @return ordinal numbers of partial parametrizations in a vector indexed by IDs of the species
 	 */
-	const std::vector<ColorNum> getSpecieVals(ColorNum number) const {
+	const vector<ColorNum> getSpecieVals(ColorNum number) const {
 		// Prepare storage vector
-		std::vector<ColorNum> specie_vals(colors.size());
+		vector<ColorNum> specie_vals(colors.size());
 		auto reverse_val_it = specie_vals.rbegin();
 
 		// Go through colors backwards

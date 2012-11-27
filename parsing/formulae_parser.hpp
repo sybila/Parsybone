@@ -24,8 +24,8 @@ class FormulaeParser {
     *
     * @param error   numerical constant defining string to throw
     */
-   static void throwException(const std::string & formula, const error_val error) {
-      std::string err_str;
+   static void throwException(const string & formula, const error_val error) {
+      string err_str;
       switch (error) {
          case err_parent:
             err_str = "wrong parenthesis placement";
@@ -40,19 +40,19 @@ class FormulaeParser {
             err_str = "unknown error";
             break;
       }
-      throw std::runtime_error(std::string("Error while parsing a formula \"").append(formula).append("\": ").append(err_str));
+      throw runtime_error(string("Error while parsing a formula \"").append(formula).append("\": ").append(err_str));
    }
 
    /**
     * Reads the current formula and finds position of current outmost operator and its kind.
     */
-   static void readFormula(const std::string & formula, bool & is_or, std::size_t & divisor_pos) {
+   static void readFormula(const string & formula, bool & is_or, size_t & divisor_pos) {
       // Control variables
       bool is_set = false;
       int parent_count = 0;
 
       // Cycle through symbols in the formula
-      for (std::size_t symbol = 0; symbol < formula.size(); symbol++) {
+      for (size_t symbol = 0; symbol < formula.size(); symbol++) {
          switch (formula[symbol]) {
             case '(':
                parent_count++;
@@ -89,8 +89,8 @@ class FormulaeParser {
    }
 
 public:
-   typedef std::map<std::string, bool> Vals; ///< Valuation of atomic propositions
-   typedef std::pair<std::string, bool> Val; ///< A single proposition valuation
+   typedef map<string, bool> Vals; ///< Valuation of atomic propositions
+   typedef pair<string, bool> Val; ///< A single proposition valuation
 
    /**
     * Function that returns valuation of the formula based on valuation of its variables.
@@ -100,19 +100,19 @@ public:
     *
     * @return true iff valuation of the formula is true
     */
-   static bool resolve (const Vals & valuation, std::string formula) {
+   static bool resolve (const Vals & valuation, string formula) {
       // If there is a ! symbol, negate the formula and remove it
       bool negate = false; bool result;
 
-      boost::trim(formula);
+      trim(formula);
       if (formula[0] == '!') {
          negate = true;
          formula = formula.substr(1);
       }
-      boost::trim(formula);
+      trim(formula);
 
       // Search for any operator, if not found, assume formula to be an atom and return its valuation
-      if (formula.find("|") == std::string::npos && formula.find("&") == std::string::npos) {
+      if (formula.find("|") == string::npos && formula.find("&") == string::npos) {
 
          if (formula.compare("tt") == 0) {
             result = true;
@@ -129,12 +129,12 @@ public:
       }
       else {
          // Find position of the operator and its kind (or/and)
-         bool is_or; std::size_t division_pos;
+         bool is_or; size_t division_pos;
          readFormula(formula, is_or, division_pos);
 
          // Divide formula by the operator and remove its outer parenthesis, then descend recursivelly
-         std::string first = formula.substr(1, division_pos - 1);
-         std::string second = formula.substr(division_pos + 1, formula.size() - division_pos - 2);
+         string first = formula.substr(1, division_pos - 1);
+         string second = formula.substr(division_pos + 1, formula.size() - division_pos - 2);
          result = is_or ? resolve(valuation, first) | resolve(valuation, second) : resolve(valuation, first) & resolve(valuation, second);
       }
       // Return the value based on valuations of its parts

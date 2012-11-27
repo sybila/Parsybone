@@ -16,7 +16,7 @@
 /// \brief STEP 1 - Class that manages all of the parsing done by the application. Includes parsing of arguments and parsing of models.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParsingManager {
-   std::vector<std::string> arguments; ///< Vector containing individual arguments from the input.
+   vector<string> arguments; ///< Vector containing individual arguments from the input.
    Model & model; ///< Model object that will contain all the parsed information from the *.dbm file.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ public:
     * Main parsing function.
     */
    void parse() {
-      std::ifstream input_stream; // Object that will reference input file
+      ifstream input_stream; // Object that will reference input file
 
       output_streamer.output(verbose_str, "Arguments parsing started.", OutputStreamer::important);
 

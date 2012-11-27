@@ -33,11 +33,11 @@ class ProductBuilder {
 	 *
 	 * @return	vector of all the reachable BA states from give product state
 	 */
-	std::vector<StateID> getReachableBA(const StateID KS_ID, const StateID BA_ID) const {
+	vector<StateID> getReachableBA(const StateID KS_ID, const StateID BA_ID) const {
 		// Vector to store them
-		std::vector<StateID> reachable;
+		vector<StateID> reachable;
 		// Cycle through all the transitions
-		for (std::size_t trans_num = 0; trans_num < automaton.getTransitionCount(BA_ID); trans_num++) {
+		for (size_t trans_num = 0; trans_num < automaton.getTransitionCount(BA_ID); trans_num++) {
 			// Check the transitibility
 			if (automaton.isTransitionFeasible(BA_ID, trans_num, structure.getStateLevels(KS_ID)))
 				reachable.push_back(automaton.getTargetID(BA_ID, trans_num));
@@ -52,16 +52,16 @@ class ProductBuilder {
     * Create set with indexes of final and initial states of the product.
 	 */
 	void markStates() {
-		for (std::size_t ba_state_num = 0; ba_state_num < automaton.getStateCount(); ba_state_num++) {
+		for (size_t ba_state_num = 0; ba_state_num < automaton.getStateCount(); ba_state_num++) {
 			// Insert the state if it is an initial state
 			if (ba_state_num == 0) {
-				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStateCount(); ks_state_num++) {
+				for (size_t ks_state_num = 0; ks_state_num < structure.getStateCount(); ks_state_num++) {
 					product.initial_states.push_back(product.getProductID(ks_state_num, ba_state_num));
 				}
 			}
 			// Insert the state if it is a final state
 			if (automaton.isFinal(ba_state_num)) {
-				for (std::size_t ks_state_num = 0; ks_state_num < structure.getStateCount(); ks_state_num++)  {
+				for (size_t ks_state_num = 0; ks_state_num < structure.getStateCount(); ks_state_num++)  {
 					product.final_states.push_back(product.getProductID(ks_state_num, ba_state_num));
 				}
 			}
@@ -75,20 +75,20 @@ class ProductBuilder {
 	 * @param BA_ID	source in the BA
 	 * @param transition_count	value which counts the transition for the whole product, will be filled
 	 */
-	void createProductState(const StateID KS_ID, const StateID BA_ID, std::size_t & transition_count) {
+	void createProductState(const StateID KS_ID, const StateID BA_ID, size_t & transition_count) {
 		// Add this state
 		product.addState(KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID));
 		const StateID ID = product.getProductID(KS_ID, BA_ID); 
 
 		// Get all possible BA targets
-		auto BA_targets = std::move(getReachableBA(KS_ID, BA_ID));
+		auto BA_targets = move(getReachableBA(KS_ID, BA_ID));
 
 		// Add all the transitions possible
-		for (std::size_t KS_trans = 0; KS_trans < structure.getTransitionCount(KS_ID); KS_trans++) {
+		for (size_t KS_trans = 0; KS_trans < structure.getTransitionCount(KS_ID); KS_trans++) {
 			// Get transition data
 			const StateID KS_target_ID = structure.getTargetID(KS_ID, KS_trans);
-			const std::size_t step_size = structure.getStepSize(KS_ID, KS_trans);
-			const std::vector<bool> transitive_values = structure.getTransitive(KS_ID, KS_trans);
+			const size_t step_size = structure.getStepSize(KS_ID, KS_trans);
+			const vector<bool> transitive_values = structure.getTransitive(KS_ID, KS_trans);
 
 			// Add transition for all allowed targets
 			for (auto BA_traget_it = BA_targets.begin(); BA_traget_it != BA_targets.end(); BA_traget_it++) {
@@ -118,11 +118,11 @@ public:
 		output_streamer.output(stats_str, "Computing Synchronous product of the Buchi automaton and Unparametrized Kripke structure.");
 		output_streamer.output(stats_str,"Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
                      .output(structure.getStateCount() * automaton.getStateCount(), OutputStreamer::no_newl).output(".");
-		std::size_t transition_count = 0;
+		size_t transition_count = 0;
 
 		// Creates states and their transitions
-		for (std::size_t KS_ID = 0; KS_ID < structure.getStateCount(); KS_ID++) {
-			for (std::size_t BA_ID = 0; BA_ID < automaton.getStateCount(); BA_ID++) {
+		for (size_t KS_ID = 0; KS_ID < structure.getStateCount(); KS_ID++) {
+			for (size_t BA_ID = 0; BA_ID < automaton.getStateCount(); BA_ID++) {
 				createProductState(KS_ID, BA_ID, transition_count);
 			}
 		}

@@ -28,15 +28,15 @@ public:
 	/// Structure that stores regulation of a specie by another one
 	struct Regulation {
       StateID source; ///< Regulator specie ID.
-      std::size_t threshold; ///< Level of the regulator required for the regulation to be active.
-      std::string label; ///< A behavioural constrain on this edge.
+      size_t threshold; ///< Level of the regulator required for the regulation to be active.
+      string label; ///< A behavioural constrain on this edge.
 
-		Regulation(const StateID _source, const std::size_t _threshold, const std::string _label)
+		Regulation(const StateID _source, const size_t _threshold, const string _label)
 			: source(_source), threshold(_threshold), label(_label) { }
 	};
 
-	typedef std::pair<std::vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value)
-	typedef std::pair<StateID, std::string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label)
+	typedef pair<vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value)
+	typedef pair<StateID, string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label)
 
 private:
 	/// Structure that holds data about a single specie. Most of the data is equal to that in the model file
@@ -45,15 +45,15 @@ private:
 		// Data are accesible from within the model class
 		friend class Model;
 
-		std::vector<Regulation> regulations; ///< Regulations of the specie (activations or inhibitions by other species)
-		std::vector<Parameter> parameters; ///< Kinetic parameters of the regulations
+		vector<Regulation> regulations; ///< Regulations of the specie (activations or inhibitions by other species)
+		vector<Parameter> parameters; ///< Kinetic parameters of the regulations
 
-		std::string name; ///< Actuall name of the specie
-		std::size_t ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
-		std::size_t max_value; ///< Maximal activation level of the specie
-		std::size_t basal_value; ///< Value the specie tends to if unregulated, currently unused
+		string name; ///< Actuall name of the specie
+		size_t ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
+		size_t max_value; ///< Maximal activation level of the specie
+		size_t basal_value; ///< Value the specie tends to if unregulated, currently unused
 
-		ModelSpecie(std::string _name, size_t _ID, size_t _max_value, size_t _basal_value)
+		ModelSpecie(string _name, size_t _ID, size_t _max_value, size_t _basal_value)
 			: name(_name), ID(_ID), max_value(_max_value), basal_value(_basal_value) { }
 	};
 
@@ -62,13 +62,13 @@ private:
 	private:
       friend class Model; //< Data are accesible from within the model class
 
-      std::string name; ///< Label of the state.
-		std::size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
+		string name; ///< Label of the state.
+		size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
       bool final; ///< True if the state is final.
 
-      std::vector<Egde> edges; ///< Edges in Buchi Automaton (Target ID, edge label).
+      vector<Egde> edges; ///< Edges in Buchi Automaton (Target ID, edge label).
 
-		BuchiAutomatonState(std::string _name, std::size_t _ID, bool _final)
+		BuchiAutomatonState(string _name, size_t _ID, bool _final)
 			: name(_name), ID(_ID), final(_final) {	}
 	};
 
@@ -78,8 +78,8 @@ private:
    } additional_information; ///< Single object that stores the additional information.
 
 	// Actuall data holders.
-	std::vector<ModelSpecie> species; ///< vector of all species of the model
-	std::vector<BuchiAutomatonState> states; ///< vector of all states of the controlling Buchi automaton
+	vector<ModelSpecie> species; ///< vector of all species of the model
+	vector<BuchiAutomatonState> states; ///< vector of all states of the controlling Buchi automaton
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLING METHODS (can be used only from a ModelParser)
@@ -89,7 +89,7 @@ private:
 	 *
 	 * @return	index of specie in the vector
 	 */
-	inline std::size_t addSpecie(std::string name, size_t max_value, size_t basal_value) {
+	inline size_t addSpecie(string name, size_t max_value, size_t basal_value) {
 		species.push_back(ModelSpecie(name, species.size(), max_value, basal_value));
 		return species.size() - 1;
 	}
@@ -97,14 +97,14 @@ private:
 	/**
 	 * Add a new regulation to the specie. Regulation is stored with the target, not the source.
 	 */
-	inline void addRegulation(size_t source_ID, size_t target_ID, size_t threshold, std::string label) {
-		species[target_ID].regulations.push_back(std::move(Regulation(source_ID, threshold, label)));
+	inline void addRegulation(size_t source_ID, size_t target_ID, size_t threshold, string label) {
+		species[target_ID].regulations.push_back(move(Regulation(source_ID, threshold, label)));
 	}
 
 	/**
 	 * Add a new regulation to the specie.
 	 */
-	inline void addParameter(size_t target_ID, const std::vector<bool> subset_mask, int target_value) {
+	inline void addParameter(size_t target_ID, const vector<bool> subset_mask, int target_value) {
 		species[target_ID].parameters.push_back(Parameter(subset_mask, target_value));
 	}
 
@@ -113,7 +113,7 @@ private:
 	 *
 	 * @return	ID of state in the vector
 	 */
-	inline std::size_t addState(std::string name, bool final) {
+	inline size_t addState(string name, bool final) {
 		states.push_back(BuchiAutomatonState(name, states.size(), final));
 		return states.size() - 1;
 	}
@@ -121,8 +121,8 @@ private:
 	/**
     * Add a new transition - transition is specified by the target state and label.
 	 */
-	inline void addConditions(StateID source_ID, StateID target_ID, std::string && edge_label) {
-		states[source_ID].edges.push_back(Egde(target_ID, std::move(edge_label)));
+	inline void addConditions(StateID source_ID, StateID target_ID, string && edge_label) {
+		states[source_ID].edges.push_back(Egde(target_ID, move(edge_label)));
 	}
 
    /**
@@ -145,10 +145,10 @@ private:
       // Check all species
       forEach(species,[&](ModelSpecie & specie){
          // Sort parameters of the specie
-         std::sort(specie.parameters.begin(), specie.parameters.end(), [](const Parameter & a, const Parameter & b) -> bool {
+         sort(specie.parameters.begin(), specie.parameters.end(), [](const Parameter & a, const Parameter & b) -> bool {
             // Control number of active regulators - specie with less regulators is considered bigger
             auto a_it = a.first.rbegin(); auto b_it = b.first.rbegin();
-            std::size_t on_a = 0; std::size_t on_b = 0;
+            size_t on_a = 0; size_t on_b = 0;
             while (a_it != a.first.rend()){
                on_a += *a_it++;
                on_b += *b_it++;
@@ -165,7 +165,7 @@ private:
                   return false;
                a_it2++; b_it2++;
             }
-            throw std::runtime_error("Multiple context definitions detected.");
+            throw runtime_error("Multiple context definitions detected.");
          });
       });
    }
@@ -182,14 +182,14 @@ public:
 	/**
 	 * @return	number of the species
 	 */
-	inline std::size_t getSpeciesCount() const {
+	inline size_t getSpeciesCount() const {
 		return species.size();
 	}
 
 	/**
 	 * @return	number of the states
 	 */
-	inline std::size_t getStatesCount() const {
+	inline size_t getStatesCount() const {
 		return states.size();
 	}
 
@@ -198,13 +198,13 @@ public:
 	 *
 	 * @return	ID of the specie with the specified name if there is such, otherwise INF
 	 */
-	SpecieID findID(const std::string & name) const {
+	SpecieID findID(const string & name) const {
 		SpecieID ID = INF;
 		try { // Try direct translation
-			ID = boost::lexical_cast<SpecieID, std::string>(name);
+			ID = lexical_cast<SpecieID, string>(name);
 		}
-		catch (boost::bad_lexical_cast) { // Try lookup by name
-         std::for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
+		catch (bad_lexical_cast) { // Try lookup by name
+			for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
 				if (spec.name.compare(name) == 0)
 				ID = spec.ID;
 			});
@@ -218,13 +218,13 @@ public:
 	 *
 	 * @return	number of the state with the specified name if there is such, otherwise INF
 	 */
-	SpecieID findNumber(const std::string & name) const {
+	SpecieID findNumber(const string & name) const {
 		StateID ID = INF;
 		try { // Try direct translation
-			ID = boost::lexical_cast<StateID, std::string>(name);
+			ID = lexical_cast<StateID, string>(name);
 		}
-		catch (boost::bad_lexical_cast) { // Try lookup by name
-			std::for_each(states.begin(), states.end(), [&ID, &name](const BuchiAutomatonState & state) {
+		catch (bad_lexical_cast) { // Try lookup by name
+			for_each(states.begin(), states.end(), [&ID, &name](const BuchiAutomatonState & state) {
 				if (state.name.compare(name) == 0)
 				ID = state.ID;
 			});
@@ -235,56 +235,56 @@ public:
 	/**
 	 * @return	name of the specie
 	 */
-	inline const std::string & getName(const std::size_t ID) const {
+	inline const string & getName(const size_t ID) const {
 		return species[ID].name;
 	}
 
 	/**
 	 * @return	minimal value of the specie (always 0)
 	 */
-	inline std::size_t getMin(const std::size_t ID) const {
+	inline size_t getMin(const size_t ID) const {
 		return ID ? 0 : 0; // Just to disable a warning
 	}
 
 	/**
 	 * @return	maximal value of the specie
 	 */
-	inline std::size_t getMax(const std::size_t ID) const {
+	inline size_t getMax(const size_t ID) const {
 		return species[ID].max_value;
 	}
 
 	/**
 	 * @return	basal value of the specie
 	 */
-	inline std::size_t getBasal(const std::size_t ID) const {
+	inline size_t getBasal(const size_t ID) const {
 		return species[ID].basal_value;
 	}
 
 	/**
 	 * @return	regulations of the specie
 	 */
-	inline const std::vector<Regulation> & getRegulations(const std::size_t ID) const {
+	inline const vector<Regulation> & getRegulations(const size_t ID) const {
 		return species[ID].regulations;
 	}
 
 	/**
 	 * @return	kinetic parameters of the regulations of the specie
 	 */
-	inline const std::vector<Parameter> & getParameters(const std::size_t ID)  const {
+	inline const vector<Parameter> & getParameters(const size_t ID)  const {
 		return species[ID].parameters;
 	}
 
 	/**
 	 * @return	true if the state is final
 	 */
-	inline bool isFinal(const std::size_t ID) const {
+	inline bool isFinal(const size_t ID) const {
 		return states[ID].final;
 	}
 
 	/**
 	 * @return	edges of the state
 	 */
-	inline const std::vector<Egde> & getEdges(const std::size_t ID) const {
+	inline const vector<Egde> & getEdges(const size_t ID) const {
 		return states[ID].edges;
 	}
 };

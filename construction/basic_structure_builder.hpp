@@ -23,12 +23,12 @@
 class BasicStructureBuilder {
 	// Provided with constructor
    const Model & model; ///< Model that holds the data.
-   const std::size_t species_count; ///< Number of species of the model.
+   const size_t species_count; ///< Number of species of the model.
    BasicStructure & structure; ///< KipkeStructure to fill.
 
 	// Computed
-   std::size_t states_count; ///< Number of states in this KS (exponential in number of species).
-   std::vector<std::size_t> index_jumps; ///< Holds index differences between two neighbour states in each direction for each specie.
+   size_t states_count; ///< Number of states in this KS (exponential in number of species).
+   vector<size_t> index_jumps; ///< Holds index differences between two neighbour states in each direction for each specie.
    Levels maxes; ///< Maximal activity levels of the species.
    Levels mins; ///< Minimal activity levels of the species.
 
@@ -37,14 +37,14 @@ class BasicStructureBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Compute indexes of the neighbour states of this state and pass them to the state. For each dimension store self and upper and lower neighbour. 
-	 * If none such exists, store max value of std::size_t. 
+	 * If none such exists, store max value of size_t. 
 	 *
 	 * @param state_num	 ID of the current state
 	 * @param state_levels	levels of species of this state
 	 * @param maxes	globally maximal levels
 	 */
 	void storeNeigbours(const StateID ID, const Levels & state_levels, const Levels & maxes) {
-		for (std::size_t specie = 0; specie < species_count; specie++) {
+		for (size_t specie = 0; specie < species_count; specie++) {
 			// If this value is not the lowest one, add neighbour with lower
 			if (state_levels[specie] > 0) 
 				structure.addNeighbour(ID, ID - index_jumps[specie], specie, down_dir);
@@ -66,7 +66,7 @@ class BasicStructureBuilder {
 	 */
 	void computeBoundaries() {
 		states_count = 1;
-		for(std::size_t specie_num = 0; specie_num < species_count; specie_num++) {
+		for(size_t specie_num = 0; specie_num < species_count; specie_num++) {
 			// Maximal values of species
 			maxes.push_back(model.getMax(specie_num));
 			mins.push_back(model.getMin(specie_num));
@@ -83,9 +83,9 @@ class BasicStructureBuilder {
 	void computeJumps() {
 		index_jumps.resize(species_count);
 		// How many far away are two neighbour in the vector
-		std::size_t jump_lenght = 1;
+		size_t jump_lenght = 1;
 		// Species with higher index cause bigger differences
-		for (std::size_t specie_num = 0; specie_num < species_count; specie_num++) {
+		for (size_t specie_num = 0; specie_num < species_count; specie_num++) {
 			index_jumps[specie_num] = jump_lenght;
 			jump_lenght *= (model.getMax(specie_num) + 1);
 		}
@@ -96,8 +96,8 @@ class BasicStructureBuilder {
 	 *
 	 * @param levels	current activation levels of the specie
 	 */
-	const std::string createLabel(const Levels & levels) const {
-		std::string state_string = "(";
+	const string createLabel(const Levels & levels) const {
+		string state_string = "(";
 		// Add species levels
 		for (auto spec_it = levels.begin(); spec_it != levels.end(); spec_it++) {
 			state_string += toString(*spec_it);
@@ -130,7 +130,7 @@ public:
 	void buildStructure() {
 		output_streamer.output(stats_str, "Computing Kripke Structure.");
       output_streamer.output(stats_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab).output(states_count, OutputStreamer::no_newl).output(".");
-		std::size_t transition_count = 0;
+		size_t transition_count = 0;
 
 		// Create initial state (by its values)
 		Levels levels(species_count, 0);
@@ -139,7 +139,7 @@ public:
       StateID ID = 0;
       do {
 			// Fill the structure with the state
-			structure.addState(ID, levels, std::move(createLabel(levels)));
+			structure.addState(ID, levels, move(createLabel(levels)));
 			storeNeigbours(ID, levels, maxes);
          // Generate new state for the next round
 			// Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop

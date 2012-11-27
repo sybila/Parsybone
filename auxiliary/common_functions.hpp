@@ -16,12 +16,12 @@
 #include "data_types.hpp"
 #include "output_streamer.hpp"
 
-const std::size_t INF = static_cast<std::size_t>(~0); ///< this value represents infinite value - used for showing that a variable is unset
+const size_t INF = static_cast<size_t>(~0); ///< this value represents infinite value - used for showing that a variable is unset
 
 // Platform dependent min or max
 #ifdef __GNUC__
-#define my_max std::max
-#define my_min std::min
+#define my_max max
+#define my_min min
 #else
 #define my_max max
 #define my_min min
@@ -39,12 +39,12 @@ const std::size_t INF = static_cast<std::size_t>(~0); ///< this value represents
  *
  * @return a string with the demangle name of the type
  */
-std::string demangle(const std::type_info & type_info) {
+string demangle(const type_info & type_info) {
    #ifdef __GNUC__
       int status;
-      return std::string(abi::__cxa_demangle(type_info.name(), 0, 0, &status));
+      return string(abi::__cxa_demangle(type_info.name(), 0, 0, &status));
    #else
-      return std::string(type_info.name());
+      return string(type_info.name());
    #endif
 }
 
@@ -59,25 +59,25 @@ std::string demangle(const std::type_info & type_info) {
 template<class Object, class Function>
 Function forEach(Object & obj, Function fun)
 {
-	return std::for_each(obj.begin(), obj.end(), fun);
+	return for_each(obj.begin(), obj.end(), fun);
 }
 
 /**
- * Conversion of basic types to std::string data type. If an error occurs, displays it and throws an exception.
+ * Conversion of basic types to string data type. If an error occurs, displays it and throws an exception.
  *
  * @param[in] data variable to convert
  *
  * @return  converted string
  */
 template<class basic_T>
-std::string toString(basic_T data) {
-	std::string result;
+string toString(basic_T data) {
+	string result;
 	try {
-      result = std::move(boost::lexical_cast<std::string, basic_T>(data));
-	} catch (boost::bad_lexical_cast e) {
+      result = move(lexical_cast<string, basic_T>(data));
+	} catch (bad_lexical_cast e) {
       output_streamer.output(error_str, "Error occured while trying to cast a variable", OutputStreamer::no_newl)
                      .output(data, OutputStreamer::no_newl).output(" to a string: ", OutputStreamer::no_newl).output(e.what());
-      throw std::runtime_error("boost::lexical_cast<std::string," + std::string(typeid(basic_T).name()) + ">(\"data\")) failed");
+      throw runtime_error("lexical_cast<string," + string(typeid(basic_T).name()) + ">(\"data\")) failed");
 	}
 	return result;
 }
@@ -88,7 +88,7 @@ std::string toString(basic_T data) {
  * @param[in,out] val  reference to value that will be increased
  */
 template<class integral_T>
-void increase(typename std::vector<integral_T>::reference val) {val++;}
+void increase(typename vector<integral_T>::reference val) {val++;}
 
 /**
  * Sets boolean value to true.
@@ -96,7 +96,7 @@ void increase(typename std::vector<integral_T>::reference val) {val++;}
  * @param[in,out] val  reference to value that will be increased
  */
 template<>
-void increase<bool>(std::vector<bool>::reference val) {val = true;}
+void increase<bool>(vector<bool>::reference val) {val = true;}
 
 /**
  * Iterates values from left to right if it is possible. If so, return true, otherwise return false.
@@ -108,8 +108,8 @@ void increase<bool>(std::vector<bool>::reference val) {val = true;}
  * @return  true if the iteration was valid, false if it caused overflow (iterated > bottom)
  */
 template<class integral_T>
-bool iterate(const std::vector<integral_T> & top, const std::vector<integral_T> & bottom, std::vector<integral_T> & interated) {
-	for (std::size_t val_num = 0; val_num <= interated.size(); val_num++) {
+bool iterate(const vector<integral_T> & top, const vector<integral_T> & bottom, vector<integral_T> & interated) {
+	for (size_t val_num = 0; val_num <= interated.size(); val_num++) {
 		if (val_num == interated.size())
 			return false;
 		if (interated[val_num] == top[val_num]) {

@@ -21,13 +21,13 @@ class RobustnessCompute {
 
    /// This structure holds values used in the iterative process of robustness computation.
    struct Marking {
-      std::vector<unsigned char> exits; ///< For each parametrization stores a number of transitions this state can be left through under given parametrization.
-      std::vector<double> current_prob; ///< For each parametrization stores current probability of reaching.
-      std::vector<double> next_prob; ///< For each parametrizations will store the probability in the next round.
+      vector<unsigned char> exits; ///< For each parametrization stores a number of transitions this state can be left through under given parametrization.
+      vector<double> current_prob; ///< For each parametrization stores current probability of reaching.
+      vector<double> next_prob; ///< For each parametrizations will store the probability in the next round.
    };
 
-   std::vector<Marking> markings; /// Marking of all states.
-   std::vector<double> results; /// Resultig probability for each parametrization.
+   vector<Marking> markings; /// Marking of all states.
+   vector<double> results; /// Resultig probability for each parametrization.
 
    /**
     * Clear data objects used throughout the whole computation process.
@@ -47,7 +47,7 @@ class RobustnessCompute {
    void computeExits() {
       Paramset current_mask = paramset_helper.getLeftOne();
       // Cycle through parameters
-      for (std::size_t param_num = 0; param_num < paramset_helper.getParamsetSize(); param_num++, current_mask >>= 1) {
+      for (size_t param_num = 0; param_num < paramset_helper.getParamsetSize(); param_num++, current_mask >>= 1) {
          // If not acceptable, leave zero
          if (!(current_mask & storage.getAcceptable()))
             continue;
@@ -58,9 +58,9 @@ class RobustnessCompute {
             forEach(succs, [&](StateID & ID){
                max_BA = my_max(max_BA, product.getBAID(ID));
             });
-            std::size_t exits = 0;
+            size_t exits = 0;
             forEach(succs, [&](StateID & ID){
-               exits += static_cast<std::size_t>(max_BA == product.getBAID(ID));
+               exits += static_cast<size_t>(max_BA == product.getBAID(ID));
             });
             markings[ID].exits[param_num] = exits;
          }
@@ -73,7 +73,7 @@ class RobustnessCompute {
    void initiate() {
       // Cycle through vectors of initial states for every parametrization
       auto initials = searcher.getInitials();
-      std::size_t param_num = 0;
+      size_t param_num = 0;
       for (auto init_it = initials.begin(); init_it != initials.end(); init_it++, param_num++) {
          // Cycle through the states for this parametrization and assign them the weighted probability
          for (auto node_it = init_it->begin(); node_it != init_it->end(); node_it++) {
@@ -87,7 +87,7 @@ class RobustnessCompute {
     */
    void finish() {
       forEach(product.getFinalStates(), [&](StateID ID) {
-         for (std::size_t param_num = 0; param_num < results.size(); param_num++) {
+         for (size_t param_num = 0; param_num < results.size(); param_num++) {
             results[param_num] += markings[ID].next_prob[param_num];
          }
       });
@@ -102,9 +102,9 @@ public:
     */
    RobustnessCompute(const ConstructionHolder & _holder, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
       : product(_holder.getProduct()), storage(_storage), searcher(_searcher) {
-      Marking empty = { std::vector<unsigned char>(paramset_helper.getParamsetSize(), 0),
-         std::vector<double>(paramset_helper.getParamsetSize(), 0.0),
-         std::vector<double>(paramset_helper.getParamsetSize(), 0.0)
+      Marking empty = { vector<unsigned char>(paramset_helper.getParamsetSize(), 0),
+         vector<double>(paramset_helper.getParamsetSize(), 0.0),
+         vector<double>(paramset_helper.getParamsetSize(), 0.0)
       };
       markings.resize(product.getStateCount(), empty);
       results.resize(paramset_helper.getParamsetSize(), 0.0);
@@ -120,7 +120,7 @@ public:
       auto transitions = searcher.getTransitions();
 
       // Cycle through the levels of the DFS procedure
-      for (std::size_t round_num = 0; round_num < storage.getMaxDepth(); round_num++) {
+      for (size_t round_num = 0; round_num < storage.getMaxDepth(); round_num++) {
          // Update markings from the previous round
          forEach(markings, [](Marking & marking) {
             marking.current_prob = marking.next_prob;
@@ -129,10 +129,10 @@ public:
          // Assign probabilites for the initial states
          initiate();
          // Cycle through parametrizations
-         for (std::size_t param_num = 0; param_num != paramset_helper.getParamsetSize(); param_num++) {
+         for (size_t param_num = 0; param_num != paramset_helper.getParamsetSize(); param_num++) {
             // For the parametrization cycle through transitions
-            forEach(transitions[param_num], [&](std::pair<StateID, StateID> trans) {
-               std::size_t divisor = markings[trans.first].exits[param_num]; // Count succesor
+            forEach(transitions[param_num], [&](pair<StateID, StateID> trans) {
+               size_t divisor = markings[trans.first].exits[param_num]; // Count succesor
                // Add probabilities
                if (divisor)
                   markings[trans.second].next_prob[param_num] += markings[trans.first].current_prob[param_num] / divisor ;
@@ -148,8 +148,8 @@ public:
     *
     * @return  a vector of robustness strings
     */
-   const std::vector<std::string> getOutput() const {
-      std::vector<std::string> to_return;
+   const vector<string> getOutput() const {
+      vector<string> to_return;
       forEach(results, [&to_return](double robust){
          if (robust) // Add if the value is non-zero
             to_return.push_back(toString(robust));

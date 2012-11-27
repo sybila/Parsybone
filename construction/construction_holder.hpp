@@ -28,13 +28,13 @@
 class ConstructionHolder {
 	friend class ConstructionManager;
 
-	std::unique_ptr<AutomatonStructure> automaton;
-	std::unique_ptr<BasicStructure> basic;
-	std::unique_ptr<ParametrizationsHolder> parametrizations;
-	std::unique_ptr<Model> model;
-	std::unique_ptr<LabelingHolder> labeling;
-	std::unique_ptr<UnparametrizedStructure> structure;
-	std::unique_ptr<ProductStructure> product;
+	unique_ptr<AutomatonStructure> automaton;
+	unique_ptr<BasicStructure> basic;
+	unique_ptr<ParametrizationsHolder> parametrizations;
+	unique_ptr<Model> model;
+	unique_ptr<LabelingHolder> labeling;
+	unique_ptr<UnparametrizedStructure> structure;
+	unique_ptr<ProductStructure> product;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FILLERS:

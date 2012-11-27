@@ -23,24 +23,24 @@ class WitnessSearcher {
    const ColorStorage & storage; ///< Constant storage with the actuall data.
 
    /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
-   std::vector<std::set<std::pair<StateID, StateID> > > transitions;
+   vector<set<pair<StateID, StateID> > > transitions;
    /// Vector storing for each parametrization initial states it reached.
-   std::vector<std::set<StateID> > initials;
+   vector<set<StateID> > initials;
 
-   std::vector<std::string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string).
+   vector<string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string).
 
-   std::vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position.
-   std::vector<Paramset> depth_masks; ///< For each of levels of DFS, stores mask of parametrizations with corresponding cost (those that are not furter used in the DFS).
-   std::size_t depth; ///< Current level of the DFS.
-   std::size_t max_depth; ///< Maximal level of recursion that is possible (maximal Cost in this round).
+   vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position.
+   vector<Paramset> depth_masks; ///< For each of levels of DFS, stores mask of parametrizations with corresponding cost (those that are not furter used in the DFS).
+   size_t depth; ///< Current level of the DFS.
+   size_t max_depth; ///< Maximal level of recursion that is possible (maximal Cost in this round).
 
    /// This structure stores "already tested" paramsets for a state.
    struct Marking {
       Paramset succeeded; ///< Mask of those parametrizations that have found a paths from this state.
-      std::vector<Paramset> busted; ///< Mask of the parametrizations that are guaranteed to not find a path in (Cost - depth) steps.
+      vector<Paramset> busted; ///< Mask of the parametrizations that are guaranteed to not find a path in (Cost - depth) steps.
    };
 
-   std::vector<Marking> markings; ///< Actuall marking of the states.
+   vector<Marking> markings; ///< Actuall marking of the states.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SEARCH METHODS
@@ -51,19 +51,19 @@ class WitnessSearcher {
     * @param which   mask of the parametrizations that allow currently found path
     * @param initil  if true, stores also the last node as an initial one for given parametrizations
     */
-   void storeTransitions(const Paramset which, bool initial, std::size_t depth) {
-      std::vector<std::pair<StateID, StateID> > trans;  // Temporary storage for the transitions
+   void storeTransitions(const Paramset which, bool initial, size_t depth) {
+      vector<pair<StateID, StateID> > trans;  // Temporary storage for the transitions
 
       // Go from the end till the lastly reached node
-      for (std::size_t step = 0; step < depth; step++) {
-         trans.push_back(std::make_pair(path[step+1], path[step]));
+      for (size_t step = 0; step < depth; step++) {
+         trans.push_back(make_pair(path[step+1], path[step]));
          markings[path[step]].succeeded |= which; // Mark found for given parametrizations
       }
       markings[path[depth]].succeeded |= which;
 
       // Add transitions to the parametrizations that allow them
       Paramset marker = paramset_helper.getLeftOne();
-      for (std::size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
+      for (size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
          if (which & marker) {
             transitions[param].insert(trans.begin(), trans.end());
             if (initial)
@@ -83,7 +83,7 @@ class WitnessSearcher {
       // Add the state to the path
       path[depth] = ID;
       if (depth > max_depth)
-         throw std::runtime_error("Depth boundary overcome during the DFS procedure.");
+         throw runtime_error("Depth boundary overcome during the DFS procedure.");
 
       // If a way to the source was found, apply it as well
       if (product.isInitial(ID))
@@ -93,7 +93,7 @@ class WitnessSearcher {
       paramset &= ~depth_masks[depth];
 
       // Remove parametrizations that already have proven to be used/useless
-      for (std::size_t level = 1; level < depth && paramset; level++)
+      for (size_t level = 1; level < depth && paramset; level++)
          paramset &= ~markings[ID].busted[level];
 
       // If this state already has proven to lie on a path to the source, add this possible successors
@@ -109,8 +109,8 @@ class WitnessSearcher {
       if (paramset) {
          depth++;
 
-         auto predecessors = std::move(storage.getNeighbours(ID, false, paramset)); // Get predecessors
-         auto pred_label = std::move(storage.getMarking(ID, false, paramset)); auto label_it = pred_label.begin(); // Get its values
+         auto predecessors = move(storage.getNeighbours(ID, false, paramset)); // Get predecessors
+         auto pred_label = move(storage.getMarking(ID, false, paramset)); auto label_it = pred_label.begin(); // Get its values
 
          for (auto pred = predecessors.begin(); pred != predecessors.end(); pred++, label_it++) {
             DFS(*pred, paramset & *label_it); // Recursive descent with parametrizations passed from the predecessor.
@@ -128,9 +128,9 @@ class WitnessSearcher {
     */
    void clearPaths() {
       // Empty strings
-      forEach(string_paths, [](std::string & single_path){single_path = "";});
+      forEach(string_paths, [](string & single_path){single_path = "";});
       // Empty path tracker
-      path = std::vector<StateID>(storage.getMaxDepth() + 1, 0);
+      path = vector<StateID>(storage.getMaxDepth() + 1, 0);
       // Empty the storage of transitions
       transitions.clear();
       transitions.resize(paramset_helper.getParamsetSize());
@@ -152,18 +152,18 @@ class WitnessSearcher {
       depth_masks.clear();
 
       // Helping data
-      std::vector<std::vector<std::size_t> > members(storage.getMaxDepth() + 1); // Stores parametrization numbers with their Cost
-      std::size_t param_num = 0; // number in the interval (0,|paramset|-1)
+      vector<vector<size_t> > members(storage.getMaxDepth() + 1); // Stores parametrization numbers with their Cost
+      size_t param_num = 0; // number in the interval (0,|paramset|-1)
 
       // Store parametrization numbers with their BFS level (Cost)
-      forEach(storage.getCost(), [&members, &param_num](std::size_t current){
-         if (current != ~static_cast<std::size_t>(0))
+      forEach(storage.getCost(), [&members, &param_num](size_t current){
+         if (current != ~static_cast<size_t>(0))
             members[current].push_back(param_num);
          param_num++;
       });
 
       // Fill masks based on the members vector
-      forEach(members, [&](std::vector<std::size_t> numbers){
+      forEach(members, [&](vector<size_t> numbers){
          depth_masks.push_back(paramset_helper.getMaskFromNums(numbers));
       });
 
@@ -178,7 +178,7 @@ public:
     */
    WitnessSearcher(const ConstructionHolder & _holder, const ColorStorage & _storage)
       : product(_holder.getProduct()), storage(_storage) {
-      Marking empty = {0, std::vector<Paramset>(product.getStateCount(), 0)};
+      Marking empty = {0, vector<Paramset>(product.getStateCount(), 0)};
       markings.resize(product.getStateCount(), empty);
       string_paths.resize(paramset_helper.getParamsetSize(), "");
    }
@@ -209,12 +209,12 @@ public:
     *
     * @return  strings with all transitions for each acceptable parametrization
     */
-   const std::vector<std::string> getOutput() const {
-      std::vector<std::string> acceptable_paths; // Vector fo actuall data
+   const vector<string> getOutput() const {
+      vector<string> acceptable_paths; // Vector fo actuall data
       // Cycle throught the parametrizations
       for (auto param_it = transitions.begin(); param_it != transitions.end(); param_it++) {
          if (!param_it->empty()) { // Test for emptyness of the set of transitions
-            std::string path = "{";
+            string path = "{";
             // Reformes based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
                if (product.isFinal(trans_it->second)) // Skip transitions to the real final state (ones)
@@ -229,7 +229,7 @@ public:
             else
                path[path.length() - 1] = '}';
             // Add the string
-            acceptable_paths.push_back(std::move(path));
+            acceptable_paths.push_back(move(path));
          }
       }
       return acceptable_paths;
@@ -238,14 +238,14 @@ public:
    /**
     * @return  transitions for each parametrizations in the form (source, target)
     */
-   const std::vector<std::set<std::pair<StateID, StateID> > > & getTransitions() const {
+   const vector<set<pair<StateID, StateID> > > & getTransitions() const {
       return transitions;
    }
 
    /**
     * @return  a vector of IDs of intial states
     */
-   const std::vector<std::set<StateID> > & getInitials() const {
+   const vector<set<StateID> > & getInitials() const {
       return initials;
    }
 };

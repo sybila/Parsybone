@@ -15,10 +15,10 @@
 
 /// Storing a single transition to a neighbour state together with its transition function.
 struct ProdTransitiontion : public TransitionProperty {
-   std::size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-	std::vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
+   size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
+	vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
-	ProdTransitiontion(const StateID target_ID, const std::size_t _step_size, const std::vector<bool>& _transitive_values)
+	ProdTransitiontion(const StateID target_ID, const size_t _step_size, const vector<bool>& _transitive_values)
       : TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {} ///< Simple filler, assigns values to all the variables.
 };
 
@@ -29,8 +29,8 @@ struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
 	Levels species_level; ///< species_level[i] = activation level of specie i in this state
 
 	/// Simple filler, assigns values to all the variables
-	ProdState(const StateID ID, const std::string && label, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const  Levels & _species_level)
-		: AutomatonStateProperty<ProdTransitiontion>(initial, final, ID, std::move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) {}
+	ProdState(const StateID ID, const string && label, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const  Levels & _species_level)
+		: AutomatonStateProperty<ProdTransitiontion>(initial, final, ID, move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,11 +56,11 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 	 */
 	inline void addState(const StateID KS_ID, const StateID BA_ID, const bool initial, const bool final, const Levels & species_level) {
 		// Create the state label
-		std::string label = structure.getString(KS_ID);
+		string label = structure.getString(KS_ID);
       label[label.length() - 1] = ';';
 		label += automaton.getString(BA_ID).substr(1);
 
-		states.push_back(ProdState(getProductID(KS_ID, BA_ID), std::move(label), KS_ID, BA_ID, initial, final, species_level));
+		states.push_back(ProdState(getProductID(KS_ID, BA_ID), move(label), KS_ID, BA_ID, initial, final, species_level));
 	}
 
 	/**
@@ -68,7 +68,7 @@ class ProductStructure : public AutomatonInterface<ProdState> {
     *
 	 * @param ID	add data to the state with this IS
 	 */
-	inline void addTransition(const StateID ID, const StateID target_ID, const std::size_t step_size, const std::vector<bool> & transitive_values) {
+	inline void addTransition(const StateID ID, const StateID target_ID, const size_t step_size, const vector<bool> & transitive_values) {
 		states[ID].transitions.push_back(ProdTransitiontion(target_ID, step_size, transitive_values));
 	}
 	
@@ -124,7 +124,7 @@ public:
 	 *
 	 * @return	number of neighbour parameters that share the same value of the function
 	 */
-	inline std::size_t getStepSize(const StateID ID, const std::size_t transtion_num) const {
+	inline size_t getStepSize(const StateID ID, const size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].step_size;
 	}
 
@@ -134,7 +134,7 @@ public:
 	 *
 	 * @return	target values that are includete in non-transitive parameters that have to be removed
 	 */
-	inline const std::vector<bool> & getTransitive(const StateID ID, const std::size_t transtion_num) const {
+	inline const vector<bool> & getTransitive(const StateID ID, const size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].transitive_values;
 	}
 };

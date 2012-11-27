@@ -36,18 +36,18 @@ class LabelingBuilder {
 	 *
 	 * @return	levels corresponding species (by vector index) have to be at
 	 */
-   std::vector<std::vector<std::size_t> > getSourceValues(const std::vector<Model::Regulation> & regulations, const std::vector<bool> & mask) const {
+   vector<vector<size_t> > getSourceValues(const vector<Model::Regulation> & regulations, const vector<bool> & mask) const {
       // Data to return
-      std::vector<std::vector<std::size_t> > source_values;
+      vector<vector<size_t> > source_values;
 
       // For each regulating regulation pass the information
-      for (std::size_t regulation_num = 0; regulation_num < regulations.size(); regulation_num++) {
-         std::vector<std::size_t> possible_levels; // In wich levels the regulating specie has to be for regulation to be active?
+      for (size_t regulation_num = 0; regulation_num < regulations.size(); regulation_num++) {
+         vector<size_t> possible_levels; // In wich levels the regulating specie has to be for regulation to be active?
 			
 			// Store currtently used values - if there is no multiedge with higher threshold, consider one above maximal level to be the upper threshold
 			SpecieID source = regulations[regulation_num].source;
-			std::size_t lower_threshold = regulations[regulation_num].threshold; // First value activating the regulation
-			std::size_t upper_threshold = model.getMax(source) + 1; // First value that is again deactivating the regulation
+			size_t lower_threshold = regulations[regulation_num].threshold; // First value activating the regulation
+			size_t upper_threshold = model.getMax(source) + 1; // First value that is again deactivating the regulation
 
 			// Obtain upper threshold from the other regulations
 			forEach(regulations, [&upper_threshold,lower_threshold,source](const Model::Regulation & regulation) {
@@ -57,19 +57,19 @@ class LabelingBuilder {
 
 			// If regulation has to be active, store values from treshold above
 			if (mask[regulation_num] == true) {
-				for (std::size_t possible_level = lower_threshold; possible_level < upper_threshold; possible_level++)
+				for (size_t possible_level = lower_threshold; possible_level < upper_threshold; possible_level++)
                possible_levels.push_back(possible_level);
          }
 			// Otherwise store levels below the treshold
 			else {
-				for (std::size_t possible_level = model.getMin(source); possible_level < lower_threshold; possible_level++)
+				for (size_t possible_level = model.getMin(source); possible_level < lower_threshold; possible_level++)
 					possible_levels.push_back(possible_level);
-				for (std::size_t possible_level = upper_threshold; possible_level < model.getMax(source) + 1; possible_level++)
+				for (size_t possible_level = upper_threshold; possible_level < model.getMax(source) + 1; possible_level++)
 					possible_levels.push_back(possible_level);
 			}
 
 			// Store computed values
-			source_values.push_back(std::move(possible_levels));
+			source_values.push_back(move(possible_levels));
 		}
 
 		return source_values;
@@ -82,26 +82,26 @@ class LabelingBuilder {
 	 * @param ID	ID of the specie to compute the kinetic parameters for
 	 * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
 	 */
-	void addRegulations(const SpecieID ID, std::size_t & step_size) const {
+	void addRegulations(const SpecieID ID, size_t & step_size) const {
 		// get referecnces to Specie data
-      const std::vector<Model::Regulation> & regulations = model.getRegulations(ID);
-      const std::vector<Model::Parameter> & parameters = model.getParameters(ID);
+      const vector<Model::Regulation> & regulations = model.getRegulations(ID);
+      const vector<Model::Parameter> & parameters = model.getParameters(ID);
 
 		// Go through regulations of a specie - each represents a single function
-		std::size_t regul_num = 0;
+		size_t regul_num = 0;
 		for (auto param_it = parameters.begin(); param_it != parameters.end(); param_it++, regul_num++) {
 			// Compute allowed values for each regulating specie for this function to be active
-			std::vector<std::vector<std::size_t> > source_values = std::move(getSourceValues(regulations, param_it->first));
+			vector<vector<size_t> > source_values = move(getSourceValues(regulations, param_it->first));
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
-			std::vector<std::size_t> possible_values = std::move(parametrizations.getTargetVals(ID, regul_num));
+			vector<size_t> possible_values = move(parametrizations.getTargetVals(ID, regul_num));
 
 			// pass the function to the holder.
-			labeling_holder.addRegulatoryFunction(ID, step_size, std::move(possible_values), std::move(source_values));
+			labeling_holder.addRegulatoryFunction(ID, step_size, move(possible_values), move(source_values));
 		}
 
 		// Display stats
-      std::string specie_stats = "Specie " + model.getName(ID) + " has " + toString(parameters.size()) + " regulatory contexts with "
+      string specie_stats = "Specie " + model.getName(ID) + " has " + toString(parameters.size()) + " regulatory contexts with "
                                  + toString(parametrizations.getColorsNum(ID)) + " total possible parametrizations.";
 		output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
 
@@ -116,11 +116,11 @@ class LabelingBuilder {
 	 *
 	 * @return vector of all specie levels
 	 */
-	std::vector<std::size_t> getPossibleValues(const std::size_t specie_ID) const {
+	vector<size_t> getPossibleValues(const size_t specie_ID) const {
 		// Storage
-		std::vector<std::size_t> possible_values;
+		vector<size_t> possible_values;
 		// Add all the values between 0 and max
-		for (std::size_t possible_value = model.getMin(specie_ID); possible_value <= model.getMax(specie_ID); possible_value++)
+		for (size_t possible_value = model.getMin(specie_ID); possible_value <= model.getMax(specie_ID); possible_value++)
 			possible_values.push_back(possible_value);
 
 		return possible_values;
@@ -134,11 +134,11 @@ class LabelingBuilder {
 	 *
     * @return vector of all species that have outcoming regulation to this specie
 	 */
-	std::vector<std::size_t> getSourceSpecies(const std::size_t specie_ID, const bool duplicit = true) const {
+	vector<size_t> getSourceSpecies(const size_t specie_ID, const bool duplicit = true) const {
 		// Storage
-		std::vector<std::size_t> source_species;
+		vector<size_t> source_species;
 		// Get reference
-      const std::vector<Model::Regulation> & regulations = model.getRegulations(specie_ID);
+      const vector<Model::Regulation> & regulations = model.getRegulations(specie_ID);
 		// Add all the values between 0 and max
       for (auto regul_it = regulations.begin(); regul_it != regulations.end(); regul_it++)
          if (source_species.empty() || (source_species.back() != regul_it->source) || duplicit)
@@ -168,17 +168,17 @@ public:
 		output_streamer.output(stats_str, "Costructing Regulatory kinetics for ", OutputStreamer::no_newl)
                      .output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
 
-		std::size_t step_size = 1; // Variable necessary for encoding of colors 
+		size_t step_size = 1; // Variable necessary for encoding of colors 
 
 		// Cycle through all the species
-		for (std::size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
+		for (size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
 
 			// Compute data for independent regulations
-			std::vector<std::size_t> possible_values = std::move(getPossibleValues(specie_num));
-			std::vector<std::size_t> source_species = std::move(getSourceSpecies(specie_num, true));
+			vector<size_t> possible_values = move(getPossibleValues(specie_num));
+			vector<size_t> source_species = move(getSourceSpecies(specie_num, true));
 
 			// Add specie
-			labeling_holder.addSpecie(model.getName(specie_num), specie_num, std::move(possible_values), std::move(source_species));
+			labeling_holder.addSpecie(model.getName(specie_num), specie_num, move(possible_values), move(source_species));
 			
 			// Add regulations for this specie
 			addRegulations(specie_num, step_size);

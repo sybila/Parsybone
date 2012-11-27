@@ -18,15 +18,15 @@ struct AutTransitionion : public TransitionProperty {
    AllowedValues allowed_values; ///< Allowed values of species for this transition.
 
    AutTransitionion(const StateID target_ID, AllowedValues && _allowed_values)
-      : TransitionProperty(target_ID), allowed_values(std::move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables.
+      : TransitionProperty(target_ID), allowed_values(move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables.
 };
 
 /// Storing a single state of the Buchi automaton. This state is extended with a value saying wheter the states is final.
 struct AutState : public AutomatonStateProperty<AutTransitionion> {
 
 	/// Fills data and checks if the state has value  -> is initial
-   AutState(const StateID ID, const bool final, std::string && label)
-      : AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID, std::move(label)) { }
+   AutState(const StateID ID, const bool final, string && label)
+      : AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID, move(label)) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,16 +45,16 @@ class AutomatonStructure : public AutomatonInterface<AutState> {
 	 * Add a new transition - having a source, target and permitted values for each specie
 	 */
    inline void addTransition(const StateID source_state, const StateID target_state, AllowedValues && allowed_values) {
-		states[source_state].transitions.push_back(std::move(AutTransitionion(target_state, std::move(allowed_values))));
+		states[source_state].transitions.push_back(move(AutTransitionion(target_state, move(allowed_values))));
 	}
 
 	/**
 	 * @param final	if true than state with index equal to the one of this vector is final
 	 */
 	inline void addState(const StateID ID, const bool final) {
-		std::string label("(");
+		string label("(");
 		label.append(toString(ID)).append(")");
-			states.push_back(std::move(AutState(ID, final, std::move(label))));
+			states.push_back(move(AutState(ID, final, move(label))));
 		if (ID == 0) 
 			initial_states.push_back(ID);
 		if (final)
@@ -79,12 +79,12 @@ public:
 	 *
 	 * @return	true if the transition is feasible
 	 */
-	bool isTransitionFeasible(const StateID ID, const std::size_t transition_num, const Levels & levels) const {
+	bool isTransitionFeasible(const StateID ID, const size_t transition_num, const Levels & levels) const {
 		const AutTransitionion & transition = states[ID].transitions[transition_num];
 
-      for (std::size_t clause_num = 0; clause_num < transition.allowed_values.size(); clause_num++) {
+      for (size_t clause_num = 0; clause_num < transition.allowed_values.size(); clause_num++) {
          // Cycle through the sates
-         for (std::size_t specie_num = 0; specie_num < transition.allowed_values[clause_num].size(); specie_num++) {
+         for (size_t specie_num = 0; specie_num < transition.allowed_values[clause_num].size(); specie_num++) {
             // If you do not find current specie level between allowed, return false
             if (transition.allowed_values[clause_num][specie_num] != levels[specie_num])
                break;

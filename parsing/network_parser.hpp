@@ -32,13 +32,13 @@ class NetworkParser {
 	 * In a current regulation get source of that regulation, if possible.
 	 */
 	SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID ) const {
-		std::string source; SpecieID source_ID;
+		string source; SpecieID source_ID;
 
 		// Find the source and check correctness
 		XMLHelper::getAttribute(source, regulation, "source");
 		source_ID = model.findID(source);
 		if (source_ID >= model.getSpeciesCount())
-			throw std::invalid_argument("ID of a regulation of the specie " + toString(model.getName(target_ID)) + " is incorrect");
+			throw invalid_argument("ID of a regulation of the specie " + toString(model.getName(target_ID)) + " is incorrect");
 
 		return source_ID;
 	}
@@ -46,20 +46,20 @@ class NetworkParser {
 	/**
 	 * Obtain a treshold of a current regulation and check if it is correct and unique.
 	 */
-	std::size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID, const SpecieID source_ID ) const {
-		std::size_t threshold;
+	size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID, const SpecieID source_ID ) const {
+		size_t threshold;
 
 		// Try to find a threshold, if not present, set to 1
 		if(!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
 			threshold = 1;
 		else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
-			throw std::invalid_argument("the threshold' value " + toString(threshold) + " is not within the range of the regulator " + toString(model.getName(source_ID)));
+			throw invalid_argument("the threshold' value " + toString(threshold) + " is not within the range of the regulator " + toString(model.getName(source_ID)));
 
 		// Test uniqueness of this combination (source, threshold)
 		auto regulations = model.getRegulations(target_ID);
 		forEach(regulations, [&,threshold,source_ID](Model::Regulation & regulation) {
 			if (threshold == regulation.threshold && source_ID == regulation.source)
-				throw std::invalid_argument("multiple definition of a regulation of a specie " + toString(model.getName(source_ID)));
+				throw invalid_argument("multiple definition of a regulation of a specie " + toString(model.getName(source_ID)));
 		});
 
 		return threshold;
@@ -70,7 +70,7 @@ class NetworkParser {
 	 *
 	 * @return	enumeration item with given specification
 	 */
-	static UnspecifiedParameters getUnspecType(std::string unspec_type) {
+	static UnspecifiedParameters getUnspecType(string unspec_type) {
       if      (unspec_type.compare("error") == 0)
 			return error_reg;
       else if (unspec_type.compare("basal") == 0)
@@ -78,7 +78,7 @@ class NetworkParser {
       else if (unspec_type.compare("param") == 0)
 			return param_reg;
 		else
-			throw std::runtime_error("wrong value given as an uspec attribute");
+			throw runtime_error("wrong value given as an uspec attribute");
 	}
 
 	/**
@@ -86,7 +86,7 @@ class NetworkParser {
     * Value is not mandatory, if missing, uses param_reg.
 	 */
 	UnspecifiedParameters getUnspecified(const rapidxml::xml_node<> * const specie_node) const {
-		std::string unspec_str; UnspecifiedParameters unspec;
+		string unspec_str; UnspecifiedParameters unspec;
 		// Try to get the value, otherwise use param_reg
       if (XMLHelper::getAttribute(unspec_str, specie_node, "undef", false))
 			unspec = getUnspecType(unspec_str);
@@ -104,7 +104,7 @@ class NetworkParser {
 	 */
 	void parseRegulations(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		// Regulation data
-		std::string label;
+		string label;
 
 		// Cycle through REGUL TAGS
 		for (rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL"); regulation; regulation = regulation->next_sibling("REGUL") ) {
@@ -122,31 +122,31 @@ class NetworkParser {
 	 * This function obtains a present regulator of a specie as an ordinal number of the regulation in the vector of all regulations of this specie.
 	 * If the source is specified in the form "source:value", only the regulator that has the value as a threshold is accepted. If no value is present, threshold of 1 is defaulted.
 	 */
-	std::size_t getPresentRegulator(const std::string & source_str, const SpecieID target_ID) const{
+	size_t getPresentRegulator(const string & source_str, const SpecieID target_ID) const{
 		SpecieID ID;
-		std::size_t threshold = 1; // Defaulted threshold value
+		size_t threshold = 1; // Defaulted threshold value
 
 		auto colon_pos = source_str.find(":");
-		if (colon_pos == std::string::npos)
+		if (colon_pos == string::npos)
 			ID = model.findID(source_str);
 		else {
 			ID = model.findID(source_str.substr(0,colon_pos));
 			try {
-				threshold = boost::lexical_cast<std::size_t>(source_str.substr(colon_pos+1));
+				threshold = lexical_cast<size_t>(source_str.substr(colon_pos+1));
 			}
-			catch (boost::bad_lexical_cast & e) {
+			catch (bad_lexical_cast & e) {
 				output_streamer.output(error_str, "Error while trying to obtain threshold within a regulatory context " + source_str + ": " + e.what() + ".");
-				throw std::runtime_error("boost::lexical_cast<std::size_t>(" + source_str.substr(colon_pos+1) + ") failed");
+				throw runtime_error("lexical_cast<size_t>(" + source_str.substr(colon_pos+1) + ") failed");
 			}
 		}
 
 		if (ID >= model.getSpeciesCount())
-			throw std::invalid_argument("One of the regulators of the specie " + toString(model.getName(target_ID)) + " was not found in the specie list");
+			throw invalid_argument("One of the regulators of the specie " + toString(model.getName(target_ID)) + " was not found in the specie list");
 
-		std::size_t reg_num = INF; std::size_t counter = 0;
+		size_t reg_num = INF; size_t counter = 0;
 		forEach(model.getRegulations(target_ID),[&](const Model::Regulation & regulation){
 			if (regulation.source == ID)
-				if (colon_pos == std::string::npos || regulation.threshold == threshold) {
+				if (colon_pos == string::npos || regulation.threshold == threshold) {
 					reg_num = counter;
 					return;
 				}
@@ -154,7 +154,7 @@ class NetworkParser {
 		});
 
 		if (reg_num == INF)
-			throw std::invalid_argument("regulator " + source_str + " of the specie " + toString(model.getName(target_ID)) + " was not found in the list of regulators");
+			throw invalid_argument("regulator " + source_str + " of the specie " + toString(model.getName(target_ID)) + " was not found in the list of regulators");
 
 		return reg_num;
 	}
@@ -164,12 +164,12 @@ class NetworkParser {
 	 *
 	 * @return true if the regulation is coherent, false otherwise
 	 */
-	bool isContextCoherent(const SpecieID specie_ID, const std::vector<bool> & context) const {
+	bool isContextCoherent(const SpecieID specie_ID, const vector<bool> & context) const {
 		auto regulations = model.getRegulations(specie_ID);
 
 		// Compare all pair
-		for (std::size_t i = 0; i < regulations.size(); i++) {
-			for (std::size_t j = 0; j < regulations.size(); j++) {
+		for (size_t i = 0; i < regulations.size(); i++) {
+			for (size_t j = 0; j < regulations.size(); j++) {
 				if (regulations[i].source == regulations[j].source && i != j)
 					// Return false if there are two present regulations with the same source
 					if (context[i] & context[j])
@@ -184,27 +184,27 @@ class NetworkParser {
     * Presence of a regulator can be given as one of: name, name:threshold, ID, ID:threshold.
     * Context is described using present regulators.
 	 */
-	void fillFromContext(const std::string context, std::set<std::vector<bool> > & specified, SpecieID specie_ID, int target_value) const {
+	void fillFromContext(const string context, set<vector<bool> > & specified, SpecieID specie_ID, int target_value) const {
 		// Obtain strings of the sources
-		std::vector<std::string> sources;
+		vector<string> sources;
 		if (!context.empty()) try {
-			boost::split(sources, context, boost::is_any_of(","));
+			split(sources, context, is_any_of(","));
 		} catch (std::exception & e) {
-			output_streamer.output(error_str, std::string("Error occured while parsing a context. ").append(e.what()));
-			throw std::runtime_error("boost::split(\"sources\", " + context + ", \"boost::is_any_of(\",\")\") failed");
+			output_streamer.output(error_str, string("Error occured while parsing a context. ").append(e.what()));
+			throw runtime_error("split(\"sources\", " + context + ", \"is_any_of(\",\")\") failed");
 		}
 
 		// Create the mask of present regulators in this context
-		std::vector<bool> mask(model.getRegulations(specie_ID).size(), false);
+		vector<bool> mask(model.getRegulations(specie_ID).size(), false);
 		for (auto source_it = sources.begin(); source_it != sources.end(); source_it++)
 			mask[getPresentRegulator(*source_it, specie_ID)] = true;
 
 		// Add the new regulatory context, if it is coherent and not yet present
 		if (!isContextCoherent(specie_ID, mask)){
-			throw std::invalid_argument("context " + context + " of the specie " + toString(model.getName(specie_ID)) + " is incoherent");
+			throw invalid_argument("context " + context + " of the specie " + toString(model.getName(specie_ID)) + " is incoherent");
 		} // Throw an exception if the context is already present
 		else if (!specified.insert(mask).second) {
-			throw std::invalid_argument("context redefinition found for the specie " + toString(model.getName(specie_ID)));
+			throw invalid_argument("context redefinition found for the specie " + toString(model.getName(specie_ID)));
 		}
 
 		model.addParameter(specie_ID, mask, target_value);
@@ -215,12 +215,12 @@ class NetworkParser {
 	 * Presence of a regulator can be given as one of: name, name:threshold, ID, ID:threshold.
 	 * Context is given as a valuation of a formula.
 	 */
-	void fillFromLogic(const std::string logic, size_t specie_ID) const {
+	void fillFromLogic(const string logic, size_t specie_ID) const {
 		// Get reference values
-		std::vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
-		std::vector<bool> top(model.getRegulations(specie_ID).size(), true);
-		std::vector<bool> tested = bottom;
-		std::map<std::string, bool> valuation; // Atomic propositions about presence of regulators (true for present, false for absent)
+		vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
+		vector<bool> top(model.getRegulations(specie_ID).size(), true);
+		vector<bool> tested = bottom;
+		map<string, bool> valuation; // Atomic propositions about presence of regulators (true for present, false for absent)
 
 		do {
 			if (!isContextCoherent(specie_ID, tested))
@@ -228,17 +228,17 @@ class NetworkParser {
 
 			// Add current valuations for both a species ID and name (if any)
 			valuation.clear();
-			for (std::size_t regul_num = 0; regul_num < tested.size(); regul_num++) {
+			for (size_t regul_num = 0; regul_num < tested.size(); regul_num++) {
 				// Get the current regulation propeties
 				StateID source_ID = (model.getRegulations(specie_ID))[regul_num].source;
-				std::string source_name = model.getName(source_ID);
-				std::size_t threshold = (model.getRegulations(specie_ID))[regul_num].threshold;
+				string source_name = model.getName(source_ID);
+				size_t threshold = (model.getRegulations(specie_ID))[regul_num].threshold;
 
 				// Fill in the proposition about the presente of the regulator for all possible combinations depicting its name
-				valuation.insert(std::make_pair(toString(source_ID), tested[regul_num]));
-				valuation.insert(std::make_pair(source_name, tested[regul_num]));
-				valuation.insert(std::make_pair(toString(source_ID) + ":" + toString(threshold), tested[regul_num]));
-				valuation.insert(std::make_pair(source_name + ":" + toString(threshold), tested[regul_num]));
+				valuation.insert(make_pair(toString(source_ID), tested[regul_num]));
+				valuation.insert(make_pair(source_name, tested[regul_num]));
+				valuation.insert(make_pair(toString(source_ID) + ":" + toString(threshold), tested[regul_num]));
+				valuation.insert(make_pair(source_name + ":" + toString(threshold), tested[regul_num]));
 			}
 
 			model.addParameter(specie_ID, tested, FormulaeParser::resolve(valuation, logic));
@@ -250,10 +250,10 @@ class NetworkParser {
 	 * Compute all the possibilities for a regulatory context and add them if they are not already specified.
 	 * Based on the unspec attribute of the specie, uses basal value / parametrization / causes error.
 	 */
-	void addUnspecified(std::set<std::vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
-		std::vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
-		std::vector<bool> top(model.getRegulations(specie_ID).size(), true);
-		std::vector<bool> tested = bottom;
+	void addUnspecified(set<vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
+		vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
+		vector<bool> top(model.getRegulations(specie_ID).size(), true);
+		vector<bool> tested = bottom;
 
 		do {
 			// If tested option is new (not already present in the specified vector)
@@ -268,7 +268,7 @@ class NetworkParser {
 						break;
 
 					case error_reg:
-						throw std::runtime_error("some required parameter specification is missing for the specie " + toString(model.getName(specie_ID)));
+						throw runtime_error("some required parameter specification is missing for the specie " + toString(model.getName(specie_ID)));
 						break;
 				}
 			}
@@ -287,10 +287,10 @@ class NetworkParser {
 		// If the tag is present, use it
 		if (logic != 0) {
 			if (logic->next_sibling("LOGIC") || logic->next_sibling("PARAM"))
-				throw std::invalid_argument("LOGIC tag does not stay alone in the definition of the specie " + toString(model.getName(specie_ID)));
+				throw invalid_argument("LOGIC tag does not stay alone in the definition of the specie " + toString(model.getName(specie_ID)));
 
 			// Get and apply the formula
-			std::string formula;
+			string formula;
 			XMLHelper::getAttribute(formula, logic, "formula");
 			fillFromLogic(formula, specie_ID);
 
@@ -305,9 +305,9 @@ class NetworkParser {
 	 */
 	void parseParameters(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		// Parameters data data
-		std::string context; std::string target_val_str; int target_value = -1;
+		string context; string target_val_str; int target_value = -1;
 		auto unspec = getUnspecified(specie_node);
-		std::set<std::vector<bool> > specified; // Used for possibility of partial specification
+		set<vector<bool> > specified; // Used for possibility of partial specification
 
 		// Step into first PARAM tag, end when the current node does not have next sibling (all PARAM tags were parsed)
       for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM", false); parameter; parameter = parameter->next_sibling("PARAM") ) {
@@ -322,7 +322,7 @@ class NetworkParser {
          else {
             XMLHelper::getAttribute(target_value, parameter, "value", false);
             if (target_value < 0 || target_value > static_cast<int>(model.getMax(specie_ID)))
-               throw std::invalid_argument("target value " + toString(target_value) + " out of range for specie " + toString(model.getName(specie_ID)));
+               throw invalid_argument("target value " + toString(target_value) + " out of range for specie " + toString(model.getName(specie_ID)));
          }
 
 			fillFromContext(context, specified, specie_ID, target_value);
@@ -339,7 +339,7 @@ class NetworkParser {
 		// TODO add control that specie's name is already used
 
 		// Specie data
-		std::string name; size_t max; size_t basal;
+		string name; size_t max; size_t basal;
 
 		// Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
 		rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
@@ -355,7 +355,7 @@ class NetworkParser {
 				basal = 0;
 
          if (basal > max)
-            throw std::invalid_argument("basal value is greater than maximal value for specie " + toString(ID));
+            throw invalid_argument("basal value is greater than maximal value for specie " + toString(ID));
 
 			// Create a new specie
 			model.addSpecie(name, max, basal);

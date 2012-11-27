@@ -16,10 +16,10 @@
 /// \brief Class that contains methods for standard and special stream output.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OutputStreamer {
-   std::ostream * error_stream; ///< Stream to output minor fails as well as terminal failures.
-   std::ostream * verbose_stream; ///< Stream to output work status in case it is requested by user.
-   std::ostream * stats_stream; ///< Stream to output overall statistics.
-   std::ostream * result_stream;	///< Stream to output results of coloring.
+   ostream * error_stream; ///< Stream to output minor fails as well as terminal failures.
+   ostream * verbose_stream; ///< Stream to output work status in case it is requested by user.
+   ostream * stats_stream; ///< Stream to output overall statistics.
+   ostream * result_stream;	///< Stream to output results of coloring.
 
    /// True if these streams are assigned a file.
 	bool error_file, verbose_file, stats_file, result_file;
@@ -65,10 +65,10 @@ public:
 	 */
 	OutputStreamer() { 
 		// Basic direction of the streams
-		error_stream = &std::cerr;
-		result_stream = &std::cout;
-		stats_stream = &std::cout;
-		verbose_stream = &std::cout;
+		error_stream = &cerr;
+		result_stream = &cout;
+		stats_stream = &cout;
+		verbose_stream = &cout;
 
 		// Set control variables
 		error_file = result_file = stats_file = verbose_file = false;
@@ -97,11 +97,11 @@ public:
 	 * @param stream_type	enumeration type specifying the type of stream to output to
 	 * @param data	data to output - should be any possible ostream data
 	 */
-	void createStreamFile(StreamType stream_type, std::string filename) {
+	void createStreamFile(StreamType stream_type, string filename) {
 		// Try to open the file
-        std::fstream * file_stream = new std::fstream(filename.c_str(), std::ios::out);
+        fstream * file_stream = new fstream(filename.c_str(), ios::out);
 		if (file_stream->fail()) 
-         throw std::runtime_error(std::string("Program failed to open an output stream file: ").append(filename));
+         throw runtime_error(string("Program failed to open an output stream file: ").append(filename));
 		
 		// Assiciate pointer to the file with one of the streams
 		switch (stream_type) {
@@ -212,7 +212,7 @@ private:
 	 * @param trait_mask	information about how the output should be formatted
 	 */
 	template <class outputType> 
-	void actualOutput(std::ostream & stream, const outputType & stream_data, const unsigned int trait_mask) const {
+	void actualOutput(ostream & stream, const outputType & stream_data, const unsigned int trait_mask) const {
 		// Use 3 spaces tab
 		if (testTrait(tab, trait_mask))
 			stream << "   ";
@@ -226,7 +226,7 @@ private:
 			stream << " --";
 		// End of the line if not requested otherwise
 		if (!testTrait(no_newl, trait_mask))
-			stream << std::endl;
+			stream << endl;
 	}
 } output_streamer; ///< Single program-shared output object.
 

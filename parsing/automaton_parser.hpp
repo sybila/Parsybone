@@ -19,7 +19,7 @@ class AutomatonParser {
 	 */
 	void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
 		// Regulation data
-      std::string label_string; std::string traget_str; std::size_t target_ID;
+      string label_string; string traget_str; size_t target_ID;
 
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
 		for (rapidxml::xml_node<> * edge = XMLHelper::getChildNode(state_node, "EDGE"); edge; edge = edge->next_sibling("EDGE")) {
@@ -29,10 +29,10 @@ class AutomatonParser {
          XMLHelper::getAttribute(traget_str, edge, "target");
          target_ID = model.findNumber(traget_str);
          if (target_ID >= model.getStatesCount())
-            throw std::invalid_argument(std::string("Incorrect value as a target of the state ").append(toString(source_ID)));
+            throw invalid_argument(string("Incorrect value as a target of the state ").append(toString(source_ID)));
 
 			// Add a new regulation to the specified target
-			model.addConditions(source_ID, target_ID, std::move(label_string));
+			model.addConditions(source_ID, target_ID, move(label_string));
 		}
 	}
 
@@ -42,7 +42,7 @@ class AutomatonParser {
 	 */
 	void firstParse(const rapidxml::xml_node<> * const automaton_node) const {
 		// State data
-		bool final; std::string name;
+		bool final; string name;
 
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
 		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");

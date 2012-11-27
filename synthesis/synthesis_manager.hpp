@@ -32,16 +32,16 @@
 class SynthesisManager {
 	const ConstructionHolder & holder; ///< Holder of all the reference data.
 
-	std::unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis
-	std::unique_ptr<ModelChecker> model_checker; ///< Class for synthesis
-	std::unique_ptr<OutputManager> output; ///< Class for output
-	std::unique_ptr<SplitManager> split_manager; ///< Control of independent rounds
-	std::unique_ptr<ColorStorage> storage; ///< Class that holds
-	std::unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses
-	std::unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness
+	unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis
+	unique_ptr<ModelChecker> model_checker; ///< Class for synthesis
+	unique_ptr<OutputManager> output; ///< Class for output
+	unique_ptr<SplitManager> split_manager; ///< Control of independent rounds
+	unique_ptr<ColorStorage> storage; ///< Class that holds
+	unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses
+	unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness
 
 	/// Overall statistics
-	std::size_t total_colors;
+	size_t total_colors;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNTHESIS CONTROL
@@ -88,7 +88,7 @@ class SynthesisManager {
 		colorProduct();
 
 		// Store colored final vertices
-		std::vector<Coloring> final_states = std::move(storage.get()->getColor(holder.getProduct().getFinalStates()));
+		vector<Coloring> final_states = move(storage.get()->getColor(holder.getProduct().getFinalStates()));
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
@@ -119,7 +119,7 @@ class SynthesisManager {
 			storage.get()->update(*init_it, starting);
 
 		// Schedule all initial states for updates
-		std::set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());
+		set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());
 
 		// Start coloring procedure
 		model_checker->startColoring(starting, updates, split_manager->getRoundRange());

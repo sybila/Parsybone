@@ -29,18 +29,18 @@ class ModelChecker {
 	// Coloring storage
    ColorStorage & storage; ///< Class that actually stores colors during the computation.
    ColorStorage next_round_storage; ///< Class that stores updated colors for next round (prevents multiple transitions through one BFS round).
-   std::set<StateID> updates; ///< Set of states that need to spread their updates.
-   std::set<StateID> next_updates; ///< Updates that are sheduled forn the next round.
+   set<StateID> updates; ///< Set of states that need to spread their updates.
+   set<StateID> next_updates; ///< Updates that are sheduled forn the next round.
 
 	// BFS boundaries
    Paramset starting; ///< Mask of parameters provided for this round.
    Paramset to_find; ///< Mask of parameters that are still not found.
    Paramset restrict_mask; ///< Mask of parameters that are secure to left out.
-   std::vector<std::size_t> BFS_reach; ///< In which round this color was found.
-   std::size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
+   vector<size_t> BFS_reach; ///< In which round this color was found.
+   size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
 
 	// Other
-   std::vector<bool> BA_presence; ///< Vector that marks IDs of BA states under which self-loop is possible this round, used to update only with "sink" parametrizations.
+   vector<bool> BA_presence; ///< Vector that marks IDs of BA states under which self-loop is possible this round, used to update only with "sink" parametrizations.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTING METHODS:
@@ -52,12 +52,12 @@ class ModelChecker {
 	 * @param step_size	how many parameters share the same value for given function
 	 * @param transitive_values	mask of all values from which those that have false are non-transitive
 	 */
-	void passParameters(Paramset & passed, const std::size_t step_size, const std::vector<bool> & transitive_values) const {
+	void passParameters(Paramset & passed, const size_t step_size, const vector<bool> & transitive_values) const {
 		// INITIALIZATION OF VALUES FOR POSITIONING
 		// Number of the first parameter
 		ColorNum param_num = synthesis_range.first;
 		// First value might not bet 0 - get it from current parameter position
-		std::size_t value_num = (param_num / step_size) % transitive_values.size();
+		size_t value_num = (param_num / step_size) % transitive_values.size();
 		// Mask that will be created
 		register Paramset temporary = 0;
 
@@ -67,7 +67,7 @@ class ModelChecker {
 			// List through ALL the target values
 			for (; value_num < transitive_values.size(); value_num++) {
 				// Get size of the step for current value 
-				std::size_t bits_in_step = std::min<std::size_t>(step_size, static_cast<std::size_t>(synthesis_range.second - param_num));
+				size_t bits_in_step = min<size_t>(step_size, static_cast<size_t>(synthesis_range.second - param_num));
 				// Move the mask so new value data can be add
 				temporary <<= bits_in_step;
 				// If transitive, add ones for the width of the step
@@ -144,16 +144,16 @@ class ModelChecker {
 	 *
 	 * @return vector of passed parameters together with their targets
 	 */
-	std::vector<Coloring> broadcastParameters(const StateID ID, const Paramset parameters) {
+	vector<Coloring> broadcastParameters(const StateID ID, const Paramset parameters) {
 		// To store parameters that passed the transition but were not yet added to the target
-		std::vector<Coloring> param_updates;
+		vector<Coloring> param_updates;
 		param_updates.reserve(product.getTransitionCount(ID));
 
-		std::size_t KS_state = product.getKSID(ID);
+		size_t KS_state = product.getKSID(ID);
 		Paramset loop_params = INF; // Which of the parameters allow only to remain in this state
 
 		// Cycle through all the transition
-		for (std::size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
+		for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
 			// Parameters to pass through the transition
 			Paramset passed = parameters;
 			// From an update strip all the parameters that can not pass through the transition - color intersection on the transition
@@ -172,7 +172,7 @@ class ModelChecker {
 			// Else add normally and remove from the loop
 			else if (passed) {
 				loop_params &= ~passed; // Retain only others within a loop
-				param_updates.push_back(std::make_pair(target_ID, passed));
+				param_updates.push_back(make_pair(target_ID, passed));
 			}
 		}	
 
@@ -200,7 +200,7 @@ class ModelChecker {
 	 */
 	void transferUpdates(const StateID ID, const Paramset parameters) {
 		// Get passed colors, unique for each sucessor
-		std::vector<Coloring> update = std::move(broadcastParameters(ID, parameters));
+		vector<Coloring> update = move(broadcastParameters(ID, parameters));
 
 		// For all passed values make update on target
 		for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
@@ -244,7 +244,7 @@ class ModelChecker {
 
          // If there this round is finished, but there are still paths to find
          if (updates.empty() && to_find ) {
-            updates = std::move(next_updates);
+            updates = move(next_updates);
             storage.addFrom(next_round_storage);
             restrict_mask = to_find;
             BFS_level++; // Increase level
@@ -254,7 +254,7 @@ class ModelChecker {
 		// After the coloring, pass cost to the coloring (and computed colors = starting - not found)		
       if (user_options.timeSeries())
          storage.setResults(BFS_reach, ~to_find & starting);
-      else if (starting_state != ~static_cast<std::size_t>(0))
+      else if (starting_state != ~static_cast<size_t>(0))
          storage.setResults(storage.getColor(starting_state));
 	}
 
@@ -268,9 +268,9 @@ class ModelChecker {
 	 * @param _range	range of parameters for this coloring round
 	 * @param _updates	states that are will be scheduled for an update in this round
 	 */
-	void prepareCheck(const Paramset parameters, const Range & _range, std::set<StateID> start_updates = std::set<StateID>()) {
+	void prepareCheck(const Paramset parameters, const Range & _range, set<StateID> start_updates = set<StateID>()) {
 		starting = to_find = restrict_mask = parameters; // Store which parameters are we searching for
-      updates = std::move(start_updates); // Copy starting updates
+      updates = move(start_updates); // Copy starting updates
 		synthesis_range = _range; // Copy range of this round
 
 		BFS_level = 0; // Set sterting number of BFS
@@ -316,9 +316,9 @@ public:
 	 * @param _updates	states that are will be scheduled for an update in this round
 	 * @param _range	range of parameters for this coloring round
 	 */
-	void startColoring(const Paramset parameters, const std::set<StateID> & _updates, const Range & _range){
+	void startColoring(const Paramset parameters, const set<StateID> & _updates, const Range & _range){
 		prepareCheck(parameters, _range, _updates);
-      starting_state = ~static_cast<std::size_t>(0);
+      starting_state = ~static_cast<size_t>(0);
 		doColoring();
 	}
 };

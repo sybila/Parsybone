@@ -49,7 +49,7 @@ public:
 	 *
 	 * @param total_count	number of all feasible colors
 	 */
-	void outputSummary(const std::size_t total_count) {
+	void outputSummary(const size_t total_count) {
 		output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(total_count, OutputStreamer::no_newl)
                      .output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount(), OutputStreamer::no_newl).output(".");
 	}
@@ -75,10 +75,10 @@ public:
    /**
     * Recreate vector of cost values into a vector of strings.
     */
-   const std::vector<std::string> getCosts(const std::vector<std::size_t> cost_vals) const {
-      std::vector<std::string> costs;
-      forEach(cost_vals, [&](const std::size_t cost){
-         if (cost != ~static_cast<std::size_t>(0))
+   const vector<string> getCosts(const vector<size_t> cost_vals) const {
+      vector<string> costs;
+      forEach(cost_vals, [&](const size_t cost){
+         if (cost != ~static_cast<size_t>(0))
             costs.push_back(toString(cost));
       });
       return costs;
@@ -89,21 +89,21 @@ public:
 	 */
 	void outputRound() const {
 		// Get referencese
-      auto costs = std::move(getCosts(storage.getCost())); auto cost_it = costs.begin();
-		auto params = std::move(analyzer.getOutput()); auto param_it = params.begin();
-		auto witnesses = std::move(searcher.getOutput()); auto witness_it = witnesses.begin();
+		auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
+		auto params = move(analyzer.getOutput()); auto param_it = params.begin();
+		auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
 		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
 \
 		// Control the actual size of vectors - they must be the same, if the vectors are employed
 		if (user_options.timeSeries() && (params.size() != costs.size())) {
-			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
-			throw std::invalid_argument(sizes_err);
+			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
+			throw invalid_argument(sizes_err);
 		} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
-			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
-			throw std::invalid_argument(sizes_err);
+			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
+			throw invalid_argument(sizes_err);
 		} else if (user_options.robustness() && (params.size() != robusts.size())) {
-			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
-			throw std::invalid_argument(sizes_err);
+			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
+			throw invalid_argument(sizes_err);
 		}
 
 		// Cycle through parametrizations, display requested data

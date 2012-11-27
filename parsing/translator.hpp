@@ -21,20 +21,20 @@ namespace Translator {
 	 *
 	 * @return Vector of boolean values that represents the input mask.
 	 */
-	static std::vector<bool> getMask(std::string mask_string) {
+	static vector<bool> getMask(string mask_string) {
 		// Vector that will hold the mask instead of the string
-		std::vector<bool> mask;
+		vector<bool> mask;
 		// For all characters in the mask
-		std::for_each(mask_string.begin(), mask_string.end(),[&mask](char ch) {
+		for_each(mask_string.begin(), mask_string.end(),[&mask](char ch) {
 			// Check correctness of the symbols
 			if (ch != '0' && ch !='1')
-				throw std::runtime_error("Error occured while parsing a regulation. It seems that you have entered value other than 0 or 1 in the mask.");
+				throw runtime_error("Error occured while parsing a regulation. It seems that you have entered value other than 0 or 1 in the mask.");
 			// Push the value to the vector
 			try {
-				mask.push_back(boost::lexical_cast<bool, char>(ch));
-			} catch (boost::bad_lexical_cast e) {
-			output_streamer.output(error_str, "std::string(""Error occured while parsing a regulation: " + e.what());
-				throw std::runtime_error("boost::lexical_cast<size_t, char>(" + toString(temp_attr->value()) ") failed");
+				mask.push_back(lexical_cast<bool, char>(ch));
+			} catch (bad_lexical_cast e) {
+			output_streamer.output(error_str, "string(""Error occured while parsing a regulation: " + e.what());
+				throw runtime_error("lexical_cast<size_t, char>(" + toString(temp_attr->value()) ") failed");
 			}
 		});
 		return mask;

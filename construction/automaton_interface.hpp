@@ -27,8 +27,8 @@ struct AutomatonStateProperty : public StateProperty<Transition> {
    /**
     * Adds information if the state is final or initial, passes the rest.
     */
-   AutomatonStateProperty<Transition>(const bool _initial, const bool _final, const StateID ID, const std::string && label)
-      : StateProperty<Transition>(ID, std::move(label)), initial(_initial), final(_final) { }
+   AutomatonStateProperty<Transition>(const bool _initial, const bool _final, const StateID ID, const string && label)
+      : StateProperty<Transition>(ID, move(label)), initial(_initial), final(_final) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,8 +37,8 @@ struct AutomatonStateProperty : public StateProperty<Transition> {
 template<typename StateT>
 class AutomatonInterface : public GraphInterface<StateT> {
 protected:
-   std::vector<StateID> initial_states; ///< Vector with indexes of initial states (in this case only the first state).
-   std::vector<StateID> final_states; ///< Vector with indexes of final states of the BA.
+   vector<StateID> initial_states; ///< Vector with indexes of initial states (in this case only the first state).
+   vector<StateID> final_states; ///< Vector with indexes of final states of the BA.
 
 public:
 	/**
@@ -68,7 +68,7 @@ public:
 	 *
 	 * @return vector of final states' IDs
 	 */
-	virtual inline const std::vector<StateID> & getFinalStates() const {
+	virtual inline const vector<StateID> & getFinalStates() const {
 		return final_states;
 	}
 
@@ -77,7 +77,7 @@ public:
 	 *
 	 * @return vector of initial states' IDs
 	 */
-	virtual inline const std::vector<StateID> & getInitialStates() const {
+	virtual inline const vector<StateID> & getInitialStates() const {
 		return initial_states;
 	}
 };

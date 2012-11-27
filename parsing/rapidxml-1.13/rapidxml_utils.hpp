@@ -48,7 +48,7 @@ namespace rapidxml
 
         //! Loads file into the memory. Data will be automatically destroyed by the destructor
         //! \param stream Stream to load from
-        file(std::basic_istream<Ch> &stream)
+        file(basic_istream<Ch> &stream)
         {
             using namespace std;
 
@@ -76,24 +76,24 @@ namespace rapidxml
 
         //! Gets file data size.
         //! \return Size of file data, in characters.
-        std::size_t size() const
+        size_t size() const
         {
             return m_data.size();
         }
 
     private:
 
-        std::vector<Ch> m_data;   // File data
+        vector<Ch> m_data;   // File data
 
     };
 
     //! Counts children of node. Time complexity is O(n).
     //! \return Number of children of node
     template<class Ch>
-    inline std::size_t count_children(xml_node<Ch> *node)
+    inline size_t count_children(xml_node<Ch> *node)
     {
         xml_node<Ch> *child = node->first_node();
-        std::size_t count = 0;
+        size_t count = 0;
         while (child)
         {
             ++count;
@@ -105,10 +105,10 @@ namespace rapidxml
     //! Counts attributes of node. Time complexity is O(n).
     //! \return Number of attributes of node
     template<class Ch>
-    inline std::size_t count_attributes(xml_node<Ch> *node)
+    inline size_t count_attributes(xml_node<Ch> *node)
     {
         xml_attribute<Ch> *attr = node->first_attribute();
-        std::size_t count = 0;
+        size_t count = 0;
         while (attr)
         {
             ++count;

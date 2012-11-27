@@ -22,7 +22,7 @@
 class SplitManager {
    ColorNum all_colors_count; ///< All the parameters.
    ColorNum process_color_count; ///< All the parameters.
-   std::size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
+   size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
    RoundNum rounds_count; ///< Number of rounds totally.
    RoundNum round_number; ///< Number of this round (starting from 0).
    ColorNum round_begin; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
@@ -41,7 +41,7 @@ class SplitManager {
 		last_round_bits = paramset_helper.getParamsetSize();
 
 		// If there is some leftover, add a round
-		if (std::ceil(static_cast<double>(rest_bits) / static_cast<double>(paramset_helper.getParamsetSize())) >= user_options.procNum()) {
+		if (ceil(static_cast<double>(rest_bits) / static_cast<double>(paramset_helper.getParamsetSize())) >= user_options.procNum()) {
 			rounds_count++;
 			// Pad last round
 			if ((rest_bits / paramset_helper.getParamsetSize()) == (user_options.procNum() - 1))
@@ -58,7 +58,7 @@ class SplitManager {
 		// Check if it fits together with number from mask
       if (user_options.inputMask())
 			if (coloring_parser.getColors().size() != rounds_count)
-				throw std::runtime_error(std::string("Rounds computed from bitmask: ").append(boost::lexical_cast<std::string>(coloring_parser.getColors().size()))
+				throw runtime_error(string("Rounds computed from bitmask: ").append(lexical_cast<string>(coloring_parser.getColors().size()))
                                      .append(" does not equal round count computed from model: ").append(toString(rounds_count).c_str()));
 	}
 

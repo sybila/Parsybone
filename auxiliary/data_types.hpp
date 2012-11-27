@@ -31,6 +31,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
+using namespace std;
+using namespace boost;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT/OUTPUT RELATED DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,19 +47,19 @@ const float program_version = 1.0;
 enum StreamType {error_str, results_str, stats_str, verbose_str};
 
 /// Symbol that separates values of a single parametrizations on output.
-const std::string separator = ":";
+const string separator = ":";
 
 /// Definition of naming abbreviations for edge labels:
 namespace Label {
-   const std::string Activating = "Activating";
-   const std::string ActivatingOnly = "ActivatingOnly";
-   const std::string Inhibiting = "Inhibiting";
-   const std::string InhibitingOnly = "InhibitingOnly";
-   const std::string NotActivating = "NotActivating";
-   const std::string NotInhibiting = "NotInhibiting";
-   const std::string Observable = "Observable";
-   const std::string NotObservable = "NotObservable";
-   const std::string Free = "Free";
+   const string Activating = "Activating";
+   const string ActivatingOnly = "ActivatingOnly";
+   const string Inhibiting = "Inhibiting";
+   const string InhibitingOnly = "InhibitingOnly";
+   const string NotActivating = "NotActivating";
+   const string NotInhibiting = "NotInhibiting";
+   const string Observable = "Observable";
+   const string NotObservable = "NotObservable";
+   const string Free = "Free";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,16 +72,16 @@ enum UnspecifiedParameters {error_reg, basal_reg, param_reg};
 enum Direction {up_dir, stay_dir, down_dir};
 
 /// ID of a graph/automaton state.
-typedef std::size_t StateID; 
+typedef size_t StateID; 
 
 /// ID of a specie.
-typedef std::size_t SpecieID; 
+typedef size_t SpecieID; 
 
 /// Vector of activation levels of species used for labelling of states of KS.
-typedef std::vector<std::size_t> Levels;
+typedef vector<size_t> Levels;
 
 /// Transitional values in a state of BA.
-typedef std::vector<Levels > AllowedValues;
+typedef vector<Levels > AllowedValues;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION RELATED TYPES
@@ -93,12 +96,12 @@ typedef long long ColorNum;
 typedef unsigned long long RoundNum;
 
 /// IDs of predecessors of a state.
-typedef std::vector<StateID> Neighbours;
+typedef vector<StateID> Neighbours;
 
 /// State number and its coloring.
-typedef std::pair<StateID, Paramset> Coloring;
+typedef pair<StateID, Paramset> Coloring;
 
 /// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not.
-typedef std::pair<ColorNum, ColorNum> Range;
+typedef pair<ColorNum, ColorNum> Range;
 
 #endif // PARSYBONE_DATA_TYPES_INCLUDED

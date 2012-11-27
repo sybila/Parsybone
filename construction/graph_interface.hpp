@@ -35,14 +35,14 @@ struct StateProperty {
    /// Unique ID of the state.
    StateID ID;
    /// Label of the state (usually a number or series of numbers) descibing the state.
-   std::string label;
+   string label;
    /// Graph or automaton transitions, basically it is an edge with a label.
-   std::vector<Transition> transitions;
+   vector<Transition> transitions;
 
    /**
     * Basic constructor that fills in the ID and label.
     */
-   StateProperty<Transition>(const StateID _ID, const std::string && _label) : ID(_ID), label(std::move(_label)) { }
+   StateProperty<Transition>(const StateID _ID, const string && _label) : ID(_ID), label(move(_label)) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ struct StateProperty {
 template <typename StateT>
 class GraphInterface {
 protected:
-   std::vector<StateT> states; ///< Vector holding states of the graph.
+   vector<StateT> states; ///< Vector holding states of the graph.
 
 public:
 	/**
@@ -59,7 +59,7 @@ public:
 	 *
 	 * @return integer with size of the graph
 	 */
-	inline std::size_t getStateCount() const {
+	inline size_t getStateCount() const {
 		return states.size();
 	}
 
@@ -70,7 +70,7 @@ public:
 	 *
 	 * @return	integer with number of outcoming transitions 
 	 */
-	inline std::size_t getTransitionCount(const StateID ID) const {
+	inline size_t getTransitionCount(const StateID ID) const {
 		return states[ID].transitions.size();
 	}
 
@@ -82,7 +82,7 @@ public:
 	 *
 	 * @return	ID of the requested target
 	 */
-	inline StateID getTargetID(const StateID ID, const std::size_t transition_number) const {
+	inline StateID getTargetID(const StateID ID, const size_t transition_number) const {
 		return states[ID].transitions[transition_number].target_ID;
 	}
 
@@ -93,7 +93,7 @@ public:
 	 *
 	 * @return	given state as a string
 	 */
-	inline const std::string & getString(const StateID ID) const {
+	inline const string & getString(const StateID ID) const {
 		return states[ID].label;
 	}
 };

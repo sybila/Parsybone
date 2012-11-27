@@ -27,18 +27,20 @@ class TimeSeriesParser {
          model.addState(toString(ID), false);
 
          // Self-loop assuring possibility of a value change
-         model.addConditions(ID, ID, std::move(std::string("tt")));
+         model.addConditions(ID, ID, move(string("tt")));
 
          // Labelled transition to the next measurement
-         std::string values;
+         string values;
          XMLHelper::getAttribute(values, expression, "values");
-         values.erase(std::remove_if(values.begin(), values.end(), isspace), values.end());
-         model.addConditions(ID, ID + 1, std::move(values));
+         values.erase(remove_if(values.begin(), values.end(),
+                                [](const char c){return (c == ' ') | (c == '\t') | (c == '\n')  | (c == '\f')  | (c == '\r') | (c == '\v');
+         }), values.end());
+         model.addConditions(ID, ID + 1, move(values));
       }
 
       // Add a final state that marks succesful time series walk
       model.addState(toString(ID), true);
-      model.addConditions(ID, ID, std::move(std::string("ff")));
+      model.addConditions(ID, ID, move(string("ff")));
    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,12 +49,12 @@ class TimeSeriesParser {
    TimeSeriesParser(const TimeSeriesParser & other); ///< Forbidden copy constructor.
    TimeSeriesParser& operator=(const TimeSeriesParser & other); ///< Forbidden assignment operator.
 
-public:
+   public:
    TimeSeriesParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references
 
    /**
-    * Main parsing function. It expects a pointer to inside of a MODEL node.
-    */
+       * Main parsing function. It expects a pointer to inside of a MODEL node.
+       */
    void parse(const rapidxml::xml_node<> * const model_node) {
       // Parse Buchi Automaton
       output_streamer.output(verbose_str, "Started reading of the Time series.");

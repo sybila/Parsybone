@@ -19,7 +19,7 @@ class ColoringAnalyzer {
 
    const ParametrizationsHolder & parametrizations; ///< Reference to actuall explicit parametrizations that are further printed.
 
-   std::map<StateID, Paramset> colorings; ///< Vector that stores individual states after the coloring procedure.
+   map<StateID, Paramset> colorings; ///< Vector that stores individual states after the coloring procedure.
 
 	ColorNum parameter_begin; ///< Ordinal number of the first parametrization in this round.
 	ColorNum parameter_end; ///< Ordinal number of the last parametrization used in this round.
@@ -54,7 +54,7 @@ class ColoringAnalyzer {
 	 */
 	void strartNewRound(const Range & round_range) {
 		if (round_range.first < parameter_begin) // Error check
-         throw std::runtime_error("Round start value is lower than start of previous round");
+         throw runtime_error("Round start value is lower than start of previous round");
 
 		colorings.clear();
 		parameter_end = round_range.second;
@@ -69,9 +69,9 @@ class ColoringAnalyzer {
 	 *
     * @return  ordinal number of the parametrizations that are feasible
 	 */
-   const std::vector<ColorNum> buildNumbers(const Paramset result_parameters) const {
+   const vector<ColorNum> buildNumbers(const Paramset result_parameters) const {
 		// Vector to fill
-		std::vector<ColorNum> numbers;
+		vector<ColorNum> numbers;
 		// Store a mask for each color with just its bit on, other off
 		  Paramset color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
@@ -94,9 +94,9 @@ class ColoringAnalyzer {
 	 *
     * @return  vector of masks and strings of feasible colors in this round
 	 */
-	const std::vector<std::string> buildStrings(const Paramset result_parameters) const {
+	const vector<string> buildStrings(const Paramset result_parameters) const {
 		// Vector to fill
-		std::vector<std::string> strings;
+		vector<string> strings;
 		// Store a mask for each color with just its bit on, other off
 		  Paramset color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
@@ -118,19 +118,19 @@ public:
 	 *
     * @return  vector of strings with numbers of parametrizations and their explicit form
 	 */
-	const std::vector<std::string> getOutput() const {
+	const vector<string> getOutput() const {
 		// Vector to fill and return
-		std::vector<std::string> results;
+		vector<string> results;
 
 		// Get vectors of values and their iterators
-		auto numbers = std::move(getNumbers());
+		auto numbers = move(getNumbers());
 		auto numbers_it = numbers.begin();
-		auto strings = std::move(getStrings());
+		auto strings = move(getStrings());
 		auto strings_it = strings.begin();
 
 		// Go through all acceptable parametrizations and recreate them into strings
 		while (numbers_it != numbers.end()) {
-			std::string result(toString(*numbers_it));
+			string result(toString(*numbers_it));
 			numbers_it++;
 
 			result += separator;
@@ -154,7 +154,7 @@ public:
 	 *
     * @return  vector of numbers and strings of colors
 	 */
-	const std::vector<std::string> getStrings(const StateID ID) const {
+	const vector<string> getStrings(const StateID ID) const {
 		return buildStrings(getMask(ID));
 	}
 
@@ -163,7 +163,7 @@ public:
 	 *
     * @return  vector of numbers and strings of colors
 	 */
-	const std::vector<std::string> getStrings() const {
+	const vector<string> getStrings() const {
 		return buildStrings(getMask());
 	}
 
@@ -172,7 +172,7 @@ public:
 	 *
     * @return  ordinal number of the parametrizations that are acceptable
 	 */
-	const std::vector<ColorNum> getNumbers(const StateID ID) const {
+	const vector<ColorNum> getNumbers(const StateID ID) const {
 		auto coloring = colorings.find(ID);
 		if (coloring != colorings.end())
 			return buildNumbers(coloring->second);
@@ -183,7 +183,7 @@ public:
 	/**
     * @return  ordinal numbers of the parametrizations that are acceptable in this round
 	 */
-	const std::vector<ColorNum> getNumbers() const {
+	const vector<ColorNum> getNumbers() const {
 		return buildNumbers(getMask());
 	}
 
