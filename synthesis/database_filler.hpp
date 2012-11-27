@@ -46,12 +46,33 @@ public:
       base->safeExec(drop_cmd + create_cmd);
    }
 
+   inline string makeInsert(const string & table) {
+      return "INSERT INTO " + table + " VALUES (";
+   }
+
    void fillComponents() {
       prepareTable(COMPONENTS_TABLE, "(Name TEXT, MaxActivity INTEGER)");
+
+      string update = "";
+      for(SpecieID ID: ::range(model.getSpeciesCount())) {
+         string values = "\"" + model.getName(ID) + "\", " + toString(model.getMax(ID)) + "); \n";
+         update += makeInsert(COMPONENTS_TABLE) + values;
+      }
+      base->safeExec(update);
    }
 
    void fillInteractions() {
       prepareTable(REGULATIONS_TABLE, "(Regulator TEXT, Target TEXT, Threshold INTEGER)");
+      string update = "";
+      for(SpecieID ID: ::range(model.getSpeciesCount())) {
+         for(auto regul:model.getRegulations(ID)) {
+            string values = "\"" + model.getName(regul.source) + "\", ";
+            values += "\"" + model.getName(ID) + "\", ";
+            values += toString(regul.threshold) + "); \n";
+            update += makeInsert(REGULATIONS_TABLE) + values;
+         }
+      }
+      base->safeExec(update);
    }
 
    void fillParametrizations() {

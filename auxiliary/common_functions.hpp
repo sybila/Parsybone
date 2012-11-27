@@ -58,7 +58,7 @@ string demangle(const type_info & type_info) {
 template<typename T>
 vector<T> range(const T begin, const T end) {
     vector<T> my_arr(end - begin);
-    for (int i = 0; i < end - begin; i++) {
+    for (T i = 0; i < end - begin; i++) {
         my_arr[i] = begin + i;
     }
     return my_arr;
@@ -72,7 +72,7 @@ vector<T> range(const T begin, const T end) {
  */
 template<typename T>
 vector<T> range(const T end) {
-    return ::range(0, end);
+    return ::range<T>(0, end);
 }
 
 /**
