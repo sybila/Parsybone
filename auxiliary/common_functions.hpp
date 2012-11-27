@@ -72,7 +72,7 @@ vector<T> range(const T begin, const T end) {
  */
 template<typename T>
 vector<T> range(const T end) {
-    return range(0, end);
+    return ::range(0, end);
 }
 
 /**

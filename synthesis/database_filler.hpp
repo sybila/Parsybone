@@ -32,30 +32,30 @@ public:
    }
 
    void creteTables() {
+      base->safeExec("BEGIN TRANSACTION;");
       fillComponents();
       fillInteractions();
       fillParametrizations();
+      base->safeExec("END;");
+   }
+
+   void prepareTable(const string & name, const string & columns) {
+      // Drop old tables if any.
+      string drop_cmd = "DROP TABLE IF EXISTS " + name + "; ";
+      string create_cmd = "CREATE TABLE " + name + " " + columns + ";\n";
+      base->safeExec(drop_cmd + create_cmd);
    }
 
    void fillComponents() {
-      // Drop old tables if any.
-      string drop_cmd = "DROP TABLE IF EXISTS " + COMPONENTS_TABLE + "; ";
-      base->safeExec(drop_cmd);
-      string create_cmd = "CREATE TABLE " + COMPONENTS_TABLE + " (Name TEXT, MaxActivity INTEGER);";
-      base->safeExec(create_cmd);
+      prepareTable(COMPONENTS_TABLE, "(Name TEXT, MaxActivity INTEGER)");
    }
 
    void fillInteractions() {
-      string drop_cmd = "DROP TABLE IF EXISTS " + REGULATIONS_TABLE + "; ";
-      base->safeExec(drop_cmd);
-      string create_cmd = " CREATE TABLE " + REGULATIONS_TABLE + " (Regulator TEXT, Target TEXT, Threshold INTEGER);";
-      base->safeExec(create_cmd);;
-      // Create new tables.
+      prepareTable(REGULATIONS_TABLE, "(Regulator TEXT, Target TEXT, Threshold INTEGER)");
    }
 
    void fillParametrizations() {
-      string drop_cmd = "DROP TABLE IF EXISTS " + PARAMETRIZATIONS_TABLE + "; ";
-      base->safeExec(drop_cmd);
+      prepareTable(PARAMETRIZATIONS_TABLE, "(Test TEXT)");
    }
 };
 
