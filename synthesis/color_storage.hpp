@@ -107,19 +107,19 @@ public:
 	 */ 
 	void reset() {
 		// Clear each state
-		for_each(states.begin(), states.end(),[&](State & state) {
+		for (auto & state:states) {
 			// Reset merged parameters
 			state.parameters = 0;
 			// Reset parameters from predecessors, if there were new values
          if (user_options.analysis()) {
-				for(auto pred_it = state.predecessors.begin(); pred_it != state.predecessors.end(); pred_it++) {
-               pred_it->second = 0;
+            for(auto & pred:state.predecessors) {
+               pred.second = 0;
 				}
-				for(auto succ_it = state.successors.begin(); succ_it != state.successors.end(); succ_it++) {
-               succ_it->second = 0;
+				for(auto & succ:state.successors) {
+					succ.second = 0;
 				}
 			}
-		});
+		}
 	}
 
 	/**
@@ -208,7 +208,8 @@ public:
 	void remove(const StateID source_ID, const Paramset remove, const bool successors) {
 		// reference
 		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
-		forEach(neigbours, [remove](pair<const StateID, Paramset> & neighbour){neighbour.second &= ~remove;});
+		for(auto & neighbour:neigbours)
+			neighbour.second &= ~remove;
 	}
 
 	/**
@@ -231,7 +232,9 @@ public:
     */
    size_t getMaxDepth () const {
       size_t depth = 0;
-      forEach(cost_val, [&depth](size_t current){depth = my_max((current == ~static_cast<size_t>(0) ? 0 : current), depth);});
+      for (const auto val:cost_val)
+              depth = my_max((val == INF) ? 0 : val, depth);
+
       return depth;
    }
 
@@ -254,9 +257,8 @@ public:
 		vector<Coloring> colors;
 
 		// Get the states and their colors
-		for_each(states.begin(), states.end(), [&](const StateID ID) {
+		for (const auto ID:states)
 			colors.push_back(Coloring(ID, getColor(ID)));
-		});
 
 		// Return final vertices with their positions
 		return colors;
@@ -278,11 +280,11 @@ public:
 		Neighbours color_neigh;
 
 		// Add these from the color
-		forEach(neigbours, [&color_neigh, color_mask](pair<const StateID, Paramset> & neighbour) {
+		for(auto & neighbour:neigbours) {
 			// Test if the color is present
          if ((neighbour.second & color_mask) != 0)
             color_neigh.push_back(neighbour.first);
-		});
+      }
 
 		return color_neigh;
 	}
@@ -302,11 +304,11 @@ public:
 
 		vector<Paramset> restricted;
 		// Add only those that contain the value
-		forEach(neigbours, [&restricted, color_mask](pair<const StateID, Paramset> & neighbour) {
+		for(auto & neighbour:neigbours) {
 			// Test if the color is present
          if ((neighbour.second & color_mask) != 0)
             restricted.push_back(neighbour.second);
-		});
+      }
 
 		return restricted;
 	}

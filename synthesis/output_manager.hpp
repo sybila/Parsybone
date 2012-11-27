@@ -87,52 +87,52 @@ public:
       forEach(cost_vals, [&](const size_t cost){
               if (cost != ~static_cast<size_t>(0))
               costs.push_back(toString(cost));
-   });
-   return costs;
-}
+      });
+      return costs;
+   }
 
-/**
+	/**
 	 * Display colors synthetized during current round.
 	 */
-void outputRound() const {
-	// Get referencese
-	auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
-	auto params = move(analyzer.getOutput()); auto param_it = params.begin();
-	auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
-	auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
-	\
-	// Control the actual size of vectors - they must be the same, if the vectors are employed
-	if (user_options.timeSeries() && (params.size() != costs.size())) {
-		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
-		throw invalid_argument(sizes_err);
-	} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
-		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
-		throw invalid_argument(sizes_err);
-	} else if (user_options.robustness() && (params.size() != robusts.size())) {
-		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
-		throw invalid_argument(sizes_err);
+	void outputRound() const {
+		// Get referencese
+		auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
+		auto params = move(analyzer.getOutput()); auto param_it = params.begin();
+		auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
+		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
+
+		// Control the actual size of vectors - they must be the same, if the vectors are employed
+		if (user_options.timeSeries() && (params.size() != costs.size())) {
+			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
+			throw invalid_argument(sizes_err);
+		} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
+			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
+			throw invalid_argument(sizes_err);
+		} else if (user_options.robustness() && (params.size() != robusts.size())) {
+			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
+			throw invalid_argument(sizes_err);
+		}
+
+		// Cycle through parametrizations, display requested data
+		while (param_it != params.end()) {
+			output_streamer.output(results_str, *(param_it++), OutputStreamer::no_newl);
+			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+
+			if (user_options.timeSeries())
+				output_streamer.output(results_str, *(cost_it++), OutputStreamer::no_newl);
+			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+
+			if (user_options.robustness())
+				output_streamer.output(results_str, *(robust_it++), OutputStreamer::no_newl);
+
+			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+
+			if (user_options.witnesses())
+				output_streamer.output(results_str, *(witness_it++), OutputStreamer::no_newl);
+
+			output_streamer.output(results_str, "");
+		}
 	}
-
-	// Cycle through parametrizations, display requested data
-	while (param_it != params.end()) {
-		output_streamer.output(results_str, *(param_it++), OutputStreamer::no_newl);
-		output_streamer.output(results_str, separator, OutputStreamer::no_newl);
-
-		if (user_options.timeSeries())
-			output_streamer.output(results_str, *(cost_it++), OutputStreamer::no_newl);
-		output_streamer.output(results_str, separator, OutputStreamer::no_newl);
-
-		if (user_options.robustness())
-			output_streamer.output(results_str, *(robust_it++), OutputStreamer::no_newl);
-
-		output_streamer.output(results_str, separator, OutputStreamer::no_newl);
-
-		if (user_options.witnesses())
-			output_streamer.output(results_str, *(witness_it++), OutputStreamer::no_newl);
-
-		output_streamer.output(results_str, "");
-	}
-}
 };
 
 #endif // PARSYBONE_OUTPUT_MANAGER_INCLUDED
