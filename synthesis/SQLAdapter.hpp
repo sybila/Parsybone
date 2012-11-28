@@ -18,30 +18,6 @@ class SQLAdapter {
    sqlite3* database; ///< Database connection.
    sqlite3_stmt* statement; ///< Prepared statement in current use, if there is any such.
 
-public:
-
-   /**
-    *
-    */
-   sqlite3_stmt* getStatement() {
-      return statement;
-   }
-
-   /**
-    * Constructor takes a name of the database one wants to use and creates a connection.
-    */
-   void setDatabase(const string & o_file_name) {
-      file_name = o_file_name;
-      database = nullptr;
-      statement = nullptr;
-   }
-
-   size_t getColumnCount() const {
-      if (statement == nullptr)
-         throw runtime_error("invoked column count on a null statement");
-      return sqlite3_column_count(statement);
-   }
-
    /**
     *
     */
@@ -49,6 +25,23 @@ public:
       int result = sqlite3_open(file_name.c_str(), &database);
       if (result != SQLITE_OK)
          throw runtime_error("sqlite3_open \"" + file_name + "\" failed with: " + toString(result));
+   }
+
+public:
+   /**
+    * Constructor takes a name of the database one wants to use and creates a connection.
+    */
+   void setDatabase(const string & o_file_name) {
+      file_name = o_file_name;
+      database = nullptr;
+      statement = nullptr;
+      openDatabase();
+   }
+
+   size_t getColumnCount() const {
+      if (statement == nullptr)
+         throw runtime_error("invoked column count on a null statement");
+      return sqlite3_column_count(statement);
    }
 
    /**
