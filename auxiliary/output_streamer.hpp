@@ -181,9 +181,9 @@ public:
 			actualOutput(*error_stream, stream_data, trait_mask);
 		break;
 		case results_str:
-			if (user_options.output_file)
+			if (user_options.toFile())
 				actualOutput(*result_stream, stream_data, trait_mask);
-			if (user_options.output_console)
+			if (user_options.toConsole())
 				actualOutput(*console_stream, stream_data, trait_mask);
 		break;
 		case stats_str:

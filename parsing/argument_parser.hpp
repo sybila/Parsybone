@@ -20,7 +20,7 @@
 /// All values that are not used for direct setup are stored within a UserOptions class.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ArgumentParser {
-   enum Filetype {database, datafile, input_mask, output_mask};
+   enum Filetype {database, datatext, input_mask, output_mask};
 
    /**
     * Obtain parameters for synthesis distribution.
@@ -46,8 +46,24 @@ class ArgumentParser {
    }
 
    int getFileName(const Filetype & filetype, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
-      if (position + 1 == end)
-         throw invalid_argument("Filename missing after the modifier " + *position);
+      if (++position == end)
+         throw invalid_argument("Filename missing after the modifier " + *(--position));
+
+      switch (filetype) {
+      case database:
+         user_options.database_file = *position;
+      break;
+      case datatext:
+         user_options.datatext_file = *position;
+      break;
+      case input_mask:
+         user_options.in_mask_file = *position;
+      break;
+      case output_mask:
+         user_options.out_mask_file = *position;
+      break;
+      };
+
       return 1;
    }
 
@@ -65,7 +81,7 @@ class ArgumentParser {
       if (position->compare("--dist") == 0) {
          return getDistribution(position, arguments.end());
       } else if (position->compare("--file") == 0) {
-         return getFileName(datafile, position, arguments.end());
+         return getFileName(datatext, position, arguments.end());
       } else if (position->compare("--base") == 0) {
          return getFileName(database, position, arguments.end());
       } else if (position->compare("--min") == 0) {
