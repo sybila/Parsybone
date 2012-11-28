@@ -1,22 +1,22 @@
 <MODEL ver="1.0">
     <STRUCTURE>
         <SPECIE undef="basal">
-            <REGUL source="1" threshold ="1" observ="1" />
-            <REGUL source="0" />            
-            <LOGIC formula="(Y &amp; !0)" />
+            <REGUL source="B" threshold ="1" observ="1" />
+            <REGUL source="A" />            
+            <LOGIC formula="(B &amp; !A)" />
         </SPECIE>
-        <SPECIE name="Y">
-            <REGUL source="0" />
-            <REGUL source="Y" label="+" />            
+        <SPECIE name="B">
+            <REGUL source="A" />
+            <REGUL source="B" label="+" />            
             <PARAM context="" value="?" />
-            <PARAM context="Y" value="1" />
-            <PARAM context="0" value="0" />
-            <PARAM context="0,1" />            
+            <PARAM context="B" value="1" />
+            <PARAM context="A" value="0" />
+            <PARAM context="A,B" />            
         </SPECIE>
     </STRUCTURE>
     <SERIES>
-        <EXPR values="0 = 0" />
-        <EXPR values="((0=0 &amp; Y =0) | (0 &gt; 0 &amp; 1=1))" />        
-        <EXPR values="(0=1 &amp; Y=0)" />
+        <EXPR values="A = 0" />
+        <EXPR values="((A=0 &amp; B =0) | (A &gt; 0 &amp; B=1))" />        
+        <EXPR values="(A=1 &amp; B=0)" />
     </SERIES>
 </MODEL>

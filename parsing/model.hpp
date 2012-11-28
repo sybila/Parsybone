@@ -201,15 +201,10 @@ public:
 	 */
 	SpecieID findID(const string & name) const {
 		SpecieID ID = INF;
-		try { // Try direct translation
-			ID = lexical_cast<SpecieID, string>(name);
-		}
-		catch (bad_lexical_cast) { // Try lookup by name
-			for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
-				if (spec.name.compare(name) == 0)
-				ID = spec.ID;
-			});
-		}
+		for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
+					if (spec.name.compare(name) == 0)
+					ID = spec.ID;
+		});
 		return ID;
 	}
 
@@ -221,15 +216,10 @@ public:
 	 */
 	SpecieID findNumber(const string & name) const {
 		StateID ID = INF;
-		try { // Try direct translation
-			ID = lexical_cast<StateID, string>(name);
-		}
-		catch (bad_lexical_cast) { // Try lookup by name
-			for_each(states.begin(), states.end(), [&ID, &name](const BuchiAutomatonState & state) {
-				if (state.name.compare(name) == 0)
-				ID = state.ID;
-			});
-		}
+		for_each(states.begin(), states.end(), [&ID, &name](const BuchiAutomatonState & state) {
+					if (state.name.compare(name) == 0)
+					ID = state.ID;
+		});
 		return ID;
 	}
 

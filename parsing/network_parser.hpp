@@ -241,9 +241,7 @@ class NetworkParser {
 				size_t threshold = (model.getRegulations(specie_ID))[regul_num].threshold;
 
 				// Fill in the proposition about the presente of the regulator for all possible combinations depicting its name
-				valuation.insert(make_pair(toString(source_ID), tested[regul_num]));
 				valuation.insert(make_pair(source_name, tested[regul_num]));
-				valuation.insert(make_pair(toString(source_ID) + ":" + toString(threshold), tested[regul_num]));
 				valuation.insert(make_pair(source_name + ":" + toString(threshold), tested[regul_num]));
 			}
 
@@ -342,17 +340,20 @@ class NetworkParser {
 	 * If not provided, attributes are defaulted - name is equal to ordinal number starting from 0, max to 1 and basal value to 0.
 	 */
 	void firstParse(const rapidxml::xml_node<> * const structure_node) const {
-		// TODO add control that specie's name is already used
-
+		// Start the naming from capital A.
+		char specie_name = 'A';
 		// Specie data
 		string name; size_t max; size_t basal;
 
 		// Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
 		rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
+		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE"), specie_name++) {
 			// Get a name of the specie.
 			if (!XMLHelper::getAttribute(name, specie, "name", false))
-				name = toString(ID);
+				name = toString(specie_name);
+			// Throw an error if the name is not correct.
+			else if (name.length() < 2 || !isalpha(static_cast<int>(name[0])))
+				throw invalid_argument("Name of the specie \"" + name + "\" is incorrect. Specie name can start only with a letter and must be at least 2 symbols in lenght.");
 			// Get a max value and conver to integer.
 			if (!XMLHelper::getAttribute(max, specie, "max", false))
 				max = 1;

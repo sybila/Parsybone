@@ -59,7 +59,7 @@ class SplitManager {
       if (user_options.inputMask())
          if (bitmask_manager.getColors().size() != rounds_count)
             throw runtime_error("The number of rounds computed from the bitmask: " + toString(bitmask_manager.getColors().size()) +
-                                " it not equal to the round number computed from the model: "+ toString(rounds_count));
+                                " it not equal to the round number computed from the model: " + toString(rounds_count));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
