@@ -184,7 +184,7 @@ public:
 			if (user_options.output_file)
 				actualOutput(*result_stream, stream_data, trait_mask);
 			if (user_options.output_console)
-				actualOutput(console_stream, stream_data, trait_mask);
+				actualOutput(*console_stream, stream_data, trait_mask);
 		break;
 		case stats_str:
 			if (user_options.stats())

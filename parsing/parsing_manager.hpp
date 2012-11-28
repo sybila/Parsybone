@@ -52,7 +52,7 @@ public:
       // Parse arguments
       ArgumentParser parser;
       parser.parseArguments(arguments, model_stream);
-      addDefaultFiles();
+      user_options.addDefaultFiles();
 
       // Open datafiles that were requested by the user.
       if (user_options.use_out_mask) {

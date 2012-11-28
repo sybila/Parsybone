@@ -33,9 +33,9 @@ class ArgumentParser {
          user_options.process_number = lexical_cast<size_t>(*position);
          if (++position == end)
             throw invalid_argument("Total count is missing");
-         user_options.processes_count = lexical_cast<size_t>(procc);
+         user_options.processes_count = lexical_cast<size_t>(*position);
       } catch (bad_lexical_cast & e) {
-         throw invalid_argument("Error while parsing the modifier --dist" + e.what());
+         throw invalid_argument("Error while parsing the modifier --dist" + toString(e.what()));
       }
 
       // Assert that process ID is in the range
@@ -47,14 +47,13 @@ class ArgumentParser {
 
    int getFileName(const Filetype & filetype, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
       if (position + 1 == end)
-         throw invalid_argument("Filename missing after the modifier " + position);
-
+         throw invalid_argument("Filename missing after the modifier " + *position);
       return 1;
    }
 
    int parseModifier(const string & modifier, const vector<string> & arguments) {
       // Get the position of the current modifier.
-      auto position = arguments.front();
+      auto position = arguments.begin();
       for(auto arg:arguments) {
          if (modifier.compare(arg) != 0)
             position++;
@@ -66,13 +65,13 @@ class ArgumentParser {
       if (position->compare("--dist") == 0) {
          return getDistribution(position, arguments.end());
       } else if (position->compare("--file") == 0) {
-         return getFileName(Filetype::datafile, position, arguments.end());
+         return getFileName(datafile, position, arguments.end());
       } else if (position->compare("--base") == 0) {
-         return getFileName(Filetype::database, position, arguments.end());
+         return getFileName(database, position, arguments.end());
       } else if (position->compare("--min") == 0) {
-         return getFileName(Filetype::input_mask, position, arguments.end());
+         return getFileName(input_mask, position, arguments.end());
       } else if (position->compare("--mout") == 0) {
-         return getFileName(Filetype::output_maks, position, arguments.end());
+         return getFileName(output_mask, position, arguments.end());
       } else {
          throw invalid_argument("Unknown modifier " + *position);
       }
@@ -83,7 +82,7 @@ class ArgumentParser {
     *
     * @param argument	iterator pointer to the string to read
     */
-   void parseSwitches(const char s){
+   void parseSwitch(const char s){
       switch (s) {
       case 'W':
          user_options.use_long_witnesses = true;
@@ -141,10 +140,10 @@ class ArgumentParser {
          throw runtime_error("Program failed to open an intput stream file: " + path);
 
       // Store the models name.
-      auto pos1 = argument->find_last_of("/\\") + 1; // Remove the prefix (path), if there is any.
-      auto pos2 = argument->find(MODEL_SUFFIX) - pos1; // Remove the suffix.
-      user_options.model_path = argument->substr(0, pos1);
-      user_options.model_name = argument->substr(pos1, pos2);
+      auto pos1 = path.find_last_of("/\\") + 1; // Remove the prefix (path), if there is any.
+      auto pos2 = path.find(MODEL_SUFFIX) - pos1; // Remove the suffix.
+      user_options.model_path = path.substr(0, pos1);
+      user_options.model_name = path.substr(pos1, pos2);
    }
 
 public:
@@ -163,12 +162,12 @@ public:
          if (skip-- > 0)
             continue;
          // There can be multiple switches after "-" so go through them in the loop.
-         if (regex_match(argument, regex("-[:alpha:]*", regex_constants::basic))) {
-            for (char s:argument.substr(1)){
+         else if (argument[0] == '-' && argument[1] != '-') {
+            for (char s:argument.substr(1)) {
                parseSwitch(s);
             }
          }
-         else if (regex_match(argument, regex("--[:alpha:]*", regex_constants::basic))) {
+         else if (argument[0] == '-' && argument[1] == '-') {
             skip = parseModifier(argument, arguments);
          }
          // If it is a model file.
@@ -176,7 +175,7 @@ public:
             referenceModel(argument, model_stream);
          }
          else {
-            throw runtime_error(string("Wrong argument on the input stream: ").append(*argument));
+            throw runtime_error("Wrong argument on the input stream: " +  argument);
          }
       }
 

@@ -42,7 +42,10 @@ public:
 	 */
 	OutputManager(const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
 					  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-		: storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
+		: storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {
+		if (user_options.toDatabase())
+			database.creteTables();
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// OUTPUT METHODS
@@ -70,7 +73,7 @@ public:
             .output(split_manager.getRoundCount(), OutputStreamer::no_newl).output(":", OutputStreamer::no_newl);
 
       // Add a new line if the result is displayed on screen.
-      if (user_options.onScreen())
+      if (user_options.toConsole())
          output_streamer.output("");
 
       output_streamer.flush();
@@ -84,59 +87,61 @@ public:
       forEach(cost_vals, [&](const size_t cost){
               if (cost != ~static_cast<size_t>(0))
               costs.push_back(toString(cost));
-      });
-      return costs;
-   }
+   });
+   return costs;
+}
 
-	/**
+/**
 	 * Output parametrizations from this round together with additional data, if requested.
 	 */
-	void outputRound() const {
-		// Get referencese
-		auto numbers = move(analyzer.getNumbers()); auto num_it = numbers.begin();
-		auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
-		auto params = move(analyzer.getStrings()); auto param_it = params.begin();
-		auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
-		auto robusts = move(robustness.getOutput()); auto robust_it = robusts.begin();
+void outputRound() const {
+	// Get referencese
+	auto numbers = move(analyzer.getNumbers()); auto num_it = numbers.begin();
+	auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
+	auto params = move(analyzer.getStrings()); auto param_it = params.begin();
+	auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
+	auto robusts = move(robustness.getOutput()); auto robust_it = robusts.begin();
 
-		// Control the actual size of vectors - they must be the same, if the vectors are employed
-		if (user_options.timeSeries() && (params.size() != costs.size())) {
-			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
-			throw invalid_argument(sizes_err);
-		} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
-			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
-			throw invalid_argument(sizes_err);
-		} else if (user_options.robustness() && (params.size() != robusts.size())) {
-			string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
-			throw invalid_argument(sizes_err);
-		}
+	// Control the actual size of vectors - they must be the same, if the vectors are employed
+	if (user_options.timeSeries() && (params.size() != costs.size())) {
+		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
+		throw invalid_argument(sizes_err);
+	} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
+		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
+		throw invalid_argument(sizes_err);
+	} else if (user_options.robustness() && (params.size() != robusts.size())) {
+		string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
+		throw invalid_argument(sizes_err);
+	}
 
-		// Cycle through parametrizations, display requested data
-		while (param_it != params.end()) {
-			string line = toString(*num_it) + separator + *param_it + separator;
-			string update = *param_it; update.back() = ',';
+	// Cycle through parametrizations, display requested data
+	while (param_it != params.end()) {
+		string line = toString(*num_it) + separator + *param_it + separator;
+		string update = *param_it; update.back() = ',';
 
-			if (user_options.timeSeries()) {
-				line += *cost_it;
-				update += *cost_it + ",";
-			} line += separator;
+		if (user_options.timeSeries()) {
+			line += *cost_it;
+			update += *cost_it + ",";
+		} line += separator;
 
-			if (user_options.robustness()) {
-				line += *robust_it;
-				update += *robust_it + ",";
-			} line += separator;
+		if (user_options.robustness()) {
+			line += *robust_it;
+			update += *robust_it + ",";
+		} line += separator;
 
-			if (user_options.witnesses()) {
-				line += *witness_it;
-				update += "\"" + *witness_it + "\",";
-			} update.back() = ')';
+		if (user_options.witnesses()) {
+			line += *witness_it;
+			update += "\"" + *witness_it + "\",";
+		} update.back() = ')';
 
+		if (user_options.toConsole())
 			output_streamer.output(results_str, line);
+		if (user_options.toDatabase())
 			database.addParametrization(update);
 
-			num_it++; param_it++; cost_it+= user_options.timeSeries(); robust_it += user_options.robustness(); witness_it += user_options.witnesses();
-		}
+		num_it++; param_it++; cost_it+= user_options.timeSeries(); robust_it += user_options.robustness(); witness_it += user_options.witnesses();
 	}
+}
 };
 
 #endif // PARSYBONE_OUTPUT_MANAGER_INCLUDED

@@ -78,9 +78,9 @@ class DatabaseFiller {
    }
 
 public:
-   DatabaseFiller(const Model & _model): COMPONENTS_TABLE("components"), REGULATIONS_TABLE("regulations"), PARAMETRIZATIONS_TABLE("parametrizations"),
+   DatabaseFiller(const ConstructionHolder & holder)
+      : COMPONENTS_TABLE("components"), REGULATIONS_TABLE("regulations"), PARAMETRIZATIONS_TABLE("parametrizations"),
       model(holder.getModel()) {
-      creteTables();
    }
 
    void creteTables() {

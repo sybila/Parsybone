@@ -22,21 +22,22 @@ class UserOptions {
    friend class ArgumentParser;
    friend class ModelParser;
    friend class ParsingManager;
+   friend class OutputStreamer;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // OPTIONS
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   static bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
-   static bool display_stats; ///< Display data from statistics stream (stats_str), mainly states and transition counts
-   static bool time_series; ///< Work with the property as with a time series (meaning check only reachability property)
-   static bool compute_robustness; ///< Should robustness value be computed and displyed?
-   static bool compute_wintess; ///< Should witnesses be computed and displayed?
-   static bool use_long_witnesses; ///< How witnesses should be displayed - complete state or only ID?
-   static bool use_in_mask; ///< Is there a paramset mask on the input?
-   static bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
-   static bool output_console;
-   static bool output_file;
-   static bool output_database;
+   bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
+   bool display_stats; ///< Display data from statistics stream (stats_str), mainly states and transition counts
+   bool time_series; ///< Work with the property as with a time series (meaning check only reachability property)
+   bool compute_robustness; ///< Should robustness value be computed and displyed?
+   bool compute_wintess; ///< Should witnesses be computed and displayed?
+   bool use_long_witnesses; ///< How witnesses should be displayed - complete state or only ID?
+   bool use_in_mask; ///< Is there a paramset mask on the input?
+   bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
+   bool output_console;
+   bool output_file;
+   bool output_database;
    size_t process_number; ///< What is the ID of this process?
    size_t processes_count; ///< How many processes are included in the computation?
    string model_path;
@@ -68,8 +69,7 @@ public:
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness =
-            use_in_mask = use_out_mask = output_console = output_file = output_database = false;
+      compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = output_file = output_database = false;
       database_file = datatext_file = in_mask_file = out_mask_file = "";
       process_number = processes_count = 1;
       model_name = "";
@@ -142,20 +142,6 @@ public:
    }
 
    /**
-    * @return	true if the input mask was provided
-    */
-   inline size_t inputMask() const {
-      return use_in_mask;
-   }
-
-   /**
-    * @return	true if the mask of computation should be printed
-    */
-   inline size_t outputMask() const {
-      return use_out_mask;
-   }
-
-   /**
     * @return  name of the model being used
     */
    inline string modelName() const {
@@ -165,8 +151,8 @@ public:
    /**
     * @return  true if results are sent on-screen;
     */
-   inline bool onScreen() const {
-      return output_screen;
+   inline bool toConsole() const {
+      return output_console;
    }
 
    /**
@@ -181,6 +167,20 @@ public:
     */
    inline bool toDatabase() const {
       return output_database;
+   }
+
+   /**
+    * @return	true if the input mask was provided
+    */
+   inline size_t inputMask() const {
+      return use_in_mask;
+   }
+
+   /**
+    * @return	true if the mask of computation should be printed
+    */
+   inline size_t outputMask() const {
+      return use_out_mask;
    }
 } user_options; ///< Single program-shared user options object.
 
