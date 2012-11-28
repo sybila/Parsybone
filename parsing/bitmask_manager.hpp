@@ -6,8 +6,8 @@
  * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_COLORING_PARSER_INCLUDED
-#define PARSYBONE_COLORING_PARSER_INCLUDED
+#ifndef PARSYBONE_BITMASK_MANAGER_INCLUDED
+#define PARSYBONE_BITMASK_MANAGER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
@@ -19,7 +19,7 @@
 /// Coloring parser reads a bitmask of colors from the file.
 /// @attention Mask file always needs to have number of bytes dividable by Parameters size. If the last set is smaller, it must be shifted to the right!
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ColoringParser {
+class BitmaskManager {
 	vector<Paramset> colors_sets; ///< Vector of paramsets as they are read from the file - note, that this step reads the WHOLE file
 
 	// File-based values
@@ -30,11 +30,11 @@ class ColoringParser {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// CREATION METHODS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ColoringParser(const ColoringParser & other); ///< Forbidden copy constructor.
-	ColoringParser& operator=(const ColoringParser & other); ///< Forbidden assignment operator.
+	BitmaskManager(const BitmaskManager & other); ///< Forbidden copy constructor.
+	BitmaskManager& operator=(const BitmaskManager & other); ///< Forbidden assignment operator.
 
 public:
-	ColoringParser() {} ///< Ddefault constructor.
+	BitmaskManager() {} ///< Ddefault constructor.
 
 	/**
 	 * Only opens the file with the data stream.
@@ -117,6 +117,6 @@ public:
 	inline size_t getColorsCount() {
 		return colors_sets.size() * paramset_helper.getParamsetSize();
 	}
-} coloring_parser; ///< Single program-shared coloring parser object.
+} bitmask_manager; ///< Single program-shared coloring parser object.
 
-#endif // PARSYBONE_COLORING_PARSER_INCLUDED
+#endif // PARSYBONE_BITMASK_MANAGER_INCLUDED

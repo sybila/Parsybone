@@ -76,7 +76,7 @@ class SynthesisManager {
 
 		// Output mask if requested
 		if (user_options.outputMask())
-			coloring_parser.outputComputed(analyzer->getMask());
+			bitmask_manager.outputComputed(analyzer->getMask());
 	}
 
 	/**
@@ -108,7 +108,7 @@ class SynthesisManager {
 		// Get initial coloring
 		Paramset starting;
 		if(user_options.inputMask())
-			starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
+			starting = bitmask_manager.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
 		else
 			starting = split_manager->createStartingParameters();
 

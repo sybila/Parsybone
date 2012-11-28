@@ -12,7 +12,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "../synthesis/SQLAdapter.hpp"
 #include "model_parser.hpp"
-#include "coloring_parser.hpp"
+#include "bitmask_manager.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief STEP 1 - Class that manages all of the parsing done by the application. Includes parsing of arguments and parsing of models.
@@ -56,11 +56,11 @@ public:
 
       // Open datafiles that were requested by the user.
       if (user_options.use_out_mask) {
-         coloring_parser.openFile(user_options.in_mask_file);
-         coloring_parser.parseMask();
+         bitmask_manager.openFile(user_options.in_mask_file);
+         bitmask_manager.parseMask();
       }
       if (user_options.use_in_mask) {
-         coloring_parser.createOutput(user_options.out_mask_file);
+         bitmask_manager.createOutput(user_options.out_mask_file);
       }
       if (user_options.use_textfile) {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);

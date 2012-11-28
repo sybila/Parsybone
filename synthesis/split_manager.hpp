@@ -57,9 +57,9 @@ class SplitManager {
 
 		// Check if it fits together with number from mask
       if (user_options.inputMask())
-			if (coloring_parser.getColors().size() != rounds_count)
-				throw runtime_error(string("Rounds computed from bitmask: ").append(lexical_cast<string>(coloring_parser.getColors().size()))
-                                     .append(" does not equal round count computed from model: ").append(toString(rounds_count).c_str()));
+         if (bitmask_manager.getColors().size() != rounds_count)
+            throw runtime_error("The number of rounds computed from the bitmask: " + toString(bitmask_manager.getColors().size()) +
+                                " it not equal to the round number computed from the model: "+ toString(rounds_count));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
