@@ -75,8 +75,26 @@ public:
       base->safeExec(update);
    }
 
+   string getContexts() const {
+      string contexts = "(";
+      for(SpecieID ID: ::range(model.getSpeciesCount())) {
+         for(auto param:model.getParameters(ID)) {
+            string context = "K_" + model.getName(ID) + "_";
+            for (auto present:param.first) {
+               context += toString(present);
+            }
+            context += " TEXT, ";
+            contexts += move(context);
+         }
+      }
+      contexts.erase(contexts.end() - 1, contexts.end());
+      contexts.back() = ')';
+      return contexts;
+   }
+
    void fillParametrizations() {
-      prepareTable(PARAMETRIZATIONS_TABLE, "(Test TEXT)");
+      string contexts = getContexts();
+      prepareTable(PARAMETRIZATIONS_TABLE, contexts);
    }
 };
 

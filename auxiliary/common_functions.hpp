@@ -128,22 +128,21 @@ void increase<bool>(vector<bool>::reference val) {val = true;}
 /**
  * Iterates values from left to right if it is possible. If so, return true, otherwise return false.
  *
- * @param[in] top vector of maximal values each component can reach
- * @param[in] bottom vector of minimal values each component can reach
- * @param[in,out] interated   vector of values to iterate
- *
+ * @param[in] top    vector of maximal values each component can reach
+ * @param[in] bottom vector   of minimal values each component can reach
+ * @param[in,out] iterated    vector of values to iterate
  * @return  true if the iteration was valid, false if it caused overflow (iterated > bottom)
  */
 template<class integral_T>
-bool iterate(const vector<integral_T> & top, const vector<integral_T> & bottom, vector<integral_T> & interated) {
-	for (size_t val_num = 0; val_num <= interated.size(); val_num++) {
-		if (val_num == interated.size())
+bool iterate(const vector<integral_T> & top, const vector<integral_T> & bottom, vector<integral_T> & iterated) {
+	for (size_t val_num = 0; val_num <= iterated.size(); val_num++) {
+		if (val_num == iterated.size())
 			return false;
-		if (interated[val_num] == top[val_num]) {
-			interated[val_num] = bottom[val_num];
+		if (iterated[val_num] == top[val_num]) {
+			iterated[val_num] = bottom[val_num];
 		}
 		else {
-			increase<integral_T>(interated[val_num]);
+			increase<integral_T>(iterated[val_num]);
 			break;
 		}
 	}

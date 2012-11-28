@@ -27,12 +27,13 @@ class Model {
 public:
 	/// Structure that stores regulation of a specie by another one
 	struct Regulation {
-      StateID source; ///< Regulator specie ID.
-      size_t threshold; ///< Level of the regulator required for the regulation to be active.
-      string label; ///< A behavioural constrain on this edge.
+		StateID source; ///< Regulator specie ID.
+		size_t threshold; ///< Level of the regulator required for the regulation to be active.
+		string label; ///< A behavioural constrain on this edge.
+		size_t number; ///< Ordinal number given to each unique regulator of a specie.
 
-		Regulation(const StateID _source, const size_t _threshold, const string _label)
-			: source(_source), threshold(_threshold), label(_label) { }
+		Regulation(const StateID _source, const size_t _threshold, const string _label, const size_t _number)
+			: source(_source), threshold(_threshold), label(_label), number(_number) { }
 	};
 
 	typedef pair<vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value)
@@ -49,11 +50,11 @@ private:
 		vector<Parameter> parameters; ///< Kinetic parameters of the regulations
 
 		string name; ///< Actuall name of the specie
-		size_t ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
+		SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
 		size_t max_value; ///< Maximal activation level of the specie
 		size_t basal_value; ///< Value the specie tends to if unregulated, currently unused
 
-		ModelSpecie(string _name, size_t _ID, size_t _max_value, size_t _basal_value)
+		ModelSpecie(string _name, SpecieID _ID, size_t _max_value, size_t _basal_value)
 			: name(_name), ID(_ID), max_value(_max_value), basal_value(_basal_value) { }
 	};
 
@@ -63,12 +64,12 @@ private:
       friend class Model; //< Data are accesible from within the model class
 
 		string name; ///< Label of the state.
-		size_t ID; ///< Numerical constant used to distinguish the state. Starts from 0!
+		SpecieID ID; ///< Numerical constant used to distinguish the state. Starts from 0!
       bool final; ///< True if the state is final.
 
       vector<Egde> edges; ///< Edges in Buchi Automaton (Target ID, edge label).
 
-		BuchiAutomatonState(string _name, size_t _ID, bool _final)
+		BuchiAutomatonState(string _name, SpecieID _ID, bool _final)
 			: name(_name), ID(_ID), final(_final) {	}
 	};
 
@@ -97,14 +98,14 @@ private:
 	/**
 	 * Add a new regulation to the specie. Regulation is stored with the target, not the source.
 	 */
-	inline void addRegulation(size_t source_ID, size_t target_ID, size_t threshold, string label) {
-		species[target_ID].regulations.push_back(move(Regulation(source_ID, threshold, label)));
+	inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label, size_t number) {
+		species[target_ID].regulations.push_back(Regulation(source_ID, threshold, label, number));
 	}
 
 	/**
 	 * Add a new regulation to the specie.
 	 */
-	inline void addParameter(size_t target_ID, const vector<bool> subset_mask, int target_value) {
+	inline void addParameter(SpecieID target_ID, const vector<bool> subset_mask, int target_value) {
 		species[target_ID].parameters.push_back(Parameter(subset_mask, target_value));
 	}
 
@@ -235,43 +236,54 @@ public:
 	/**
 	 * @return	name of the specie
 	 */
-	inline const string & getName(const size_t ID) const {
+	inline const string & getName(const SpecieID ID) const {
 		return species[ID].name;
 	}
 
 	/**
 	 * @return	minimal value of the specie (always 0)
 	 */
-	inline size_t getMin(const size_t ID) const {
+	inline size_t getMin(const SpecieID ID) const {
 		return ID ? 0 : 0; // Just to disable a warning
 	}
 
 	/**
 	 * @return	maximal value of the specie
 	 */
-	inline size_t getMax(const size_t ID) const {
+	inline size_t getMax(const SpecieID ID) const {
 		return species[ID].max_value;
 	}
 
 	/**
 	 * @return	basal value of the specie
 	 */
-	inline size_t getBasal(const size_t ID) const {
+	inline size_t getBasal(const SpecieID ID) const {
 		return species[ID].basal_value;
 	}
 
 	/**
 	 * @return	regulations of the specie
 	 */
-	inline const vector<Regulation> & getRegulations(const size_t ID) const {
+	inline const vector<Regulation> & getRegulations(const SpecieID ID) const {
 		return species[ID].regulations;
 	}
 
 	/**
 	 * @return	kinetic parameters of the regulations of the specie
 	 */
-	inline const vector<Parameter> & getParameters(const size_t ID)  const {
+	inline const vector<Parameter> & getParameters(const SpecieID ID)  const {
 		return species[ID].parameters;
+	}
+
+	/**
+	 * @return	unique IDs of regulators of the specie
+	 */
+	set<SpecieID> getRegulators(const SpecieID ID) const {
+		set<SpecieID> IDs;
+		for (auto regul:species[ID].regulations) {
+			IDs.insert(regul.source);
+		}
+		return IDs;
 	}
 
 	/**
@@ -284,7 +296,7 @@ public:
 	/**
 	 * @return	edges of the state
 	 */
-	inline const vector<Egde> & getEdges(const size_t ID) const {
+	inline const vector<Egde> & getEdges(const SpecieID ID) const {
 		return states[ID].edges;
 	}
 };
