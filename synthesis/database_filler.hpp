@@ -13,13 +13,11 @@ class DatabaseFiller {
 
    const Model & model;
 
-   unique_ptr<SQLAdapter> base;
-
    void prepareTable(const string & name, const string & columns) {
       // Drop old tables if any.
       string drop_cmd = "DROP TABLE IF EXISTS " + name + "; ";
       string create_cmd = "CREATE TABLE " + name + " " + columns + ";\n";
-      base->safeExec(drop_cmd + create_cmd);
+      database_output.safeExec(drop_cmd + create_cmd);
    }
 
    inline string makeInsert(const string & table) {
@@ -34,7 +32,7 @@ class DatabaseFiller {
          string values = "(\"" + model.getName(ID) + "\", " + toString(model.getMax(ID)) + "); \n";
          update += makeInsert(COMPONENTS_TABLE) + values;
       }
-      base->safeExec(update);
+      database_output.safeExec(update);
    }
 
    void fillInteractions() {
@@ -48,7 +46,7 @@ class DatabaseFiller {
             update += makeInsert(REGULATIONS_TABLE) + values;
          }
       }
-      base->safeExec(update);
+      database_output.safeExec(update);
    }
 
    string getContexts() const {
@@ -80,30 +78,24 @@ class DatabaseFiller {
    }
 
 public:
-   DatabaseFiller(const ConstructionHolder & holder)
-      : COMPONENTS_TABLE("components"), REGULATIONS_TABLE("regulations"), PARAMETRIZATIONS_TABLE("parametrizations"),
+   DatabaseFiller(const Model & _model): COMPONENTS_TABLE("components"), REGULATIONS_TABLE("regulations"), PARAMETRIZATIONS_TABLE("parametrizations"),
       model(holder.getModel()) {
-   }
-
-   void connect() {
-      string database_name = user_options.modelName() + DATABASE_SUFFIX;
-      base.reset(new SQLAdapter(database_name));
-      base->openDatabase();
+      creteTables();
    }
 
    void creteTables() {
-      base->safeExec("BEGIN TRANSACTION;");
+      database_output.safeExec("BEGIN TRANSACTION;");
       fillComponents();
       fillInteractions();
       fillParametrizations();
-      base->safeExec("END;");
+      database_output.safeExec("END;");
    }
 
    void addParametrization(string parametrization) {
       auto insert = makeInsert(PARAMETRIZATIONS_TABLE);
-      base->safeExec("BEGIN TRANSACTION;");
-      base->safeExec(insert + parametrization + ";");
-      base->safeExec("END;");
+      database_output.safeExec("BEGIN TRANSACTION;");
+      database_output.safeExec(insert + parametrization + ";");
+      database_output.safeExec("END;");
    }
 };
 

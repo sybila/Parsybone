@@ -19,7 +19,8 @@ class OutputStreamer {
    ostream * error_stream; ///< Stream to output minor fails as well as terminal failures.
    ostream * verbose_stream; ///< Stream to output work status in case it is requested by user.
    ostream * stats_stream; ///< Stream to output overall statistics.
-   ostream * result_stream;	///< Stream to output results of coloring.
+   ostream * result_stream; ///< Stream to output results of coloring.
+   ostream * console_stream; ///< This one always goes to console.
 
    /// True if these streams are assigned a file.
    bool error_file, verbose_file, stats_file, result_file;
@@ -47,15 +48,6 @@ public:
 	inline bool testTrait(const unsigned int tested, const unsigned int traits) const {
 		return ((traits | tested)== traits);
 	}
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// CONSTANT GETTERS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @return true if there is a file to output the results
-	 */
-	bool isResultInFile() const {
-		return result_file;
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// CREATION METHODS
@@ -69,6 +61,7 @@ public:
 		result_stream = &cout;
 		stats_stream = &cout;
 		verbose_stream = &cout;
+		console_stream = &cout;
 
 		// Set control variables
 		error_file = result_file = stats_file = verbose_file = false;
@@ -188,7 +181,10 @@ public:
 			actualOutput(*error_stream, stream_data, trait_mask);
 		break;
 		case results_str:
-			actualOutput(*result_stream, stream_data, trait_mask);
+			if (user_options.output_file)
+				actualOutput(*result_stream, stream_data, trait_mask);
+			if (user_options.output_console)
+				actualOutput(console_stream, stream_data, trait_mask);
 		break;
 		case stats_str:
 			if (user_options.stats())

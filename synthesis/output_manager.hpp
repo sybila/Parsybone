@@ -42,10 +42,7 @@ public:
 	 */
 	OutputManager(const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
 					  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-		: storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {
-		database.connect();
-		database.creteTables();
-	}
+		: storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// OUTPUT METHODS
@@ -72,8 +69,8 @@ public:
       output_streamer.output(split_manager.getRoundNum(), OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
             .output(split_manager.getRoundCount(), OutputStreamer::no_newl).output(":", OutputStreamer::no_newl);
 
-      // add a new line if the result is not streamed to a file and there is any
-      if (!output_streamer.isResultInFile())
+      // Add a new line if the result is displayed on screen.
+      if (user_options.onScreen())
          output_streamer.output("");
 
       output_streamer.flush();

@@ -21,21 +21,30 @@
 class UserOptions {
    friend class ArgumentParser;
    friend class ModelParser;
+   friend class ParsingManager;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // OPTIONS
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
-   bool display_stats; ///< Display data from statistics stream (stats_str), mainly states and transition counts
-   bool time_series; ///< Work with the property as with a time series (meaning check only reachability property)
-   bool compute_robustness; ///< Should robustness value be computed and displyed?
-   bool compute_wintess; ///< Should witnesses be computed and displayed?
-   bool use_long_witnesses; ///< How witnesses should be displayed - complete state or only ID?
-   bool use_in_mask; ///< Is there a paramset mask on the input?
-   bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
+   static bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
+   static bool display_stats; ///< Display data from statistics stream (stats_str), mainly states and transition counts
+   static bool time_series; ///< Work with the property as with a time series (meaning check only reachability property)
+   static bool compute_robustness; ///< Should robustness value be computed and displyed?
+   static bool compute_wintess; ///< Should witnesses be computed and displayed?
+   static bool use_long_witnesses; ///< How witnesses should be displayed - complete state or only ID?
+   static bool use_in_mask; ///< Is there a paramset mask on the input?
+   static bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
+   static bool output_console;
+   static bool output_file;
+   static bool output_database;
    size_t process_number; ///< What is the ID of this process?
    size_t processes_count; ///< How many processes are included in the computation?
+   string model_path;
    string model_name; ///< What is the name of the model?
+   string database_file;
+   string datatext_file;
+   string in_mask_file;
+   string out_mask_file;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // CONSTRUCTION METHODS
@@ -43,12 +52,25 @@ class UserOptions {
    UserOptions(const UserOptions & other); ///< Forbidden copy constructor.
    UserOptions& operator=(const UserOptions & other); ///< Forbidden assignment operator.
 
+   void addDefaultFiles() {
+      if (database_file.empty())
+         database_file = model_path + model_name + DATABASE_SUFFIX;
+      if (datatext_file.empty())
+         datatext_file = model_path + model_name + OUTPUT_SUFFIX;
+      if (in_mask_file.empty())
+         in_mask_file = model_path + model_name + MASK_SUFFIX;
+      if (out_mask_file.empty())
+         out_mask_file = model_path + model_name + MASK_SUFFIX;
+   }
+
 public:
    /**
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = false;
+      compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness =
+            use_in_mask = use_out_mask = output_console = output_file = output_database = false;
+      database_file = datatext_file = in_mask_file = out_mask_file = "";
       process_number = processes_count = 1;
       model_name = "";
    }
@@ -138,6 +160,27 @@ public:
     */
    inline string modelName() const {
       return model_name;
+   }
+
+   /**
+    * @return  true if results are sent on-screen;
+    */
+   inline bool onScreen() const {
+      return output_screen;
+   }
+
+   /**
+    * @return  true if results are sent on-screen;
+    */
+   inline bool toFile() const {
+      return output_file;
+   }
+
+   /**
+    * @return  true if results are sent on-screen;
+    */
+   inline bool toDatabase() const {
+      return output_database;
    }
 } user_options; ///< Single program-shared user options object.
 

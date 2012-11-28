@@ -30,7 +30,7 @@ public:
    /**
     * Constructor takes a name of the database one wants to use and creates a connection.
     */
-   SQLAdapter(const string & o_file_name) {
+   setDatabase(const string & o_file_name) {
       file_name = o_file_name;
       database = nullptr;
       statement = nullptr;
@@ -105,6 +105,6 @@ public:
          sqlite3_finalize(statement);
       statement = nullptr;
    }
-};
+} database_output;
 
 #endif // PARSYBONE_SQLADAPTER_INCLUDED
