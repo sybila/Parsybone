@@ -52,15 +52,19 @@ class ArgumentParser {
       switch (filetype) {
       case database:
          user_options.database_file = *position;
+         user_options.use_database = true;
       break;
       case datatext:
          user_options.datatext_file = *position;
+         user_options.use_textfile = true;
       break;
       case input_mask:
          user_options.in_mask_file = *position;
+         user_options.use_in_mask = true;
       break;
       case output_mask:
          user_options.out_mask_file = *position;
+         user_options.use_out_mask = true;
       break;
       };
 
@@ -128,11 +132,11 @@ class ArgumentParser {
       break;
 
       case 'f':
-         user_options.output_file = true;
+         user_options.use_textfile = true;
       break;
 
       case 'd':
-         user_options.output_database = true;
+         user_options.use_database = true;
       break;
 
       case 'c':

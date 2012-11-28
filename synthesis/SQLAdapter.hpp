@@ -98,6 +98,6 @@ public:
          sqlite3_finalize(statement);
       statement = nullptr;
    }
-} database_output;
+} sql_adapter;
 
 #endif // PARSYBONE_SQLADAPTER_INCLUDED

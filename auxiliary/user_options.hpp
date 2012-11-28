@@ -35,8 +35,8 @@ class UserOptions {
    bool use_in_mask; ///< Is there a paramset mask on the input?
    bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
    bool output_console;
-   bool output_file;
-   bool output_database;
+   bool use_textfile;
+   bool use_database;
    size_t process_number; ///< What is the ID of this process?
    size_t processes_count; ///< How many processes are included in the computation?
    string model_path;
@@ -68,7 +68,7 @@ public:
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = output_file = output_database = false;
+      compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
       database_file = datatext_file = in_mask_file = out_mask_file = "";
       process_number = processes_count = 1;
       model_name = "";
@@ -158,14 +158,14 @@ public:
     * @return  true if results are sent on-screen;
     */
    inline bool toFile() const {
-      return output_file;
+      return use_textfile;
    }
 
    /**
     * @return  true if results are sent on-screen;
     */
    inline bool toDatabase() const {
-      return output_database;
+      return use_database;
    }
 
    /**

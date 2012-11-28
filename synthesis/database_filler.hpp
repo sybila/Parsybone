@@ -17,7 +17,7 @@ class DatabaseFiller {
       // Drop old tables if any.
       string drop_cmd = "DROP TABLE IF EXISTS " + name + "; ";
       string create_cmd = "CREATE TABLE " + name + " " + columns + ";\n";
-      database_output.safeExec(drop_cmd + create_cmd);
+      sql_adapter.safeExec(drop_cmd + create_cmd);
    }
 
    inline string makeInsert(const string & table) {
@@ -32,7 +32,7 @@ class DatabaseFiller {
          string values = "(\"" + model.getName(ID) + "\", " + toString(model.getMax(ID)) + "); \n";
          update += makeInsert(COMPONENTS_TABLE) + values;
       }
-      database_output.safeExec(update);
+      sql_adapter.safeExec(update);
    }
 
    void fillInteractions() {
@@ -46,7 +46,7 @@ class DatabaseFiller {
             update += makeInsert(REGULATIONS_TABLE) + values;
          }
       }
-      database_output.safeExec(update);
+      sql_adapter.safeExec(update);
    }
 
    string getContexts() const {
@@ -84,18 +84,18 @@ public:
    }
 
    void creteTables() {
-      database_output.safeExec("BEGIN TRANSACTION;");
+      sql_adapter.safeExec("BEGIN TRANSACTION;");
       fillComponents();
       fillInteractions();
       fillParametrizations();
-      database_output.safeExec("END;");
+      sql_adapter.safeExec("END;");
    }
 
    void addParametrization(string parametrization) {
       auto insert = makeInsert(PARAMETRIZATIONS_TABLE);
-      database_output.safeExec("BEGIN TRANSACTION;");
-      database_output.safeExec(insert + parametrization + ";");
-      database_output.safeExec("END;");
+      sql_adapter.safeExec("BEGIN TRANSACTION;");
+      sql_adapter.safeExec(insert + parametrization + ";");
+      sql_adapter.safeExec("END;");
    }
 };
 

@@ -62,11 +62,11 @@ public:
       if (user_options.use_in_mask) {
          coloring_parser.createOutput(user_options.out_mask_file);
       }
-      if (user_options.output_file) {
+      if (user_options.use_textfile) {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);
       }
-      if(user_options.output_database) {
-         database_output.setDatabase(user_options.database_file);
+      if(user_options.use_database) {
+         sql_adapter.setDatabase(user_options.database_file);
       }
 
       // Parse model itself
