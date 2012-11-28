@@ -92,7 +92,7 @@ public:
    }
 
 	/**
-	 * Display colors synthetized during current round.
+	 * Output parametrizations from this round together with additional data, if requested.
 	 */
 	void outputRound() const {
 		// Get referencese
