@@ -15,30 +15,6 @@ class DatabaseFiller {
 
    unique_ptr<SQLAdapter> base;
 
-   string parametrizationsQuery() const {
-      return "";
-   }
-
-public:
-   DatabaseFiller(const ConstructionHolder & holder)
-      : COMPONENTS_TABLE("components"), REGULATIONS_TABLE("regulations"), PARAMETRIZATIONS_TABLE("parametrizations"),
-      model(holder.getModel()) {
-   }
-
-   void connect() {
-      string database_name = user_options.modelName() + DATABASE_SUFFIX;
-      base.reset(new SQLAdapter(database_name));
-      base->openDatabase();
-   }
-
-   void creteTables() {
-      base->safeExec("BEGIN TRANSACTION;");
-      fillComponents();
-      fillInteractions();
-      fillParametrizations();
-      base->safeExec("END;");
-   }
-
    void prepareTable(const string & name, const string & columns) {
       // Drop old tables if any.
       string drop_cmd = "DROP TABLE IF EXISTS " + name + "; ";
@@ -47,7 +23,7 @@ public:
    }
 
    inline string makeInsert(const string & table) {
-      return "INSERT INTO " + table + " VALUES (";
+      return "INSERT INTO " + table + " VALUES ";
    }
 
    void fillComponents() {
@@ -55,7 +31,7 @@ public:
 
       string update = "";
       for(SpecieID ID: ::range(model.getSpeciesCount())) {
-         string values = "\"" + model.getName(ID) + "\", " + toString(model.getMax(ID)) + "); \n";
+         string values = "(\"" + model.getName(ID) + "\", " + toString(model.getMax(ID)) + "); \n";
          update += makeInsert(COMPONENTS_TABLE) + values;
       }
       base->safeExec(update);
@@ -66,7 +42,7 @@ public:
       string update = "";
       for(SpecieID ID: ::range(model.getSpeciesCount())) {
          for(auto regul:model.getRegulations(ID)) {
-            string values = "\"" + model.getName(regul.source) + "\", ";
+            string values = "(\"" + model.getName(regul.source) + "\", ";
             values += "\"" + model.getName(ID) + "\", ";
             values += toString(regul.threshold) + "); \n";
             update += makeInsert(REGULATIONS_TABLE) + values;
@@ -95,6 +71,31 @@ public:
    void fillParametrizations() {
       string contexts = getContexts();
       prepareTable(PARAMETRIZATIONS_TABLE, contexts);
+   }
+
+public:
+   DatabaseFiller(const ConstructionHolder & holder)
+      : COMPONENTS_TABLE("components"), REGULATIONS_TABLE("regulations"), PARAMETRIZATIONS_TABLE("parametrizations"),
+      model(holder.getModel()) {
+   }
+
+   void connect() {
+      string database_name = user_options.modelName() + DATABASE_SUFFIX;
+      base.reset(new SQLAdapter(database_name));
+      base->openDatabase();
+   }
+
+   void creteTables() {
+      base->safeExec("BEGIN TRANSACTION;");
+      fillComponents();
+      fillInteractions();
+      fillParametrizations();
+      base->safeExec("END;");
+   }
+
+   void parametrizationsQuery(string parametrization) {
+      auto insert = makeInsert(PARAMETRIZATIONS_TABLE);
+      base->safeExec(insert + parametrization + ";");
    }
 };
 

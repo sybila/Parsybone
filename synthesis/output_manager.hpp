@@ -96,10 +96,11 @@ public:
 	 */
 	void outputRound() const {
 		// Get referencese
+		auto numbers = move(analyzer.getNumbers()); auto num_it = numbers.begin();
 		auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
-		auto params = move(analyzer.getOutput()); auto param_it = params.begin();
+		auto params = move(analyzer.getStrings()); auto param_it = params.begin();
 		auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
-		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
+		auto robusts = move(robustness.getOutput()); auto robust_it = robusts.begin();
 
 		// Control the actual size of vectors - they must be the same, if the vectors are employed
 		if (user_options.timeSeries() && (params.size() != costs.size())) {
@@ -115,8 +116,12 @@ public:
 
 		// Cycle through parametrizations, display requested data
 		while (param_it != params.end()) {
-			output_streamer.output(results_str, *(param_it++), OutputStreamer::no_newl);
+			output_streamer.output(results_str, *(num_it++), OutputStreamer::no_newl);
 			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+
+			output_streamer.output(results_str, *(param_it), OutputStreamer::no_newl);
+			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+			database.parametrizationsQuery(*param_it++);
 
 			if (user_options.timeSeries())
 				output_streamer.output(results_str, *(cost_it++), OutputStreamer::no_newl);
