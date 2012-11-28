@@ -52,25 +52,31 @@ class DatabaseFiller {
    }
 
    string getContexts() const {
-      string contexts = "(";
+      string contexts = "";
       for(SpecieID ID: ::range(model.getSpeciesCount())) {
          for(auto param:model.getParameters(ID)) {
             string context = "K_" + model.getName(ID) + "_";
             for (auto present:param.first) {
                context += toString(present);
             }
-            context += " TEXT, ";
+            context += " TEXT,";
             contexts += move(context);
          }
       }
-      contexts.erase(contexts.end() - 1, contexts.end());
-      contexts.back() = ')';
       return contexts;
    }
 
    void fillParametrizations() {
-      string contexts = getContexts();
-      prepareTable(PARAMETRIZATIONS_TABLE, contexts);
+      string columns = "(" + getContexts();
+      if (user_options.timeSeries())
+         columns += "Cost INTEGER,";
+      if (user_options.robustness())
+         columns += "Robustness REAL,";
+      if (user_options.witnesses())
+         columns += "Witness_path TEXT,";
+      columns.back() = ')';
+
+      prepareTable(PARAMETRIZATIONS_TABLE, columns);
    }
 
 public:
@@ -93,9 +99,11 @@ public:
       base->safeExec("END;");
    }
 
-   void parametrizationsQuery(string parametrization) {
+   void addParametrization(string parametrization) {
       auto insert = makeInsert(PARAMETRIZATIONS_TABLE);
+      base->safeExec("BEGIN TRANSACTION;");
       base->safeExec(insert + parametrization + ";");
+      base->safeExec("END;");
    }
 };
 

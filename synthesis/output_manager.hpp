@@ -116,26 +116,28 @@ public:
 
 		// Cycle through parametrizations, display requested data
 		while (param_it != params.end()) {
-			output_streamer.output(results_str, *(num_it++), OutputStreamer::no_newl);
-			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+			string line = toString(*num_it) + separator + *param_it + separator;
+			string update = *param_it; update.back() = ',';
 
-			output_streamer.output(results_str, *(param_it), OutputStreamer::no_newl);
-			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
-			database.parametrizationsQuery(*param_it++);
+			if (user_options.timeSeries()) {
+				line += *cost_it;
+				update += *cost_it + ",";
+			} line += separator;
 
-			if (user_options.timeSeries())
-				output_streamer.output(results_str, *(cost_it++), OutputStreamer::no_newl);
-			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+			if (user_options.robustness()) {
+				line += *robust_it;
+				update += *robust_it + ",";
+			} line += separator;
 
-			if (user_options.robustness())
-				output_streamer.output(results_str, *(robust_it++), OutputStreamer::no_newl);
+			if (user_options.witnesses()) {
+				line += *witness_it;
+				update += "\"" + *witness_it + "\",";
+			} update.back() = ')';
 
-			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+			output_streamer.output(results_str, line);
+			database.addParametrization(update);
 
-			if (user_options.witnesses())
-				output_streamer.output(results_str, *(witness_it++), OutputStreamer::no_newl);
-
-			output_streamer.output(results_str, "");
+			num_it++; param_it++; cost_it+= user_options.timeSeries(); robust_it += user_options.robustness(); witness_it += user_options.witnesses();
 		}
 	}
 };
