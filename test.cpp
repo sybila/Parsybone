@@ -10,49 +10,10 @@
 // This is a testing suite for the Parsybone program
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "parsing/formulae_parser.hpp"
-
-void test(bool (*test_function)(void), std::string test_name){
-	std::cout << "# Executing test: " << test_name << std::endl;
-	if (test_function())
-		std::cout << "correct" << std::endl;
-	else
-		std::cout << "failed" << std::endl;
-}
-
-bool testFormulaeParser() {
-	bool correct = true;
-	std::map<std::string, bool> vars;
-	vars.insert(std::make_pair("A",true));
-	vars.insert(std::make_pair("B",false));
-
-	std::vector<std::string> formulas;
-	formulas.push_back("tt");
-	formulas.push_back("A");
-	formulas.push_back("!B");
-	formulas.push_back("(ff|A)");
-	formulas.push_back("(A|B)");
-   	formulas.push_back("!(A&B)");
-	formulas.push_back("(!(A&A)|!B)");
-
-	for (auto formula_it = formulas.begin(); formula_it != formulas.end(); formula_it++) {
-		if (!FormulaeParser::resolve(vars, *formula_it)) {
-			std::cout << "formula " << *formula_it << " is false" << std::endl;
-			correct = false;
-		}
-	}
-
-	if (FormulaeParser::resolve(std::map<std::string, bool>(), "ff")) {
-		std::cout << "formula ff is true" << std::endl;
-		correct = false;
-	}
-
-	return correct;
-}
+#include "testing/tester.hpp"
 
 int main(int argc, char* argv[]) {
-
-	test(testFormulaeParser, "testFormulaeParser");
-
+    Tester tester;
+    tester.test(model_func);
 	return 0;
 }

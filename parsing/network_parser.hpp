@@ -118,6 +118,15 @@ class NetworkParser {
 		}
 	}
 
+	void fillActivationLevels() {
+		for (auto ID:range(model.getSpeciesCount())) {
+			auto regulators = getRegulators(ID);
+			for (auto reg:model.getRegulations(ID)) {
+				vector<ActLevel> thresholds;
+			}
+		}
+	}
+
 	/**
 	 * This function obtains a present regulator of a specie as an ordinal number of the regulation in the vector of all regulations of this specie.
 	 * If the source is specified in the form "source:value", only the regulator that has the value as a threshold is accepted. If no value is present, threshold of 1 is defaulted.
@@ -361,10 +370,6 @@ class NetworkParser {
 			// Create a new specie
 			model.addSpecie(name, max, basal);
 		}
-	}
-
-	map<string, Levels> getActivityLevels() {
-
 	}
 
 	/**

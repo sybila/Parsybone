@@ -9,8 +9,8 @@
 #ifndef PARSYBONE_MODEL_INCLUDED
 #define PARSYBONE_MODEL_INCLUDED
 
+#include "../auxiliary/common_functions.hpp"
 #include "../auxiliary/output_streamer.hpp"
-#include "../auxiliary/data_types.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Storage for data parsed from the model.
@@ -20,6 +20,7 @@
 /// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Model {
+	friend class Tester;
 	friend class AutomatonParser;
 	friend class ModelParser;
 	friend class NetworkParser;
@@ -29,7 +30,9 @@ public:
 	/// Structure that stores regulation of a specie by another one
 	struct Regulation {
 		StateID source; ///< Regulator specie ID.
-		size_t threshold; ///< Level of the regulator required for the regulation to be active.
+		ActLevel threshold; ///< Level of the regulator required for the regulation to be active.
+		string name;
+		Levels activity; ///<
 		string label; ///< A behavioural constrain on this edge.
 	};
 
@@ -38,9 +41,9 @@ public:
 		Levels target;
 	};
 
-	typedef pair<vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value)
+	typedef pair<vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value).
 
-	typedef pair<StateID, string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label)
+	typedef pair<StateID, string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label).
 
 private:
 	/// Structure that holds data about a single specie. Most of the data is equal to that in the model file
@@ -90,7 +93,8 @@ private:
 	 * Add a new regulation to the specie. Regulation is stored with the target, not the source.
 	 */
 	inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label) {
-		species[target_ID].regulations.push_back({source_ID, threshold, label});
+		string name = species[source_ID].name + ":" + toString(threshold);
+		species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label});
 	}
 
 	/**
@@ -265,6 +269,18 @@ public:
 			IDs.insert(regul.source);
 		}
 		return IDs;
+	}
+
+	map<SpecieID, vector<ActLevel> > getThresholds(const SpecieID ID) const {
+		map<SpecieID, Levels > thresholds;
+		for (auto reg:getRegulations(ID)) {
+			auto key = thresholds.find(reg.source);
+			if (key == thresholds.end()) {
+				thresholds.insert(make_pair(ID, Levels(1, reg.threshold)));
+			} else {
+				key->second.push_back(reg.threshold);
+			}
+		}
 	}
 
 	/**
