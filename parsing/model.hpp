@@ -276,11 +276,17 @@ public:
 		for (auto reg:getRegulations(ID)) {
 			auto key = thresholds.find(reg.source);
 			if (key == thresholds.end()) {
-				thresholds.insert(make_pair(ID, Levels(1, reg.threshold)));
+				thresholds.insert(make_pair(reg.source, Levels(1, reg.threshold)));
 			} else {
 				key->second.push_back(reg.threshold);
 			}
 		}
+
+		for (auto ths:thresholds) {
+			sort(ths.second.begin(), ths.second.end());
+		}
+
+		return thresholds;
 	}
 
 	/**
