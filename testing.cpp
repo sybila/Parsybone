@@ -14,6 +14,6 @@
 
 int main(int argc, char* argv[]) {
     Tester tester;
-    tester.test(model_func);
+    tester.testAll();
 	return 0;
 }

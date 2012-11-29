@@ -60,5 +60,3 @@ HEADERS += \
     ../sqlite/sqlite3ext.h \
     ../sqlite/sqlite3.h \
     ../parsing/bitmask_manager.hpp \
-    ../testing/tester.hpp \
-    ../testing/includes.hpp

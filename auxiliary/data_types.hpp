@@ -32,7 +32,11 @@
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
-using namespace boost;
+using boost::lexical_cast;
+using boost::bad_lexical_cast;
+using boost::is_any_of;
+using boost::split;
+using boost::trim;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT/OUTPUT RELATED DATA
@@ -111,5 +115,8 @@ typedef pair<StateID, Paramset> Coloring;
 
 /// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not.
 typedef pair<ColorNum, ColorNum> Range;
+
+/// this value represents infinite value - used for showing that a variable is unset
+const size_t INF = static_cast<size_t>(~0);
 
 #endif // PARSYBONE_DATA_TYPES_INCLUDED

@@ -23,7 +23,8 @@
 /// Most of the possible semantics mistakes are under control and cause exceptions.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class NetworkParser {
-   Model & model; ///< Reference to the model object that will be filled.
+    friend class Tester;
+    Model & model; ///< Reference to the model object that will be filled.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TRANSLATORS:
@@ -98,7 +99,21 @@ class NetworkParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARSERS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
+    void fillActivationLevels() const {
+        for (auto ID:range(model.getSpeciesCount())) {
+            auto space = model.getThresholds(ID);
+            for (auto regul:model.getRegulations((ID))) {
+                ActLevel begin = regul.threshold;
+                auto thresholds = space.find(regul.source)->second;
+                auto th_it = find(thresholds.begin(), thresholds.end(), begin) + 1;
+                ActLevel end = (th_it == thresholds.end()) ? model.getMax(regul.source) + 1 : *th_it;
+
+                model.addActivityLevels(regul.source, ID, range(begin, end));
+            }
+        }
+    }
+
+    /**
 	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
 	 * If not provided, attributes are defaulted - threshold to 1, label to Label::free
 	 */
@@ -116,16 +131,9 @@ class NetworkParser {
 			// Add a new regulation to the specified target
             model.addRegulation(source_ID, specie_ID, threshold, label);
 		}
-	}
 
-    void fillActivationLevels() {
-        for (auto ID: ::range(model.getSpeciesCount())) {
-            auto regulators = model.getRegulators(ID);
-            for (auto reg:model.getRegulations(ID)) {
-                vector<ActLevel> thresholds;
-            }
-        }
-    }
+        fillActivationLevels();
+	}
 
 	/**
 	 * This function obtains a present regulator of a specie as an ordinal number of the regulation in the vector of all regulations of this specie.
@@ -257,55 +265,55 @@ class NetworkParser {
 	 * Compute all the possibilities for a regulatory context and add them if they are not already specified.
 	 * Based on the unspec attribute of the specie, uses basal value / parametrization / causes error.
 	 */
-	void addUnspecified(set<vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
-		vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
-		vector<bool> top(model.getRegulations(specie_ID).size(), true);
-		vector<bool> tested = bottom;
+    void addUnspecified(set<vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
+        vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
+        vector<bool> top(model.getRegulations(specie_ID).size(), true);
+        vector<bool> tested = bottom;
 
-		do {
-			// If tested option is new (not already present in the specified vector)
-			if (specified.insert(tested).second && isContextCoherent(specie_ID, tested)) {
-				switch (unspec) {
-					case basal_reg:
-						model.addParameter(specie_ID, tested, model.getBasal(specie_ID));
-						break;
+        do {
+            // If tested option is new (not already present in the specified vector)
+            if (specified.insert(tested).second && isContextCoherent(specie_ID, tested)) {
+                switch (unspec) {
+                case basal_reg:
+                    model.addParameter(specie_ID, tested, model.getBasal(specie_ID));
+                    break;
 
-					case param_reg:
-						model.addParameter(specie_ID, tested, -1);
-						break;
+                case param_reg:
+                    model.addParameter(specie_ID, tested, -1);
+                    break;
 
-					case error_reg:
-						throw runtime_error("some required parameter specification is missing for the specie " + toString(model.getName(specie_ID)));
-						break;
-				}
-			}
-		} while(iterate<bool>(top, bottom, tested));
-	}
+                case error_reg:
+                    throw runtime_error("some required parameter specification is missing for the specie " + toString(model.getName(specie_ID)));
+                    break;
+                }
+            }
+        } while(iterate<bool>(top, bottom, tested));
+    }
 
-	/**
-	 * Searches for the LOGIC tag and if such is present, uses it for creation of parameters for the specie.
-	 *
-	 * @return true if the LOGIC was found and used
-	 */
-	bool parseLogic(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		// Try to get the tag
-		rapidxml::xml_node<>* logic = XMLHelper::getChildNode(specie_node, "LOGIC", false);
+    /**
+     * Searches for the LOGIC tag and if such is present, uses it for creation of parameters for the specie.
+     *
+     * @return true if the LOGIC was found and used
+     */
+    bool parseLogic(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
+        // Try to get the tag
+        rapidxml::xml_node<>* logic = XMLHelper::getChildNode(specie_node, "LOGIC", false);
 
-		// If the tag is present, use it
-		if (logic != 0) {
-			if (logic->next_sibling("LOGIC") || logic->next_sibling("PARAM"))
-				throw invalid_argument("LOGIC tag does not stay alone in the definition of the specie " + toString(model.getName(specie_ID)));
+        // If the tag is present, use it
+        if (logic != 0) {
+            if (logic->next_sibling("LOGIC") || logic->next_sibling("PARAM"))
+                throw invalid_argument("LOGIC tag does not stay alone in the definition of the specie " + toString(model.getName(specie_ID)));
 
-			// Get and apply the formula
-			string formula;
-			XMLHelper::getAttribute(formula, logic, "formula");
-			fillFromLogic(formula, specie_ID);
+            // Get and apply the formula
+            string formula;
+            XMLHelper::getAttribute(formula, logic, "formula");
+            fillFromLogic(formula, specie_ID);
 
-			return true;
-		}
-		else
-			return false;
-	}
+            return true;
+        }
+        else
+            return false;
+    }
 
 	/**
 	 * Starting from the SPECIE node, the function parses all the PARAM tags and reads the data from them.
@@ -337,6 +345,26 @@ class NetworkParser {
 
 		addUnspecified(specified, specie_ID, unspec);
 	}
+
+    void createContexts() {
+        for (auto ID: Common::range(model.getSpeciesCount())) {
+            auto ths = model.getThresholds(ID);
+            vector<size_t> bottom, context, top;
+            bottom = context = top = vector<size_t>(ths.size(), 0);
+
+            for (auto x: Common::range(ths.size())) {
+
+            }
+
+            for (auto regul:model.getRegulations((ID))) {
+                ActLevel begin = regul.threshold;
+                auto th_it = ths.find(regul.source)->second.begin();
+                while (*th_it <= begin)
+                    th_it++;
+                model.addActivityLevels(regul.source, ID, Common::range(begin, *th_it));
+            }
+        }
+    }
 
 	/**
 	 * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.

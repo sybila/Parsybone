@@ -24,13 +24,13 @@ namespace XMLHelper {
 	/**
 	 * Gets pointer to the descendant of the current node.
 	 *
-    * @param[in] current_node	pointer to the ancestor of requested node
-    * @param[in] node_name	string with the name of the decendant
-    * @param[in] mandatory	true if absence of the node should raise exception
+	 * @param[in] current_node	pointer to the ancestor of requested node
+	 * @param[in] node_name	string with the name of the decendant
+	 * @param[in] mandatory	true if absence of the node should raise exception
 	 *
 	 * @return	pointer to the descendant if sucessful
 	 */
-   static rapidxml::xml_node<> * getChildNode(const rapidxml::xml_node<> * const current_node, const char* node_name, const bool mandatory = true) {
+	static rapidxml::xml_node<> * getChildNode(const rapidxml::xml_node<> * const current_node, const char* node_name, const bool mandatory = true) {
 		rapidxml::xml_node<> * return_node = 0;
 		// try to get the node
 		return_node = current_node->first_node(node_name);
@@ -46,15 +46,15 @@ namespace XMLHelper {
 	/**
 	 * Reads the value of the specified attribute and converts it to correct data type if possible.
 	 *
-    * @param[out] requested_data	variable that will be filled with requested value
-    * @param[in] current_node	pointer to the node holding requested attribute
-    * @param[in] attribute_name	string with the name of the attribute
-    * @param[in] mandatory	true if absence of the attribute should raise exception
+	 * @param[out] requested_data	variable that will be filled with requested value
+	 * @param[in] current_node	pointer to the node holding requested attribute
+	 * @param[in] attribute_name	string with the name of the attribute
+	 * @param[in] mandatory	true if absence of the attribute should raise exception
 	 *
 	 * @return true if the argument was present, false otherwise
 	 */
 	template <class returnType>
-   static bool getAttribute(returnType & requested_data, const rapidxml::xml_node<> * const current_node, const char* attribute_name, const bool mandatory = true) {
+	static bool getAttribute(returnType & requested_data, const rapidxml::xml_node<> * const current_node, const char* attribute_name, const bool mandatory = true) {
 		rapidxml::xml_attribute<> *temp_attr = 0;
 		// Try to get the attribute
 		temp_attr = current_node->first_attribute(attribute_name);

@@ -28,7 +28,7 @@ class DatabaseFiller {
       prepareTable(COMPONENTS_TABLE, "(Name TEXT, MaxActivity INTEGER)");
 
       string update = "";
-      for(SpecieID ID: ::range(model.getSpeciesCount())) {
+      for(SpecieID ID:Common::range(model.getSpeciesCount())) {
          string values = "(\"" + model.getName(ID) + "\", " + toString(model.getMax(ID)) + "); \n";
          update += makeInsert(COMPONENTS_TABLE) + values;
       }
@@ -38,7 +38,7 @@ class DatabaseFiller {
    void fillInteractions() {
       prepareTable(REGULATIONS_TABLE, "(Regulator TEXT, Target TEXT, Threshold INTEGER)");
       string update = "";
-      for(SpecieID ID: ::range(model.getSpeciesCount())) {
+      for(SpecieID ID:Common::range(model.getSpeciesCount())) {
          for(auto regul:model.getRegulations(ID)) {
             string values = "(\"" + model.getName(regul.source) + "\", ";
             values += "\"" + model.getName(ID) + "\", ";
@@ -51,7 +51,7 @@ class DatabaseFiller {
 
    string getContexts() const {
       string contexts = "";
-      for(SpecieID ID: ::range(model.getSpeciesCount())) {
+      for(SpecieID ID:Common::range(model.getSpeciesCount())) {
          for(auto param:model.getParameters(ID)) {
             string context = "K_" + model.getName(ID) + "_";
             for (auto present:param.first) {
