@@ -346,24 +346,27 @@ class NetworkParser {
 		addUnspecified(specified, specie_ID, unspec);
 	}
 
-    void createContexts() {
-        for (auto ID: Common::range(model.getSpeciesCount())) {
-            auto ths = model.getThresholds(ID);
-            vector<size_t> bottom, context, top;
-            bottom = context = top = vector<size_t>(ths.size(), 0);
+    void createContexts(const SpecieID ID) const {
+        auto space = model.getThresholds(ID);
+        auto regulations = model.getRegulations(ID);
+        auto names = model.getRegulatorsNames(ID);
+        vector<size_t> bottom, context, top;
 
-            for (auto x: Common::range(ths.size())) {
-
-            }
-
-            for (auto regul:model.getRegulations((ID))) {
-                ActLevel begin = regul.threshold;
-                auto th_it = ths.find(regul.source)->second.begin();
-                while (*th_it <= begin)
-                    th_it++;
-                model.addActivityLevels(regul.source, ID, Common::range(begin, *th_it));
-            }
+        for (auto & source:space) {
+            bottom.push_back(0);
+            context.push_back(0);
+            top.push_back(source.second.size());
         }
+
+        do {
+            Model::TParam parameter = {"", map<StateID, Levels>(), Levels()};
+            for (auto source:range(context.size())) {
+                parameter.context += names[source] + ":" + toString(context[source]) + ",";
+                parameter.requirements.insert(make_pair(model.findID(names[source]), Levels()));
+                parameter.target = Levels();
+            }
+            model.species[ID].tparams.push_back(parameter);
+        } while(iterate(top, bottom, context));
     }
 
 	/**
@@ -409,6 +412,8 @@ class NetworkParser {
 		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
 				// Get all the regulations of the specie and store them to the model.
 			parseRegulations(specie, ID);
+
+            createContexts(ID);
 			// Try to search for a specification using a formula
 			if (!parseLogic(specie, ID)) {
 				// If not present, use normal parameters

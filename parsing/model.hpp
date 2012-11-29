@@ -276,12 +276,24 @@ public:
     /**
      * @return	unique IDs of regulators of the specie
      */
-    set<SpecieID> getRegulators(const SpecieID ID) const {
+    set<SpecieID> getRegulatorsIDs(const SpecieID ID) const {
         set<SpecieID> IDs;
         for (auto regul:species[ID].regulations) {
             IDs.insert(regul.source);
         }
         return IDs;
+    }
+
+    /**
+     * @return	names of the regulators of the specie
+     */
+    vector<string> getRegulatorsNames(const SpecieID ID) const {
+        auto regulators = getRegulatorsIDs(ID);
+        vector<string> names;
+        for (auto reg:regulators) {
+            names.push_back(getName(reg));
+        }
+        return names;
     }
 
     map<SpecieID, vector<ActLevel> > getThresholds(const SpecieID ID) const {
