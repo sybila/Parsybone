@@ -48,6 +48,9 @@ class Tester {
          return false;
       }
       return true;
+
+      parser.createContexts(0);
+      parser.createContexts(1);
    }
 
    bool testFormulaeParser() {

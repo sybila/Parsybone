@@ -25,24 +25,23 @@ class LabelingHolder {
    /// Storing a regulatory function in explicit form.
 	struct RegulatoryFunction {
       size_t step_size; ///< How many neighbour parameters have the same value for this function.
-      vector<size_t> possible_values; ///< Levels towards which this function can regulate.
-      vector<vector<size_t> > source_values;  ///< Values at which the regulations are active.
+      Levels possible_values; ///< Levels towards which this function can regulate.
+      Configurations source_values;  ///< Values at which the regulations are active.
 
-		RegulatoryFunction(const size_t _step_size, vector<size_t> && _possible_values, vector<vector<size_t> > && _source_values)
-         : step_size(_step_size), possible_values(move(_possible_values)), source_values(move(_source_values)){} ///< Simple filler, assigns values to all the variables.
+      RegulatoryFunction(const size_t _step_size, const vector<size_t> & _possible_values, const  vector<vector<size_t> > & _source_values)
+         : step_size(_step_size), possible_values(_possible_values), source_values(_source_values){} ///< Simple filler, assigns values to all the variables.
 	};
 	
    /// Storing a sigle specie with its regulations.
 	struct Specie {
       string name; ///< Real name of the specie.
       size_t ID; ///< Reference number.
-      vector<size_t> specie_values; ///< Levels this specie can occur in.
       vector<size_t> source_species; ///< IDs of regulators.
 
       vector<RegulatoryFunction> functions; ///< Regulatory functions - set of all possible regulatory kinetics.
 	
-		Specie(const string _name, const size_t _ID, vector<size_t> && _specie_values, vector<size_t> && _source_species)
-           : name(_name), ID(_ID), specie_values(move(_specie_values)), source_species(move(_source_species)) {} ///< Simple filler, assigns values to all the variables.
+		Specie(const string _name, const size_t _ID, const vector<size_t> & _source_species)
+			  : name(_name), ID(_ID), source_species(_source_species) {} ///< Simple filler, assigns values to all the variables.
 	};
 
    /// Vector of all the species together with their Regulatory functions.
@@ -60,15 +59,15 @@ class LabelingHolder {
 	 * @param source_ID	ID of the spicie whose function this is
 	 */
 	inline void addRegulatoryFunction(const size_t target_ID, const size_t step_sizes, 
-                                     vector<size_t> && possible_values, vector<vector<size_t> > && source_values) {
-		species[target_ID].functions.push_back(RegulatoryFunction(step_sizes, move(possible_values), move(source_values)));
+												 const vector<size_t> & possible_values, const vector<vector<size_t> > & source_values) {
+		species[target_ID].functions.push_back(RegulatoryFunction(step_sizes, possible_values, source_values));
 	}
 
 	/**
     * Add a new specie - consists of its name within a string, ID, possible values vector and source species IDs vector.
 	 */
-	inline void addSpecie(const string name, const size_t ID, vector<size_t> && specie_values, vector<size_t> && source_species) {
-		species.push_back(Specie(name, ID, move(specie_values), move(source_species)));
+	inline void addSpecie(const string name, const size_t ID, const vector<size_t> & source_species) {
+		species.push_back(Specie(name, ID, source_species));
 	}
 
 	LabelingHolder(const LabelingHolder & other); ///< Forbidden copy constructor.
@@ -99,13 +98,6 @@ public:
 	 */
 	inline const string & getSpecieName(const size_t ID) const {
 		return species[ID].name;
-	}
-
-	/**
-	 * @return	all the values the specie can occur in
-	 */
-	inline const vector<size_t> & getSpecieValues(const size_t ID) const {
-		return species[ID].specie_values;
 	}
 
 	/**

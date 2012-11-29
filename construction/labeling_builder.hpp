@@ -27,55 +27,6 @@ class LabelingBuilder {
 // COMPUTING METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Compute values that are required from all the species for regulation to be active
-	 * - if the regulator is present, add activation values, if the regulator is not present, add the complement.
-	 * Regulator is active when lower_threshold <= activity level < upper threshold.
-	 *
-    * @param regulations	all the regulators
-    * @param mask mask of the present regulators - true if the regulation is active
-	 *
-	 * @return	levels corresponding species (by vector index) have to be at
-	 */
-   vector<vector<size_t> > getSourceValues(const vector<Model::Regulation> & regulations, const vector<bool> & mask) const {
-      // Data to return
-      vector<vector<size_t> > source_values;
-
-      // For each regulating regulation pass the information
-      for (size_t regulation_num = 0; regulation_num < regulations.size(); regulation_num++) {
-         vector<size_t> possible_levels; // In wich levels the regulating specie has to be for regulation to be active?
-			
-			// Store currtently used values - if there is no multiedge with higher threshold, consider one above maximal level to be the upper threshold
-			SpecieID source = regulations[regulation_num].source;
-			size_t lower_threshold = regulations[regulation_num].threshold; // First value activating the regulation
-			size_t upper_threshold = model.getMax(source) + 1; // First value that is again deactivating the regulation
-
-			// Obtain upper threshold from the other regulations
-			forEach(regulations, [&upper_threshold,lower_threshold,source](const Model::Regulation & regulation) {
-				if (source == regulation.source && lower_threshold != regulation.threshold)
-						  upper_threshold = lower_threshold <= regulation.threshold && regulation.threshold <= upper_threshold ? regulation.threshold : upper_threshold;
-			});
-
-			// If regulation has to be active, store values from treshold above
-			if (mask[regulation_num] == true) {
-				for (size_t possible_level = lower_threshold; possible_level < upper_threshold; possible_level++)
-               possible_levels.push_back(possible_level);
-         }
-			// Otherwise store levels below the treshold
-			else {
-				for (size_t possible_level = model.getMin(source); possible_level < lower_threshold; possible_level++)
-					possible_levels.push_back(possible_level);
-				for (size_t possible_level = upper_threshold; possible_level < model.getMax(source) + 1; possible_level++)
-					possible_levels.push_back(possible_level);
-			}
-
-			// Store computed values
-			source_values.push_back(move(possible_levels));
-		}
-
-		return source_values;
-	}
-
-	/**
 	 * Creates the kinetic parameters in explicit form from the model information.
 	 * All feasible parameters for the specie are then stored in the FunctionsStructure.
 	 *
@@ -84,67 +35,30 @@ class LabelingBuilder {
 	 */
 	void addRegulations(const SpecieID ID, size_t & step_size) const {
 		// get referecnces to Specie data
-      const vector<Model::Regulation> & regulations = model.getRegulations(ID);
-      const vector<Model::Parameter> & parameters = model.getParameters(ID);
+		const auto & tparams = model.getTParams(ID);
 
 		// Go through regulations of a specie - each represents a single function
-		size_t regul_num = 0;
-		for (auto param_it = parameters.begin(); param_it != parameters.end(); param_it++, regul_num++) {
+		for (auto param:tparams) {
+			Configurations source_values;
 			// Compute allowed values for each regulating specie for this function to be active
-			vector<vector<size_t> > source_values = move(getSourceValues(regulations, param_it->first));
+			for (auto source_num:param.requirements) {
+				source_values.push_back(source_num.second);
+			}
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
-			vector<size_t> possible_values = move(parametrizations.getTargetVals(ID, regul_num));
+			auto possible_values = param.target;
 
 			// pass the function to the holder.
-			labeling_holder.addRegulatoryFunction(ID, step_size, move(possible_values), move(source_values));
+			labeling_holder.addRegulatoryFunction(ID, step_size, possible_values, source_values);
 		}
 
 		// Display stats
-      string specie_stats = "Specie " + model.getName(ID) + " has " + toString(parameters.size()) + " regulatory contexts with "
+		string specie_stats = "Specie " + model.getName(ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
                                  + toString(parametrizations.getColorsNum(ID)) + " total possible parametrizations.";
 		output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
 
 		// Increase step size for the next function
 		step_size *= parametrizations.getColorsNum(ID);
-	}
-
-	/**
-    * Get all the values possible for given specie (range [min, max]).
-	 *
-	 * @param specie_ID	specie to get the values from
-	 *
-	 * @return vector of all specie levels
-	 */
-	vector<size_t> getPossibleValues(const size_t specie_ID) const {
-		// Storage
-		vector<size_t> possible_values;
-		// Add all the values between 0 and max
-		for (size_t possible_value = model.getMin(specie_ID); possible_value <= model.getMax(specie_ID); possible_value++)
-			possible_values.push_back(possible_value);
-
-		return possible_values;
-	}
-
-	/**
-    * Get IDs of the sources of regulations for this specie.
-	 *
-	 * @param specie_ID	specie to get the values from
-	 * @param duplicit	if true, multiple occurences of the same specie (multiedges) are conserved
-	 *
-    * @return vector of all species that have outcoming regulation to this specie
-	 */
-	vector<size_t> getSourceSpecies(const size_t specie_ID, const bool duplicit = true) const {
-		// Storage
-		vector<size_t> source_species;
-		// Get reference
-      const vector<Model::Regulation> & regulations = model.getRegulations(specie_ID);
-		// Add all the values between 0 and max
-      for (auto regul_it = regulations.begin(); regul_it != regulations.end(); regul_it++)
-         if (source_species.empty() || (source_species.back() != regul_it->source) || duplicit)
-            source_species.push_back(regul_it->source);
-
-		return source_species;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -171,17 +85,12 @@ public:
 		size_t step_size = 1; // Variable necessary for encoding of colors 
 
 		// Cycle through all the species
-		for (size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
-
-			// Compute data for independent regulations
-			vector<size_t> possible_values = move(getPossibleValues(specie_num));
-			vector<size_t> source_species = move(getSourceSpecies(specie_num, true));
-
+		for (auto ID:range(model.getSpeciesCount())) {
 			// Add specie
-			labeling_holder.addSpecie(model.getName(specie_num), specie_num, move(possible_values), move(source_species));
+			labeling_holder.addSpecie(model.getName(ID), ID, model.getRegulatorsIDs(ID));
 			
 			// Add regulations for this specie
-			addRegulations(specie_num, step_size);
+			addRegulations(ID, step_size);
 		}
 
 		// Set the number by what would be step size for next function

@@ -206,30 +206,14 @@ class ParametrizationsBuilder {
 	 */
 	size_t getBoundaries(const SpecieID ID, vector<size_t> & bottom_color, vector<size_t> & top_color) {
 		// Obtain all regulations
-      auto parameters = model.getParameters(ID);
+		auto parameters = model.getTParams(ID);
 		size_t colors_num = 1;
 		
 		// Cycle through regulations
-		for (size_t param_num = 0; param_num < parameters.size(); param_num++) {
-         // If the target value is unknown, add all the values
-         if (parameters[param_num].second < 0) {
-            size_t position = INF;
-            top_color[param_num] = model.getMax(ID);
-
-            // Optimization - minimal value is at most one below the threshold
-            if (!isSelfRegulation(parameters[param_num].first, ID, position))
-               bottom_color[param_num] = model.getMin(ID);
-            else
-               bottom_color[param_num] = my_max(model.getMin(ID), (model.getRegulations(ID))[position].threshold - 1);
-
-            // Increase the counter of the parameter set size
-            colors_num *= (top_color[param_num] - bottom_color[param_num] + 1);
-         }
-			// Otherwise add just given value
-			else  {
-				bottom_color[param_num] = top_color[param_num] = parameters[param_num].second;
-				colors_num *= 1;
-			}
+		for (auto param:parameters) {
+			bottom_color.push_back(param.target.front());
+			top_color.push_back(param.target.back());
+			colors_num *= param.target.size();
 		}
 
 		return colors_num;
@@ -249,8 +233,7 @@ class ParametrizationsBuilder {
       auto parameters = model.getParameters(ID);
 		
 		// Create boundaries for iteration
-      vector<size_t> bottom_color(parameters.size());
-      vector<size_t> top_color(parameters.size());
+		vector<size_t> bottom_color, top_color;
       valid.possible_count = getBoundaries(ID, bottom_color, top_color);
 		
 		// Test all the subcolors and save feasible

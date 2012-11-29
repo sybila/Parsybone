@@ -274,14 +274,21 @@ public:
     }
 
     /**
+     * @return	kinetic parameters of the regulations of the specie
+     */
+    inline const vector<TParam> & getTParams(const SpecieID ID)  const {
+        return species[ID].tparams;
+    }
+
+    /**
      * @return	unique IDs of regulators of the specie
      */
-    set<SpecieID> getRegulatorsIDs(const SpecieID ID) const {
+    vector<SpecieID> getRegulatorsIDs(const SpecieID ID) const {
         set<SpecieID> IDs;
         for (auto regul:species[ID].regulations) {
             IDs.insert(regul.source);
         }
-        return IDs;
+        return vector<SpecieID>(IDs.begin(), IDs.end());
     }
 
     /**
