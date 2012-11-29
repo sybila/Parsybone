@@ -82,11 +82,14 @@ typedef size_t StateID;
 /// ID of a specie.
 typedef size_t SpecieID; 
 
+/// Activity level of a specie.
+typedef size_t ActLevel;
+
 /// Vector of activation levels of species used for labelling of states of KS.
-typedef vector<size_t> Levels;
+typedef vector<ActLevel> Levels;
 
 /// Transitional values in a state of BA.
-typedef vector<Levels > AllowedValues;
+typedef vector<Levels> Configurations;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION RELATED TYPES

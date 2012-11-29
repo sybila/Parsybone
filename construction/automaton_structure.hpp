@@ -15,9 +15,9 @@
 
 /// Single labelled transition from one state to another.
 struct AutTransitionion : public TransitionProperty {
-   AllowedValues allowed_values; ///< Allowed values of species for this transition.
+   Configurations allowed_values; ///< Allowed values of species for this transition.
 
-   AutTransitionion(const StateID target_ID, AllowedValues && _allowed_values)
+   AutTransitionion(const StateID target_ID, Configurations && _allowed_values)
       : TransitionProperty(target_ID), allowed_values(move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables.
 };
 
@@ -44,7 +44,7 @@ class AutomatonStructure : public AutomatonInterface<AutState> {
 	/**
 	 * Add a new transition - having a source, target and permitted values for each specie
 	 */
-   inline void addTransition(const StateID source_state, const StateID target_state, AllowedValues && allowed_values) {
+   inline void addTransition(const StateID source_state, const StateID target_state, Configurations && allowed_values) {
 		states[source_state].transitions.push_back(move(AutTransitionion(target_state, move(allowed_values))));
 	}
 

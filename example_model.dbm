@@ -5,7 +5,7 @@
             <REGUL source="A" />            
             <LOGIC formula="(B &amp; !A)" />
         </SPECIE>
-        <SPECIE name="B">
+        <SPECIE >
             <REGUL source="A" />
             <REGUL source="B" label="+" />            
             <PARAM context="" value="?" />

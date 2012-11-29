@@ -10,6 +10,7 @@
 #define PARSYBONE_MODEL_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
+#include "../auxiliary/data_types.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Storage for data parsed from the model.
@@ -30,47 +31,37 @@ public:
 		StateID source; ///< Regulator specie ID.
 		size_t threshold; ///< Level of the regulator required for the regulation to be active.
 		string label; ///< A behavioural constrain on this edge.
-		size_t number; ///< Ordinal number given to each unique regulator of a specie.
+	};
 
-		Regulation(const StateID _source, const size_t _threshold, const string _label, const size_t _number)
-			: source(_source), threshold(_threshold), label(_label), number(_number) { }
+	struct TParam {
+		map<StateID, Levels> requirements;
+		Levels target;
 	};
 
 	typedef pair<vector<bool>, int> Parameter; ///< Kinetic parameter of the specie (bitmask of active incoming regulations, target value)
+
 	typedef pair<StateID, string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label)
 
 private:
 	/// Structure that holds data about a single specie. Most of the data is equal to that in the model file
-	struct ModelSpecie {
-	private:
-		// Data are accesible from within the model class
-		friend class Model;
-
-		vector<Regulation> regulations; ///< Regulations of the specie (activations or inhibitions by other species)
-		vector<Parameter> parameters; ///< Kinetic parameters of the regulations
-
+	struct ModelSpecie {		
 		string name; ///< Actuall name of the specie
 		SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
 		size_t max_value; ///< Maximal activation level of the specie
-		size_t basal_value; ///< Value the specie tends to if unregulated, currently unused
+		size_t basal_value; ///< Value the specie tends to if unregulated.
 
-		ModelSpecie(string _name, SpecieID _ID, size_t _max_value, size_t _basal_value)
-			: name(_name), ID(_ID), max_value(_max_value), basal_value(_basal_value) { }
+		vector<Regulation> regulations; ///< Regulations of the specie (activations or inhibitions by other species)
+		vector<Parameter> parameters; ///< Kinetic parameters of the regulations
+		vector<TParam> tparams;
 	};
 
 	/// Structure that holds data about a single state.
 	struct BuchiAutomatonState {
-	private:
-      friend class Model; //< Data are accesible from within the model class
-
 		string name; ///< Label of the state.
 		SpecieID ID; ///< Numerical constant used to distinguish the state. Starts from 0!
       bool final; ///< True if the state is final.
 
       vector<Egde> edges; ///< Edges in Buchi Automaton (Target ID, edge label).
-
-		BuchiAutomatonState(string _name, SpecieID _ID, bool _final)
-			: name(_name), ID(_ID), final(_final) {	}
 	};
 
    /// Structure that stores additional information about the model.
@@ -91,15 +82,15 @@ private:
 	 * @return	index of specie in the vector
 	 */
 	inline size_t addSpecie(string name, size_t max_value, size_t basal_value) {
-		species.push_back(ModelSpecie(name, species.size(), max_value, basal_value));
+		species.push_back({name, species.size(), max_value, basal_value});
 		return species.size() - 1;
 	}
 
 	/**
 	 * Add a new regulation to the specie. Regulation is stored with the target, not the source.
 	 */
-	inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label, size_t number) {
-		species[target_ID].regulations.push_back(Regulation(source_ID, threshold, label, number));
+	inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label) {
+		species[target_ID].regulations.push_back({source_ID, threshold, label});
 	}
 
 	/**
@@ -115,7 +106,7 @@ private:
 	 * @return	ID of state in the vector
 	 */
 	inline size_t addState(string name, bool final) {
-		states.push_back(BuchiAutomatonState(name, states.size(), final));
+		states.push_back({name, states.size(), final});
 		return states.size() - 1;
 	}
 

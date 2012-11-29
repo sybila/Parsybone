@@ -106,9 +106,6 @@ class NetworkParser {
 		// Regulation data
 		string label;
 
-		map<SpecieID, size_t> numbers;
-		size_t counter_number = 0;
-
 		// Cycle through REGUL TAGS
 		for (rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL"); regulation; regulation = regulation->next_sibling("REGUL") ) {
 			auto source_ID = getSourceID(regulation, specie_ID);
@@ -116,11 +113,8 @@ class NetworkParser {
 			if (!XMLHelper::getAttribute(label, regulation, "label", false))
 				label = Label::Free;
 
-			if(numbers.find(source_ID) == numbers.end())
-				numbers.insert(make_pair(source_ID, ++counter_number));
-
 			// Add a new regulation to the specified target
-			model.addRegulation(source_ID, specie_ID, threshold, label, numbers.find(source_ID)->second);
+			model.addRegulation(source_ID, specie_ID, threshold, label);
 		}
 	}
 
@@ -367,6 +361,10 @@ class NetworkParser {
 			// Create a new specie
 			model.addSpecie(name, max, basal);
 		}
+	}
+
+	map<string, Levels> getActivityLevels() {
+
 	}
 
 	/**

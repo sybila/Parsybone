@@ -141,14 +141,14 @@ class AutomatonBuilder {
    /**
     * Computes a vector containing all Levels that are acceptable for a transition with a given label.
     */
-   AllowedValues getAllowed(const string & label) const {
+   Configurations getAllowed(const string & label) const {
       // Get atoms of the lable
       auto atoms = getAtoms(label);
       // Decide in which activation levels of species those atoms are true
       auto values = getValues(atoms);
 
       // Try all combinations of values that are possible and for each resolve the label
-      AllowedValues allowed;
+      Configurations allowed;
       Levels iterated = mins;
       do {
          auto valuation = getValuation(atoms, values, iterated);
@@ -177,7 +177,7 @@ class AutomatonBuilder {
 		// Transform each edge into transition and pass it to the automaton
 		for (size_t edge_num = 0; edge_num < model.getEdges(ID).size(); edge_num++) {
 			// Compute allowed values from string of constrains
-         AllowedValues allowed_values = move(getAllowed(edges[edge_num].second));
+			Configurations allowed_values = move(getAllowed(edges[edge_num].second));
 			// If the transition is possible for at least some values, add it
          if (!allowed_values.empty()) {
             automaton.addTransition(ID, edges[edge_num].first, move(allowed_values));
