@@ -3,7 +3,7 @@ CONFIG += console
 CONFIG -= qt
 
 SOURCES += \
-    ../testing.cpp \
+    ../main.cpp \
     ../sqlite/sqlite3.c
 
 QMAKE_CXXFLAGS += -std=gnu++0x
@@ -62,4 +62,3 @@ HEADERS += \
     ../parsing/bitmask_manager.hpp \
     ../testing/tester.hpp \
     ../testing/includes.hpp
-

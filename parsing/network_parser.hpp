@@ -114,18 +114,18 @@ class NetworkParser {
 				label = Label::Free;
 
 			// Add a new regulation to the specified target
-			model.addRegulation(source_ID, specie_ID, threshold, label);
+            model.addRegulation(source_ID, specie_ID, threshold, label);
 		}
 	}
 
-	void fillActivationLevels() {
-		for (auto ID:range(model.getSpeciesCount())) {
-			auto regulators = getRegulators(ID);
-			for (auto reg:model.getRegulations(ID)) {
-				vector<ActLevel> thresholds;
-			}
-		}
-	}
+    void fillActivationLevels() {
+        for (auto ID: ::range(model.getSpeciesCount())) {
+            auto regulators = model.getRegulators(ID);
+            for (auto reg:model.getRegulations(ID)) {
+                vector<ActLevel> thresholds;
+            }
+        }
+    }
 
 	/**
 	 * This function obtains a present regulator of a specie as an ordinal number of the regulation in the vector of all regulations of this specie.
