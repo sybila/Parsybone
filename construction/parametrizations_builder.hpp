@@ -222,9 +222,9 @@ class ParametrizationsBuilder {
 		
 		// Cycle through regulations
 		for (auto param:parameters) {
-			bottom_color.push_back(param.target.front());
-			top_color.push_back(param.target.back());
-			colors_num *= param.target.size();
+			bottom_color.push_back(param.targets.front());
+			top_color.push_back(param.targets.back());
+			colors_num *= param.targets.size();
 		}
 
 		return colors_num;

@@ -282,13 +282,55 @@ class NetworkParser {
 		addUnspecified(specified, specie_ID, unspec);
 	}*/
 
-	vector<Model::Parameter> createParameters(const SpecieID target_ID, string formula) const {
+	void makeCanonic(string context) const {
+		vector<string> regs;
+		split(regs, context, is_any_of(","));
+		context = "";
+		for (auto reg:regs) {
+			trim(reg);
+			auto comma_pos = reg.find(":");
+			if(comma_pos == string::npos)
+				context += reg + ":1";
+			else if (reg[comma_pos + 1] != 0)
+				context += reg;
+		}
+	}
+
+	void replaceExplicit(Model::Parameters & parameters, const rapidxml::xml_node<> * const specie_node, const SpecieID target_ID) const {
+		for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM", false); parameter; parameter = parameter->next_sibling("PARAM") ) {
+			string context = "", target_val_str = "";
+			ActLevel target_val = 0;
+			Levels targets;
+
+			// Get the mask string.
+			XMLHelper::getAttribute(context, parameter, "context");
+			makeCanonic(context);
+
+			// Get the targte value (set to -1 if uknown or unspecified) and check it
+			if (!XMLHelper::getAttribute(target_val_str, parameter, "value", false)) {
+				XMLHelper::getAttribute(target_val, parameter, "value", false);
+				if (target_val < model.getMin(target_ID) || target_val > model.getMax(target_ID))
+					throw invalid_argument("target value " + target_val_str + " out of range for specie " + model.getName(target_ID));
+				targets = Levels(1, target_val);
+			}
+			else if (target_val_str.compare("?") == 0)
+				targets = model.getRange(target_ID);
+
+			for(auto param:model.species[target_ID].parameters) {
+				if (param.context == context) {
+					param.targets = targets;
+				}
+			}
+		}
+	}
+
+	Model::Parameters createParameters(const SpecieID target_ID, string formula) const {
 		auto all_thresholds = model.getThresholds(target_ID);
 		auto regulations = model.getRegulations(target_ID);
 		auto IDs = model.getRegulatorsIDs(target_ID);
 		auto names = model.getRegulatorsNames(target_ID);
-		vector<size_t> bottom, context, top;
-		vector<Model::Parameter> parameters;
+		Levels bottom, context, top;
+		Model::Parameters parameters;
 
 		for (auto & source_thresholds:all_thresholds) {
 			bottom.push_back(0);
@@ -307,7 +349,8 @@ class NetworkParser {
 				string regulation_name = source_name + ":" + toString(threshold);
 				if (!formula.empty())
 					present_regulators.insert(FormulaeParser::Val(regulation_name, 1));
-				parameter.context += regulation_name + ",";
+				if (threshold > 0)
+					parameter.context += regulation_name + ",";
 				ActLevel next_th = (context[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[context[source_num]];
 				Levels activity_levels = range(threshold, next_th);
 				parameter.requirements.insert(make_pair(source_ID, activity_levels));
@@ -318,9 +361,9 @@ class NetworkParser {
 						present_regulators.insert(FormulaeParser::Val(regul.name, 0));
 					}
 				}
-				parameter.target = Levels(1, FormulaeParser::resolve(present_regulators, formula));
+				parameter.targets = Levels(1, FormulaeParser::resolve(present_regulators, formula));
 			} else {
-				parameter.target = range(model.getMin(target_ID), model.getMax(target_ID) + 1);
+				parameter.targets = model.getTargets(target_ID);
 			}
 
 			parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
@@ -332,13 +375,13 @@ class NetworkParser {
 
 	/**
 	 * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
-	 * If not provided, attributes are defaulted - name is equal to ordinal number starting from 0, max to 1 and basal value to 0.
+	 * If not provided, attributes are defaulted - name is equal to ordinal number starting from 0, max to 1, targets to the whole range.
 	 */
 	void firstParse(const rapidxml::xml_node<> * const structure_node) const {
 		// Start the naming from capital A.
 		char specie_name = 'A';
 		// Specie data
-		string name; size_t max; size_t basal;
+		string name; size_t max; size_t basal = 0; Levels targets;
 
 		// Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
 		rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
@@ -352,15 +395,17 @@ class NetworkParser {
 			// Get a max value and conver to integer.
 			if (!XMLHelper::getAttribute(max, specie, "max", false))
 				max = 1;
-			// Get a basal value and conver to integer.
-			if(!XMLHelper::getAttribute(basal, specie, "basal", false))
-				basal = 0;
 
-         if (basal > max)
-            throw invalid_argument("basal value is greater than maximal value for specie " + toString(ID));
+			if(XMLHelper::getAttribute(basal, specie, "basal", false)) {
+				targets.push_back(basal);
+				if (basal > max)
+					throw invalid_argument("basal value is greater than maximal value for specie " + toString(ID));
+			} else {
+				targets = range(max + 1);
+			}
 
 			// Create a new specie
-			model.addSpecie(name, max, basal);
+			model.addSpecie(name, max, targets, range(max + 1));
 		}
 	}
 
@@ -382,6 +427,7 @@ class NetworkParser {
 			// Create all contexts with all of their possible combinations.
 			auto formula = parseLogic(specie, ID);
 			auto parameters = createParameters(ID, formula);
+			replaceExplicit(parameters, specie, ID);
 			model.addParameters(ID, parameters);
 		}
 	}

@@ -53,7 +53,7 @@ class DatabaseFiller {
       string contexts = "";
       for(SpecieID ID:Common::range(model.getSpeciesCount())) {
          for(auto param:model.getParameters(ID)) {
-            string context = "K_" + model.getName(ID) + "_" + param.context + " TEXT,";
+            string context = "\"" + model.getName(ID) + "{" + param.context + "}\" TEXT,";
             contexts += move(context);
          }
       }
@@ -89,8 +89,14 @@ public:
 
    void addParametrization(string parametrization) {
       auto insert = makeInsert(PARAMETRIZATIONS_TABLE);
-      sql_adapter.safeExec("BEGIN TRANSACTION;");
       sql_adapter.safeExec(insert + parametrization + ";");
+   }
+
+   void startOutput() {
+      sql_adapter.safeExec("BEGIN TRANSACTION;");
+   }
+
+   void finishOutpout() {
       sql_adapter.safeExec("END;");
    }
 };

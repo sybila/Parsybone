@@ -35,12 +35,14 @@ public:
       Levels activity; ///<
       string label; ///< A behavioural constrain on this edge.
    };
+   typedef vector<Regulation> Regulations;
 
    struct Parameter {
       string context;
       map<StateID, Levels> requirements;
-      Levels target;
+      Levels targets;
    };
+   typedef vector<Parameter> Parameters;
 
    typedef pair<StateID, string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label).
 
@@ -49,11 +51,12 @@ private:
    struct ModelSpecie {
       string name; ///< Actuall name of the specie
       SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
-      size_t max_value; ///< Maximal activation level of the specie
-      size_t basal_value; ///< Value the specie tends to if unregulated.
+      ActLevel max_value; ///< Maximal activation level of the specie
+      Levels targets;
+      Levels range;
 
-      vector<Regulation> regulations; ///< Regulations of the specie (activations or inhibitions by other species)
-      vector<Parameter> parameters;
+      Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species)
+      Parameters parameters;
    };
 
    /// Structure that holds data about a single state.
@@ -82,8 +85,8 @@ private:
     *
     * @return	index of specie in the vector
     */
-   inline size_t addSpecie(string name, size_t max_value, size_t basal_value) {
-      species.push_back({name, species.size(), max_value, basal_value});
+   inline size_t addSpecie(string name, size_t max_value, Levels targets, Levels range) {
+      species.push_back({name, species.size(), max_value, targets, range});
       return species.size() - 1;
    }
 
@@ -170,8 +173,8 @@ public:
       for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
                if (spec.name.compare(name) == 0)
                ID = spec.ID;
-   });
-   return ID;
+      });
+      return ID;
    }
 
 
@@ -185,8 +188,8 @@ public:
       for_each(states.begin(), states.end(), [&ID, &name](const BuchiAutomatonState & state) {
                if (state.name.compare(name) == 0)
                ID = state.ID;
-   });
-   return ID;
+      });
+      return ID;
    }
 
    /**
@@ -210,11 +213,12 @@ public:
       return species[ID].max_value;
    }
 
-   /**
-    * @return	basal value of the specie
-    */
-   inline size_t getBasal(const SpecieID ID) const {
-      return species[ID].basal_value;
+   inline Levels getTargets(const SpecieID ID) const {
+      return species[ID].targets;
+   }
+
+   inline Levels getRange(const SpecieID ID) const {
+      return species[ID].range;
    }
 
    /**
