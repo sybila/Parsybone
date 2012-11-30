@@ -33,32 +33,32 @@ class LabelingBuilder {
 	 * @param ID	ID of the specie to compute the kinetic parameters for
 	 * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
 	 */
-	void addRegulations(const SpecieID ID, size_t & step_size) const {
+	void addRegulations(const SpecieID target_ID, size_t & step_size) const {
 		// get referecnces to Specie data
-		const auto & tparams = model.getTParams(ID);
+		const auto & tparams = model.getTParams(target_ID);
 
 		// Go through regulations of a specie - each represents a single function
-		for (auto param:tparams) {
+		for (auto param_num:range(tparams.size())) {
 			Configurations source_values;
 			// Compute allowed values for each regulating specie for this function to be active
-			for (auto source_num:param.requirements) {
+			for (auto source_num:tparams[param_num].requirements) {
 				source_values.push_back(source_num.second);
 			}
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
-			auto possible_values = param.target;
+			auto possible_values = parametrizations.getTargetVals(target_ID, param_num);
 
 			// pass the function to the holder.
-			labeling_holder.addRegulatoryFunction(ID, step_size, possible_values, source_values);
+			labeling_holder.addRegulatoryFunction(target_ID, step_size, possible_values, source_values);
 		}
 
 		// Display stats
-		string specie_stats = "Specie " + model.getName(ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
-                                 + toString(parametrizations.getColorsNum(ID)) + " total possible parametrizations.";
+		string specie_stats = "Specie " + model.getName(target_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
+											+ toString(parametrizations.getColorsNum(target_ID)) + " total possible parametrizations.";
 		output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
 
 		// Increase step size for the next function
-		step_size *= parametrizations.getColorsNum(ID);
+		step_size *= parametrizations.getColorsNum(target_ID);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

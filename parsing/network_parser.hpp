@@ -420,7 +420,7 @@ class NetworkParser {
 		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
 			// Get all the regulations of the specie and store them to the model.
 			parseRegulations(specie, ID);
-
+			// Create all contexts with all of their possible combinations.
 			createContexts(ID);
 		}
 	}

@@ -9,6 +9,8 @@
 #ifndef PARSYBONE_PARAMETRIZATIONS_HOLDER_INCLUDED
 #define PARSYBONE_PARAMETRIZATIONS_HOLDER_INCLUDED
 
+#include "../auxiliary/data_types.hpp"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Stores partial parametrizations (functions of each component).
 ///
@@ -21,7 +23,7 @@ class ParametrizationsHolder {
 	/// Holds all the feasible subcolors for single Specie w.r.t. edge constrains
 	struct SpecieColors {
       SpecieID ID; ///< Unique ID of the specie.
-      vector<vector<size_t> > subcolors; ///< Feasible subcolors of the specie.
+      vector<Levels> subcolors; ///< Feasible subcolors of the specie.
       size_t possible_count; ///< Total number of subcolors possible for the specie(even those unfesible).
       size_t acceptable_count; ///< Number of subcolors this state really has (equal to the subcolors.size()).
 
@@ -100,18 +102,18 @@ public:
 	 * This function returns a vector containing target value for a given regulatory contexts for ALL the contexts allowed (in lexicographical order).
 	 *
 	 * @param ID	ID of the specie that is regulated
-	 * @param regul_num	ordinal number of the regulatory context (in a lexicographical order)
+	 * @param param_num	ordinal number of the kinetic parameter (in a lexicographical order)
 	 *
 	 * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
 	 */
-	const vector<size_t> getTargetVals(const SpecieID ID, const size_t regul_num) const {
+	const vector<size_t> getTargetVals(const SpecieID ID, const size_t param_num) const {
 		//Data to fill
 		vector<size_t> all_target_vals;
 		all_target_vals.reserve(colors[ID].subcolors.size());
 
 		// Store values for given regulation
 		for (auto color_it = colors[ID].subcolors.begin(); color_it != colors[ID].subcolors.end(); color_it++) {
-			all_target_vals.push_back((*color_it)[regul_num]);
+			all_target_vals.push_back((*color_it)[param_num]);
 		}
 
 		return all_target_vals;

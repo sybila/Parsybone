@@ -25,7 +25,21 @@ class ParametrizationsBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TESTING METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	/** 
+	bool isSubordinate(const Model::TParam & current, const Model::TParam & compare, const SpecieID target_ID, const SpecieID source_ID) const {
+		for (auto regul_ID:model.getRegulatorsIDs(target_ID)) {
+			if (regul_ID != source_ID) {
+				if (current.requirements.find(regul_ID)->second != compare.requirements.find(regul_ID)->second) {
+					return false;
+				}
+			}
+			else if (current.requirements.find(regul_ID)->second.front() != compare.requirements.find(regul_ID)->second.back() + 1) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+   /**
     * Test specific constrain on given color - this function checks both observability and the edge constrain.
 	 *
 	 * @param activating	a reference to the variable storing true iff the regulation has observable activating effect
@@ -50,9 +64,11 @@ class ParametrizationsBuilder {
 
       size_t compare_num = 0;
       while(compare_num < parameters.size()) {
-         if (parameters[compare_num].requirements.find(source_ID)->second.back() == threshold)
+         auto compare = parameters[compare_num];
+         if (isSubordinate(parameters[param_num], compare, target_ID, source_ID))
             break;
-         compare_num++;
+         else
+            compare_num++;
       }
 
 		// Assign regulation aspects
