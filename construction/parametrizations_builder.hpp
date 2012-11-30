@@ -37,27 +37,27 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	true if constrains are satisfied
 	 */
-	void testConstrains(bool & activating, bool & inhibiting, const SpecieID ID, const size_t param_num, const size_t regul_num, const vector<size_t> & subcolor) const {
+	void testConstrains(bool & activating, bool & inhibiting, const SpecieID target_ID, const size_t & param_num,
+							  const Model::Regulation & regul, const vector<size_t> & subparam ) const {
       // Get reference data
-      const vector<Model::Parameter> & parameters = model.getParameters(ID);
+      const auto & parameters = model.getTParams(target_ID);
+      const StateID source_ID = regul.source;
+      ActLevel threshold = parameters[param_num].requirements.find(source_ID)->second.front();
+      if (threshold == 0)
+         return;
+      else
+         threshold--;
 
-      // Copy mask of the regulation and turn of tested regulation
-      vector<bool> other(parameters[param_num].first);
-      other[regul_num] = false;
-
-      // Cycle through regulations again until you find context just without current regulation
-      size_t regul_comp;
-      for (regul_comp = 0; regul_comp <= parameters.size(); regul_comp++) {
-         // If context is found, break, remembering its number
-         if (parameters[regul_comp].first == other)
+      size_t compare_num = 0;
+      while(compare_num < parameters.size()) {
+         if (parameters[compare_num].requirements.find(source_ID)->second.back() == threshold)
             break;
-		}
-		if (regul_comp >= parameters.size())
-			throw runtime_error("Not fount other complementary regulation for some regulation.");
+         compare_num++;
+      }
 
 		// Assign regulation aspects
-		activating |= subcolor[param_num] > subcolor[regul_comp];
-		inhibiting |= subcolor[param_num] < subcolor[regul_comp];
+		activating |= subparam[param_num] > subparam[compare_num];
+		inhibiting |= subparam[param_num] < subparam[compare_num];
 	}
 	
 	/**
@@ -109,29 +109,24 @@ class ParametrizationsBuilder {
 	 */
 	bool testSubparametrization (const SpecieID ID, const vector<size_t> & subparam) const {
 		// get referecnces to Specie data
-      const vector<Model::Regulation> & regulations = model.getRegulations(ID);
-      const vector<Model::Parameter> & parameters = model.getParameters(ID);
+		const auto & regulations = model.getRegulations(ID);
+		const auto & parameters = model.getTParams(ID);
 		
 		// Cycle through all species's regulators
-      for (size_t regul_num = 0; regul_num < regulations.size(); regul_num++) {
+		for (auto regul:regulations) {
          // Skip if there are no requirements (free label)
-         if (regulations[regul_num].label.compare(Label::Free) == 0)
+         if (regul.label.compare(Label::Free) == 0)
             continue;
 
          // Prepare variables storing info about observable effects of this component
          bool activating = false, inhibiting = false;
          // For each parameter containing the reugulator in parametrization control its satisfaction
-         for (size_t param_num = 0; param_num < parameters.size(); param_num++) {
-            // Skip if the contexts does not contain requested regulation
-            if (!parameters[param_num].first[regul_num])
-               continue;
-
-            // Control satisfiability of the basic constrains
-            testConstrains(activating, inhibiting, ID, param_num, regul_num, subparam);
+         for (auto param_num:range(parameters.size())) {
+            testConstrains(activating, inhibiting, ID, param_num, regul, subparam);
          }
 
 			// Test obtained knowledge agains the label itself - return false if the label is not satisfied
-			if (!resolveLabel(activating, inhibiting, regulations[regul_num].label))
+			if (!resolveLabel(activating, inhibiting, regul.label))
 				return false;
 		}
 
@@ -228,9 +223,6 @@ class ParametrizationsBuilder {
 		// Data to fill
 		ParametrizationsHolder::SpecieColors valid;
 		valid.ID = ID;
-
-		// Reference data
-      auto parameters = model.getParameters(ID);
 		
 		// Create boundaries for iteration
 		vector<size_t> bottom_color, top_color;
@@ -240,8 +232,8 @@ class ParametrizationsBuilder {
       testColors(move(valid), ID, bottom_color, top_color);
 	}
 
-	ParametrizationsBuilder(const ParametrizationsBuilder & other); ///< Forbidden copy constructor.
-	ParametrizationsBuilder& operator=(const ParametrizationsBuilder & other); ///< Forbidden assignment operator.
+	ParametrizationsBuilder(const ParametrizationsBuilder & other) = delete; ///< Forbidden copy constructor.
+	ParametrizationsBuilder& operator=(const ParametrizationsBuilder & other) = delete; ///< Forbidden assignment operator.
 
 public:
 	ParametrizationsBuilder(const Model & _model, ParametrizationsHolder & _parametrizations)

@@ -138,7 +138,7 @@ class NetworkParser {
 	/**
 	 * This function obtains a present regulator of a specie as an ordinal number of the regulation in the vector of all regulations of this specie.
 	 * If the source is specified in the form "source:value", only the regulator that has the value as a threshold is accepted. If no value is present, threshold of 1 is defaulted.
-	 */
+
 	size_t getPresentRegulator(const string & source_str, const SpecieID target_ID) const{
 		SpecieID ID;
 		size_t threshold = 1; // Defaulted threshold value
@@ -174,13 +174,13 @@ class NetworkParser {
 	throw invalid_argument("regulator " + source_str + " of the specie " + toString(model.getName(target_ID)) + " was not found in the list of regulators");
 
 	return reg_num;
-	}
+	} */
 
 	/**
 	 * Controls coherence of regulations - this is only necessary for multi-edge models, where two different thresholds could contradict each other.
 	 *
 	 * @return true if the regulation is coherent, false otherwise
-	 */
+
 	bool isContextCoherent(const SpecieID specie_ID, const vector<bool> & context) const {
 		auto regulations = model.getRegulations(specie_ID);
 
@@ -194,13 +194,13 @@ class NetworkParser {
 			}
 		}
 		return true;
-	}
+	}   */
 
 	/**
 	 * Use a string defining context together with a value to create a single kintetic parameter.
 	 * Presence of a regulator can be given as one of: name, name:threshold, ID, ID:threshold.
 	 * Context is described using present regulators.
-	 */
+
 	void fillFromContext(const string context, set<vector<bool> > & specified, SpecieID specie_ID, int target_value) const {
 		// Obtain strings of the sources
 		vector<string> sources;
@@ -225,13 +225,13 @@ class NetworkParser {
 		}
 
 		model.addParameter(specie_ID, mask, target_value);
-	}
+	}   */
 
 	/**
 	 * Use a logic formula to create all kinetic parameters for a specie.
 	 * Presence of a regulator can be given as one of: name, name:threshold, ID, ID:threshold.
 	 * Context is given as a valuation of a formula.
-	 */
+
 	void fillFromLogic(const string logic, size_t specie_ID) const {
 		// Get reference values
 		vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
@@ -259,12 +259,12 @@ class NetworkParser {
 			model.addParameter(specie_ID, tested, FormulaeParser::resolve(valuation, logic));
 
 		} while(iterate<bool>(top, bottom, tested));
-	}
+	}   */
 
 	/**
 	 * Compute all the possibilities for a regulatory context and add them if they are not already specified.
 	 * Based on the unspec attribute of the specie, uses basal value / parametrization / causes error.
-	 */
+
 	void addUnspecified(set<vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
 		vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
 		vector<bool> top(model.getRegulations(specie_ID).size(), true);
@@ -288,13 +288,13 @@ class NetworkParser {
 				}
 			}
 		} while(iterate<bool>(top, bottom, tested));
-	}
+	}   */
 
 	/**
 	  * Searches for the LOGIC tag and if such is present, uses it for creation of parameters for the specie.
 	  *
 	  * @return true if the LOGIC was found and used
-	  */
+
 	bool parseLogic(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		// Try to get the tag
 		rapidxml::xml_node<>* logic = XMLHelper::getChildNode(specie_node, "LOGIC", false);
@@ -313,11 +313,11 @@ class NetworkParser {
 		}
 		else
 			return false;
-	}
+	}  */
 
 	/**
 	 * Starting from the SPECIE node, the function parses all the PARAM tags and reads the data from them.
-	 */
+
 	void parseParameters(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		// Parameters data data
 		string context; string target_val_str; int target_value = -1;
@@ -344,7 +344,7 @@ class NetworkParser {
 		}
 
 		addUnspecified(specified, specie_ID, unspec);
-	}
+	}*/
 
 	void createContexts(const SpecieID ID) const {
 		auto all_thresholds = model.getThresholds(ID);
@@ -422,23 +422,17 @@ class NetworkParser {
 			parseRegulations(specie, ID);
 
 			createContexts(ID);
-			// Try to search for a specification using a formula
-			if (!parseLogic(specie, ID)) {
-				// If not present, use normal parameters
-				parseParameters(specie, ID);
-			}
 		}
-		model.sortParameters();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NetworkParser(const NetworkParser & other); ///< Forbidden copy constructor.
-	NetworkParser& operator=(const NetworkParser & other); ///< Forbidden assignment operator.
+	NetworkParser(const NetworkParser & other) = delete; ///< Forbidden copy constructor.
+	NetworkParser& operator=(const NetworkParser & other) = delete; ///< Forbidden assignment operator.
 
 public:
-   NetworkParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references.
+	NetworkParser(Model & _model) : model(_model) { } ///< Simple constructor, passes a references.
 
 	/**
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.
