@@ -25,7 +25,7 @@ class ParametrizationsBuilder {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TESTING METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	bool isSubordinate(const Model::TParam & current, const Model::TParam & compare, const SpecieID target_ID, const SpecieID source_ID) const {
+	bool isSubordinate(const Model::Parameter & current, const Model::Parameter & compare, const SpecieID target_ID, const SpecieID source_ID) const {
 		for (auto regul_ID:model.getRegulatorsIDs(target_ID)) {
 			if (regul_ID != source_ID) {
 				if (current.requirements.find(regul_ID)->second != compare.requirements.find(regul_ID)->second) {
@@ -54,7 +54,7 @@ class ParametrizationsBuilder {
 	void testConstrains(bool & activating, bool & inhibiting, const SpecieID target_ID, const size_t & param_num,
 							  const Model::Regulation & regul, const vector<size_t> & subparam ) const {
       // Get reference data
-      const auto & parameters = model.getTParams(target_ID);
+      const auto & parameters = model.getParameters(target_ID);
       const StateID source_ID = regul.source;
       ActLevel threshold = parameters[param_num].requirements.find(source_ID)->second.front();
       if (threshold == 0)
@@ -126,7 +126,7 @@ class ParametrizationsBuilder {
 	bool testSubparametrization (const SpecieID ID, const vector<size_t> & subparam) const {
 		// get referecnces to Specie data
 		const auto & regulations = model.getRegulations(ID);
-		const auto & parameters = model.getTParams(ID);
+		const auto & parameters = model.getParameters(ID);
 		
 		// Cycle through all species's regulators
 		for (auto regul:regulations) {
@@ -217,7 +217,7 @@ class ParametrizationsBuilder {
 	 */
 	size_t getBoundaries(const SpecieID ID, vector<size_t> & bottom_color, vector<size_t> & top_color) {
 		// Obtain all regulations
-		auto parameters = model.getTParams(ID);
+		auto parameters = model.getParameters(ID);
 		size_t colors_num = 1;
 		
 		// Cycle through regulations

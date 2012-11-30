@@ -52,7 +52,7 @@ class DatabaseFiller {
    string getContexts() const {
       string contexts = "";
       for(SpecieID ID:Common::range(model.getSpeciesCount())) {
-         for(auto param:model.getTParams(ID)) {
+         for(auto param:model.getParameters(ID)) {
             string context = "K_" + model.getName(ID) + "_" + param.context + " TEXT,";
             contexts += move(context);
          }

@@ -282,12 +282,13 @@ class NetworkParser {
 		addUnspecified(specified, specie_ID, unspec);
 	}*/
 
-	void createContexts(const SpecieID target_ID, string formula) const {
+	vector<Model::Parameter> createParameters(const SpecieID target_ID, string formula) const {
 		auto all_thresholds = model.getThresholds(target_ID);
 		auto regulations = model.getRegulations(target_ID);
 		auto IDs = model.getRegulatorsIDs(target_ID);
 		auto names = model.getRegulatorsNames(target_ID);
 		vector<size_t> bottom, context, top;
+		vector<Model::Parameter> parameters;
 
 		for (auto & source_thresholds:all_thresholds) {
 			bottom.push_back(0);
@@ -297,7 +298,7 @@ class NetworkParser {
 
 		do {
 			FormulaeParser::Vals present_regulators;
-			Model::TParam parameter = {"", map<StateID, Levels>(), Levels()};
+			Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
 			for (auto source_num:range(context.size())) {
 				string source_name = names[source_num];
 				StateID source_ID = IDs[source_num];
@@ -323,8 +324,10 @@ class NetworkParser {
 			}
 
 			parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
-			model.species[target_ID].tparams.push_back(parameter);
+			parameters.push_back(parameter);
 		} while(iterate(top, bottom, context));
+
+		return parameters;
 	}
 
 	/**
@@ -370,9 +373,16 @@ class NetworkParser {
 		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
 			// Get all the regulations of the specie and store them to the model.
 			parseRegulations(specie, ID);
+		}
+
+		fillActivationLevels();
+
+		specie = XMLHelper::getChildNode(structure_node, "SPECIE");
+		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
 			// Create all contexts with all of their possible combinations.
 			auto formula = parseLogic(specie, ID);
-			createContexts(ID, formula);
+			auto parameters = createParameters(ID, formula);
+			model.addParameters(ID, parameters);
 		}
 	}
 

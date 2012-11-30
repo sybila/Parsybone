@@ -36,7 +36,7 @@ public:
       string label; ///< A behavioural constrain on this edge.
    };
 
-   struct TParam {
+   struct Parameter {
       string context;
       map<StateID, Levels> requirements;
       Levels target;
@@ -53,7 +53,7 @@ private:
       size_t basal_value; ///< Value the specie tends to if unregulated.
 
       vector<Regulation> regulations; ///< Regulations of the specie (activations or inhibitions by other species)
-      vector<TParam> tparams;
+      vector<Parameter> parameters;
    };
 
    /// Structure that holds data about a single state.
@@ -87,12 +87,16 @@ private:
       return species.size() - 1;
    }
 
-/**
-     * Add a new regulation to the specie. Regulation is stored with the target, not the source.
-     */
-inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label) {
-   string name = species[source_ID].name + ":" + toString(threshold);
+   /**
+    * Add a new regulation to the specie. Regulation is stored with the target, not the source.
+    */
+   inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label) {
+      string name = species[source_ID].name + ":" + toString(threshold);
       species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label});
+   }
+
+   inline void addParameters(const SpecieID target_ID, const vector<Parameter> & parameters) {
+      species[target_ID].parameters = parameters;
    }
 
    /**
@@ -222,8 +226,8 @@ public:
    /**
     * @return	kinetic parameters of the regulations of the specie
     */
-   inline const vector<TParam> & getTParams(const SpecieID ID)  const {
-      return species[ID].tparams;
+   inline const vector<Parameter> & getParameters(const SpecieID ID)  const {
+      return species[ID].parameters;
    }
 
    /**

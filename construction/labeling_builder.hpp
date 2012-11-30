@@ -35,7 +35,7 @@ class LabelingBuilder {
     */
    void addRegulations(const SpecieID target_ID, size_t & step_size) const {
       // get referecnces to Specie data
-      const auto & tparams = model.getTParams(target_ID);
+      const auto & tparams = model.getParameters(target_ID);
 
       // Go through regulations of a specie - each represents a single function
       for (auto param_num:range(tparams.size())) {
