@@ -35,7 +35,6 @@ public:
     * Function that constructs all the data in a cascade of temporal builders.
     */
    void construct() {
-      output_streamer.output(verbose_str, "Kinetic parameters building started.");
       // Create possible kinetic parameters
       ParametrizationsHolder * parametrizations_holder = new ParametrizationsHolder;
       ParametrizationsBuilder parametrizations_builder(holder.getModel(), *parametrizations_holder);
@@ -48,7 +47,6 @@ public:
       labeling_builder.buildLabeling();
       holder.fillLabeling(labeling_holder);
 
-		output_streamer.output(verbose_str, "Parametrized Kripke structure building started.");
 		// Create a simple Kripke structure without parametrization
 		BasicStructure * basic_structure = new BasicStructure; // Kripke structure built from the network
 		BasicStructureBuilder basic_structure_builder(holder.getModel(), *basic_structure);
@@ -61,14 +59,12 @@ public:
 		unparametrized_structure_builder.buildStructure();
 		holder.fillUnparametrizedStructure(unparametrized_structure);
 
-		output_streamer.output(verbose_str, "Buchi automaton building started.");
 		// Create the Buchi automaton
 		AutomatonStructure * automaton = new AutomatonStructure; // Set of transitions - controlling automaton
 		AutomatonBuilder automaton_builder(holder.getModel(), *automaton);
 		automaton_builder.buildAutomaton();
 		holder.fillAutomaton(automaton);
 
-		output_streamer.output(verbose_str, "Product building started.");
 		// Create the product
 		ProductStructure * product_structure = new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomatonStructure());
 		ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(), *product_structure);

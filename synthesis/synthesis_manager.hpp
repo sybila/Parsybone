@@ -170,8 +170,8 @@ public:
     * Main synthesis function that iterates through all the rounds of the synthesis.
     */
    void doSynthesis() {
-      output->outputForm();
       time_manager.startClock("coloring");
+      output->outputForm();
 
       // Do the computation for all the rounds
       do {
@@ -180,8 +180,8 @@ public:
          doConclusion();
       } while (split_manager->increaseRound());
 
-      time_manager.ouputClock("coloring");
       output->outputSummary(total_colors);
+      time_manager.ouputClock("coloring");
    }
 };
 

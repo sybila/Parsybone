@@ -34,8 +34,8 @@ class OutputManager {
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // CREATION METHODS
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   OutputManager(const OutputManager & other); ///< Forbidden copy constructor.
-   OutputManager& operator=(const OutputManager & other); ///< Forbidden assignment operator.
+   OutputManager(const OutputManager & other) = delete;
+   OutputManager& operator=(const OutputManager & other) = delete;
 
 public:
 	/**
@@ -62,6 +62,9 @@ public:
       format_desc.back() = ')';
       format_desc += ":Cost:Robustness:WitnessPath";
       output_streamer.output(results_str, format_desc);
+
+      if (user_options.toDatabase())
+         database.startOutput();
    }
 
    /**
@@ -70,8 +73,10 @@ public:
     * @param total_count	number of all feasible colors
     */
    void outputSummary(const size_t total_count) const {
-      output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(total_count, OutputStreamer::no_newl)
-            .output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount(), OutputStreamer::no_newl).output(".");
+      if (user_options.toDatabase())
+         database.finishOutpout();
+      output_streamer.output(verbose_str, "");
+      output_streamer.output("Total number of colors: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".");
    }
 
    /**
@@ -82,14 +87,14 @@ public:
       output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 
       // output numbers
-      output_streamer.output(split_manager.getRoundNum(), OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
-            .output(split_manager.getRoundCount(), OutputStreamer::no_newl).output(":", OutputStreamer::no_newl);
+      OutputStreamer::Trait trait = 0;
+      if (! user_options.toConsole())
+         trait = OutputStreamer::no_newl;
+      output_streamer.output(toString(split_manager.getRoundNum()) + "/" + toString(split_manager.getRoundCount()) + ":", trait);
 
       // Add a new line if the result is displayed on screen.
       if (user_options.toConsole())
          output_streamer.output("");
-
-      output_streamer.flush();
    }
 
    /**
@@ -127,7 +132,6 @@ public:
          throw invalid_argument(sizes_err);
       }
 
-      database.startOutput();
       // Cycle through parametrizations, display requested data
       while (param_it != params.end()) {
          string line = toString(*num_it) + separator + *param_it + separator;
@@ -155,7 +159,6 @@ public:
 
          num_it++; param_it++; cost_it+= user_options.timeSeries(); robust_it += user_options.robustness(); witness_it += user_options.witnesses();
       }
-      database.finishOutpout();
    }
 };
 

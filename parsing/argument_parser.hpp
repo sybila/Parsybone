@@ -115,10 +115,6 @@ class ArgumentParser {
          user_options.compute_robustness = true;
       break;
 
-      case 's':
-         user_options.display_stats = true;
-      break;
-
       case 'v':
          user_options.be_verbose = true;
       break;

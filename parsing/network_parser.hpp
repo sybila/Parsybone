@@ -163,7 +163,7 @@ class NetworkParser {
 			else if (target_val_str.compare("?") == 0)
 				targets = model.getRange(target_ID);
 
-			for(auto param:model.species[target_ID].parameters) {
+			for(auto param:parameters) {
 				if (param.context == context) {
 					param.targets = targets;
 				}

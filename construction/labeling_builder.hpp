@@ -55,7 +55,7 @@ class LabelingBuilder {
       // Display stats
       string specie_stats = "Specie " + model.getName(target_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
             + toString(parametrizations.getColorsNum(target_ID)) + " total possible parametrizations.";
-      output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
+      output_streamer.output(verbose_str, specie_stats, OutputStreamer::tab);
 
       // Increase step size for the next function
       step_size *= parametrizations.getColorsNum(target_ID);
@@ -79,7 +79,7 @@ public:
 	 */
 	void buildLabeling() {
 		// Display stats
-		output_streamer.output(stats_str, "Costructing Regulatory kinetics for ", OutputStreamer::no_newl)
+		output_streamer.output(verbose_str, "Costructing Regulatory kinetics for ", OutputStreamer::no_newl)
 				.output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
 
 		size_t step_size = 1; // Variable necessary for encoding of colors

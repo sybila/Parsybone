@@ -48,7 +48,7 @@ const float program_version = 1.0;
 // INPUT/OUTPUT RELATED TYPES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// What stream to use in output functions.
-enum StreamType {error_str, results_str, stats_str, verbose_str};
+enum StreamType {error_str, results_str, verbose_str};
 
 /// Symbol that separates values of a single parametrizations on output.
 const string separator = ":";

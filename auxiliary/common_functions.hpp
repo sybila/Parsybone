@@ -144,8 +144,6 @@ namespace Common {
       }
       return true;
    }
-}
-
-using namespace Common;
+} using namespace Common;
 
 #endif // PARSYBONE_COMMON_METHODS_INCLUDED

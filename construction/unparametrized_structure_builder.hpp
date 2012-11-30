@@ -202,7 +202,7 @@ public:
     * Create the states from the model and fill the structure with them.
 	 */
 	void buildStructure() {
-		output_streamer.output(stats_str, "Merging the kinetic functions and the basic Kripke structure into a parametrized Kripke structure.");
+		output_streamer.output(verbose_str, "Merging the kinetic functions and the basic Kripke structure into a parametrized Kripke structure.");
 
 		// Recreate all the states of the simple structure
 		for(StateID ID = 0; ID < basic_structure.getStateCount(); ID++) {

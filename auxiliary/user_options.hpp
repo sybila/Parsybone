@@ -27,7 +27,6 @@ class UserOptions {
    // OPTIONS
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
-   bool display_stats; ///< Display data from statistics stream (stats_str), mainly states and transition counts
    bool time_series; ///< Work with the property as with a time series (meaning check only reachability property)
    bool compute_robustness; ///< Should robustness value be computed and displyed?
    bool compute_wintess; ///< Should witnesses be computed and displayed?
@@ -68,7 +67,7 @@ public:
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = be_verbose = display_stats = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
+      compute_wintess = be_verbose = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
       database_file = datatext_file = in_mask_file = out_mask_file = "";
       process_number = processes_count = 1;
       model_name = "";
@@ -110,13 +109,6 @@ public:
     */
    inline bool verbose() const {
       return be_verbose;
-   }
-
-   /**
-    * @return	true if display_stats is set (displaying statistics of the model)
-    */
-   inline bool stats() const {
-      return display_stats;
    }
 
    /**

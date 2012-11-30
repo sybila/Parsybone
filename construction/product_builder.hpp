@@ -115,8 +115,8 @@ public:
 	 * Create the the synchronous product of the provided BA and UKS.
 	 */
 	void buildProduct() {
-		output_streamer.output(stats_str, "Computing Synchronous product of the Buchi automaton and Unparametrized Kripke structure.");
-		output_streamer.output(stats_str,"Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
+		output_streamer.output(verbose_str, "Computing Synchronous product of the Buchi automaton and Unparametrized Kripke structure.");
+		output_streamer.output(verbose_str,"Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
                      .output(structure.getStateCount() * automaton.getStateCount(), OutputStreamer::no_newl).output(".");
 		size_t transition_count = 0;
 
@@ -130,7 +130,7 @@ public:
 		// Create final and intial states vectors
 		markStates();
 
-		output_streamer.output(stats_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
+      output_streamer.output(verbose_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
                      .output(transition_count, OutputStreamer::no_newl).output(".");
 	}
 };

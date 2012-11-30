@@ -198,8 +198,8 @@ public:
     * Create the transitions from the model and fill the automaton with them.
 	 */
 	void buildAutomaton() {
-		output_streamer.output(stats_str, "Costructing Buchi automaton.");
-		output_streamer.output(stats_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
+		output_streamer.output(verbose_str, "Costructing Buchi automaton.");
+		output_streamer.output(verbose_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
                      .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
 		size_t transition_count = 0;
 
@@ -211,7 +211,7 @@ public:
 			addTransitions(ID, transition_count);
 		}
 
-		output_streamer.output(stats_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
+      output_streamer.output(verbose_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
                      .output(transition_count, OutputStreamer::no_newl).output(".");
 	}
 };

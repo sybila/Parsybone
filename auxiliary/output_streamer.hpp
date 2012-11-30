@@ -18,12 +18,11 @@
 class OutputStreamer {
    ostream * error_stream; ///< Stream to output minor fails as well as terminal failures.
    ostream * verbose_stream; ///< Stream to output work status in case it is requested by user.
-   ostream * stats_stream; ///< Stream to output overall statistics.
    ostream * result_stream; ///< Stream to output results of coloring.
    ostream * console_stream; ///< This one always goes to console.
 
    /// True if these streams are assigned a file.
-   bool error_file, verbose_file, stats_file, result_file;
+   bool error_file, verbose_file, result_file;
 
    StreamType last_stream_type;	///< Used to ease usage of output - last stream is stored and used if no new is specified.
 
@@ -59,12 +58,11 @@ public:
 		// Basic direction of the streams
 		error_stream = &cerr;
 		result_stream = &cout;
-		stats_stream = &cout;
 		verbose_stream = &cout;
 		console_stream = &cout;
 
 		// Set control variables
-		error_file = result_file = stats_file = verbose_file = false;
+		error_file = result_file = verbose_file = false;
 
 		// Set stream type in the beggining to error stream
 		last_stream_type = error_str;
@@ -76,8 +74,6 @@ public:
 	~OutputStreamer() {
 		if (error_file)
 			delete error_stream;
-		if (stats_file)
-			delete stats_stream;
 		if (result_file)
 			delete result_stream;
 		if (verbose_file)
@@ -102,10 +98,6 @@ public:
 			error_stream = file_stream;
 			error_file = true;
 		break;
-		case stats_str:
-			stats_stream = file_stream;
-			stats_file = true;
-		break;
 		case results_str:
 			result_stream = file_stream;
 			result_file = true;
@@ -126,7 +118,6 @@ public:
 	void flush() {
 		error_stream->flush();
 		result_stream->flush();
-		stats_stream->flush();
 		verbose_stream->flush();
 	}
 
@@ -145,11 +136,6 @@ public:
 		case error_str:
 			// Start with !
 			*error_stream << "! ";
-		break;
-		case stats_str:
-			// Start with #
-			if (user_options.stats())
-				*verbose_stream << "# ";
 		break;
 		case verbose_str:
 			// Start with * - if requested, remove previous line
@@ -185,10 +171,6 @@ public:
 				actualOutput(*result_stream, stream_data, trait_mask);
 			if (user_options.toConsole())
 				actualOutput(*console_stream, stream_data, trait_mask);
-		break;
-		case stats_str:
-			if (user_options.stats())
-				actualOutput(*stats_stream, stream_data, trait_mask);
 		break;
 		case verbose_str:
 			if (user_options.verbose())
