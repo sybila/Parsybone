@@ -73,7 +73,7 @@ class ModelChecker {
 				// If transitive, add ones for the width of the step
 				if (transitive_values[value_num]) {
 					Paramset add = INF;
-					add >>= (paramset_helper.getParamsetSize() - bits_in_step);
+					add >>= (paramset_helper.getSetSize() - bits_in_step);
 					temporary |= add;
 				}
 				// If we went throught the whole size, end
@@ -127,7 +127,7 @@ class ModelChecker {
 		to_find &= ~store;
 
 		// Store those that were found in this round
-		for (int color_pos = static_cast<int>(paramset_helper.getParamsetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
+		for (int color_pos = static_cast<int>(paramset_helper.getSetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
 			if (store % 2)
 				BFS_reach[color_pos] = BFS_level;		
 		}
@@ -276,7 +276,7 @@ class ModelChecker {
 		BFS_level = 0; // Set sterting number of BFS
 		next_updates.clear(); // Ensure emptiness of the next round
 		BFS_reach.clear();
-		BFS_reach.resize(paramset_helper.getParamsetSize(), INF); // Begin with infinite reach (symbolized by INF)
+		BFS_reach.resize(paramset_helper.getSetSize(), INF); // Begin with infinite reach (symbolized by INF)
       next_round_storage.reset(); // Copy starting values
 	}
 

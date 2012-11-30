@@ -31,7 +31,7 @@ public:
    /**
     * @return  number of parametrizations in a single round
     */
-   inline static size_t getParamsetSize() {
+   inline static size_t getSetSize() {
       return subset_size;
    }
    /**
@@ -61,7 +61,7 @@ public:
    vector<Paramset> getSingleMasks(Paramset paramset) const {
       vector<Paramset> masks;
       Paramset mask = getLeftOne();
-      for (size_t counter = 0; counter < getParamsetSize(); counter++) {
+      for (size_t counter = 0; counter < getSetSize(); counter++) {
          if (mask & paramset)
             masks.push_back(mask);
          mask >>= 1;
@@ -79,9 +79,9 @@ public:
    Paramset getMaskFromNums(const vector<size_t> numbers) const {
       Paramset full_mask = 0;
       for (auto num = numbers.begin(); num != numbers.end(); num++) {
-         if (*num > getParamsetSize())
+         if (*num > getSetSize())
             throw runtime_error("Mask asked for number bigger that is the size of Paramset mask.");
-         full_mask |= 1 << (getParamsetSize() - (*num + 1));
+         full_mask |= 1 << (getSetSize() - (*num + 1));
       }
       return full_mask;
    }
@@ -106,7 +106,7 @@ public:
     */
    inline Paramset swap(Paramset paramset) const {
       Paramset new_params = 0;
-      for (size_t param_num = 0; param_num < getParamsetSize(); param_num++) {
+      for (size_t param_num = 0; param_num < getSetSize(); param_num++) {
          new_params <<= 1;
          if (paramset % 2)
             new_params |= 1;
@@ -173,13 +173,13 @@ public:
 
       // Shift bits until you reach the one that is on
       size_t bit_num = 0;
-      for (; bit_num < getParamsetSize(); bit_num++, paramset >>= 1) {
+      for (; bit_num < getSetSize(); bit_num++, paramset >>= 1) {
          if (paramset % 2)
             break;
       }
 
       // Return the bit position
-      return ((getParamsetSize() - 1) - bit_num);
+      return ((getSetSize() - 1) - bit_num);
    }
 } paramset_helper; ///< Single program-shared paramset helper object.
 

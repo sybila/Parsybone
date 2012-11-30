@@ -33,12 +33,12 @@ class RobustnessCompute {
     * Clear data objects used throughout the whole computation process.
     */
    void clear() {
-      forEach(markings, [](Marking & marking){
+      for (auto & marking:markings) {
          marking.exits.assign(marking.exits.size(), 0);
          marking.current_prob.assign(marking.current_prob.size(), 0.0);
          marking.next_prob.assign(marking.next_prob.size(), 0.0);
-      });
-      results.assign(paramset_helper.getParamsetSize(), 0.0);
+      }
+      results.assign(paramset_helper.getSetSize(), 0.0);
    }
 
    /**
@@ -47,23 +47,24 @@ class RobustnessCompute {
    void computeExits() {
       Paramset current_mask = paramset_helper.getLeftOne();
       // Cycle through parameters
-      for (size_t param_num = 0; param_num < paramset_helper.getParamsetSize(); param_num++, current_mask >>= 1) {
+      for (size_t param_num:range(paramset_helper.getSetSize())) {
          // If not acceptable, leave zero
-         if (!(current_mask & storage.getAcceptable()))
-            continue;
-         // Otherwise, set number to the number of exist under this parametrization
-         for (StateID ID = 0; ID < product.getStateCount(); ID++) {
-            auto succs = storage.getNeighbours(ID, true, current_mask);
-            StateID max_BA = 0;
-            forEach(succs, [&](StateID & ID){
-               max_BA = my_max(max_BA, product.getBAID(ID));
-            });
-            size_t exits = 0;
-            forEach(succs, [&](StateID & ID){
-               exits += static_cast<size_t>(max_BA == product.getBAID(ID));
-            });
-            markings[ID].exits[param_num] = exits;
+         if (current_mask & storage.getAcceptable()) {
+            for (StateID ID:range(product.getStateCount())) {
+               auto succs = storage.getNeighbours(ID, true, current_mask);
+               StateID max_BA = 0;
+               for (auto succ:succs) {
+                  max_BA = my_max(max_BA, product.getBAID(succ));
+               }
+               size_t exits = 0;
+               for (auto succ:succs) {
+                  exits += static_cast<size_t>(max_BA == product.getBAID(succ));
+               }
+               markings[ID].exits[param_num] = exits;
+            }
          }
+
+         current_mask >>= 1;
       }
    }
 
@@ -86,11 +87,11 @@ class RobustnessCompute {
     * Compute the resulting values as a sum of probabilites of reaching any state.
     */
    void finish() {
-      forEach(product.getFinalStates(), [&](StateID ID) {
+      for (StateID ID:product.getFinalStates()) {
          for (size_t param_num = 0; param_num < results.size(); param_num++) {
             results[param_num] += markings[ID].next_prob[param_num];
          }
-      });
+      }
    }
 
    RobustnessCompute(const RobustnessCompute & other); ///< Forbidden copy constructor.
@@ -102,12 +103,12 @@ public:
     */
    RobustnessCompute(const ConstructionHolder & _holder, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
       : product(_holder.getProduct()), storage(_storage), searcher(_searcher) {
-      Marking empty = { vector<unsigned char>(paramset_helper.getParamsetSize(), 0),
-         vector<double>(paramset_helper.getParamsetSize(), 0.0),
-         vector<double>(paramset_helper.getParamsetSize(), 0.0)
+      Marking empty = { vector<unsigned char>(paramset_helper.getSetSize(), 0),
+         vector<double>(paramset_helper.getSetSize(), 0.0),
+         vector<double>(paramset_helper.getSetSize(), 0.0)
       };
       markings.resize(product.getStateCount(), empty);
-      results.resize(paramset_helper.getParamsetSize(), 0.0);
+      results.resize(paramset_helper.getSetSize(), 0.0);
    }
 
    /**
@@ -122,21 +123,21 @@ public:
       // Cycle through the levels of the DFS procedure
       for (size_t round_num = 0; round_num < storage.getMaxDepth(); round_num++) {
          // Update markings from the previous round
-         forEach(markings, [](Marking & marking) {
+         for (auto & marking:markings) {
             marking.current_prob = marking.next_prob;
             marking.next_prob.assign(marking.next_prob.size(), 0.0);
-         });
+         }
          // Assign probabilites for the initial states
          initiate();
          // Cycle through parametrizations
-         for (size_t param_num = 0; param_num != paramset_helper.getParamsetSize(); param_num++) {
+         for (size_t param_num = 0; param_num != paramset_helper.getSetSize(); param_num++) {
             // For the parametrization cycle through transitions
-            forEach(transitions[param_num], [&](pair<StateID, StateID> trans) {
+            for (const auto & trans:transitions[param_num]) {
                size_t divisor = markings[trans.first].exits[param_num]; // Count succesor
                // Add probabilities
                if (divisor)
                   markings[trans.second].next_prob[param_num] += markings[trans.first].current_prob[param_num] / divisor ;
-            });
+            }
          }
       }
 
@@ -150,10 +151,10 @@ public:
     */
    const vector<string> getOutput() const {
       vector<string> to_return;
-      forEach(results, [&to_return](double robust){
+      for (const double & robust:results){
          if (robust) // Add if the value is non-zero
             to_return.push_back(toString(robust));
-      });
+      }
 
       return to_return;
    }

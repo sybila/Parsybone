@@ -79,9 +79,9 @@ public:
 	 */
 	size_t getSpaceSize() const {
 		size_t space_size = 1;
-		forEach(colors, [&space_size](const SpecieColors & specie_cols) {
-			space_size *= specie_cols.acceptable_count;
-		});
+		for (const auto & color:colors) {
+			space_size *= color.acceptable_count;
+		}
 		return space_size;
 	}
 

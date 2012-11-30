@@ -42,9 +42,9 @@ class WitnessSearcher {
 
    vector<Marking> markings; ///< Actuall marking of the states.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SEARCH METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // SEARCH METHODS
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Storest transitions in the form (source, target) within the transitions vector, for the path from the final vertex to the one in the current depth of the DFS procedure.
     *
@@ -63,7 +63,7 @@ class WitnessSearcher {
 
       // Add transitions to the parametrizations that allow them
       Paramset marker = paramset_helper.getLeftOne();
-      for (size_t param = 0; param < paramset_helper.getParamsetSize(); param++) {
+      for (size_t param = 0; param < paramset_helper.getSetSize(); param++) {
          if (which & marker) {
             transitions[param].insert(trans.begin(), trans.end());
             if (initial)
@@ -120,28 +120,30 @@ class WitnessSearcher {
       }
    }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // CREATION METHODS
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Clear the data objects used during the computation that may contain some data from the previous round.
     */
    void clearPaths() {
       // Empty strings
-      forEach(string_paths, [](string & single_path){single_path = "";});
+      for(auto & path:string_paths) {
+         path = "";
+      }
       // Empty path tracker
       path = vector<StateID>(storage.getMaxDepth() + 1, 0);
       // Empty the storage of transitions
       transitions.clear();
-      transitions.resize(paramset_helper.getParamsetSize());
+      transitions.resize(paramset_helper.getSetSize());
       // Empty the storage of inital states
       initials.clear();
-      initials.resize(paramset_helper.getParamsetSize());
+      initials.resize(paramset_helper.getSetSize());
       // Clear markings
-      forEach(markings, [](Marking & marking){
+      for (auto & marking:markings) {
          marking.succeeded = 0;
          marking.busted.assign(marking.busted.size(),0);
-      });
+      }
    }
 
    /**
@@ -156,21 +158,20 @@ class WitnessSearcher {
       size_t param_num = 0; // number in the interval (0,|paramset|-1)
 
       // Store parametrization numbers with their BFS level (Cost)
-      forEach(storage.getCost(), [&members, &param_num](size_t current){
-         if (current != ~static_cast<size_t>(0))
-            members[current].push_back(param_num);
+      for (const auto & cost:storage.getCost()) {
+         if (cost != ~static_cast<size_t>(0))
+            members[cost].push_back(param_num);
          param_num++;
-      });
+      }
 
       // Fill masks based on the members vector
-      forEach(members, [&](vector<size_t> numbers){
+      for (const auto & numbers:members) {
          depth_masks.push_back(paramset_helper.getMaskFromNums(numbers));
-      });
-
+      }
    }
 
-   WitnessSearcher(const WitnessSearcher & other); ///< Forbidden copy constructor.
-   WitnessSearcher& operator=(const WitnessSearcher & other); ///< Forbidden assignment operator.
+   WitnessSearcher(const WitnessSearcher & other) = delete; ///< Forbidden copy constructor.
+   WitnessSearcher& operator=(const WitnessSearcher & other) = delete; ///< Forbidden assignment operator.
 
 public:
    /**
@@ -180,12 +181,12 @@ public:
       : product(_holder.getProduct()), storage(_storage) {
       Marking empty = {0, vector<Paramset>(product.getStateCount(), 0)};
       markings.resize(product.getStateCount(), empty);
-      string_paths.resize(paramset_helper.getParamsetSize(), "");
+      string_paths.resize(paramset_helper.getSetSize(), "");
    }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// INTERFACE
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // INTERFACE
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Function that executes the whole searching process
     */

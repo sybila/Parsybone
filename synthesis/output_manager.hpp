@@ -97,10 +97,10 @@ public:
     */
    const vector<string> getCosts(const vector<size_t> cost_vals) const {
       vector<string> costs;
-      forEach(cost_vals, [&](const size_t cost){
-              if (cost != ~static_cast<size_t>(0))
-              costs.push_back(toString(cost));
-      });
+      for(const auto & cost:cost_vals){
+         if (cost != ~static_cast<size_t>(0))
+            costs.push_back(toString(cost));
+      }
       return costs;
    }
 

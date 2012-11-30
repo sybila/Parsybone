@@ -58,10 +58,10 @@ class NetworkParser {
 
 		 // Test uniqueness of this combination (source, threshold)
 		 auto regulations = model.getRegulations(target_ID);
-		 forEach(regulations, [&,threshold,source_ID](Model::Regulation & regulation) {
-					if (threshold == regulation.threshold && source_ID == regulation.source)
-					throw invalid_argument("multiple definition of a regulation of a specie " + toString(model.getName(source_ID)));
-		 });
+		 for(const auto & regul:regulations) {
+			 if (threshold == regul.threshold && source_ID == regul.source)
+				 throw invalid_argument("multiple definition of a regulation of a specie " + toString(model.getName(source_ID)));
+		 }
 
 		 return threshold;
 	}

@@ -63,7 +63,7 @@ public:
       }
 
       // Set additional storage
-      cost_val = vector<size_t>(paramset_helper.getParamsetSize(), INF); // Set all to max. value
+      cost_val = vector<size_t>(paramset_helper.getSetSize(), INF); // Set all to max. value
 		acceptable = 0;
 	}
 
