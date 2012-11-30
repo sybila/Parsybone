@@ -18,54 +18,54 @@
 /// \brief Creates a labeled graph representation of gene regulatory network and stores it within a LabelingHolder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LabelingBuilder {
-	// Provided with constructor
+   // Provided with constructor
    const Model & model; ///< Model that holds the data.
    const ParametrizationsHolder & parametrizations; ///< Precomputed partial parametrizations.
    LabelingHolder & labeling_holder; ///< FunctionsStructure class to fill.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTING METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Creates the kinetic parameters in explicit form from the model information.
-	 * All feasible parameters for the specie are then stored in the FunctionsStructure.
-	 *
-	 * @param ID	ID of the specie to compute the kinetic parameters for
-	 * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
-	 */
-	void addRegulations(const SpecieID target_ID, size_t & step_size) const {
-		// get referecnces to Specie data
-		const auto & tparams = model.getTParams(target_ID);
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // COMPUTING METHODS:
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+    * Creates the kinetic parameters in explicit form from the model information.
+    * All feasible parameters for the specie are then stored in the FunctionsStructure.
+    *
+    * @param ID	ID of the specie to compute the kinetic parameters for
+    * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
+    */
+   void addRegulations(const SpecieID target_ID, size_t & step_size) const {
+      // get referecnces to Specie data
+      const auto & tparams = model.getTParams(target_ID);
 
-		// Go through regulations of a specie - each represents a single function
-		for (auto param_num:range(tparams.size())) {
-			Configurations source_values;
-			// Compute allowed values for each regulating specie for this function to be active
-			for (auto source_num:tparams[param_num].requirements) {
-				source_values.push_back(source_num.second);
-			}
+      // Go through regulations of a specie - each represents a single function
+      for (auto param_num:range(tparams.size())) {
+         Configurations source_values;
+         // Compute allowed values for each regulating specie for this function to be active
+         for (auto source_num:tparams[param_num].requirements) {
+            source_values.push_back(source_num.second);
+         }
 
-			// Add target values (if input negative, add all possibilities), if positive, add current requested value
-			auto possible_values = parametrizations.getTargetVals(target_ID, param_num);
+         // Add target values (if input negative, add all possibilities), if positive, add current requested value
+         auto possible_values = parametrizations.getTargetVals(target_ID, param_num);
 
-			// pass the function to the holder.
-			labeling_holder.addRegulatoryFunction(target_ID, step_size, possible_values, source_values);
-		}
+         // pass the function to the holder.
+         labeling_holder.addRegulatoryFunction(target_ID, step_size, possible_values, source_values);
+      }
 
-		// Display stats
-		string specie_stats = "Specie " + model.getName(target_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
-											+ toString(parametrizations.getColorsNum(target_ID)) + " total possible parametrizations.";
-		output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
+      // Display stats
+      string specie_stats = "Specie " + model.getName(target_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
+            + toString(parametrizations.getColorsNum(target_ID)) + " total possible parametrizations.";
+      output_streamer.output(stats_str, specie_stats, OutputStreamer::tab);
 
-		// Increase step size for the next function
-		step_size *= parametrizations.getColorsNum(target_ID);
-	}
+      // Increase step size for the next function
+      step_size *= parametrizations.getColorsNum(target_ID);
+   }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	LabelingBuilder(const LabelingBuilder & other); ///< Forbidden copy constructor.
-	LabelingBuilder& operator=(const LabelingBuilder & other); ///< Forbidden assignment operator.
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // CONSTRUCTING METHODS:
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   LabelingBuilder(const LabelingBuilder & other); ///< Forbidden copy constructor.
+   LabelingBuilder& operator=(const LabelingBuilder & other); ///< Forbidden assignment operator.
 
 public:
 	/**
@@ -80,9 +80,9 @@ public:
 	void buildLabeling() {
 		// Display stats
 		output_streamer.output(stats_str, "Costructing Regulatory kinetics for ", OutputStreamer::no_newl)
-                     .output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
+				.output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
 
-		size_t step_size = 1; // Variable necessary for encoding of colors 
+		size_t step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through all the species
 		for (auto ID:range(model.getSpeciesCount())) {

@@ -228,92 +228,28 @@ class NetworkParser {
 	}   */
 
 	/**
-	 * Use a logic formula to create all kinetic parameters for a specie.
-	 * Presence of a regulator can be given as one of: name, name:threshold, ID, ID:threshold.
-	 * Context is given as a valuation of a formula.
-
-	void fillFromLogic(const string logic, size_t specie_ID) const {
-		// Get reference values
-		vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
-		vector<bool> top(model.getRegulations(specie_ID).size(), true);
-		vector<bool> tested = bottom;
-		map<string, bool> valuation; // Atomic propositions about presence of regulators (true for present, false for absent)
-
-		do {
-			if (!isContextCoherent(specie_ID, tested))
-				continue;
-
-			// Add current valuations for both a species ID and name (if any)
-			valuation.clear();
-			for (size_t regul_num = 0; regul_num < tested.size(); regul_num++) {
-				// Get the current regulation propeties
-				StateID source_ID = (model.getRegulations(specie_ID))[regul_num].source;
-				string source_name = model.getName(source_ID);
-				size_t threshold = (model.getRegulations(specie_ID))[regul_num].threshold;
-
-				// Fill in the proposition about the presente of the regulator for all possible combinations depicting its name
-				valuation.insert(make_pair(source_name, tested[regul_num]));
-				valuation.insert(make_pair(source_name + ":" + toString(threshold), tested[regul_num]));
-			}
-
-			model.addParameter(specie_ID, tested, FormulaeParser::resolve(valuation, logic));
-
-		} while(iterate<bool>(top, bottom, tested));
-	}   */
-
-	/**
-	 * Compute all the possibilities for a regulatory context and add them if they are not already specified.
-	 * Based on the unspec attribute of the specie, uses basal value / parametrization / causes error.
-
-	void addUnspecified(set<vector<bool> > & specified, size_t specie_ID, UnspecifiedParameters unspec) const {
-		vector<bool> bottom(model.getRegulations(specie_ID).size(), false);
-		vector<bool> top(model.getRegulations(specie_ID).size(), true);
-		vector<bool> tested = bottom;
-
-		do {
-			// If tested option is new (not already present in the specified vector)
-			if (specified.insert(tested).second && isContextCoherent(specie_ID, tested)) {
-				switch (unspec) {
-				case basal_reg:
-					model.addParameter(specie_ID, tested, model.getBasal(specie_ID));
-				break;
-
-				case param_reg:
-					model.addParameter(specie_ID, tested, -1);
-				break;
-
-				case error_reg:
-					throw runtime_error("some required parameter specification is missing for the specie " + toString(model.getName(specie_ID)));
-				break;
-				}
-			}
-		} while(iterate<bool>(top, bottom, tested));
-	}   */
-
-	/**
 	  * Searches for the LOGIC tag and if such is present, uses it for creation of parameters for the specie.
 	  *
 	  * @return true if the LOGIC was found and used
-
-	bool parseLogic(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
+	  */
+	string parseLogic(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
 		// Try to get the tag
 		rapidxml::xml_node<>* logic = XMLHelper::getChildNode(specie_node, "LOGIC", false);
 
 		// If the tag is present, use it
 		if (logic != 0) {
-			if (logic->next_sibling("LOGIC") || logic->next_sibling("PARAM"))
-				throw invalid_argument("LOGIC tag does not stay alone in the definition of the specie " + toString(model.getName(specie_ID)));
+			if (logic->next_sibling("LOGIC"))
+				throw invalid_argument("LOGIC tag is present multiple times in the definition of the specie " + toString(model.getName(specie_ID)));
 
 			// Get and apply the formula
 			string formula;
 			XMLHelper::getAttribute(formula, logic, "formula");
-			fillFromLogic(formula, specie_ID);
 
-			return true;
+			return formula;
 		}
 		else
-			return false;
-	}  */
+			return "";
+	}
 
 	/**
 	 * Starting from the SPECIE node, the function parses all the PARAM tags and reads the data from them.
@@ -346,11 +282,11 @@ class NetworkParser {
 		addUnspecified(specified, specie_ID, unspec);
 	}*/
 
-	void createContexts(const SpecieID ID) const {
-		auto all_thresholds = model.getThresholds(ID);
-		auto regulations = model.getRegulations(ID);
-		auto IDs = model.getRegulatorsIDs(ID);
-		auto names = model.getRegulatorsNames(ID);
+	void createContexts(const SpecieID target_ID, string formula) const {
+		auto all_thresholds = model.getThresholds(target_ID);
+		auto regulations = model.getRegulations(target_ID);
+		auto IDs = model.getRegulatorsIDs(target_ID);
+		auto names = model.getRegulatorsNames(target_ID);
 		vector<size_t> bottom, context, top;
 
 		for (auto & source_thresholds:all_thresholds) {
@@ -360,20 +296,34 @@ class NetworkParser {
 		}
 
 		do {
+			FormulaeParser::Vals present_regulators;
 			Model::TParam parameter = {"", map<StateID, Levels>(), Levels()};
 			for (auto source_num:range(context.size())) {
 				string source_name = names[source_num];
 				StateID source_ID = IDs[source_num];
 				auto & thresholds = all_thresholds.find(source_ID)->second;
 				ActLevel threshold = (context[source_num] == 0) ? 0 : thresholds[context[source_num] - 1];
-				parameter.context += source_name + ":" + toString(threshold) + ",";
+				string regulation_name = source_name + ":" + toString(threshold);
+				if (!formula.empty())
+					present_regulators.insert(FormulaeParser::Val(regulation_name, 1));
+				parameter.context += regulation_name + ",";
 				ActLevel next_th = (context[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[context[source_num]];
 				Levels activity_levels = range(threshold, next_th);
 				parameter.requirements.insert(make_pair(source_ID, activity_levels));
-				parameter.target = range(model.getMin(ID), model.getMax(ID) + 1);
 			}
+			if (!formula.empty()) {
+				for (auto regul:model.getRegulations(target_ID)) {
+					if (present_regulators.find(regul.name) == present_regulators.end()) {
+						present_regulators.insert(FormulaeParser::Val(regul.name, 0));
+					}
+				}
+				parameter.target = Levels(1, FormulaeParser::resolve(present_regulators, formula));
+			} else {
+				parameter.target = range(model.getMin(target_ID), model.getMax(target_ID) + 1);
+			}
+
 			parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
-			model.species[ID].tparams.push_back(parameter);
+			model.species[target_ID].tparams.push_back(parameter);
 		} while(iterate(top, bottom, context));
 	}
 
@@ -421,7 +371,8 @@ class NetworkParser {
 			// Get all the regulations of the specie and store them to the model.
 			parseRegulations(specie, ID);
 			// Create all contexts with all of their possible combinations.
-			createContexts(ID);
+			auto formula = parseLogic(specie, ID);
+			createContexts(ID, formula);
 		}
 	}
 
