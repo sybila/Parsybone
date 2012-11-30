@@ -67,7 +67,7 @@ public:
 		acceptable = 0;
 	}
 
-   ColorStorage() {} ///< Empty constructor for an empty storage.
+	ColorStorage() = default; ///< Empty constructor for an empty storage.
 
    /**
     * Function adds values from specified source without explicitly copying them, only through bitwise or (storages must be equal).

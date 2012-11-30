@@ -158,7 +158,7 @@ public:
       searcher.reset(new WitnessSearcher(holder, *storage.get()));
       robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
       database.reset(new DatabaseFiller(holder));
-      output.reset(new OutputManager(*storage, *database, *analyzer, *split_manager, *searcher, *robustness));
+      output.reset(new OutputManager(holder, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
 
       total_colors = 0;
    }
@@ -170,6 +170,7 @@ public:
     * Main synthesis function that iterates through all the rounds of the synthesis.
     */
    void doSynthesis() {
+      output->outputForm();
       time_manager.startClock("coloring");
 
       // Do the computation for all the rounds

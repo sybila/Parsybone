@@ -22,6 +22,7 @@
 /// \brief Class that outputs formatted resulting data.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OutputManager {
+   const Model & model; ///< Reference to the model itself.
    const ColorStorage & storage; ///< Provides current costs.
    const ColoringAnalyzer & analyzer; ///< Provides parametrizations' numbers and exact values.
    const SplitManager & split_manager; ///< Provides round and split information.
@@ -40,23 +41,35 @@ public:
 	/**
 	 * Simple constructor that only passes the references.
 	 */
-	OutputManager(const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
+	OutputManager(const ConstructionHolder & holder, const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
 					  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-		: storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {
-		if (user_options.toDatabase())
-			database.creteTables();
-	}
+		: model(holder.getModel()), storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// OUTPUT METHODS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
+   void outputForm() const {
+      if (user_options.toDatabase())
+         database.creteTables();
+      string format_desc = "#:(";
+
+      for(SpecieID ID:Common::range(model.getSpeciesCount())) {
+         for(auto param:model.getParameters(ID)) {
+            format_desc += "\"" + model.getName(ID) + "{" + param.context + "}\",";
+         }
+      }
+
+      format_desc += "):Cost:Robustness:WitnessPath";
+      output_streamer.output(results_str, format_desc);
+   }
+
    /**
     * Output summary after the computation.
     *
     * @param total_count	number of all feasible colors
     */
-   void outputSummary(const size_t total_count) {
+   void outputSummary(const size_t total_count) const {
       output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(total_count, OutputStreamer::no_newl)
             .output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount(), OutputStreamer::no_newl).output(".");
    }
@@ -64,7 +77,7 @@ public:
    /**
     * Outputs round number - if there are no data within, then erase the line each round.
     */
-   void outputRoundNum() {
+   void outputRoundNum() const {
       // erase the last line
       output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 
