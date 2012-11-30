@@ -56,11 +56,11 @@ public:
 
       for(SpecieID ID:Common::range(model.getSpeciesCount())) {
          for(auto param:model.getParameters(ID)) {
-            format_desc += "\"" + model.getName(ID) + "{" + param.context + "}\",";
+            format_desc += model.getName(ID) + "{" + param.context + "},";
          }
       }
-
-      format_desc += "):Cost:Robustness:WitnessPath";
+      format_desc.back() = ')';
+      format_desc += ":Cost:Robustness:WitnessPath";
       output_streamer.output(results_str, format_desc);
    }
 

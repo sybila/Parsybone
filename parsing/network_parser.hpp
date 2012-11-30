@@ -66,36 +66,6 @@ class NetworkParser {
 		 return threshold;
 	}
 
-	/**
-	 * @param uspec_type	what to do with usnpecified regulations
-	 *
-	 * @return	enumeration item with given specification
-	 */
-	static UnspecifiedParameters getUnspecType(string unspec_type) {
-      if      (unspec_type.compare("error") == 0)
-			return error_reg;
-      else if (unspec_type.compare("basal") == 0)
-			return basal_reg;
-      else if (unspec_type.compare("param") == 0)
-			return param_reg;
-		else
-			throw runtime_error("wrong value given as an uspec attribute");
-	}
-
-	/**
-	 * Obtain an information about how unspecified kinetic parameters should be handled.
-    * Value is not mandatory, if missing, uses param_reg.
-    */
-	UnspecifiedParameters getUnspecified(const rapidxml::xml_node<> * const specie_node) const {
-		string unspec_str; UnspecifiedParameters unspec;
-		// Try to get the value, otherwise use param_reg
-      if (XMLHelper::getAttribute(unspec_str, specie_node, "undef", false))
-			unspec = getUnspecType(unspec_str);
-		else
-			unspec = param_reg;
-		return unspec;
-	}
-
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// PARSERS:
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,98 +106,6 @@ class NetworkParser {
 	}
 
 	/**
-	 * This function obtains a present regulator of a specie as an ordinal number of the regulation in the vector of all regulations of this specie.
-	 * If the source is specified in the form "source:value", only the regulator that has the value as a threshold is accepted. If no value is present, threshold of 1 is defaulted.
-
-	size_t getPresentRegulator(const string & source_str, const SpecieID target_ID) const{
-		SpecieID ID;
-		size_t threshold = 1; // Defaulted threshold value
-
-		auto colon_pos = source_str.find(":");
-		if (colon_pos == string::npos)
-			ID = model.findID(source_str);
-		else {
-			ID = model.findID(source_str.substr(0,colon_pos));
-			try {
-				threshold = lexical_cast<size_t>(source_str.substr(colon_pos+1));
-			}
-			catch (bad_lexical_cast & e) {
-				output_streamer.output(error_str, "Error while trying to obtain threshold within a regulatory context " + source_str + ": " + e.what() + ".");
-				throw runtime_error("lexical_cast<size_t>(" + source_str.substr(colon_pos+1) + ") failed");
-			}
-		}
-
-		if (ID >= model.getSpeciesCount())
-			throw invalid_argument("One of the regulators of the specie " + toString(model.getName(target_ID)) + " was not found in the specie list");
-
-		size_t reg_num = INF; size_t counter = 0;
-		forEach(model.getRegulations(target_ID),[&](const Model::Regulation & regulation){
-				  if (regulation.source == ID)
-				  if (colon_pos == string::npos || regulation.threshold == threshold) {
-				  reg_num = counter;
-				return;
-	}
-	counter++;
-	});
-
-	if (reg_num == INF)
-	throw invalid_argument("regulator " + source_str + " of the specie " + toString(model.getName(target_ID)) + " was not found in the list of regulators");
-
-	return reg_num;
-	} */
-
-	/**
-	 * Controls coherence of regulations - this is only necessary for multi-edge models, where two different thresholds could contradict each other.
-	 *
-	 * @return true if the regulation is coherent, false otherwise
-
-	bool isContextCoherent(const SpecieID specie_ID, const vector<bool> & context) const {
-		auto regulations = model.getRegulations(specie_ID);
-
-		// Compare all pair
-		for (size_t i = 0; i < regulations.size(); i++) {
-			for (size_t j = 0; j < regulations.size(); j++) {
-				if (regulations[i].source == regulations[j].source && i != j)
-					// Return false if there are two present regulations with the same source
-					if (context[i] & context[j])
-						return false;
-			}
-		}
-		return true;
-	}   */
-
-	/**
-	 * Use a string defining context together with a value to create a single kintetic parameter.
-	 * Presence of a regulator can be given as one of: name, name:threshold, ID, ID:threshold.
-	 * Context is described using present regulators.
-
-	void fillFromContext(const string context, set<vector<bool> > & specified, SpecieID specie_ID, int target_value) const {
-		// Obtain strings of the sources
-		vector<string> sources;
-		if (!context.empty()) try {
-			split(sources, context, is_any_of(","));
-		} catch (std::exception & e) {
-			output_streamer.output(error_str, string("Error occured while parsing a context. ").append(e.what()));
-			throw runtime_error("split(\"sources\", " + context + ", \"is_any_of(\",\")\") failed");
-		}
-
-		// Create the mask of present regulators in this context
-		vector<bool> mask(model.getRegulations(specie_ID).size(), false);
-		for (auto source_it = sources.begin(); source_it != sources.end(); source_it++)
-			mask[getPresentRegulator(*source_it, specie_ID)] = true;
-
-		// Add the new regulatory context, if it is coherent and not yet present
-		if (!isContextCoherent(specie_ID, mask)){
-			throw invalid_argument("context " + context + " of the specie " + toString(model.getName(specie_ID)) + " is incoherent");
-		} // Throw an exception if the context is already present
-		else if (!specified.insert(mask).second) {
-			throw invalid_argument("context redefinition found for the specie " + toString(model.getName(specie_ID)));
-		}
-
-		model.addParameter(specie_ID, mask, target_value);
-	}   */
-
-	/**
 	  * Searches for the LOGIC tag and if such is present, uses it for creation of parameters for the specie.
 	  *
 	  * @return true if the LOGIC was found and used
@@ -251,37 +129,6 @@ class NetworkParser {
 			return "";
 	}
 
-	/**
-	 * Starting from the SPECIE node, the function parses all the PARAM tags and reads the data from them.
-
-	void parseParameters(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
-		// Parameters data data
-		string context; string target_val_str; int target_value = -1;
-		auto unspec = getUnspecified(specie_node);
-		set<vector<bool> > specified; // Used for possibility of partial specification
-
-		// Step into first PARAM tag, end when the current node does not have next sibling (all PARAM tags were parsed)
-		for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM", false); parameter; parameter = parameter->next_sibling("PARAM") ) {
-			// Get the mask string.
-			XMLHelper::getAttribute(context, parameter, "context");
-
-			// Get the targte value (set to -1 if uknown or unspecified) and check it
-			if (!XMLHelper::getAttribute(target_val_str, parameter, "value", false))
-				target_value = -1;
-			else if (target_val_str.compare("?") == 0)
-				target_value = -1;
-			else {
-				XMLHelper::getAttribute(target_value, parameter, "value", false);
-				if (target_value < 0 || target_value > static_cast<int>(model.getMax(specie_ID)))
-					throw invalid_argument("target value " + toString(target_value) + " out of range for specie " + toString(model.getName(specie_ID)));
-			}
-
-			fillFromContext(context, specified, specie_ID, target_value);
-		}
-
-		addUnspecified(specified, specie_ID, unspec);
-	}*/
-
 	void makeCanonic(string context) const {
 		vector<string> regs;
 		split(regs, context, is_any_of(","));
@@ -291,7 +138,7 @@ class NetworkParser {
 			auto comma_pos = reg.find(":");
 			if(comma_pos == string::npos)
 				context += reg + ":1";
-			else if (reg[comma_pos + 1] != 0)
+			else if (reg[comma_pos + 1] != '0')
 				context += reg;
 		}
 	}
