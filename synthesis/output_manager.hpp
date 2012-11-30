@@ -75,26 +75,17 @@ public:
    void outputSummary(const size_t total_count) const {
       if (user_options.toDatabase())
          database.finishOutpout();
-      output_streamer.output(verbose_str, "");
-      output_streamer.output("Total number of colors: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".");
+      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
+      output_streamer.output("Total number of colors: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".", trait);
    }
 
    /**
     * Outputs round number - if there are no data within, then erase the line each round.
     */
    void outputRoundNum() const {
-      // erase the last line
-      output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-
       // output numbers
-      OutputStreamer::Trait trait = 0;
-      if (! user_options.toConsole())
-         trait = OutputStreamer::no_newl;
-      output_streamer.output(toString(split_manager.getRoundNum()) + "/" + toString(split_manager.getRoundCount()) + ":", trait);
-
-      // Add a new line if the result is displayed on screen.
-      if (user_options.toConsole())
-         output_streamer.output("");
+      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
+      output_streamer.output("Round: " + toString(split_manager.getRoundNum()) + "/" + toString(split_manager.getRoundCount()) + ":", trait);
    }
 
    /**

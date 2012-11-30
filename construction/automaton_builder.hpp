@@ -26,9 +26,9 @@ class AutomatonBuilder {
    Levels maxes; ///< Maximal activity levels of the species.
    Levels mins; ///< Minimal activity levels of the species.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // COMPUTATION METHODS:
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Compute a vector of maximal levels and store information about states.
     */
@@ -55,7 +55,7 @@ class AutomatonBuilder {
     * For each atom decide its valuation in the current state.
     */
    const map<string, bool> getValuation(const vector<string> & atoms, const vector<pair<SpecieID, set<size_t> > > & values,
-                                                  const Levels & levels) const {
+                                        const Levels & levels) const {
       // Go through atoms
       map<string, bool> valuation;
       for (size_t atom_num = 0; atom_num < atoms.size(); atom_num++) {
@@ -68,9 +68,9 @@ class AutomatonBuilder {
       return valuation;
    }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARSING METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // PARSING METHODS:
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    /**
     * Obtain a vector of individual atoms from the label (their values will then be resolved for valuation).
@@ -159,61 +159,61 @@ class AutomatonBuilder {
       return allowed;
    }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	AutomatonBuilder(const AutomatonBuilder & other); ///< Forbidden copy constructor.
-	AutomatonBuilder& operator=(const AutomatonBuilder & other); ///< Forbidden assignment operator.
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // CONSTRUCTING METHODS:
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   AutomatonBuilder(const AutomatonBuilder & other) = delete;
+   AutomatonBuilder& operator=(const AutomatonBuilder & other) = delete;
 
-	/**
+   /**
     * Creates transitions from labelled edges of BA and passes them to automaton structure.
-	 *
-	 * @param state_num	index of the state of BA 
-	 * @param start_position	index of the last transition created
-	 */
-	void addTransitions(const StateID ID, size_t & transition_count) const {
+    *
+    * @param state_num	index of the state of BA
+    * @param start_position	index of the last transition created
+    */
+   void addTransitions(const StateID ID, size_t & transition_count) const {
       const vector<Model::Egde> & edges = model.getEdges(ID);
 
-		// Transform each edge into transition and pass it to the automaton
-		for (size_t edge_num = 0; edge_num < model.getEdges(ID).size(); edge_num++) {
-			// Compute allowed values from string of constrains
-			Configurations allowed_values = move(getAllowed(edges[edge_num].second));
-			// If the transition is possible for at least some values, add it
+      // Transform each edge into transition and pass it to the automaton
+      for (size_t edge_num = 0; edge_num < model.getEdges(ID).size(); edge_num++) {
+         // Compute allowed values from string of constrains
+         Configurations allowed_values = move(getAllowed(edges[edge_num].second));
+         // If the transition is possible for at least some values, add it
          if (!allowed_values.empty()) {
             automaton.addTransition(ID, edges[edge_num].first, move(allowed_values));
-				transition_count++;
-			}
-		}
-	}
+            transition_count++;
+         }
+      }
+   }
 
 public:
-	/**
+   /**
     * Constructor computes boundaries of the state space and passes references.
-	 */
+    */
    AutomatonBuilder(const Model & _model, AutomatonStructure & _automaton) : model(_model), automaton(_automaton) {
       computeBoundaries();
-	}
+   }
 
-	/**
+   /**
     * Create the transitions from the model and fill the automaton with them.
-	 */
-	void buildAutomaton() {
-		output_streamer.output(verbose_str, "Costructing Buchi automaton.");
-		output_streamer.output(verbose_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
-                     .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
-		size_t transition_count = 0;
+    */
+   void buildAutomaton() {
+      output_streamer.output(verbose_str, "Costructing Buchi automaton.");
+      output_streamer.output(verbose_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab)
+            .output(model.getStatesCount(), OutputStreamer::no_newl).output(".");
+      size_t transition_count = 0;
 
-		// List throught all the automaton states
-		for (StateID ID = 0; ID < model.getStatesCount(); ID++) {
-			// Fill auxiliary data
-			automaton.addState(ID, model.isFinal(ID));
-			// Add transitions for this state
-			addTransitions(ID, transition_count);
-		}
+      // List throught all the automaton states
+      for (StateID ID = 0; ID < model.getStatesCount(); ID++) {
+         // Fill auxiliary data
+         automaton.addState(ID, model.isFinal(ID));
+         // Add transitions for this state
+         addTransitions(ID, transition_count);
+      }
 
       output_streamer.output(verbose_str, "Total number of transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
-                     .output(transition_count, OutputStreamer::no_newl).output(".");
-	}
+            .output(transition_count, OutputStreamer::no_newl).output(".");
+   }
 };
 
 #endif // PARSYBONE_AUTOMATON_BUILDER_INCLUDED

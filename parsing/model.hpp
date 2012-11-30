@@ -45,6 +45,7 @@ public:
    typedef vector<Parameter> Parameters;
 
    typedef pair<StateID, string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label).
+   typedef vector<Egde> Edges;
 
 private:
    /// Structure that holds data about a single specie. Most of the data is equal to that in the model file
@@ -86,7 +87,7 @@ private:
     * @return	index of specie in the vector
     */
    inline size_t addSpecie(string name, size_t max_value, Levels targets, Levels range) {
-      species.push_back({name, species.size(), max_value, targets, range});
+      species.push_back({name, species.size(), max_value, targets, range, Regulations(), Parameters()});
       return species.size() - 1;
    }
 
@@ -120,7 +121,7 @@ private:
     * @return	ID of state in the vector
     */
    inline size_t addState(string name, bool final) {
-      states.push_back({name, states.size(), final});
+      states.push_back({name, states.size(), final, Edges()});
       return states.size() - 1;
    }
 

@@ -6,7 +6,7 @@ SOURCES += \
     ../main.cpp \
     ../sqlite/sqlite3.c
 
-QMAKE_CXXFLAGS += -std=gnu++0x
+QMAKE_CXXFLAGS += -std=c++0x
 
 unix:!macx:!symbian: LIBS += -lpthread -ldl
 
