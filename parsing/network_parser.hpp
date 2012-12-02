@@ -138,8 +138,6 @@ class NetworkParser {
 			auto comma_pos = reg.find(":");
 			if(comma_pos == string::npos)
 				context += reg + ":1";
-			else if (reg[comma_pos + 1] != '0')
-				context += reg;
 		}
 	}
 

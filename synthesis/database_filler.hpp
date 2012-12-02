@@ -49,12 +49,23 @@ class DatabaseFiller {
       sql_adapter.safeExec(update);
    }
 
-   string getContexts() const {
+   string getContexts(bool verbose = false) const {
       string contexts = "";
-      for(SpecieID ID:Common::range(model.getSpeciesCount())) {
-         for(auto param:model.getParameters(ID)) {
-            string context = "\"" + model.getName(ID) + "{" + param.context + "}\" TEXT,";
-            contexts += move(context);
+      if(verbose) {
+         for(SpecieID ID:Common::range(model.getSpeciesCount())) {
+            for(auto param:model.getParameters(ID)) {
+               string context = "K_" + model.getName(ID) + "_" + param.context + " TEXT,";
+               contexts += move(context);
+            }
+         }
+      } else {
+         for(SpecieID ID:Common::range(model.getSpeciesCount())) {
+            for(auto param:model.getParameters(ID)) {
+               string context = "K_" + model.getName(ID) + "_";
+               for (auto values:param.requirements)
+                  context += toString(values.second.front());
+               contexts += move(context) + " TEXT, ";
+            }
          }
       }
       return contexts;

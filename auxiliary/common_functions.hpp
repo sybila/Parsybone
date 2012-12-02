@@ -57,7 +57,7 @@ namespace Common {
    template<typename IntegralType>
    vector<IntegralType> range(const IntegralType begin, const IntegralType end) {
       vector<IntegralType> my_arr(end - begin);
-      for (IntegralType i = 0; i < end - begin; i++) {
+      for (IntegralType i = static_cast<IntegralType>(0); i < end - begin; i++) {
          my_arr[i] = begin + i;
       }
       return my_arr;
@@ -71,7 +71,7 @@ namespace Common {
      */
    template<typename IntegralType>
    vector<IntegralType> range(const IntegralType end) {
-      return range<IntegralType>(0, end);
+      return range<IntegralType>(static_cast<IntegralType>(0), end);
    }
 
    /**
@@ -82,7 +82,7 @@ namespace Common {
      */
    template<typename SeqType>
    vector<size_t> scope(const SeqType & container) {
-      return range(0, container.size());
+      return range(static_cast<SeqType>(0), container.size());
    }
 
    /**

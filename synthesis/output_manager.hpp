@@ -143,8 +143,7 @@ public:
             update += "\"" + *witness_it + "\",";
          } update.back() = ')';
 
-         if (user_options.toConsole())
-            output_streamer.output(results_str, line);
+         output_streamer.output(results_str, line);
          if (user_options.toDatabase())
             database.addParametrization(update);
 
