@@ -35,8 +35,6 @@ class ModelParser {
    const rapidxml::xml_node<> * initiateParsing() const {
       // Temporaries
       rapidxml::xml_node<> *current_node;
-      float file_version;
-      string unspec;
 
 		// Step into first MODEL (main) tag
 		current_node = model_xml.first_node();
