@@ -43,7 +43,8 @@ class ModelParser {
 		if (strcmp(current_node->name(), "MODEL") != 0)
 			throw runtime_error(string("Parsed found out that input does not start with the tag <MODEL> but with the <")
 											 .append(current_node->name()).append("> instead").c_str());
-      // Find a version number
+
+		/* // Find a version number
 		XMLHelper::getAttribute(file_version, current_node, "ver");
       if (file_version < program_version) {
          output_streamer.output(verbose_str, string("Version of the file (").append(toString(file_version)).append(") is lower than version of the program (")
@@ -53,7 +54,7 @@ class ModelParser {
                         .append(toString(program_version)).append("). Some functionality  of the program can be missing."));
       }
       // Pass additional information (version number)
-		model.addAdditionalInformation(file_version);
+      model.addAdditionalInformation(file_version); */
 
 		return current_node;
 	}
