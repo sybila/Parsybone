@@ -86,8 +86,8 @@ private:
     *
     * @return	index of specie in the vector
     */
-   inline size_t addSpecie(string name, size_t max_value, Levels targets, Levels range) {
-      species.push_back({name, species.size(), max_value, targets, range, Regulations(), Parameters()});
+   inline size_t addSpecie(string name, size_t max_value, Levels targets) {
+      species.push_back({name, species.size(), max_value, targets, range(max_value + 1), Regulations(), Parameters()});
       return species.size() - 1;
    }
 

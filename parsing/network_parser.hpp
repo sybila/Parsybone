@@ -141,6 +141,33 @@ class NetworkParser {
 		}
 	}
 
+	/**
+	 * @brief getCanonic
+	 * @param context
+	 * @param target_ID
+	 * @return
+	 */
+	string getCanonic(const string & context, const SpecieID target_ID) const {
+		string new_context;
+		auto names = model.getRegulatorsNames(target_ID);
+		for (auto name:names) {
+			new_context += name;
+			auto pos = context.find(name);
+			auto colon_pos = pos + pos + name.length();
+			if (pos == context.npos)
+				new_context += ":0,";
+			else if (pos != context.npos && context[colon_pos] != ':')
+				new_context += ":1,";
+			else if (pos != context.npos && context[colon_pos] != ':') {
+				new_context += ":";
+				while(isdigit(context[++colon_pos]))
+					new_context.append(1, isdigit(context[colon_pos]));
+				new_context += ",";
+			}
+		}
+		return new_context.substr(0, new_context.length() - 1);
+	}
+
 	void replaceExplicit(Model::Parameters & parameters, const rapidxml::xml_node<> * const specie_node, const SpecieID target_ID) const {
 		for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM", false); parameter; parameter = parameter->next_sibling("PARAM") ) {
 			string context = "", target_val_str = "";
@@ -149,7 +176,7 @@ class NetworkParser {
 
 			// Get the mask string.
 			XMLHelper::getAttribute(context, parameter, "context");
-			makeCanonic(context);
+			context = getCanonic(context, target_ID);
 
 			// Get the targte value (set to -1 if uknown or unspecified) and check it
 			if (!XMLHelper::getAttribute(target_val_str, parameter, "value", false)) {
@@ -177,15 +204,19 @@ class NetworkParser {
 		Levels bottom, context, top;
 		Model::Parameters parameters;
 
+		// These containers hold number of thresholds pre regulator.
 		for (auto & source_thresholds:all_thresholds) {
 			bottom.push_back(0);
 			context.push_back(0);
 			top.push_back(source_thresholds.second.size());
 		}
 
+		// Loop over all the contexts.
 		do {
 			FormulaeParser::Vals present_regulators;
 			Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
+
+			// Loop over all the sources.
 			for (auto source_num:range(context.size())) {
 				string source_name = names[source_num];
 				StateID source_ID = IDs[source_num];
@@ -250,7 +281,7 @@ class NetworkParser {
 			}
 
 			// Create a new specie
-			model.addSpecie(name, max, targets, range(max + 1));
+			model.addSpecie(name, max, targets);
 		}
 	}
 

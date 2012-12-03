@@ -8,20 +8,18 @@ enum Tests {
 };
 
 class Tester {
-   Model getModel() {
-      Model model;
-      model.addSpecie("A", 1, 1);
-      model.addSpecie("B", 3, 1);
+   void fillModel(Model & model) {
+      model.addSpecie("A", 1, {0,1});
+      model.addSpecie("B", 3, {0,1});
       model.addRegulation(0, 1, 1, "+");
       model.addRegulation(0, 0, 1, "-");
       model.addRegulation(1, 0, 1, "-");
       model.addRegulation(1, 0, 3, "- | +");
-
-      return model;
    }
 
    bool testModelFunctions() {
-      Model model = getModel();
+      Model model;
+      fillModel(model);
       auto tresholds = model.getThresholds(0);
       if (tresholds.size() != 2) {
          cout << "Wrong number of regulators.";
@@ -34,8 +32,20 @@ class Tester {
    }
 
    bool testNetworkParser() {
-      Model model = getModel();
+      Model model;
+      fillModel(model);
       NetworkParser parser(model);
+
+      parser.createParameters(0, "");
+      parser.createParameters(1, "");
+
+      string reform = parser.getCanonic("B", 0);
+      cout << "Reform " << reform << endl;
+      reform = parser.getCanonic("", 1);
+      cout << "Reform " << reform << endl;
+      reform = parser.getCanonic("A", 1);
+      cout << "Reform " << reform << endl;
+
       parser.fillActivationLevels();
       if (model.getRegulations(0)[1].activity.size() != 2) {
          cout << "Wrong number of activity levels.";
@@ -48,9 +58,6 @@ class Tester {
          return false;
       }
       return true;
-
-      parser.createContexts(0);
-      parser.createContexts(1);
    }
 
    bool testFormulaeParser() {

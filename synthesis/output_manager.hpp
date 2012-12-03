@@ -75,8 +75,8 @@ public:
    void outputSummary(const size_t total_count) const {
       if (user_options.toDatabase())
          database.finishOutpout();
-      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
-      output_streamer.output("Total number of colors: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".", trait);
+      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::rewrite_ln;
+      output_streamer.output(verbose_str, "Total number of colors: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".", trait);
    }
 
    /**
@@ -85,7 +85,7 @@ public:
    void outputRoundNum() const {
       // output numbers
       OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
-      output_streamer.output("Round: " + toString(split_manager.getRoundNum()) + "/" + toString(split_manager.getRoundCount()) + ":", trait);
+      output_streamer.output(verbose_str, "Round: " + toString(split_manager.getRoundNum()) + "/" + toString(split_manager.getRoundCount()) + ":", trait);
    }
 
    /**
