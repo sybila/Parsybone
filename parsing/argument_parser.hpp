@@ -84,13 +84,17 @@ class ArgumentParser {
       // Apply the modifier.
       if (position->compare("--dist") == 0) {
          return getDistribution(position, arguments.end());
-      } else if (position->compare("--file") == 0) {
+      } else if (position->compare("--data") == 0) {
+         user_options.use_textfile = true;
          return getFileName(datatext, position, arguments.end());
       } else if (position->compare("--base") == 0) {
+         user_options.use_database = true;
          return getFileName(database, position, arguments.end());
       } else if (position->compare("--min") == 0) {
+         user_options.use_in_mask = true;
          return getFileName(input_mask, position, arguments.end());
       } else if (position->compare("--mout") == 0) {
+         user_options.use_out_mask = true;
          return getFileName(output_mask, position, arguments.end());
       } else {
          throw invalid_argument("Unknown modifier " + *position);

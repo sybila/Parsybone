@@ -5,44 +5,54 @@ open-source 2012, GNU GPL v3, uses:
 	Boost Libraries ( http://www.boost.org/ )
 	RapidXML ( see http://rapidxml.sourceforge.net/ )
 
-Contents of the archive:
+Contents of the repository:
+	main.cpp: source file of the program, 
+	test.cpp source for the testing suite
 	auxiliary, construction, parsing, synthesis: header files of the program
-	main.cpp: source file of the program
+	test: header files of the testing suite
+	sqlite: source of Sqlite3 
+
+	ParsyboneMain, ParsyboneTesting: QTCreator projects
+
+	example_model.dbm: simple example model for usage with the tool
+
 	manual_v_1_0_0_0.pdf: user manual for the program
-	parsybone: Unix executable for the file, built for x86 series processors on 32-bit Ubuntu, version 12; 
-	           CAUTION, author takes no responsibility for functionality of the executable!
-	           The code should be built on the target platform before using.
-	example_model.dbm: simple example model for usage with the tool, referenced in the manual
 	reference_v_1_0_0_0.pdf: source code description in the pdf file form
 	reference_v_1_0_0_0_HTML: source code description in the form of HTML we pages.
 
 Requirements:
-	GCC v4.5.0 or Microsoft Visual C++ Compiler 10.0
-	Boost libraries v1.4.4
+	GCC v4.6.0 or newer on Linux and Mac, MinGW 4.6.0 or newer on the Windows platform
+	Boost libraries (only header are required) version 1.47 or newer.
+	Sqlite3 (is part of the repository)
+	DL library, Pthread library (usually present by default)
 	
 Building:
-	Apart from the boost libraries there are no additional dependencies. Using the g++ one should currently specify usage of C++11 (-std=c++0x parameter).
+	Use the QTCreator or:
 
+	Build Sqlite:
+	gcc -c sqlite/sqlite.c
+	Build Parsybone:
+	g++ -o parsybone main.cpp sqlite.o -ldl -lpthread 
+		(if you do not have Boost libraries in the default include directory, then use -I "path to boost version")
+	
 Execution:
-	Parsybone model_file.dbm [-rsvwW] [-d process_ID number_of_processes] [-f results_file] [-m input_mask_file] [-M output_mask_file]
+	parsybone model.dbm [-cdfmMrvwW] [--data database_file] [--file text_file]  [--min bitmask_file] [--mout bitmask_file]  [--dist I N]
 
-	model_file.dbm	name of the file that will be parsed and used, must have .dbm suffix
+	model.dbm	name of the file that will be parsed and used, must have .dbm suffix
+	model is used as the name of the model further in the program
 	
-	-r	display robustness of a color
-	-s	show statistics
-	-v	use verbose output
-	-w	show witnesses in with numbers of states
-	-W 	show witnesses in with actual values of states
+	-c	display computation results on console
+	-d	output computation results to an sqlite database
+		by default the file is model.sqlite, can be changed using the --data switch
+	-f	output computation results to a text file
+		by default the file is model.out, can be changed using the --file switch
+	-m	use an input mask for parametrization filtering
+		by default the file is model.pbm, can be changed using the --min switch
+	-M	output parametrizations as a mask
+		by default the file is model.pbm, can be changed using the --mout switch
+	-r	compute robustness of a time series
+	-v 	verbose (output progress to console)
+	-w	compute witnesses and store them in encoded form
+	-W	compute witnesses and store them in explicit form
 	
-	-d #num1 #num2	Used for distributed computation - process will compute only part of the parameter space as given in the second number, first number determines which part it is
-	-f #filename	Name of the file that will store the results.
-	-m #filename	Name of the file that holds bitmask for used colors
-	-M #filename	Name of the file to output bitmask from this computation
-
-Output:
-	Data from the "verbose" stream are printed on lines starting with * 
-	Data from the "statistics" stream are printed on lines starting with #
-	Data from the "error" stream are printed on lines starting with !
-	
-	Results are printed without prefix in the form:
-	acceptable_parametrization_number:actual_parametrization_values:[cost]:[robustness_value]:[{time_series_walks_transitions}]
+	--dist	used for distributed computation with two integers, denoting the I-th process out of N. Total - each of those tests only 1/N of the parametrization space.
