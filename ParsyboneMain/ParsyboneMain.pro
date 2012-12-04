@@ -57,6 +57,4 @@ HEADERS += \
     ../construction/unparametrized_structure.hpp \
     ../construction/unparametrized_structure_builder.hpp \
     ../synthesis/SQLAdapter.hpp \
-    ../sqlite/sqlite3ext.h \
-    ../sqlite/sqlite3.h \
-    ../parsing/bitmask_manager.hpp \
+    ../parsing/bitmask_manager.hpp
