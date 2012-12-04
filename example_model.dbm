@@ -1,9 +1,10 @@
 <MODEL ver="1.0">
     <STRUCTURE>
-        <SPECIE undef="basal">
-            <REGUL source="B" threshold ="1" observ="1" />
+        <SPECIE >
+            <REGUL source="B" />
             <REGUL source="A" />            
             <LOGIC formula="(B &amp; !A)" />
+	    <PARAM context="A:1,B" value="1" />   	
         </SPECIE>
         <SPECIE >
             <REGUL source="A" />

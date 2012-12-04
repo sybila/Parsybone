@@ -127,18 +127,6 @@ class NetworkParser {
 			return "";
 	}
 
-	void makeCanonic(string context) const {
-		vector<string> regs;
-		split(regs, context, is_any_of(","));
-		context = "";
-		for (auto reg:regs) {
-			trim(reg);
-			auto comma_pos = reg.find(":");
-			if(comma_pos == string::npos)
-				context += reg + ":1";
-		}
-	}
-
 	/**
 	 * @brief getCanonic
 	 * @param context
@@ -154,12 +142,12 @@ class NetworkParser {
 			auto colon_pos = pos + pos + name.length();
 			if (pos == context.npos)
 				new_context += ":0,";
-			else if (pos != context.npos && context[colon_pos] != ':')
+			else if (context[colon_pos] != ':')
 				new_context += ":1,";
-			else if (pos != context.npos && context[colon_pos] != ':') {
+			else {
 				new_context += ":";
 				while(isdigit(context[++colon_pos]))
-					new_context.append(1, isdigit(context[colon_pos]));
+					new_context.append(1, context[colon_pos]);
 				new_context += ",";
 			}
 		}
@@ -174,23 +162,30 @@ class NetworkParser {
 
 			// Get the mask string.
 			XMLHelper::getAttribute(context, parameter, "context");
-			context = getCanonic(context, target_ID);
+			string new_context = getCanonic(context, target_ID);
 
 			// Get the targte value (set to -1 if uknown or unspecified) and check it
-			if (!XMLHelper::getAttribute(target_val_str, parameter, "value", false)) {
-				XMLHelper::getAttribute(target_val, parameter, "value", false);
-				if (target_val < model.getMin(target_ID) || target_val > model.getMax(target_ID))
-					throw invalid_argument("target value " + target_val_str + " out of range for specie " + model.getName(target_ID));
-				targets = Levels(1, target_val);
-			}
-			else if (target_val_str.compare("?") == 0)
-				targets = model.getRange(target_ID);
-
-			for(auto param:parameters) {
-				if (param.context == context) {
-					param.targets = targets;
+			if (XMLHelper::getAttribute(target_val_str, parameter, "value", false)) {
+				if (target_val_str == "?") {
+					targets = model.getRange(target_ID);
+				} else {
+					XMLHelper::getAttribute(target_val, parameter, "value", false);
+					if (target_val < model.getMin(target_ID) || target_val > model.getMax(target_ID))
+						throw invalid_argument("target value " + target_val_str + " out of range for specie " + model.getName(target_ID));
+					targets = Levels(1, target_val);
 				}
 			}
+			else
+				targets = model.getRange(target_ID);
+
+			for(auto & param:parameters) {
+				if (param.context == new_context) {
+					param.targets = targets;
+					return;
+				}
+			}
+
+			throw runtime_error("Given context " + context + "not mached, probably incorrect.");
 		}
 	}
 
@@ -221,10 +216,12 @@ class NetworkParser {
 				auto & thresholds = all_thresholds.find(source_ID)->second;
 				ActLevel threshold = (context[source_num] == 0) ? 0 : thresholds[context[source_num] - 1];
 				string regulation_name = source_name + ":" + toString(threshold);
-				if (!formula.empty())
+				if (!formula.empty()) {
+					if (threshold == 1)
+						present_regulators.insert(FormulaeParser::Val(source_name, 1));
 					present_regulators.insert(FormulaeParser::Val(regulation_name, 1));
-				if (threshold > 0)
-					parameter.context += regulation_name + ",";
+				}
+				parameter.context += regulation_name + ",";
 				ActLevel next_th = (context[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[context[source_num]];
 				Levels activity_levels = range(threshold, next_th);
 				parameter.requirements.insert(make_pair(source_ID, activity_levels));
@@ -233,6 +230,8 @@ class NetworkParser {
 				for (auto regul:model.getRegulations(target_ID)) {
 					if (present_regulators.find(regul.name) == present_regulators.end()) {
 						present_regulators.insert(FormulaeParser::Val(regul.name, 0));
+						if (regul.threshold == 1)
+							present_regulators.insert(FormulaeParser::Val(model.getName(regul.source), 0));
 					}
 				}
 				parameter.targets = Levels(1, FormulaeParser::resolve(present_regulators, formula));
