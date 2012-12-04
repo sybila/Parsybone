@@ -3,8 +3,7 @@
         <SPECIE >
             <REGUL source="B" />
             <REGUL source="A" />            
-            <LOGIC formula="(B &amp; !A)" />
-	    <PARAM context="A:1,B" value="1" />   	
+            <LOGIC formula="(B &amp; !A)" /> 	
         </SPECIE>
         <SPECIE >
             <REGUL source="A" />

@@ -178,14 +178,16 @@ class NetworkParser {
 			else
 				targets = model.getRange(target_ID);
 
+			bool found = false;
 			for(auto & param:parameters) {
 				if (param.context == new_context) {
 					param.targets = targets;
-					return;
+					found = true;
+					break;
 				}
 			}
-
-			throw runtime_error("Given context " + context + "not mached, probably incorrect.");
+			if (! found)
+				throw runtime_error("Given context " + context + "not mached, probably incorrect.");
 		}
 	}
 
