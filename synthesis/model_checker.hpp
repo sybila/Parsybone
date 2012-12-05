@@ -72,7 +72,7 @@ class ModelChecker {
 				temporary <<= bits_in_step;
 				// If transitive, add ones for the width of the step
 				if (transitive_values[value_num]) {
-					auto add = INF;
+					Paramset add = INF;
 					add >>= (paramset_helper.getSetSize() - bits_in_step);
 					temporary |= add;
 				}
@@ -150,7 +150,7 @@ class ModelChecker {
 		param_updates.reserve(product.getTransitionCount(ID));
 
 		size_t KS_state = product.getKSID(ID);
-		auto loop_params = INF; // Which of the parameters allow only to remain in this state
+		Paramset loop_params = INF; // Which of the parameters allow only to remain in this state
 
 		// Cycle through all the transition
 		for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
