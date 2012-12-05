@@ -166,7 +166,7 @@ class NetworkParser {
 
 			// Get the targte value (set to -1 if uknown or unspecified) and check it
 			if (XMLHelper::getAttribute(target_val_str, parameter, "value", false)) {
-				if (target_val_str == "?") {
+				if (target_val_str.compare("?") == 0) {
 					targets = model.getRange(target_ID);
 				} else {
 					XMLHelper::getAttribute(target_val, parameter, "value", false);
@@ -180,7 +180,7 @@ class NetworkParser {
 
 			bool found = false;
 			for(auto & param:parameters) {
-				if (param.context == new_context) {
+				if (param.context.compare(new_context) == 0) {
 					param.targets = targets;
 					found = true;
 					break;
