@@ -139,7 +139,7 @@ class NetworkParser {
 		for (auto name:names) {
 			new_context += name;
 			auto pos = context.find(name);
-			auto colon_pos = pos + pos + name.length();
+			auto colon_pos = pos + name.length();
 			if (pos == context.npos)
 				new_context += ":0,";
 			else if (context[colon_pos] != ':')
@@ -172,7 +172,7 @@ class NetworkParser {
 					XMLHelper::getAttribute(target_val, parameter, "value", false);
 					if (target_val < model.getMin(target_ID) || target_val > model.getMax(target_ID))
 						throw invalid_argument("target value " + target_val_str + " out of range for specie " + model.getName(target_ID));
-					targets = Levels(1, target_val);
+					targets.push_back(target_val);
 				}
 			}
 			else
