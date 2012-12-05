@@ -33,7 +33,7 @@ class LabelingBuilder {
     * @param ID	ID of the specie to compute the kinetic parameters for
     * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
     */
-   void addRegulations(const SpecieID target_ID, size_t & step_size) const {
+   void addRegulations(const SpecieID target_ID, ParamNum & step_size) const {
       // get referecnces to Specie data
       const auto & tparams = model.getParameters(target_ID);
 
@@ -82,7 +82,7 @@ public:
 		output_streamer.output(verbose_str, "Costructing Regulatory kinetics for ", OutputStreamer::no_newl)
 				.output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
 
-		size_t step_size = 1; // Variable necessary for encoding of colors
+		ParamNum step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through all the species
 		for (auto ID:range(model.getSpeciesCount())) {

@@ -20,13 +20,13 @@
 /// All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SplitManager {
-   ColorNum all_colors_count; ///< All the parameters.
-   ColorNum process_color_count; ///< All the parameters.
+   ParamNum all_colors_count; ///< All the parameters.
+   ParamNum process_color_count; ///< All the parameters.
    size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
    RoundNum rounds_count; ///< Number of rounds totally.
    RoundNum round_number; ///< Number of this round (starting from 0).
-   ColorNum round_begin; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
-   ColorNum round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
+   ParamNum round_begin; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
+   ParamNum round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION METHODS
@@ -37,7 +37,7 @@ class SplitManager {
 	void computeSubspace() {
 		// Number of full rounds for all processes
 		rounds_count = all_colors_count / (user_options.procCount() * paramset_helper.getSetSize());
-		ColorNum rest_bits = all_colors_count % (user_options.procCount() * paramset_helper.getSetSize());
+		ParamNum rest_bits = all_colors_count % (user_options.procCount() * paramset_helper.getSetSize());
 		last_round_bits = paramset_helper.getSetSize();
 
 		// If there is some leftover, add a round
@@ -73,7 +73,7 @@ public:
 	 * @param _process_number	index of this process
 	 * @param _parameters_count	complete number of parameters that have to be tested by all the processes
 	 */
-	SplitManager(ColorNum _all_colors_count) {
+	SplitManager(ParamNum _all_colors_count) {
 		all_colors_count = _all_colors_count;
 		// Compute the rest
 		computeSubspace();
@@ -108,7 +108,7 @@ public:
 	/**
 	 * @return	total number of parameters for all the processes
 	 */ 
-	inline ColorNum getAllColorsCount() const {
+	inline ParamNum getAllColorsCount() const {
 		return all_colors_count;
 	}
 
@@ -122,14 +122,14 @@ public:
 	/**
 	 * @return	number of bits in current round
 	 */
-	inline ColorNum getRoundSize() const {
+	inline ParamNum getRoundSize() const {
 		return round_end - round_begin;
 	}
 
 	/**
 	 * @return	range with first and one before last parameter to compute for this process
 	 */ 
-	inline ColorNum getProcColorsCount() const {
+	inline ParamNum getProcColorsCount() const {
 		return process_color_count;
 	}
 

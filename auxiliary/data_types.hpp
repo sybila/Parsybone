@@ -104,7 +104,7 @@ typedef vector<Levels> Configurations;
 typedef unsigned int Paramset;
 
 /// Index of the color - may be a big number.
-typedef long long ColorNum;
+typedef unsigned long long ParamNum;
 
 /// Index of the color - may be a big number as well.
 typedef unsigned long long RoundNum;
@@ -116,7 +116,7 @@ typedef vector<StateID> Neighbours;
 typedef pair<StateID, Paramset> Coloring;
 
 /// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not.
-typedef pair<ColorNum, ColorNum> Range;
+typedef pair<ParamNum, ParamNum> Range;
 
 /// this value represents infinite value - used for showing that a variable is unset
 const size_t INF = static_cast<size_t>(~0);

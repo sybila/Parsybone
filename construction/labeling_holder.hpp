@@ -24,7 +24,7 @@ class LabelingHolder {
 
    /// Storing a regulatory function in explicit form.
    struct RegulatoryFunction {
-      size_t step_size; ///< How many neighbour parameters have the same value for this function.
+      ParamNum step_size; ///< How many neighbour parameters have the same value for this function.
       Levels possible_values; ///< Levels towards which this function can regulate.
       Configurations source_values;  ///< Values at which the regulations are active.
 
@@ -48,7 +48,7 @@ class LabelingHolder {
    vector<Specie> species;
 
    /// Total number of parameters (colors).
-   size_t parameter_count;
+   ParamNum parameter_count;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // FILLING METHODS (can be used only from LabelingBuilder)

@@ -15,10 +15,10 @@
 
 /// Storing a single transition to neighbour state together with its transition function.
 struct ParTransitionion : public TransitionProperty {
-   size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
+	ParamNum step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
 	vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
-	ParTransitionion(const StateID target_ID, const size_t _step_size, vector<bool>&& _transitive_values)
+   ParTransitionion(const StateID target_ID, const ParamNum _step_size, vector<bool>&& _transitive_values)
       : TransitionProperty(target_ID), step_size(_step_size), transitive_values(move(_transitive_values)) {} ///< Simple filler, assigns values to all the variables.
 };
 
@@ -57,7 +57,7 @@ class UnparametrizedStructure : public GraphInterface<ParState> {
 	 *
 	 * Add a new transition to the source specie, containg necessary edge labels for the CMC
 	 */
-	inline void addTransition(const StateID ID, const StateID target_ID, const size_t step_size, vector<bool>&& transitive_values) {
+	inline void addTransition(const StateID ID, const StateID target_ID, const ParamNum step_size, vector<bool>&& transitive_values) {
 		states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, move(transitive_values)));
 	}
 
@@ -88,7 +88,7 @@ public:
 	 *
 	 * @return	number of neighbour parameters that share the same value of the function
 	 */
-	inline size_t getStepSize(const StateID ID, const size_t transtion_num) const {
+	inline ParamNum getStepSize(const StateID ID, const size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].step_size;
 	}
 

@@ -39,7 +39,7 @@ class UnparametrizedStructureBuilder {
 	 *
     * @return true it the state satisfy the requirements
 	 */
-	bool testRegulators(const vector<StateID> & source_species, const vector<vector<size_t> > & source_values, const Levels & state_levels) {
+	bool testRegulators(const vector<StateID> & source_species, const Configurations & source_values, const Levels & state_levels) {
 		// List throught regulating species of the function
 		for (size_t regulator_num = 0; regulator_num < source_species.size(); regulator_num++) {
 			bool is_included = false; // Remains false if the specie level is not in allowed range
@@ -70,7 +70,7 @@ class UnparametrizedStructureBuilder {
 	 *
 	 * @return function that might lead to the next state
 	 */
-	size_t getActiveFunction(const size_t specie_ID, const Levels & state_levels) {
+	size_t getActiveFunction(const SpecieID specie_ID, const Levels & state_levels) {
 		// Source species that will be tested
 		const vector<size_t> & source_species = regulatory_functions.getSourceSpecies(specie_ID);
 
@@ -99,7 +99,7 @@ class UnparametrizedStructureBuilder {
 	 *
 	 * @return mask of transitivity - false means the value is not allowed for this transition
 	 */
-	vector<bool> fillTransitivityData(const Direction direction, const size_t current_specie_level, const vector<size_t> & possible_values){
+	vector<bool> fillTransitivityData(const Direction direction, const size_t current_specie_level, const Levels & possible_values){
 		// Vector to fill
 		vector<bool> transitive_values;
 		// Based on direction of the change create a mask of transitivity for all parameter values
@@ -140,7 +140,7 @@ class UnparametrizedStructureBuilder {
 	 * @return true if there is a possibility of transition, false otherwise
 	 */
 	bool fillFunctions(const StateID ID, const StateID neighbour_index, const Levels & state_levels,
-		                     size_t & step_size, vector<bool> & transitive_values) {
+									ParamNum & step_size, vector<bool> & transitive_values) {
 		// Get ID of the regulated specie
 		const size_t specie_ID = basic_structure.getSpecieID(ID, neighbour_index);
 
@@ -176,7 +176,7 @@ class UnparametrizedStructureBuilder {
 		for (size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(ID); trans_num++) {
 			// Data to fill
 			StateID target_ID = basic_structure.getTargetID(ID, trans_num); // ID of the state the transition leads to
-			size_t step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
+			ParamNum step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
 			vector<bool> transitive_values; // Which of possible are used (in this case)
 
 			// Fill data about the transition and check if it is even feasible

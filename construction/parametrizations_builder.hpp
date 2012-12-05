@@ -215,10 +215,10 @@ class ParametrizationsBuilder {
 	 *
 	 * @return	how many colors are there together
 	 */
-	size_t getBoundaries(const SpecieID ID, vector<size_t> & bottom_color, vector<size_t> & top_color) {
+	ParamNum getBoundaries(const SpecieID ID, vector<size_t> & bottom_color, vector<size_t> & top_color) {
 		// Obtain all regulations
 		auto parameters = model.getParameters(ID);
-		size_t colors_num = 1;
+		ParamNum colors_num = 1;
 		
 		// Cycle through regulations
 		for (auto param:parameters) {

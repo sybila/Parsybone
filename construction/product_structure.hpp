@@ -15,10 +15,10 @@
 
 /// Storing a single transition to a neighbour state together with its transition function.
 struct ProdTransitiontion : public TransitionProperty {
-   size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
+	ParamNum step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
 	vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
 
-	ProdTransitiontion(const StateID target_ID, const size_t _step_size, const vector<bool>& _transitive_values)
+   ProdTransitiontion(const StateID target_ID, const ParamNum _step_size, const vector<bool>& _transitive_values)
       : TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {} ///< Simple filler, assigns values to all the variables.
 };
 

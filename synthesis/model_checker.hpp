@@ -55,7 +55,7 @@ class ModelChecker {
 	void passParameters(Paramset & passed, const size_t step_size, const vector<bool> & transitive_values) const {
 		// INITIALIZATION OF VALUES FOR POSITIONING
 		// Number of the first parameter
-		ColorNum param_num = synthesis_range.first;
+		ParamNum param_num = synthesis_range.first;
 		// First value might not bet 0 - get it from current parameter position
 		size_t value_num = (param_num / step_size) % transitive_values.size();
 		// Mask that will be created

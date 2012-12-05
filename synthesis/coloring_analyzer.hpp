@@ -21,8 +21,8 @@ class ColoringAnalyzer {
 
    map<StateID, Paramset> colorings; ///< Vector that stores individual states after the coloring procedure.
 
-	ColorNum parameter_begin; ///< Ordinal number of the first parametrization in this round.
-	ColorNum parameter_end; ///< Ordinal number of the last parametrization used in this round.
+	ParamNum parameter_begin; ///< Ordinal number of the first parametrization in this round.
+	ParamNum parameter_end; ///< Ordinal number of the last parametrization used in this round.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTING METHODS
@@ -69,14 +69,14 @@ class ColoringAnalyzer {
 	 *
     * @return  ordinal number of the parametrizations that are feasible
 	 */
-   const vector<ColorNum> buildNumbers(const Paramset result_parameters) const {
+   const vector<ParamNum> buildNumbers(const Paramset result_parameters) const {
 		// Vector to fill
-		vector<ColorNum> numbers;
+		vector<ParamNum> numbers;
 		// Store a mask for each color with just its bit on, other off
 		  Paramset color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
 		// Cycle through all round colors
-		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
+		for (ParamNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters & color_mask)
 				numbers.push_back(col_num);
@@ -101,7 +101,7 @@ class ColoringAnalyzer {
 		  Paramset color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
 		// Cycle through all round colors
-		for (ColorNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
+		for (ParamNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters & color_mask)
 				strings.push_back(parametrizations.createColorString(col_num));
@@ -172,7 +172,7 @@ public:
 	 *
     * @return  ordinal number of the parametrizations that are acceptable
 	 */
-	const vector<ColorNum> getNumbers(const StateID ID) const {
+	const vector<ParamNum> getNumbers(const StateID ID) const {
 		auto coloring = colorings.find(ID);
 		if (coloring != colorings.end())
 			return buildNumbers(coloring->second);
@@ -183,7 +183,7 @@ public:
 	/**
     * @return  ordinal numbers of the parametrizations that are acceptable in this round
 	 */
-	const vector<ColorNum> getNumbers() const {
+	const vector<ParamNum> getNumbers() const {
 		return buildNumbers(getMask());
 	}
 

@@ -24,8 +24,8 @@ class ParametrizationsHolder {
 	struct SpecieColors {
       SpecieID ID; ///< Unique ID of the specie.
       vector<Levels> subcolors; ///< Feasible subcolors of the specie.
-      size_t possible_count; ///< Total number of subcolors possible for the specie(even those unfesible).
-      size_t acceptable_count; ///< Number of subcolors this state really has (equal to the subcolors.size()).
+      ParamNum possible_count; ///< Total number of subcolors possible for the specie(even those unfesible).
+      ParamNum acceptable_count; ///< Number of subcolors this state really has (equal to the subcolors.size()).
 
       /// Add as new subcolor (to the end of the vector).
 		void push_back (vector<size_t> subcolor) {
@@ -75,10 +75,10 @@ public:
 	}
 
 	/**
-	 * @return	size of the parameter space used in the computation
+	 * @return	size of the parametrization space used in the computation
 	 */
-	size_t getSpaceSize() const {
-		size_t space_size = 1;
+	ParamNum getSpaceSize() const {
+		ParamNum space_size = 1;
 		for (const auto & color:colors) {
 			space_size *= color.acceptable_count;
 		}
@@ -91,7 +91,7 @@ public:
 	 *
 	 * @return	requested subcolor from the vector of subcolors of given specie
 	 */
-	inline const vector<size_t> & getColor(const SpecieID ID, const ColorNum color_num) const {
+	inline const vector<size_t> & getColor(const SpecieID ID, const ParamNum color_num) const {
 		return colors[ID].subcolors[static_cast<size_t>(color_num)];
 	}
 
@@ -127,9 +127,9 @@ public:
 	 *
 	 * @return string representation of given parametrisation
 	 */
-	const string createColorString(ColorNum number) const {
+	const string createColorString(ParamNum number) const {
 		// compute numbers of partial parametrizations for each component
-		const vector<ColorNum> color_parts = move(getSpecieVals(number));
+		const vector<ParamNum> color_parts = move(getSpecieVals(number));
 
 		string color_str = "(";
 		// cycle through the species
@@ -154,13 +154,13 @@ public:
 	 *
 	 * @return ordinal numbers of partial parametrizations in a vector indexed by IDs of the species
 	 */
-	const vector<ColorNum> getSpecieVals(ColorNum number) const {
+	const vector<ParamNum> getSpecieVals(ParamNum number) const {
 		// Prepare storage vector
-		vector<ColorNum> specie_vals(colors.size());
+		vector<ParamNum> specie_vals(colors.size());
 		auto reverse_val_it = specie_vals.rbegin();
 
 		// Go through colors backwards
-		ColorNum divisor = getSpaceSize();
+		ParamNum divisor = getSpaceSize();
 		for (auto specie_it = colors.rbegin(); specie_it != colors.rend(); specie_it++, reverse_val_it++) {
 			// lower divisor value
 			divisor /= specie_it->acceptable_count;

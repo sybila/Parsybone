@@ -44,7 +44,7 @@ public:
    /**
     * @return  paramset that holds value of the binary form 10...0 (leftmost parametrization)
     */
-   Paramset getLeftOne(ColorNum size = subset_size ) const {
+   Paramset getLeftOne(ParamNum size = subset_size ) const {
       return (1 << (size - 1));
    }
 
