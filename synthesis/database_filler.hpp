@@ -35,14 +35,19 @@ class DatabaseFiller {
       sql_adapter.safeExec(update);
    }
 
-   void fillInteractions() {
-      prepareTable(REGULATIONS_TABLE, "(Regulator TEXT, Target TEXT, Threshold INTEGER)");
+   void fillRegulations() {
+      prepareTable(REGULATIONS_TABLE, "(Regulator TEXT, Target TEXT, Thresholds TEXT)");
       string update = "";
       for(SpecieID target_ID:range(model.getSpeciesCount())) {
-         for(auto regul:model.getRegulations(target_ID)) {
-            string values = "(\"" + model.getName(regul.source) + "\", ";
+         for(auto regul:model.getThresholds(target_ID)) {
+            string values = "(\"" + model.getName(regul.first) + "\", ";
             values += "\"" + model.getName(target_ID) + "\", ";
-            values += toString(regul.threshold) + "); \n";
+            values += "\"";
+            for (auto threshold:regul.second) {
+               values += toString(threshold) + ",";
+            }
+            values.back() = '\"';
+            values += "); \n";
             update += makeInsert(REGULATIONS_TABLE) + values;
          }
       }
@@ -79,7 +84,7 @@ class DatabaseFiller {
          columns += "Robustness REAL,";
       if (user_options.witnesses())
          columns += "Witness_path TEXT,";
-      columns.back() = ')';
+      columns += "Selection TEXT )";
 
       prepareTable(PARAMETRIZATIONS_TABLE, columns);
    }
@@ -93,14 +98,14 @@ public:
    void creteTables() {
       sql_adapter.safeExec("BEGIN TRANSACTION;");
       fillComponents();
-      fillInteractions();
+      fillRegulations();
       fillParametrizations();
       sql_adapter.safeExec("END;");
    }
 
    void addParametrization(string parametrization) {
       auto insert = makeInsert(PARAMETRIZATIONS_TABLE);
-      sql_adapter.safeExec(insert + parametrization + ";");
+      sql_adapter.safeExec(insert + parametrization + " 1);");
    }
 
    void startOutput() {

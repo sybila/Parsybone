@@ -142,7 +142,7 @@ public:
          if (user_options.witnesses()) {
             line += *witness_it;
             update += "\"" + *witness_it + "\",";
-         } update.back() = ')';
+         }
 
          output_streamer.output(results_str, line);
          if (user_options.toDatabase())
