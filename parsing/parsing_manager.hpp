@@ -70,7 +70,6 @@ public:
       }
 
       // Parse model itself
-      output_streamer.output(verbose_str, "Model parsing started.", OutputStreamer::important);
       ModelParser model_parser(model, &model_stream);
       model_parser.parseInput();
    }

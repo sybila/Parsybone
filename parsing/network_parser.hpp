@@ -73,6 +73,7 @@ class NetworkParser {
 			for (auto regul:model.getRegulations((ID))) {
 				ActLevel begin = regul.threshold;
 				auto thresholds = space.find(regul.source)->second;
+				sort(thresholds.begin(), thresholds.end(), [](unsigned int a, unsigned int b){return a <= b;});
 				auto th_it = find(thresholds.begin(), thresholds.end(), begin) + 1;
 				ActLevel end = (th_it == thresholds.end()) ? model.getMax(regul.source) + 1 : *th_it;
 
@@ -99,8 +100,6 @@ class NetworkParser {
 			// Add a new regulation to the specified target
 			model.addRegulation(source_ID, specie_ID, threshold, label);
 		}
-
-		fillActivationLevels();
 	}
 
 	/**
@@ -216,6 +215,7 @@ class NetworkParser {
 				string source_name = names[source_num];
 				StateID source_ID = IDs[source_num];
 				auto & thresholds = all_thresholds.find(source_ID)->second;
+				sort(thresholds.begin(), thresholds.end(), [](unsigned int a, unsigned int b){return a <= b;});
 				ActLevel threshold = (context[source_num] == 0) ? 0 : thresholds[context[source_num] - 1];
 				string regulation_name = source_name + ":" + toString(threshold);
 				if (!formula.empty()) {
