@@ -59,7 +59,7 @@ class DatabaseFiller {
       if(verbose) {
          for(SpecieID target_ID:range(model.getSpeciesCount())) {
             for(auto param:model.getParameters(target_ID)) {
-               string context = "K_" + model.getName(target_ID) + "_" + param.context + " TEXT,";
+               string context = "K_" + model.getName(target_ID) + "_" + param.context + " INTEGER,";
                contexts += move(context);
             }
          }
@@ -69,7 +69,7 @@ class DatabaseFiller {
                string context = "K_" + model.getName(target_ID) + "_";
                for (auto values:param.requirements)
                   context += toString(values.second.front());
-               contexts += move(context) + " TEXT, ";
+               contexts += move(context) + " INTEGER, ";
             }
          }
       }
