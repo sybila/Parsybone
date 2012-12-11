@@ -129,11 +129,11 @@ class AutomatonBuilder {
 
          // Fill in all the values satisfying the atom
          if (atom->find("<") != string::npos)
-            values.push_back(make_pair(ID, fillInterval(value, model.getMax(ID))));
+            values.push_back(make_pair(ID, fillInterval(model.getMin(ID), value - 1)));
          else if (atom->find("=") != string::npos)
             values.push_back(make_pair(ID, fillInterval(value, value)));
          else if (atom->find(">") != string::npos)
-            values.push_back(make_pair(ID, fillInterval(model.getMin(ID), value)));
+            values.push_back(make_pair(ID, fillInterval(value + 1, model.getMax(ID))));
       }
       return values;
    }

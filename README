@@ -46,9 +46,9 @@ Execution:
 		by default the file is model.sqlite, can be changed using the --data switch
 	-f	output computation results to a text file
 		by default the file is model.out, can be changed using the --file switch
-	-m	use an input mask for parametrization filtering
+	-M	use an input mask for parametrization filtering
 		by default the file is model.pbm, can be changed using the --min switch
-	-M	output parametrizations as a mask
+	-m	output parametrizations as a mask
 		by default the file is model.pbm, can be changed using the --mout switch
 	-r	compute robustness of a time series
 	-v 	verbose (output progress to console)

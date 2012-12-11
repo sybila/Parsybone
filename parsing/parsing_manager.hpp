@@ -55,11 +55,11 @@ public:
       user_options.addDefaultFiles();
 
       // Open datafiles that were requested by the user.
-      if (user_options.use_out_mask) {
+      if (user_options.use_in_mask) {
          bitmask_manager.openFile(user_options.in_mask_file);
          bitmask_manager.parseMask();
       }
-      if (user_options.use_in_mask) {
+      if (user_options.use_out_mask) {
          bitmask_manager.createOutput(user_options.out_mask_file);
       }
       if (user_options.use_textfile) {

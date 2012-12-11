@@ -54,7 +54,7 @@ public:
          database.creteTables();
       string format_desc = "#:(";
 
-      for(SpecieID ID:Common::range(model.getSpeciesCount())) {
+      for(SpecieID ID:range(model.getSpeciesCount())) {
          for(auto param:model.getParameters(ID)) {
             format_desc += model.getName(ID) + "{" + param.context + "},";
          }
