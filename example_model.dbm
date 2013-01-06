@@ -16,7 +16,7 @@
     </STRUCTURE>
     <SERIES>
         <EXPR values="0 = 0" />
-        <EXPR values="((0=0 &amp; Y =0) | (0 &gt; 0 &amp; 1=1))" />        
+        <EXPR values="((0=0 &amp; Y =0) | (0 = 1 &amp; 1=1))" />        
         <EXPR values="(0=1 &amp; Y=0)" />
     </SERIES>
 </MODEL>
