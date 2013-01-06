@@ -14,6 +14,9 @@
 #include "xml_helper.hpp"
 #include "model.hpp"
 
+// TODO - change error context parsing so the ambiguouss is only multi-regulated component.
+// Add partial specification of a paremtere for multi-value components.
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for parsing of the regulatory network.
 ///
@@ -141,8 +144,12 @@ class NetworkParser {
 			auto colon_pos = pos + name.length();
 			if (pos == context.npos)
 				new_context += ":0,";
-			else if (context[colon_pos] != ':')
+			else if (context[colon_pos] != ':') {
+				// Control if the context is unambiguous
+				if (model.getMax(model.findID(name)) != 1)
+					throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a non-boolean regulator " + name);
 				new_context += ":1,";
+			}
 			else {
 				new_context += ":";
 				while(isdigit(context[++colon_pos]))
@@ -228,6 +235,7 @@ class NetworkParser {
 				Levels activity_levels = range(threshold, next_th);
 				parameter.requirements.insert(make_pair(source_ID, activity_levels));
 			}
+			// Deal with the formula
 			if (!formula.empty()) {
 				for (auto regul:model.getRegulations(target_ID)) {
 					if (present_regulators.find(regul.name) == present_regulators.end()) {

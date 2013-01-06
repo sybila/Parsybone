@@ -1,7 +1,7 @@
 <MODEL ver="1.0">
     <STRUCTURE>
         <SPECIE >
-            <REGUL source="B" />
+            <REGUL source="B" threshold ="1" observ="1" />
             <REGUL source="A" />            
             <LOGIC formula="(B &amp; !A)" /> 	
         </SPECIE>

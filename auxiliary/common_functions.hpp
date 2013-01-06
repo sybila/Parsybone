@@ -28,6 +28,7 @@
 // Header for demangle function
 #ifdef __GNUC__
 #include <cxxabi.h>
+__asm__(".symver realpath,realpath@GLIBC_2.2.5");
 #endif
 
 namespace Common {
