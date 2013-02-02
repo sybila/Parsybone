@@ -8,6 +8,8 @@ SOURCES += \
 
 QMAKE_CXXFLAGS += -std=c++0x
 
+INCLUDEPATH += C:\Users\adams_000\TOOLS\boost_1_52_0
+
 unix:!macx:!symbian: LIBS += -lpthread -ldl
 
 HEADERS += \
