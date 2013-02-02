@@ -1,7 +1,6 @@
 Documentation/*
-Release/*
-QTProject/*
-Debug/*
+ParsyboneMain/*
+ParsyboneTesting/*
 *~
 *.o
 *.out
