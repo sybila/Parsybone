@@ -84,10 +84,10 @@ class ArgumentParser {
       // Apply the modifier.
       if (position->compare("--dist") == 0) {
          return getDistribution(position, arguments.end());
-      } else if (position->compare("--data") == 0) {
+      } else if (position->compare("--text") == 0) {
          user_options.use_textfile = true;
          return getFileName(datatext, position, arguments.end());
-      } else if (position->compare("--base") == 0) {
+      } else if (position->compare("--data") == 0) {
          user_options.use_database = true;
          return getFileName(database, position, arguments.end());
       } else if (position->compare("--min") == 0) {
