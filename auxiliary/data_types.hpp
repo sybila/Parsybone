@@ -31,6 +31,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
+#ifdef GTEST
+    #include <gtest/gtest.h>
+#endif
+
 using namespace std;
 using boost::lexical_cast;
 using boost::bad_lexical_cast;
