@@ -51,6 +51,9 @@ class UserOptions {
    UserOptions(const UserOptions & other); ///< Forbidden copy constructor.
    UserOptions& operator=(const UserOptions & other); ///< Forbidden assignment operator.
 
+   /**
+    * @brief addDefaultFiles    Create default file names where there are none explicitly specified.
+    */
    void addDefaultFiles() {
       if (database_file.empty())
          database_file = model_path + model_name + DATABASE_SUFFIX;

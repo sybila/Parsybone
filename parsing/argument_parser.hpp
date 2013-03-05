@@ -45,41 +45,61 @@ class ArgumentParser {
       return 2;
    }
 
+   /**
+    * @brief getFileName   stores path to a file based on its type in user options
+    * @param filetype
+    * @param position
+    * @param end
+    * @return how many arguments you have used
+    */
    int getFileName(const Filetype & filetype, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
-      if (++position == end)
+      if (++position == end) {
          throw invalid_argument("Filename missing after the modifier " + *(--position));
+         return 0;
+      }
 
       switch (filetype) {
       case database:
          user_options.database_file = *position;
          user_options.use_database = true;
-      break;
+         break;
       case datatext:
          user_options.datatext_file = *position;
          user_options.use_textfile = true;
-      break;
+         break;
       case input_mask:
          user_options.in_mask_file = *position;
          user_options.use_in_mask = true;
-      break;
+         break;
       case output_mask:
          user_options.out_mask_file = *position;
          user_options.use_out_mask = true;
-      break;
+         break;
       };
 
       return 1;
    }
 
-   int parseModifier(const string & modifier, const vector<string> & arguments) {
+   /**
+    * Get the position of the specified argument.
+    */
+   const vector<string>::const_iterator getArgumentPosition(const string & argument, const vector<string> & arguments) {
       // Get the position of the current modifier.
       auto position = arguments.begin();
       for(auto arg:arguments) {
-         if (modifier.compare(arg) != 0)
+         if (argument.compare(arg) != 0)
             position++;
          else
-            break;
+            return position;
       }
+      throw runtime_error("Argument not found in arguments (internal error).");
+   }
+
+   /**
+    *
+    */
+   int parseModifier(const string & modifier, const vector<string> & arguments) {
+      auto position = getArgumentPosition(modifier, arguments);
 
       // Apply the modifier.
       if (position->compare("--dist") == 0) {
@@ -113,42 +133,47 @@ class ArgumentParser {
 
       case 'w':
          user_options.compute_wintess = true;
-      break;
+         break;
 
       case 'r':
          user_options.compute_robustness = true;
-      break;
+         break;
 
       case 'v':
          user_options.be_verbose = true;
-      break;
+         break;
 
       case 'm':
          user_options.use_in_mask = true;
-      break;
+         break;
 
       case 'M':
          user_options.use_out_mask = true;
-      break;
+         break;
 
       case 'f':
          user_options.use_textfile = true;
-      break;
+         break;
 
       case 'd':
          user_options.use_database = true;
-      break;
+         break;
 
       case 'c':
          user_options.output_console = true;
-      break;
+         break;
 
       default:
          throw invalid_argument("Unknown switch -" + toString(s));
-      break;
+         break;
       }
    }
 
+   /**
+     * @brief referenceModel save the model name and connect the given file to its stream.
+     * @param path  path to model
+     * @param model_stream
+     */
    void referenceModel(const string & path, ifstream & model_stream) {
       // If the model is alredy parsed.
       if (!user_options.model_name.empty())
