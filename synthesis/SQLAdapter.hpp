@@ -1,10 +1,10 @@
-#ifndef PARSYBONE_SQLADAPTER_INCLUDED
-#define PARSYBONE_SQLADAPTER_INCLUDED
+#ifndef SQLADAPTER_HPP
+#define SQLADAPTER_HPP
 
 #include <memory>
 
 #include "../auxiliary/data_types.hpp"
-#include "../sqlite/sqlite3.h"
+#include <sqlite3.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Primitive interface to a database connection.
@@ -38,6 +38,10 @@ public:
       openDatabase();
    }
 
+   /**
+    * @brief getColumnCount
+    * @return
+    */
    size_t getColumnCount() const {
       if (statement == nullptr)
          throw runtime_error("invoked column count on a null statement");
@@ -100,4 +104,4 @@ public:
    }
 } sql_adapter;
 
-#endif // PARSYBONE_SQLADAPTER_INCLUDED
+#endif // SQLADAPTER_HPP
