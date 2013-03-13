@@ -11,9 +11,6 @@ Contents of the archive:
 	auxiliary, construction, parsing, synthesis: header files of the program
 	main.cpp: source file of the program
 	manual_v_1_0_0_0.pdf: user manual for the program
-	parsybone: Unix executable for the file, built for x86 series processors on 32-bit Ubuntu, version 12; 
-	           CAUTION, author takes no responsibility for functionality of the executable!
-	           The code should be built on the target platform before using.
 	example_model.dbm: simple example model for usage with the tool, referenced in the manual
 	reference_v_1_0_0_0.pdf: source code description in the pdf file form
 	reference_v_1_0_0_0_HTML: source code description in the form of HTML we pages.

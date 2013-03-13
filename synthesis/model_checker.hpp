@@ -67,7 +67,7 @@ class ModelChecker {
 			// List through ALL the target values
 			for (; value_num < transitive_values.size(); value_num++) {
 				// Get size of the step for current value 
-				std::size_t bits_in_step = std::min<std::size_t>(step_size, static_cast<std::size_t>(synthesis_range.second - param_num));
+				std::size_t bits_in_step = std::min<std::size_t>((step_size - (param_num % step_size)), static_cast<std::size_t>(synthesis_range.second - param_num));
 				// Move the mask so new value data can be add
 				temporary <<= bits_in_step;
 				// If transitive, add ones for the width of the step
