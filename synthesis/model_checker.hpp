@@ -52,41 +52,41 @@ class ModelChecker {
 	 * @param step_size	how many parameters share the same value for given function
 	 * @param transitive_values	mask of all values from which those that have false are non-transitive
 	 */
-	void passParameters(Paramset & passed, const size_t step_size, const vector<bool> & transitive_values) const {
-		// INITIALIZATION OF VALUES FOR POSITIONING
-		// Number of the first parameter
-		ParamNum param_num = synthesis_range.first;
-		// First value might not bet 0 - get it from current parameter position
-		size_t value_num = (param_num / step_size) % transitive_values.size();
-		// Mask that will be created
-		register Paramset temporary = 0;
+   void passParameters(Paramset & passed, const size_t step_size, const vector<bool> & transitive_values) const {
+      // INITIALIZATION OF VALUES FOR POSITIONING
+      // Number of the first parameter
+      ParamNum param_num = synthesis_range.first;
+      // First value might not bet 0 - get it from current parameter position
+      size_t value_num = (param_num / step_size) % transitive_values.size();
+      // Mask that will be created
+      register Paramset temporary = 0;
 
-		// COMPUTATION OF MASK
-		// List through all the paramters
-		while (true) {
-			// List through ALL the target values
-			for (; value_num < transitive_values.size(); value_num++) {
-				// Get size of the step for current value 
-				size_t bits_in_step = min<size_t>(step_size, static_cast<size_t>(synthesis_range.second - param_num));
-				// Move the mask so new value data can be add
-				temporary <<= bits_in_step;
-				// If transitive, add ones for the width of the step
-				if (transitive_values[value_num]) {
-					Paramset add = INF;
-					add >>= (paramset_helper.getSetSize() - bits_in_step);
-					temporary |= add;
-				}
-				// If we went throught the whole size, end
-				if ((param_num += bits_in_step) == synthesis_range.second) {
-					// Create interection of source parameters and transition parameters
-					passed &= temporary;
-					return;
-				}
-			}
-			// Reset the value
-			value_num = 0;
-		}
-	}
+      // COMPUTATION OF MASK
+      // List through all the paramters
+      while (true) {
+         // List through ALL the target values
+         for (; value_num < transitive_values.size(); value_num++) {
+            // Get size of the step for current value
+            size_t bits_in_step = min<size_t>((step_size - (param_num % step_size)), static_cast<size_t>(synthesis_range.second - param_num));
+            // Move the mask so new value data can be add
+            temporary <<= bits_in_step;
+            // If transitive, add ones for the width of the step
+            if (transitive_values[value_num]) {
+               Paramset add = INF;
+               add >>= (paramset_helper.getSetSize() - bits_in_step);
+               temporary |= add;
+            }
+            // If we went throught the whole size, end
+            if ((param_num += bits_in_step) == synthesis_range.second) {
+               // Create interection of source parameters and transition parameters
+               passed &= temporary;
+               return;
+            }
+         }
+         // Reset the value
+         value_num = 0;
+      }
+   }
 
 	/**
     * From all the updates pick the one from the state with most bits.
@@ -154,12 +154,13 @@ class ModelChecker {
 
 		// Cycle through all the transition
 		for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
-			// Parameters to pass through the transition
-			Paramset passed = parameters;
+         StateID target_ID = product.getTargetID(ID, trans_num);
+
+         // Parameters to pass through the transition
+         Paramset passed = parameters;
+
 			// From an update strip all the parameters that can not pass through the transition - color intersection on the transition
 			passParameters(passed, product.getStepSize(ID, trans_num), product.getTransitive(ID, trans_num));
-
-			StateID target_ID = product.getTargetID(ID, trans_num);
 
 			// Test if it is a possibility for a loop, if there is nothing outcoming, add to self-loop (if it is still possible)
          if (KS_state == product.getKSID(target_ID) ) {
@@ -310,7 +311,7 @@ public:
 	}
 
 	/**
-	 * Start a new coloring round for cycle detection from a single state.
+    * Start a new coloring round for coloring of the nodes from the set of inital ones.
 	 *
 	 * @param parameters	starting parameters to color the structure with
 	 * @param _updates	states that are will be scheduled for an update in this round

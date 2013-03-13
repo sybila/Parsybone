@@ -98,7 +98,7 @@ class ColoringAnalyzer {
 		// Vector to fill
 		vector<string> strings;
 		// Store a mask for each color with just its bit on, other off
-		  Paramset color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
+      Paramset color_mask = paramset_helper.getLeftOne(parameter_end - parameter_begin);
 
 		// Cycle through all round colors
 		for (ParamNum col_num = parameter_begin; col_num < parameter_end; col_num++) {

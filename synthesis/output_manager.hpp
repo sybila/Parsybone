@@ -107,6 +107,7 @@ public:
    void outputRound() const {
       // Get referencese
       auto numbers = move(analyzer.getNumbers()); auto num_it = numbers.begin();
+
       auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
       auto params = move(analyzer.getStrings()); auto param_it = params.begin();
       auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();

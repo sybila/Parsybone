@@ -85,6 +85,8 @@ class SynthesisManager {
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
 	void doComputation() {
+      auto round = split_manager->getRoundNum();
+
 		// Basic (initial) coloring
 		colorProduct();
 

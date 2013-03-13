@@ -151,8 +151,8 @@ class UnparametrizedStructureBuilder {
 		step_size = regulatory_functions.getStepSize(specie_ID, function_num);
 
 		// Fill data about transitivity using provided values
-		transitive_values = move(fillTransitivityData(basic_structure.getDirection(ID, neighbour_index),  state_levels[specie_ID], 
-			                                               regulatory_functions.getPossibleValues(specie_ID, function_num)));
+      transitive_values = fillTransitivityData(basic_structure.getDirection(ID, neighbour_index),  state_levels[specie_ID],
+                                                        regulatory_functions.getPossibleValues(specie_ID, function_num));
 
 		// Check if there even is a transition
 		for (auto it = transitive_values.begin(); it != transitive_values.end(); it++) {
