@@ -5,3 +5,10 @@ ParsyboneTesting/*
 *.o
 *.out
 *.sqlite
+*.log
+*.aux
+*.bbl
+*.blg
+*.out
+*.toc
+*.dvi
