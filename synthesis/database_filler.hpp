@@ -91,7 +91,7 @@ class DatabaseFiller {
 
 public:
    DatabaseFiller(const ConstructionHolder & holder)
-      : COMPONENTS_TABLE("components"), REGULATIONS_TABLE("regulations"), PARAMETRIZATIONS_TABLE("parametrizations"),
+       : COMPONENTS_TABLE("Components"), REGULATIONS_TABLE("Regulations"), PARAMETRIZATIONS_TABLE("Parametrizations"),
       model(holder.getModel()) {
    }
 
