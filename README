@@ -1,39 +1,43 @@
-Parsybone (Parameter Synthesizer for Boolean Networks) Release v1.000, 7.10.2012
-Copyright (C) 2012 - Adam Streck
+Parsybone (Parameter Synthesizer for Boolean Networks) Development version
+Copyright (C) 2012-2013 - Adam Streck
+
+This is a development version and is not intended for use!
+For the latest release version, see https://github.com/sybila/Parsybone/tree/release .
+
+Discrete Biomathematics, Freie Universitat, Berlin ( http://www.mi.fu-berlin.de/en/math/groups/dibimath )
 Systems Biology Laboratory of Masaryk University, Brno ( http://sybila.fi.muni.cz )
-open-source 2012, GNU GPL v3, uses:
+
+open-source 2012-2013 GNU GPL v3, uses:
 	Boost Libraries ( http://www.boost.org/ )
 	RapidXML ( see http://rapidxml.sourceforge.net/ )
+	sqlite3 (see http://www.sqlite.org/ )
 
 Contents of the repository:
 	main.cpp: source file of the program, 
 	test.cpp source for the testing suite
 	auxiliary, construction, parsing, synthesis: header files of the program
 	test: header files of the testing suite
-	sqlite: source of Sqlite3 
 
 	ParsyboneMain, ParsyboneTesting: QTCreator projects
 
 	example_model.dbm: simple example model for usage with the tool
 
-	manual_v_1_0_0_0.pdf: user manual for the program
+	Manual: folder containing source for the manual
 	reference_v_1_0_0_0.pdf: source code description in the pdf file form
 	reference_v_1_0_0_0_HTML: source code description in the form of HTML we pages.
+	
+	MiscCode: additional codes that are not directly related to Parsybone
 
 Requirements:
 	GCC v4.6.0 or newer on Linux and Mac, MinGW 4.6.0 or newer on the Windows platform
-	Boost libraries (only header are required) version 1.47 or newer.
-	Sqlite3 (is part of the repository)
-	DL library, Pthread library (usually present by default)
+	Boost headers version 1.47 or newer.
+	Boost regex library
+	Sqlite3 library
+
+	Google test library for the test project
 	
 Building:
-	Use the QTCreator or:
-
-	Build Sqlite:
-	gcc -c sqlite/sqlite.c
-	Build Parsybone:
-	g++ -o parsybone main.cpp sqlite.o -ldl -lpthread 
-		(if you do not have Boost libraries in the default include directory, then use -I "path to boost version")
+	For building, it is necessary to build and link boost regex and sqlite and to have Boost headers in the include path.
 	
 Execution:
 	parsybone model.dbm [-cdfmMrvwW] [--data database_file] [--file text_file]  [--min bitmask_file] [--mout bitmask_file]  [--dist I N]
