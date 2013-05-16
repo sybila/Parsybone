@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_DATA_TYPES_INCLUDED
@@ -30,10 +30,6 @@
 #include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-
-#ifdef GTEST
-    #include <gtest/gtest.h>
-#endif
 
 using namespace std;
 using boost::lexical_cast;
@@ -123,6 +119,6 @@ typedef pair<StateID, Paramset> Coloring;
 typedef pair<ParamNum, ParamNum> Range;
 
 /// this value represents infinite value - used for showing that a variable is unset
-const size_t INF = static_cast<size_t>(~0);
+const size_t INF = ~0u;
 
 #endif // PARSYBONE_DATA_TYPES_INCLUDED

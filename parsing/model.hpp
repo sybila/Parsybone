@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see http://www.mi.fu-berlin.de/en/math/groups/dibimath and http://sybila.fi.muni.cz/ .
  */
 
 #ifndef PARSYBONE_MODEL_INCLUDED
@@ -20,7 +20,6 @@
 /// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Model {
-   friend class Tester;
    friend class AutomatonParser;
    friend class ModelParser;
    friend class NetworkParser;
@@ -31,33 +30,33 @@ public:
    struct Regulation {
       StateID source; ///< Regulator specie ID.
       ActLevel threshold; ///< Level of the regulator required for the regulation to be active.
-      string name;
-      Levels activity; ///<
+      string name; ///< Name of the regulator.
+      Levels activity; ///< Source levels of the regulator.
       string label; ///< A behavioural constrain on this edge.
    };
    typedef vector<Regulation> Regulations;
 
+   /// A single kinetic parameter in explicit form - combinations of sources and possible targets are listed.
    struct Parameter {
-      string context;
-      map<StateID, Levels> requirements;
-      Levels targets;
+      string context; ///< String name of the context of regulators.
+      map<StateID, Levels> requirements; ///< Levels of the source species.
+      Levels targets; ///< Levels of the target towards which it is possible to regulate.
    };
    typedef vector<Parameter> Parameters;
 
-   typedef pair<StateID, string> Egde; ///< Edge in Buchi Automaton (Target ID, edge label).
-   typedef vector<Egde> Edges;
+   typedef pair<StateID, string> Edge; ///< Edge in Buchi Automaton (Target ID, edge label).
+   typedef vector<Edge> Edges;
 
 private:
-   /// Structure that holds data about a single specie. Most of the data is equal to that in the model file
+   /// Structure that holds data about a single specie. Most of the data is equal to that in the model file.
    struct ModelSpecie {
-      string name; ///< Actuall name of the specie
+      string name; ///< Actuall name of the specie.
       SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
-      ActLevel max_value; ///< Maximal activation level of the specie
-      Levels targets;
-      Levels range;
+      ActLevel max_value; ///< Maximal activation level of the specie.
+      Levels range; ///< Possible values the specie can take.
 
-      Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species)
-      Parameters parameters;
+      Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
+      Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
    };
 
    /// Structure that holds data about a single state.
@@ -66,7 +65,7 @@ private:
       SpecieID ID; ///< Numerical constant used to distinguish the state. Starts from 0!
       bool final; ///< True if the state is final.
 
-      vector<Egde> edges; ///< Edges in Buchi Automaton (Target ID, edge label).
+      vector<Edge> edges; ///< Edges in Buchi Automaton (Target ID, edge label).
    };
 
    /// Structure that stores additional information about the model.
@@ -88,7 +87,7 @@ public:
     * @return	index of specie in the vector
     */
    inline size_t addSpecie(string name, size_t max_value, Levels targets) {
-      species.push_back({name, species.size(), max_value, targets, range(max_value + 1), Regulations(), Parameters()});
+      species.push_back({name, species.size(), max_value, targets, Regulations(), Parameters()});
       return species.size() - 1;
    }
 
@@ -130,7 +129,7 @@ public:
     * Add a new transition - transition is specified by the target state and label.
     */
    inline void addConditions(StateID source_ID, StateID target_ID, string && edge_label) {
-      states[source_ID].edges.push_back(Egde(target_ID, move(edge_label)));
+      states[source_ID].edges.push_back(Edge(target_ID, move(edge_label)));
    }
 
    /**
@@ -214,10 +213,6 @@ public:
       return species[ID].max_value;
    }
 
-   inline Levels getTargets(const SpecieID ID) const {
-      return species[ID].targets;
-   }
-
    inline Levels getRange(const SpecieID ID) const {
       return species[ID].range;
    }
@@ -258,6 +253,11 @@ public:
       return names;
    }
 
+   /**
+    * @brief getThresholds Finds a list of thresholds for each regulator of a given component.
+    * @param ID
+    * @return
+    */
    map<SpecieID, vector<ActLevel> > getThresholds(const SpecieID ID) const {
       map<SpecieID, Levels > thresholds;
       for (auto reg:getRegulations(ID)) {
@@ -286,7 +286,7 @@ public:
    /**
     * @return	edges of the state
     */
-   inline const vector<Egde> & getEdges(const SpecieID ID) const {
+   inline const vector<Edge> & getEdges(const SpecieID ID) const {
       return states[ID].edges;
    }
 };

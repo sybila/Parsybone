@@ -1,22 +1,14 @@
-/*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
- * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
- */
-
 /*! \mainpage Welcome to the Parsybone code documentation.
  *
  * This is a documentation of code belonging solely to the Parsybone tool, version 1.0.
  * This text is not supposed to be a user manual in any way, but as an reference for further development of this tool.
  * For a description of usage of the tool, please refer to the Manual that is shipped together with the tool.
  *
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool. \n
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3. \n
- * ParSyBoNe is released without any warrany. See the GNU General Public License for more details: http://www.gnu.org/licenses/. \n
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/. \n
- * Copyright (C) 2012 - Adam Streck
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 using namespace std;

@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_AUTOMATON_BUILDER_INCLUDED
@@ -173,7 +173,7 @@ class AutomatonBuilder {
     * @param start_position	index of the last transition created
     */
    void addTransitions(const StateID ID, size_t & transition_count) const {
-      const vector<Model::Egde> & edges = model.getEdges(ID);
+      const vector<Model::Edge> & edges = model.getEdges(ID);
 
       // Transform each edge into transition and pass it to the automaton
       for (size_t edge_num = 0; edge_num < model.getEdges(ID).size(); edge_num++) {

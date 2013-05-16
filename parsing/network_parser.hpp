@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_NETWORK_PARSER_INCLUDED
@@ -16,19 +16,16 @@
 #include "model.hpp"
 
 // TODO - change error context parsing so the ambiguouss is only multi-regulated component.
-// Add partial specification of a paremtere for multi-value components.
+// Add partial specification of a paremter for multi-value components.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for parsing of the regulatory network.
 ///
 /// This object is responsible for parsing and translation of data related to the GRN.
 /// Most of the possible semantics mistakes are under control and cause exceptions.
+/// \attention Only models with up to 9 levels are supported.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class NetworkParser {
-#ifdef GTEST
-   FRIEND_TEST(ModelsTest, ModelParsing);
-   FRIEND_TEST(ModelsTest, CanonicTranslator);
-#endif
    Model & model; ///< Reference to the model object that will be filled.
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,6 +143,7 @@ class NetworkParser {
       string new_context; // canonic form
       auto names = model.getRegulatorsNames(target_ID);
 
+      // For each of the regulator of the specie.
       for (const auto & name:names) {
          new_context += name;
          auto pos = context.find(name);
@@ -157,10 +155,11 @@ class NetworkParser {
          // Regulator level not specified.
          else if (context[colon_pos] != ':') {
             // Control if the context is unambiguous.
-            if (model.getMax(model.findID(name)) != 1)
-               throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a non-boolean regulator " + name);
+            auto thresholds = model.getThresholds(target_ID);
+            if (thresholds.find(model.findID(name))->second.size() > 1)
+               throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a regulator " + name + " that has multiple regulations.");
             // If valid, add the threshold 1.
-            new_context += ":1,";
+            new_context += ":" + toString(thresholds.find(model.findID(name))->second[0]) + ",";
          }
          // There is not a threshold given after double colon.
          else if (context[colon_pos] == ':' && (colon_pos == (context.npos - 1) || !isdigit(context[colon_pos+1])))
@@ -173,6 +172,7 @@ class NetworkParser {
             new_context += ",";
          }
       }
+
       return new_context.substr(0, new_context.length() - 1);
    }
 
@@ -268,7 +268,7 @@ class NetworkParser {
             }
             parameter.targets = Levels(1, FormulaeResolver::resolve(present_regulators, formula));
          } else {
-            parameter.targets = model.getTargets(target_ID);
+            parameter.targets = model.getRange(target_ID);
          }
 
          parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
