@@ -9,7 +9,8 @@
 #ifndef PARSYBONE_BASIC_STRUCTURE_BUILDER_INCLUDED
 #define PARSYBONE_BASIC_STRUCTURE_BUILDER_INCLUDED
 
-#include "../auxiliary/common_functions.hpp"
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../parsing/model.hpp"
 #include "basic_structure.hpp"
 

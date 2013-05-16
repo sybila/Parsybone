@@ -9,7 +9,8 @@
 #ifndef PARSYBONE_MODEL_CHECKER_INCLUDED
 #define PARSYBONE_MODEL_CHECKER_INCLUDED
 
-#include "../auxiliary/common_functions.hpp"
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../construction/construction_holder.hpp"
 #include "color_storage.hpp"
 #include "paramset_helper.hpp"

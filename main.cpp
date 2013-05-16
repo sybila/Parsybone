@@ -19,7 +19,10 @@
  * Copyright (C) 2012 - Adam Streck
  */
 
-#include "auxiliary/time_manager.hpp"
+using namespace std;
+
+#include "PunyHeaders/time_manager.hpp"
+
 #include "auxiliary/output_streamer.hpp"
 #include "auxiliary/user_options.hpp"
 #include "parsing/argument_parser.hpp"
@@ -81,6 +84,6 @@ int main(int argc, char* argv[]) {
       return 3;
    }
 
-   time_manager.ouputClock("runtime");
+   time_manager.writeClock("runtime");
    return 0;
 }

@@ -10,7 +10,7 @@
 #define PARSYBONE_UNPARAMETRIZED_STRUCTURE_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
-#include "../auxiliary/common_functions.hpp"
+#include "PunyHeaders/common_functions.hpp"
 #include "graph_interface.hpp"
 
 /// Storing a single transition to neighbour state together with its transition function.

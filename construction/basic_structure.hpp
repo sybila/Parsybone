@@ -9,8 +9,9 @@
 #ifndef PARSYBONE_BASIC_STRUCTURE_INCLUDED
 #define PARSYBONE_BASIC_STRUCTURE_INCLUDED
 
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../auxiliary/output_streamer.hpp"
-#include "../auxiliary/common_functions.hpp"
 #include "graph_interface.hpp"
 
 /// Stores an unlabelled transition to next state.

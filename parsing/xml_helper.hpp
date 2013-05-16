@@ -10,12 +10,12 @@
 #define PARSYBONE_XML_HELPER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
-#include "../auxiliary/common_functions.hpp"
+#include "PunyHeaders/common_functions.hpp"
 
-#include "rapidxml-1.13/rapidxml.hpp"
-#include "rapidxml-1.13/rapidxml_iterators.hpp"
-#include "rapidxml-1.13/rapidxml_print.hpp"
-#include "rapidxml-1.13/rapidxml_utils.hpp"
+#include "../rapidxml/rapidxml.hpp"
+#include "../rapidxml/rapidxml_iterators.hpp"
+#include "../rapidxml/rapidxml_print.hpp"
+#include "../rapidxml/rapidxml_utils.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief This namespace encapsulates simple parsing functions with tests for bigger robustness.

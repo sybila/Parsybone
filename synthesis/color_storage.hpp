@@ -9,8 +9,9 @@
 #ifndef PARSYBONE_COLOR_STORAGE_INCLUDED
 #define PARSYBONE_COLOR_STORAGE_INCLUDED
 
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../auxiliary/data_types.hpp"
-#include "../auxiliary/common_functions.hpp"
 #include "../construction/construction_holder.hpp"
 #include "paramset_helper.hpp"
 
@@ -233,7 +234,7 @@ public:
    size_t getMaxDepth () const {
       size_t depth = 0;
       for (const auto val:cost_val)
-              depth = my_max((val == INF) ? 0 : val, depth);
+              depth = max((val == INF) ? 0 : val, depth);
 
       return depth;
    }

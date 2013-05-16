@@ -9,8 +9,9 @@
 #ifndef PARSYBONE_NETWORK_PARSER_INCLUDED
 #define PARSYBONE_NETWORK_PARSER_INCLUDED
 
+#include "PunyHeaders/formulae_resolver.hpp"
+
 #include "../auxiliary/data_types.hpp"
-#include "formulae_parser.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
 
@@ -235,7 +236,7 @@ class NetworkParser {
 
       // Loop over all the contexts.
       do {
-         FormulaeParser::Vals present_regulators;
+         FormulaeResolver::Vals present_regulators;
          Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
 
          // Loop over all the sources.
@@ -248,8 +249,8 @@ class NetworkParser {
             string regulation_name = source_name + ":" + toString(threshold);
             if (!formula.empty()) {
                if (threshold == 1)
-                  present_regulators.insert(FormulaeParser::Val(source_name, 1));
-               present_regulators.insert(FormulaeParser::Val(regulation_name, 1));
+                  present_regulators.insert(FormulaeResolver::Val(source_name, 1));
+               present_regulators.insert(FormulaeResolver::Val(regulation_name, 1));
             }
             parameter.context += regulation_name + ",";
             ActLevel next_th = (context[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[context[source_num]];
@@ -260,12 +261,12 @@ class NetworkParser {
          if (!formula.empty()) {
             for (auto regul:model.getRegulations(target_ID)) {
                if (present_regulators.find(regul.name) == present_regulators.end()) {
-                  present_regulators.insert(FormulaeParser::Val(regul.name, 0));
+                  present_regulators.insert(FormulaeResolver::Val(regul.name, 0));
                   if (regul.threshold == 1)
-                     present_regulators.insert(FormulaeParser::Val(model.getName(regul.source), 0));
+                     present_regulators.insert(FormulaeResolver::Val(model.getName(regul.source), 0));
                }
             }
-            parameter.targets = Levels(1, FormulaeParser::resolve(present_regulators, formula));
+            parameter.targets = Levels(1, FormulaeResolver::resolve(present_regulators, formula));
          } else {
             parameter.targets = model.getTargets(target_ID);
          }

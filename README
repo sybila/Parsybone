@@ -1,16 +1,17 @@
 Parsybone (Parameter Synthesizer for Boolean Networks) Development version
 Copyright (C) 2012-2013 - Adam Streck
 
-This is a development version and is not intended for use!
+This is a development version and is not intended for use by non-developers!
 For the latest release version, see https://github.com/sybila/Parsybone/tree/release .
 
 Discrete Biomathematics, Freie Universitat, Berlin ( http://www.mi.fu-berlin.de/en/math/groups/dibimath )
 Systems Biology Laboratory of Masaryk University, Brno ( http://sybila.fi.muni.cz )
 
-open-source 2012-2013 GNU GPL v3, uses:
-	Boost Libraries ( http://www.boost.org/ )
+open-source 2012-2013, licensed as GNU GPL v3
+the repository includes 3rd party code of:
 	RapidXML ( see http://rapidxml.sourceforge.net/ )
 	sqlite3 (see http://www.sqlite.org/ )
+3rd party code is subject to individual licences, for details see the license file in the respective repository.
 
 Contents of the repository:
 	main.cpp: source file of the program, 
@@ -37,7 +38,10 @@ Requirements:
 	Google test library for the test project
 	
 Building:
-	For building, it is necessary to build and link boost regex and sqlite and to have Boost headers in the include path.
+	For building, it is necessary to build and link:
+		boost regex 
+		sqlite3
+	also, Boost headers must be in the include path.
 	
 Execution:
 	parsybone model.dbm [-cdfmMrvwW] [--data database_file] [--file text_file]  [--min bitmask_file] [--mout bitmask_file]  [--dist I N]

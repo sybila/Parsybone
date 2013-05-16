@@ -9,7 +9,8 @@
 #ifndef PARSYBONE_LABELING_BUILDER_INCLUDED
 #define PARSYBONE_LABELING_BUILDER_INCLUDED
 
-#include "../auxiliary/common_functions.hpp"
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../parsing/model.hpp"
 #include "parametrizations_builder.hpp"
 #include "labeling_holder.hpp"

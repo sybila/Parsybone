@@ -10,7 +10,8 @@
 #ifndef PARSYBONE_PARAMSET_HELPER_INCLUDED
 #define PARSYBONE_PARAMSET_HELPER_INCLUDED
 
-#include "../auxiliary/common_functions.hpp"
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/output_streamer.hpp"
 

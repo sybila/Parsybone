@@ -9,7 +9,8 @@
 #ifndef PARSYBONE_AUTOMATON_STRUCTURE_INCLUDED
 #define PARSYBONE_AUTOMATON_STRUCTURE_INCLUDED
 
-#include "../auxiliary/common_functions.hpp"
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../auxiliary/output_streamer.hpp"
 #include "automaton_interface.hpp"
 

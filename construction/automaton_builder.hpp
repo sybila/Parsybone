@@ -9,8 +9,9 @@
 #ifndef PARSYBONE_AUTOMATON_BUILDER_INCLUDED
 #define PARSYBONE_AUTOMATON_BUILDER_INCLUDED
 
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../parsing/model.hpp"
-#include "../parsing/formulae_parser.hpp"
 #include "automaton_structure.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +153,7 @@ class AutomatonBuilder {
       Levels iterated = mins;
       do {
          auto valuation = getValuation(atoms, values, iterated);
-         if (FormulaeParser::resolve(valuation, label))
+         if (FormulaeResolver::resolve(valuation, label))
             allowed.push_back(iterated);
       } while (iterate(maxes, mins, iterated));
 

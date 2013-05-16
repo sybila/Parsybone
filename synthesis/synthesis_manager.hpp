@@ -9,7 +9,8 @@
 #ifndef PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 #define PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 
-#include "../auxiliary/time_manager.hpp"
+#include "PunyHeaders/time_manager.hpp"
+
 #include "coloring_analyzer.hpp"
 #include "witness_searcher.hpp"
 #include "output_manager.hpp"
@@ -181,7 +182,7 @@ public:
       } while (split_manager->increaseRound());
 
       output->outputSummary(total_colors);
-      time_manager.ouputClock("coloring");
+      time_manager.writeClock("coloring");
    }
 };
 

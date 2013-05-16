@@ -9,10 +9,11 @@
 #ifndef PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
 #define PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
 
+#include "PunyHeaders/common_functions.hpp"
+#include "PunyHeaders/formulae_resolver.hpp"
+
 #include "../auxiliary/data_types.hpp"
-#include "../auxiliary/common_functions.hpp"
 #include "../parsing/model.hpp"
-#include "../parsing/formulae_parser.hpp"
 #include "parametrizations_holder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,9 +89,9 @@ class ParametrizationsBuilder {
 	 */
 	bool resolveLabel(const bool & activating, const bool & inhibiting, const string label) const {
 		// Fill the atomic propositions
-		FormulaeParser::Vals values;
-		values.insert(FormulaeParser::Val("+", activating));
-		values.insert(FormulaeParser::Val("-", inhibiting));
+      FormulaeResolver::Vals values;
+      values.insert(FormulaeResolver::Val("+", activating));
+      values.insert(FormulaeResolver::Val("-", inhibiting));
 
 		string formula;
 
@@ -114,7 +115,7 @@ class ParametrizationsBuilder {
 		else
 			formula = label;
 
-		return (FormulaeParser::resolve(values, formula));
+      return (FormulaeResolver::resolve(values, formula));
 	}
 
 	/**
