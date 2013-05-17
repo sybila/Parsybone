@@ -15,7 +15,6 @@
 #include "xml_helper.hpp"
 #include "model.hpp"
 
-// TODO - change error context parsing so the ambiguouss is only multi-regulated component.
 // Add partial specification of a paremter for multi-value components.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,13 +74,19 @@ class NetworkParser {
     * @brief fillActivationLevels For each regulation fill the levels of its source in which it is active.
     */
    void fillActivationLevels() const {
+      // Fill for all the species.
       for (auto ID:range(model.getSpeciesCount())) {
          auto space = model.getThresholds(ID);
+
+         // List through the regulations of the specie.
          for (auto regul:model.getRegulations((ID))) {
+            // Start at the lower threshold
             ActLevel begin = regul.threshold;
+            // See if there is an upper threshold
             auto thresholds = space.find(regul.source)->second;
             sort(thresholds.begin(), thresholds.end(), [](unsigned int a, unsigned int b){return a <= b;});
             auto th_it = find(thresholds.begin(), thresholds.end(), begin) + 1;
+            // Create the maximum based on whethter this is the last threshold or not.
             ActLevel end = (th_it == thresholds.end()) ? model.getMax(regul.source) + 1 : *th_it;
 
             model.addActivityLevels(regul.source, ID, range(begin, end));
@@ -134,46 +139,132 @@ class NetworkParser {
    }
 
    /**
+    * @brief getThreshold  For a given regulator, find out what it's threshold in the given context is.
+    * @param target_ID
+    * @param name
+    * @return
+    */
+   size_t getThreshold(const string & context, const SpecieID target_ID, const string & name, const size_t pos) const {
+      // Regulator not present.
+      if (pos == context.npos)
+         return 0;
+      const size_t COLON_POS = pos + name.length(); // Where colon is supposed to be.
+
+      // Regulator level not specified.
+      if (context[COLON_POS] != ':') {
+         // Control if the context is unambiguous.
+         auto thresholds = model.getThresholds(target_ID);
+         if (thresholds.find(model.findID(name))->second.size() > 1)
+            throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a regulator " + name + " that has multiple regulations.");
+         // If valid, add the threshold 1.
+         return thresholds.find(model.findID(name))->second[0];
+      }
+
+      // There is not a threshold given after double colon.
+      if (context[COLON_POS] == ':' && (COLON_POS == (context.npos - 1) || !isdigit(context[COLON_POS+1])))
+         throw runtime_error ("No threshold given after colon in the context \"" + context + "\" of the regulator " + name);
+
+      // Add a threshold if uniquely specified.
+      string to_return;
+      size_t number = 1;
+      // Copy all the numbers
+      while(isdigit(context[COLON_POS + number])) {
+         to_return.push_back(context[COLON_POS + number]);
+         number++;
+      }
+      return (boost::lexical_cast<size_t>(to_return));
+   }
+
+   /**
     * @brief getCanonic   Transforms the regulation specification into a canonic form (\forall r \in regulator [r:threshold,...]).
     * @param context
     * @param target_ID
     * @return canonic context form
     */
-   string getCanonic(const string & context, const SpecieID target_ID) const {
-      string new_context; // canonic form
-      auto names = model.getRegulatorsNames(target_ID);
+   string formCanonic(const string & context, const SpecieID target_ID) const {
+      string new_context; // new canonic form
+      const auto names = model.getRegulatorsNames(target_ID);
 
       // For each of the regulator of the specie.
       for (const auto & name:names) {
-         new_context += name;
          auto pos = context.find(name);
-         auto colon_pos = pos + name.length();
+         size_t threshold = getThreshold(context, target_ID, name, pos);
+         new_context += name + ":" + toString(threshold) + ",";
+      }
 
-         // Regulator not present.
-         if (pos == context.npos)
-            new_context += ":0,";
-         // Regulator level not specified.
-         else if (context[colon_pos] != ':') {
-            // Control if the context is unambiguous.
-            auto thresholds = model.getThresholds(target_ID);
-            if (thresholds.find(model.findID(name))->second.size() > 1)
-               throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a regulator " + name + " that has multiple regulations.");
-            // If valid, add the threshold 1.
-            new_context += ":" + toString(thresholds.find(model.findID(name))->second[0]) + ",";
+      // Remove the last comma and return
+      return new_context.substr(0, new_context.length() - 1);
+   }
+
+   /**
+    * @brief covertToLevels   Take a string of the form (\d,)*\d and transform it into a list of values.
+    * @param val_str
+    * @return
+    */
+   Levels covertToLevels(const string & val_str, const SpecieID t_ID) const {
+      vector<string> numbers;
+      Levels specified;
+      split(numbers, val_str, is_any_of(","));
+
+      // Convert the string into list of numbers.
+      for (const auto & num:numbers) {
+         size_t val;
+
+         // Convert one number.
+         try {
+            val = lexical_cast<size_t>(num);
+         } catch (bad_lexical_cast) {
+            throw runtime_error("Specified value " + num + " in the list " + val_str + " is not a number");
          }
-         // There is not a threshold given after double colon.
-         else if (context[colon_pos] == ':' && (colon_pos == (context.npos - 1) || !isdigit(context[colon_pos+1])))
-            throw runtime_error ("No threshold given after colon in the context \"" + context + "\" of the regulator " + name);
-         // Add a threshold if uniquely specified.
-         else {
-            new_context += ":";
-            while(isdigit(context[++colon_pos]))
-               new_context.append(1, context[colon_pos]);
-            new_context += ",";
+
+         if (val < model.getMin(t_ID) || val > model.getMax(t_ID))
+            throw invalid_argument("target value " + val_str + " out of range for specie " + model.getName(t_ID));
+
+         specified.push_back(val);
+      }
+
+      return specified;
+   }
+
+   /**
+    * @brief interpretLevels  Reads the definition of target values and interprets them into Levels structure.
+    * @return
+    */
+   Levels interpretLevels(rapidxml::xml_node<> * parameter, const SpecieID t_ID) const {
+      string val_str = "";
+
+      // Get the target value (the whole range if unspecified) and check it
+      if (XMLHelper::getAttribute(val_str, parameter, "value", false))
+         // ? goes for unspecified.
+         if (val_str.compare("?") == 0)
+            return model.getRange(t_ID);
+         else
+            return covertToLevels(val_str, t_ID);
+
+      // If none is given, use the whole range.
+      else
+         return model.getRange(t_ID);
+   }
+
+   /**
+    * @brief replaceInContext
+    * @param parameters
+    * @param in_context
+    * @param can_context
+    * @param targets
+    */
+   void replaceInContext(Model::Parameters & parameters, const string & in_context, const string & can_context, const Levels & targets) const {
+      // List through all parameters of the specie.
+      for(auto & param:parameters) {
+         // If the context is matched.
+         if (param.context.compare(can_context) == 0) {
+            param.targets = targets;
+            return;
          }
       }
 
-      return new_context.substr(0, new_context.length() - 1);
+      // If the context was not ever matched.
+      throw runtime_error("Given context " + in_context + " not mached, probably incorrect.");
    }
 
    /**
@@ -182,43 +273,28 @@ class NetworkParser {
     * @param specie_node
     * @param target_ID
     */
-   void replaceExplicit(Model::Parameters & parameters, const rapidxml::xml_node<> * const specie_node, const SpecieID target_ID) const {
+   void replaceExplicit(Model::Parameters & parameters, const rapidxml::xml_node<> * const specie_node, const SpecieID t_ID) const {
+      // List through all the PARAM nodes.
       for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, "PARAM", false); parameter; parameter = parameter->next_sibling("PARAM") ) {
-         string context = "", target_val_str = "";
-         ActLevel target_val = 0;
-         Levels targets;
+         // Obtain context specified.
+         string in_context = "";
+         XMLHelper::getAttribute(in_context, parameter, "context");
+         string can_context = formCanonic(in_context, t_ID);
 
-         // Get the mask string.
-         XMLHelper::getAttribute(context, parameter, "context");
-         string new_context = getCanonic(context, target_ID);
+         // Get the levels.
+         Levels targets = interpretLevels(parameter, t_ID);
 
-         // Get the targte value (set to -1 if uknown or unspecified) and check it
-         if (XMLHelper::getAttribute(target_val_str, parameter, "value", false)) {
-            if (target_val_str.compare("?") == 0) {
-               targets = model.getRange(target_ID);
-            } else {
-               XMLHelper::getAttribute(target_val, parameter, "value", false);
-               if (target_val < model.getMin(target_ID) || target_val > model.getMax(target_ID))
-                  throw invalid_argument("target value " + target_val_str + " out of range for specie " + model.getName(target_ID));
-               targets.push_back(target_val);
-            }
-         }
-         else
-            targets = model.getRange(target_ID);
-
-         bool found = false;
-         for(auto & param:parameters) {
-            if (param.context.compare(new_context) == 0) {
-               param.targets = targets;
-               found = true;
-               break;
-            }
-         }
-         if (! found)
-            throw runtime_error("Given context " + context + "not mached, probably incorrect.");
+         // Find the context and replace it's target values.
+         replaceInContext(parameters, in_context, can_context, targets);
       }
    }
 
+   /**
+    * @brief createParameters
+    * @param target_ID
+    * @param formula
+    * @return
+    */
    Model::Parameters createParameters(const SpecieID target_ID, string formula) const {
       auto all_thresholds = model.getThresholds(target_ID);
       auto regulations = model.getRegulations(target_ID);

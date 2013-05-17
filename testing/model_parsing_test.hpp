@@ -18,17 +18,17 @@ TEST_F(ModelsTest, ModelParsing) {
 TEST_F(ModelsTest, CanonicTranslator) {
    NetworkParser parser(basic_model);
 
-   EXPECT_STREQ("A:0", parser.getCanonic("", 1).c_str());
-   EXPECT_STREQ("A:1", parser.getCanonic("A", 1).c_str());
+   EXPECT_STREQ("A:0", parser.lexical_castc("", 1).c_str());
+   EXPECT_STREQ("A:1", parser.lexical_castc("A", 1).c_str());
    // EXPECT_THROW(parser.getCanonic("C:", 1), runtime_error);
-   EXPECT_THROW(parser.getCanonic("A:", 1), runtime_error);
+   EXPECT_THROW(parser.lexical_castc("A:", 1), runtime_error);
    // EXPECT_THROW(parser.getCanonic("A:2", 1), runtime_error);
-   EXPECT_THROW(parser.getCanonic("A:-1", 1), runtime_error);
-   EXPECT_THROW(parser.getCanonic("A:a", 1), runtime_error);
+   EXPECT_THROW(parser.lexical_castc("A:-1", 1), runtime_error);
+   EXPECT_THROW(parser.lexical_castc("A:a", 1), runtime_error);
 
-   EXPECT_STREQ("A:1,B:0", parser.getCanonic("A:1", 0).c_str());
-   EXPECT_STREQ("A:1,B:1", parser.getCanonic("A,B:1", 0).c_str());
-   EXPECT_STREQ("A:0,B:3", parser.getCanonic("B:3", 0).c_str());
+   EXPECT_STREQ("A:1,B:0", parser.lexical_castc("A:1", 0).c_str());
+   EXPECT_STREQ("A:1,B:1", parser.lexical_castc("A,B:1", 0).c_str());
+   EXPECT_STREQ("A:0,B:3", parser.lexical_castc("B:3", 0).c_str());
 
 }
 

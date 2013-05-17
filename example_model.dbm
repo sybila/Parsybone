@@ -8,7 +8,7 @@
         <SPECIE >
             <REGUL source="A" />
             <REGUL source="B" label="+" />            
-            <PARAM context="" value="?" />
+            <PARAM context="" value="0,1" />
             <PARAM context="B" value="1" />
             <PARAM context="A" value="0" />
             <PARAM context="A,B" />            
