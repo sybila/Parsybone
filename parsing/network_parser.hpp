@@ -424,6 +424,7 @@ class NetworkParser {
       // Add levels to the regulations.
       fillActivationLevels();
 
+      // For each specie create its parameters.
       specie = XMLHelper::getChildNode(structure_node, "SPECIE");
       for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
          // Create all contexts with all of their possible combinations.

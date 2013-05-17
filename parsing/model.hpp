@@ -40,7 +40,7 @@ public:
    struct Parameter {
       string context; ///< String name of the context of regulators.
       map<StateID, Levels> requirements; ///< Levels of the source species.
-      Levels targets; ///< Levels of the target towards which it is possible to regulate.
+      Levels targets; ///< Basal targets (is no basal value is given, then all)
    };
    typedef vector<Parameter> Parameters;
 
@@ -53,7 +53,7 @@ private:
       string name; ///< Actuall name of the specie.
       SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
       ActLevel max_value; ///< Maximal activation level of the specie.
-      Levels range; ///< Possible values the specie can take.
+      Levels targets; ///< Possible values the specie can take.
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
@@ -104,7 +104,7 @@ public:
    }
 
    /**
-    *
+    * For a regulation add levels where it is
     */
    inline void addActivityLevels(const SpecieID source, const SpecieID target, const Levels & levels) {
       if (levels.empty())
@@ -213,8 +213,13 @@ public:
       return species[ID].max_value;
    }
 
-   inline Levels getRange(const SpecieID ID) const {
-      return species[ID].range;
+   /**
+    * @brief getBasalTargets Values towards which the specie is being regulated by default. Used in case of specification of basal values.
+    * @param ID
+    * @return
+    */
+   inline Levels getBasalTargets(const SpecieID ID) const {
+      return species[ID].targets;
    }
 
    /**
