@@ -235,13 +235,13 @@ class NetworkParser {
       if (XMLHelper::getAttribute(val_str, parameter, "value", false))
          // ? goes for unspecified.
          if (val_str.compare("?") == 0)
-            return model.getRange(t_ID);
+            return model.getBasalTargets(t_ID);
          else
             return covertToLevels(val_str, t_ID);
 
       // If none is given, use the whole range.
       else
-         return model.getRange(t_ID);
+         return model.getBasalTargets(t_ID);
    }
 
    /**
@@ -295,18 +295,15 @@ class NetworkParser {
     * @param formula
     * @return
     */
-   Model::Parameter getSingleParam(const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID target_ID, string formula) const {
-      auto IDs = model.getRegulatorsIDs(target_ID);
-      auto names = model.getRegulatorsNames(target_ID);
-
-      FormulaeResolver::Vals present_regulators;
+   Model::Parameter getSingleParam(const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID target_ID) const {
+      // Empty data to fill.
       Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
 
       // Loop over all the sources.
       for (auto source_num:range(thrs_comb.size())) {
          // Find the source details and its current threshold
-         string source_name = names[source_num];
-         StateID source_ID = IDs[source_num];
+         string source_name = model.getRegulatorsNames(target_ID)[source_num];
+         StateID source_ID = model.getRegulatorsIDs(target_ID)[source_num];
          auto thresholds = all_thrs.find(source_ID)->second;
 
          // Find activity level of the current threshold.
@@ -314,11 +311,6 @@ class NetworkParser {
 
          // Add current regulation as present.
          string regulation_name = source_name + ":" + toString(threshold);
-         if (!formula.empty()) {
-            if (threshold == 1)
-               present_regulators.insert(FormulaeResolver::Val(source_name, 1));
-            present_regulators.insert(FormulaeResolver::Val(regulation_name, 1));
-         }
 
          // Add the regulation to the source
          parameter.context += regulation_name + ",";
@@ -329,19 +321,7 @@ class NetworkParser {
          parameter.requirements.insert(make_pair(source_ID, activity_levels));
       }
 
-      // If the formula respecifies the values, fix them.
-      if (!formula.empty()) {
-         for (auto regul:model.getRegulations(target_ID)) {
-            if (present_regulators.find(regul.name) == present_regulators.end()) {
-               present_regulators.insert(FormulaeResolver::Val(regul.name, 0));
-               if (regul.threshold == 1)
-                  present_regulators.insert(FormulaeResolver::Val(model.getName(regul.source), 0));
-            }
-         }
-         parameter.targets = Levels({FormulaeResolver::resolve(present_regulators, formula)});
-      } else {
-         parameter.targets = model.getRange(target_ID);
-      }
+      parameter.targets = model.getBasalTargets(target_ID);
 
       // Remove the last comma and return.
       parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
@@ -349,12 +329,12 @@ class NetworkParser {
    }
 
    /**
-    * @brief createParameters
+    * @brief createParameters Creates a description of kinetic parameters.
     * @param target_ID
     * @param formula
     * @return
     */
-   Model::Parameters createParameters(const SpecieID target_ID, string formula) const {
+   Model::Parameters createParameters(const SpecieID target_ID) const {
       auto all_thrs = model.getThresholds(target_ID);
       Levels bottom, thrs_comb, top;
       Model::Parameters parameters;
@@ -368,7 +348,7 @@ class NetworkParser {
 
       // Loop over all the contexts.
       do {
-         parameters.push_back(getSingleParam(all_thrs, thrs_comb, target_ID, formula));
+         parameters.push_back(getSingleParam(all_thrs, thrs_comb, target_ID));
       } while(iterate(top, bottom, thrs_comb));
 
       return parameters;
@@ -427,9 +407,15 @@ class NetworkParser {
       // For each specie create its parameters.
       specie = XMLHelper::getChildNode(structure_node, "SPECIE");
       for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
-         // Create all contexts with all of their possible combinations.
+         // Create all contexts with all the possible values.
+         auto parameters = createParameters(ID);
+
+         // If logic description is given evaluate results.
          auto formula = parseLogic(specie, ID);
-         auto parameters = createParameters(ID, formula);
+         if (!formula.empty())
+            throw runtime_error("Logical expression temporarily disabled.");
+
+         // Otherwise replace values.
          replaceExplicit(parameters, specie, ID);
          model.addParameters(ID, parameters);
       }

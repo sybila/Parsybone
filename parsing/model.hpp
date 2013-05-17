@@ -40,7 +40,7 @@ public:
    struct Parameter {
       string context; ///< String name of the context of regulators.
       map<StateID, Levels> requirements; ///< Levels of the source species.
-      Levels targets; ///< Basal targets (is no basal value is given, then all)
+      Levels targets; ///< Basal targets (is no basal value is given, then all).
    };
    typedef vector<Parameter> Parameters;
 
