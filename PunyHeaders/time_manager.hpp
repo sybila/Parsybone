@@ -22,12 +22,15 @@ public:
     * Starts a clock with given name and, if it is requsted by user, outputs the info.
     *
     * @param clock_name	unique ID of the clock that will also be send on the output
+    * @param silen   If true, then the start is not printed.
     */
-   void startClock(const string clock_name) {
+   void startClock(const string clock_name, bool display = false) {
       if (clocks.find(clock_name) != clocks.end())
          throw runtime_error(clock_name + " clock already started. Error when trying to create.");
       clocks.insert(make_pair(clock_name, chrono::steady_clock::now()));
-      cout << clock_name << " started.\n";
+
+      if (display)
+         cout << clock_name << " started.\n";
    }
 
    /**

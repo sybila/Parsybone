@@ -58,8 +58,6 @@ class TimeSeriesParser {
           */
    void parse(const rapidxml::xml_node<> * const model_node) {
       // Parse Buchi Automaton
-      output_streamer.output(verbose_str, "Started reading of the Time series.");
-
       parseExpressions(XMLHelper::getChildNode(model_node, "SERIES"));
    }
 };

@@ -28,7 +28,7 @@ using namespace std;
  * Linear execution of succesive parts of the parameter synthesis.
  */
 int main(int argc, char* argv[]) {
-   time_manager.startClock("runtime");
+   time_manager.startClock("* Runtime", false);
    ConstructionHolder holder; ///< Object that will hold all the constructed data structures that are used as reference.
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,6 @@ int main(int argc, char* argv[]) {
    try {
       Model * model = new Model;
       ParsingManager parsing_manager(argc, argv, *model);
-      output_streamer.output(verbose_str, "Parsing started.");
       parsing_manager.parse();
       // Pass the model
       holder.fillModel(model);
@@ -54,7 +53,6 @@ int main(int argc, char* argv[]) {
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    try {
       ConstructionManager construction_manager(holder);
-      output_streamer.output(verbose_str, "Construction started.");
       construction_manager.construct();
    }
    catch (std::exception & e) {
@@ -68,7 +66,6 @@ int main(int argc, char* argv[]) {
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    try {
       SynthesisManager synthesis_manager(holder);
-      output_streamer.output(verbose_str, "Coloring started.");
       synthesis_manager.doSynthesis();
    }
    catch (std::exception & e) {
@@ -76,6 +73,6 @@ int main(int argc, char* argv[]) {
       return 3;
    }
 
-   time_manager.writeClock("runtime");
+   time_manager.writeClock("* Runtime");
    return 0;
 }

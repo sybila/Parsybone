@@ -76,7 +76,7 @@ public:
       if (user_options.toDatabase())
          database.finishOutpout();
       OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Total number of colors: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".", trait);
+      output_streamer.output(verbose_str, "Total number of parametrizations: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".", trait);
    }
 
    /**

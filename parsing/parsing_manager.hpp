@@ -47,8 +47,6 @@ public:
    void parse() {
       ifstream model_stream; // Object that will reference input file.
 
-      output_streamer.output(verbose_str, "Arguments parsing started.", OutputStreamer::important);
-
       // Parse arguments
       ArgumentParser parser;
       parser.parseArguments(arguments, model_stream);

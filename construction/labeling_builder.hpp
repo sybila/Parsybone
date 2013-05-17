@@ -34,9 +34,9 @@ class LabelingBuilder {
     * @param ID	ID of the specie to compute the kinetic parameters for
     * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
     */
-   void addRegulations(const SpecieID target_ID, ParamNum & step_size) const {
+   void addRegulations(const SpecieID t_ID, ParamNum & step_size) const {
       // get referecnces to Specie data
-      const auto & tparams = model.getParameters(target_ID);
+      const auto & tparams = model.getParameters(t_ID);
 
       // Go through regulations of a specie - each represents a single function
       for (auto param_num:range(tparams.size())) {
@@ -47,19 +47,18 @@ class LabelingBuilder {
          }
 
          // Add target values (if input negative, add all possibilities), if positive, add current requested value
-         auto possible_values = parametrizations.getTargetVals(target_ID, param_num);
+         auto possible_values = parametrizations.getTargetVals(t_ID, param_num);
 
          // pass the function to the holder.
-         labeling_holder.addRegulatoryFunction(target_ID, step_size, possible_values, source_values);
+         labeling_holder.addRegulatoryFunction(t_ID, step_size, possible_values, source_values);
       }
 
       // Display stats
-      string specie_stats = "Specie " + model.getName(target_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
-            + toString(parametrizations.getColorsNum(target_ID)) + " total possible parametrizations.";
-      output_streamer.output(verbose_str, specie_stats, OutputStreamer::tab);
+      output_streamer.output(verbose_str, "Specie " + model.getName(t_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
+                             + toString(parametrizations.getColorsNum(t_ID)) + " possible parametrizations out of " + toString(parametrizations.getAllColorsNum(t_ID)) + ".");
 
       // Increase step size for the next function
-      step_size *= parametrizations.getColorsNum(target_ID);
+      step_size *= parametrizations.getColorsNum(t_ID);
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,9 +78,6 @@ public:
 	 * For each specie recreate all its regulatory functions (all possible labels)
 	 */
 	void buildLabeling() {
-		// Display stats
-		output_streamer.output(verbose_str, "Costructing Regulatory kinetics for ", OutputStreamer::no_newl)
-				.output(model.getSpeciesCount(), OutputStreamer::no_newl).output(" species.");
 
 		ParamNum step_size = 1; // Variable necessary for encoding of colors
 

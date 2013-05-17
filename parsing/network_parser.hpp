@@ -31,14 +31,14 @@ class NetworkParser {
    /**
     * In a current regulation get source of that regulation, if possible.
     */
-   SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID ) const {
+   SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID ) const {
       string source; SpecieID source_ID;
 
       // Find the source and check correctness
       XMLHelper::getAttribute(source, regulation, "source");
       source_ID = model.findID(source);
       if (source_ID >= model.getSpeciesCount())
-         throw invalid_argument("ID of a regulation of the specie " + toString(model.getName(target_ID)) + " is incorrect");
+         throw invalid_argument("ID of a regulation of the specie " + toString(model.getName(t_ID)) + " is incorrect");
 
       return source_ID;
    }
@@ -46,7 +46,7 @@ class NetworkParser {
    /**
     * Obtain a treshold of a current regulation and check if it is correct and unique.
     */
-   size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID target_ID, const SpecieID source_ID ) const {
+   size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, const SpecieID source_ID ) const {
       size_t threshold;
 
       // Try to find a threshold, if not present, set to 1
@@ -56,7 +56,7 @@ class NetworkParser {
          throw invalid_argument("the threshold' value " + toString(threshold) + " is not within the range of the regulator " + toString(model.getName(source_ID)));
 
       // Test uniqueness of this combination (source, threshold)
-      auto regulations = model.getRegulations(target_ID);
+      auto regulations = model.getRegulations(t_ID);
       for(const auto & regul:regulations) {
          if (threshold == regul.threshold && source_ID == regul.source)
             throw invalid_argument("multiple definition of a regulation of a specie " + toString(model.getName(source_ID)));
@@ -138,11 +138,13 @@ class NetworkParser {
 
    /**
     * @brief getThreshold  For a given regulator, find out what it's threshold in the given context is.
+    * @param context
     * @param target_ID
     * @param name
+    * @param pos
     * @return
     */
-   size_t getThreshold(const string & context, const SpecieID target_ID, const string & name, const size_t pos) const {
+   size_t getThreshold(const string & context, const SpecieID t_ID, const string & name, const size_t pos) const {
       // Regulator not present.
       if (pos == context.npos)
          return 0;
@@ -151,7 +153,7 @@ class NetworkParser {
       // Regulator level not specified.
       if (context[COLON_POS] != ':') {
          // Control if the context is unambiguous.
-         auto thresholds = model.getThresholds(target_ID);
+         auto thresholds = model.getThresholds(t_ID);
          if (thresholds.find(model.findID(name))->second.size() > 1)
             throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a regulator " + name + " that has multiple regulations.");
          // If valid, add the threshold 1.
@@ -174,19 +176,19 @@ class NetworkParser {
    }
 
    /**
-    * @brief getCanonic   Transforms the regulation specification into a canonic form (\forall r \in regulator [r:threshold,...]).
+    * @brief formCanonicContext   Transforms the regulation specification into a canonic form (\forall r \in regulator [r:threshold,...]).
     * @param context
     * @param target_ID
     * @return canonic context form
     */
-   string formCanonic(const string & context, const SpecieID target_ID) const {
+   string formCanonicContext(const string & context, const SpecieID t_ID) const {
       string new_context; // new canonic form
-      const auto names = model.getRegulatorsNames(target_ID);
+      const auto names = model.getRegulatorsNames(t_ID);
 
       // For each of the regulator of the specie.
       for (const auto & name:names) {
          auto pos = context.find(name);
-         size_t threshold = getThreshold(context, target_ID, name, pos);
+         size_t threshold = getThreshold(context, t_ID, name, pos);
          new_context += name + ":" + toString(threshold) + ",";
       }
 
@@ -277,7 +279,7 @@ class NetworkParser {
          // Obtain context specified.
          string in_context = "";
          XMLHelper::getAttribute(in_context, parameter, "context");
-         string can_context = formCanonic(in_context, t_ID);
+         string can_context = formCanonicContext(in_context, t_ID);
 
          // Get the levels.
          Levels targets = interpretLevels(parameter, t_ID);
@@ -295,15 +297,15 @@ class NetworkParser {
     * @param formula
     * @return
     */
-   Model::Parameter getSingleParam(const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID target_ID) const {
+   Model::Parameter getSingleParam(const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID t_ID) const {
       // Empty data to fill.
       Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
 
       // Loop over all the sources.
       for (auto source_num:range(thrs_comb.size())) {
          // Find the source details and its current threshold
-         string source_name = model.getRegulatorsNames(target_ID)[source_num];
-         StateID source_ID = model.getRegulatorsIDs(target_ID)[source_num];
+         string source_name = model.getRegulatorsNames(t_ID)[source_num];
+         StateID source_ID = model.getRegulatorsIDs(t_ID)[source_num];
          auto thresholds = all_thrs.find(source_ID)->second;
 
          // Find activity level of the current threshold.
@@ -321,7 +323,7 @@ class NetworkParser {
          parameter.requirements.insert(make_pair(source_ID, activity_levels));
       }
 
-      parameter.targets = model.getBasalTargets(target_ID);
+      parameter.targets = model.getBasalTargets(t_ID);
 
       // Remove the last comma and return.
       parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
@@ -334,8 +336,8 @@ class NetworkParser {
     * @param formula
     * @return
     */
-   Model::Parameters createParameters(const SpecieID target_ID) const {
-      auto all_thrs = model.getThresholds(target_ID);
+   Model::Parameters createParameters(const SpecieID t_ID) const {
+      auto all_thrs = model.getThresholds(t_ID);
       Levels bottom, thrs_comb, top;
       Model::Parameters parameters;
 
@@ -348,7 +350,7 @@ class NetworkParser {
 
       // Loop over all the contexts.
       do {
-         parameters.push_back(getSingleParam(all_thrs, thrs_comb, target_ID));
+         parameters.push_back(getSingleParam(all_thrs, thrs_comb, t_ID));
       } while(iterate(top, bottom, thrs_comb));
 
       return parameters;
@@ -434,8 +436,6 @@ public:
     * Main parsing function. It expects a pointer to inside of a MODEL node.
     */
    void parse(const rapidxml::xml_node<> * const model_node) {
-      // Parse Kripke Structure
-      output_streamer.output(verbose_str, "Started reading of the Kripke structure.");
       // Create the species
       firstParse(XMLHelper::getChildNode(model_node, "STRUCTURE"));
       // Add regulatory logic

@@ -262,12 +262,9 @@ public:
     * Entry function of parsing, tests and stores subcolors for all the species.
 	 */
 	void buildParametrizations() {
-      output_streamer.output(verbose_str, "Creating the parametrization space.");
-
 		// Cycle through species
-		for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++) {
+      for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++)
 			createKinetics(ID);
-		}
 	}
 };
 

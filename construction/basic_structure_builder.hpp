@@ -129,9 +129,7 @@ public:
 	 * Create the states from the model and fill the structure with them.
 	 */
 	void buildStructure() {
-		output_streamer.output(verbose_str, "Computing Kripke Structure.");
-		output_streamer.output(verbose_str, "Total number of states: ", OutputStreamer::no_newl | OutputStreamer::tab).output(states_count, OutputStreamer::no_newl).output(".");
-		size_t transition_count = 0;
+      size_t transition_count = 0;
 
 		// Create initial state (by its values)
 		Levels levels(species_count, 0);
@@ -143,15 +141,12 @@ public:
 			structure.addState(ID, levels, move(createLabel(levels)));
 			storeNeigbours(ID, levels, maxes);
          // Generate new state for the next round
-			// Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop
+         // Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop.
 			transition_count += structure.getTransitionCount(ID) - model.getSpeciesCount() + 1;
          ID++;
       } while (iterate(maxes, mins, levels));
 
-		output_streamer.output(verbose_str, "Number of possible transitions: ", OutputStreamer::no_newl | OutputStreamer::tab)
-				.output(transition_count, OutputStreamer::no_newl).output(".");
-		output_streamer.output(verbose_str, "Lowest activation state is: ", OutputStreamer::no_newl | OutputStreamer::tab).output(structure.getString(0), OutputStreamer::no_newl)
-				.output(", highest activation state is: ", OutputStreamer::no_newl).output(structure.getString(states_count-1), OutputStreamer::no_newl).output(".");
+      output_streamer.output(verbose_str, "Transition system has " + toString(states_count) + " states with " + toString(transition_count) + " transitions.");
 	}
 };
 

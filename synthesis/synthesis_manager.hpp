@@ -171,7 +171,7 @@ public:
     * Main synthesis function that iterates through all the rounds of the synthesis.
     */
    void doSynthesis() {
-      time_manager.startClock("coloring");
+      // time_manager.startClock("coloring");
       output->outputForm();
 
       // Do the computation for all the rounds
@@ -182,7 +182,7 @@ public:
       } while (split_manager->increaseRound());
 
       output->outputSummary(total_colors);
-      time_manager.writeClock("coloring");
+      // time_manager.writeClock("coloring");
    }
 };
 
