@@ -41,15 +41,11 @@ This manual describes the usage of the version $1.000$ of the tool and the versi
  The tool is freely available under the GNU GPLv3 license. The latest version of the tool can be obtained from the GitHub repository at https://github.com/sybila/Parsybone, the version described in this manual is available at https://github.com/sybila/Parsybone/tree/1.000. 
 
 \subsection{Compiling Parsybone}
-The only currently available version of the program is a source code archive, which has to be compiled before the tool can be run. For this one needs a compiler at least partially aware of the \emph{C++11} standard, we recommend one of the following:
-\begin{itemize}
-\item Microsoft Visual Studio 10.0
-\item MinGW 4.5.1
-\item GCC 4.5.1 
-\end{itemize}
-The specified versions have been tested, but newer should work as well. Also note that in this version of the GNU compilers it is necessary to use the argument \texttt{-std=gnu++0x} when invoking the compilation.
+The only currently available version of the program is a source code archive, which has to be compiled before the tool can be run. For this a GNU C++ compiler of version at least 4.6.0 must be used (MinGW can serve as a replacement on the Windows platform).
 
-To successfully compile the code you also need the Boost libraries~\cite{Boost} which can be obtained at http://www.boost.org/. The code has been tested using the 1.50.0 version, but again, any newer version should work.
+To successfully compile the code you also need the Boost libraries~\cite{Boost} which can be obtained at http://www.boost.org/. The code has been tested using the 1.50.0 version.
+
+The tool can be then compiled by invoking the GNU make utility in the main directory (the one containing the file \emph{Makefile}).
 
 \section{Basics}
 In this section we provide a concise introduction to the topic of the Thomas formalism, sufficient for understanding our modeling method and language. For more complex description of the Thomas formalism we would recommend the reader to refer to more elaborate articles, such as~\cite{ThomasR1991}. Readers well-established in the topic can skip this section alltogether.
