@@ -15,8 +15,6 @@
 #include "xml_helper.hpp"
 #include "model.hpp"
 
-// Add partial specification of a paremter for multi-value components.
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for parsing of the regulatory network.
 ///
@@ -290,66 +288,88 @@ class NetworkParser {
    }
 
    /**
+    * @brief getSingleParam
+    * @param all_thrs
+    * @param thrs_comb
+    * @param target_ID
+    * @param formula
+    * @return
+    */
+   Model::Parameter getSingleParam(const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID target_ID, string formula) const {
+      auto IDs = model.getRegulatorsIDs(target_ID);
+      auto names = model.getRegulatorsNames(target_ID);
+
+      FormulaeResolver::Vals present_regulators;
+      Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
+
+      // Loop over all the sources.
+      for (auto source_num:range(thrs_comb.size())) {
+         // Find the source details and its current threshold
+         string source_name = names[source_num];
+         StateID source_ID = IDs[source_num];
+         auto thresholds = all_thrs.find(source_ID)->second;
+
+         // Find activity level of the current threshold.
+         ActLevel threshold = (thrs_comb[source_num] == 0) ? 0 : thresholds[thrs_comb[source_num] - 1];
+
+         // Add current regulation as present.
+         string regulation_name = source_name + ":" + toString(threshold);
+         if (!formula.empty()) {
+            if (threshold == 1)
+               present_regulators.insert(FormulaeResolver::Val(source_name, 1));
+            present_regulators.insert(FormulaeResolver::Val(regulation_name, 1));
+         }
+
+         // Add the regulation to the source
+         parameter.context += regulation_name + ",";
+
+         // Find in which levels the specie must be for the regulation to occur.
+         ActLevel next_th = (thrs_comb[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[thrs_comb[source_num]];
+         Levels activity_levels = range(threshold, next_th);
+         parameter.requirements.insert(make_pair(source_ID, activity_levels));
+      }
+
+      // If the formula respecifies the values, fix them.
+      if (!formula.empty()) {
+         for (auto regul:model.getRegulations(target_ID)) {
+            if (present_regulators.find(regul.name) == present_regulators.end()) {
+               present_regulators.insert(FormulaeResolver::Val(regul.name, 0));
+               if (regul.threshold == 1)
+                  present_regulators.insert(FormulaeResolver::Val(model.getName(regul.source), 0));
+            }
+         }
+         parameter.targets = Levels({FormulaeResolver::resolve(present_regulators, formula)});
+      } else {
+         parameter.targets = model.getRange(target_ID);
+      }
+
+      // Remove the last comma and return.
+      parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
+      return parameter;
+   }
+
+   /**
     * @brief createParameters
     * @param target_ID
     * @param formula
     * @return
     */
    Model::Parameters createParameters(const SpecieID target_ID, string formula) const {
-      auto all_thresholds = model.getThresholds(target_ID);
-      auto regulations = model.getRegulations(target_ID);
-      auto IDs = model.getRegulatorsIDs(target_ID);
-      auto names = model.getRegulatorsNames(target_ID);
-      Levels bottom, context, top;
+      auto all_thrs = model.getThresholds(target_ID);
+      Levels bottom, thrs_comb, top;
       Model::Parameters parameters;
 
-      // These containers hold number of thresholds pre regulator.
-      for (auto & source_thresholds:all_thresholds) {
+      // These containers hold number of thresholds per regulator.
+      for (auto & source_thresholds:all_thrs) {
          bottom.push_back(0);
-         context.push_back(0);
+         thrs_comb.push_back(0);
          top.push_back(source_thresholds.second.size());
       }
 
       // Loop over all the contexts.
       do {
-         FormulaeResolver::Vals present_regulators;
-         Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
-
-         // Loop over all the sources.
-         for (auto source_num:range(context.size())) {
-            string source_name = names[source_num];
-            StateID source_ID = IDs[source_num];
-            auto & thresholds = all_thresholds.find(source_ID)->second;
-            sort(thresholds.begin(), thresholds.end(), [](unsigned int a, unsigned int b){return a <= b;});
-            ActLevel threshold = (context[source_num] == 0) ? 0 : thresholds[context[source_num] - 1];
-            string regulation_name = source_name + ":" + toString(threshold);
-            if (!formula.empty()) {
-               if (threshold == 1)
-                  present_regulators.insert(FormulaeResolver::Val(source_name, 1));
-               present_regulators.insert(FormulaeResolver::Val(regulation_name, 1));
-            }
-            parameter.context += regulation_name + ",";
-            ActLevel next_th = (context[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[context[source_num]];
-            Levels activity_levels = range(threshold, next_th);
-            parameter.requirements.insert(make_pair(source_ID, activity_levels));
-         }
-         // Deal with the formula
-         if (!formula.empty()) {
-            for (auto regul:model.getRegulations(target_ID)) {
-               if (present_regulators.find(regul.name) == present_regulators.end()) {
-                  present_regulators.insert(FormulaeResolver::Val(regul.name, 0));
-                  if (regul.threshold == 1)
-                     present_regulators.insert(FormulaeResolver::Val(model.getName(regul.source), 0));
-               }
-            }
-            parameter.targets = Levels(1, FormulaeResolver::resolve(present_regulators, formula));
-         } else {
-            parameter.targets = model.getRange(target_ID);
-         }
-
-         parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
-         parameters.push_back(parameter);
-      } while(iterate(top, bottom, context));
+         parameters.push_back(getSingleParam(all_thrs, thrs_comb, target_ID, formula));
+      } while(iterate(top, bottom, thrs_comb));
 
       return parameters;
    }
@@ -401,6 +421,7 @@ class NetworkParser {
          parseRegulations(specie, ID);
       }
 
+      // Add levels to the regulations.
       fillActivationLevels();
 
       specie = XMLHelper::getChildNode(structure_node, "SPECIE");
