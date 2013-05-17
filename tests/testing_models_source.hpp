@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include "PunyHeaders/common_functions.hpp"
+
 #include "../auxiliary/data_types.hpp"
 #include "../parsing/model_parser.hpp"
 #include "../parsing/model.hpp"

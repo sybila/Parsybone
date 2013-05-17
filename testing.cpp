@@ -11,9 +11,8 @@
 
 #define GTEST
 
-#include "testing/formulae_parser_test.hpp"
-#include "testing/model_functions_test.hpp"
-#include "testing/model_parsing_test.hpp"
+#include "tests/formulae_parser_test.hpp"
+#include "tests/model_functions_test.hpp"
 
 int main(int argc, char* argv[]) {
     ::testing::InitGoogleTest( &argc, argv );
