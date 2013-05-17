@@ -1,7 +1,7 @@
 \documentclass[12pt]{article}
-\title{Parsybone  manual}
+\title{Parsybone  manual \\ Version 1.2}
 \author{Adam Streck \\
-		Systems Biology laboratory}
+		Discrete Biomathematics, FU Berlin}
 \usepackage{alltt}
 \usepackage{a4wide}
 \usepackage{pgf}
@@ -35,10 +35,10 @@ Parsybone is a CLI based tool for synthesis of discrete kinetic parameters in ge
 \item Computation in a distributed environment.
 \end{itemize}
 
-This manual describes the usage of the version $1.000$ of the tool and the version $1.0$ of the associate modeling language.
+This manual describes the usage of the version $1.2$ of the tool and the version $1.2$ of the associate modeling language.
 
 \subsection{Availability}
- The tool is freely available under the GNU GPLv3 license. The latest version of the tool can be obtained from the GitHub repository at https://github.com/sybila/Parsybone, the version described in this manual is available at https://github.com/sybila/Parsybone/tree/1.000. 
+ The tool is freely available under the GNU GPLv3 license. The latest version of the tool can be obtained from the GitHub repository at https://github.com/sybila/Parsybone.
 
 \subsection{Compiling Parsybone}
 The only currently available version of the program is a source code archive, which has to be compiled before the tool can be run. For this a GNU C++ compiler of version at least 4.6.0 must be used (MinGW can serve as a replacement on the Windows platform).
@@ -50,19 +50,19 @@ The tool can be then compiled by invoking the GNU make utility in the main direc
 \section{Basics}
 In this section we provide a concise introduction to the topic of the Thomas formalism, sufficient for understanding our modeling method and language. For more complex description of the Thomas formalism we would recommend the reader to refer to more elaborate articles, such as~\cite{ThomasR1991}. Readers well-established in the topic can skip this section alltogether.
 
-To help with understanding of concepts of the Thomas formal method we demonstrate basic notions on a very simple example of a regulatory network, depicted in Figure~\ref{ExampNet}. This network has two boolean components named $0$ and $Y$, each regulated by both itself and the other component. This a bit unconventional naming has been choosen to demonstrate variability of modeling language later in the Section~\ref{sec:modeling}.
+To help with understanding of concepts of the Thomas formal method we demonstrate basic notions on a very simple example of a regulatory network, depicted in Figure~\ref{ExampNet}. This network has two boolean components named $cA$ and $B$, each regulated by both itself and the other component. This a bit unconventional naming has been choosen to demonstrate variability of modeling language later in the Section~\ref{sec:modeling}.
 
 The model is a boolean one, which means that there are only two activity levels for each component, roughly corresponding to the situations where its concentration is below threshold or above it. The threshold marks a concentration boundary whose crossing usually causes the component to change its regulatory effect. Boolean component therefore usually works as a switch.
 
 \begin{figure}[b]
 \centering
 \begin{tikzpicture}
-\node[draw, circle, thick, minimum size=20mm] (0) at (0,0) {0};
-\node[draw, circle, thick, minimum size=20mm] (Y) at (6,0) {Y};
-\draw[->, thick] (0) to [in=150,out=210,loop] (0);
-\draw[->, thick] (0) to [bend left=30] node[below] {observable} (Y);
-\draw[->, thick] (Y) to [bend left=30] (0);
-\draw[->, thick] (Y) to [in=330,out=30,loop] node[left] {mon+} (Y);
+\node[draw, circle, thick, minimum size=20mm] (cA) at (0,0) {cA};
+\node[draw, circle, thick, minimum size=20mm] (Y) at (6,0) {B};
+\draw[->, thick] (cA) to [in=150,out=210,loop] (cA);
+\draw[->, thick] (cA) to [bend left=30] node[below] {Observable} (Y);
+\draw[->, thick] (Y) to [bend left=30] (cA);
+\draw[->, thick] (Y) to [in=330,out=30,loop] node[right] {NotInhibiting} (Y);
 \end{tikzpicture}
 \caption{Simple example network with two components.}
 \label{ExampNet}
@@ -91,58 +91,56 @@ Every model must be enclosed within a pair \texttt{MODEL} tag. This tag has a si
 \begin{alltt}
 <MODEL ver="1.0">
     <STRUCTURE>
-        <SPECIE undef="basal">
-            <REGUL source="1" threshold ="1" observ="1" />
-            <REGUL source="0" />            
-            <LOGIC formula="(Y &amp; !0)" />
+        <SPECIE undef="basal" name="cA">
+            <REGUL source="B" threshold ="1" label="Observable"/>
+            <REGUL source="cA" />            
         </SPECIE>
-        <SPECIE name="Y">
-            <REGUL source="0" />
-            <REGUL source="Y" label="+" />            
+        <SPECIE>
+            <REGUL source="cA" />
+            <REGUL source="B" label="+" />            
             <PARAM context="" value="?" />
-            <PARAM context="Y" value="1" />
-            <PARAM context="0" value="0" />
-            <PARAM context="0,1" />            
+            <PARAM context="B" value="1" />
+            <PARAM context="cA,B" value="0,1" />          
         </SPECIE>
     </STRUCTURE>
     ... specification of a property ...
 </MODEL>
 \end{alltt}
-As can be seen, the model is a structure with two species, both being affected by two regulations. Formula $Y \wedge \neg 0$ gives the full parametrization of the component $0$. For the component $Y$, the possible parametrizations space is reduced by requirements that the regulation from $0$ must be observable and that the effect of its self-regulation must be positive, if any. Also, the logical parameter of self-regulation of the component $Y$ must always be 1. As a result, the parametrization space is reduced to four possibilities.
+As can be seen, the model is a structure with two species, both being affected by two regulations. For the component $B$, the possible parametrizations space is reduced by requirements that the regulation from $cA$ must be observable and that the effect of its self-regulation must be positive, if any. Also, the logical parameter of self-regulation of the component $B$ must always be 1. As a result, the parametrization space is reduced to four possibilities.
 
 \subsection{Model property}
 The main purpose of the tool is picking parametrizations that satisfy some property. The description of this property can be given in one of two possible ways - either as B\"uchi automaton or as a time series, whose specification is inserted between \texttt{</STRUCTURE>} and \texttt{</MODEL>} tags. A time series is merely a B\"uchi automaton specialization, but as will be explained later the Parsybone is optimized for its usage and provides additional features if the time series is employed. To demonstrate the difference between the two, we present a single property described using each formalism. This property assures that the model in Figure~\ref{ExampNet} is able to reproduce a time series composed of the following three measurements:
 \begin{enumerate}
-\item $0=0 \wedge (Y=0 \vee Y=1)$
-\item $0 \Leftrightarrow Y$
-\item $0=1 \wedge Y=0$
+\item $cA=0 \wedge (B=0 \vee B=1)$
+\item $cA \Leftrightarrow B$
+\item $cA=1 \wedge B=0$
 \end{enumerate}
 Only two out of four parametrizations allow for reproduction of this time series. To obtain them, we can describe the time series either using the B\"uchi automaton:
 \begin{alltt}
     <AUTOMATON>
         <STATE final="0">
             <EDGE target="0" label="tt" />
-            <EDGE target="1" label="0=0" /> 
+            <EDGE target="1" label="cA=0" /> 
         </STATE>
         <STATE>
             <EDGE target="1" label="tt" />
-            <EDGE target="last" label="((0=0 &amp; Y=0) | (0=1 &amp; 1=1))" /> 
+            <EDGE target="last" label="((cA=0 &amp; B=0) | (cA=1 &amp; B=1))" /> 
         </STATE>
         <STATE name="last">
-            <EDGE target="2" label="tt" />
-            <EDGE target="3" label="(0=1 &amp; 1=0)" /> 
+            <EDGE target="last" label="tt" />
+            <EDGE target="3" label="(cA=1 &amp; B=0)" /> 
         </STATE>
         <STATE final="1">
-            <EDGE target="4" label="tt" />
+            <EDGE target="3" label="tt" />
         </STATE>
     </AUTOMATON>
 \end{alltt}
 Or using the time series directly:
 \begin{alltt}
     <SERIES>
-        <EXPR values="0=0" />
-        <EXPR values="((0=0 &amp; Y=0) | (0=1 &amp; 1=1))" />		
-        <EXPR values="(0=1 &amp; Y=0)" />
+        <EXPR values="cA=0" />
+        <EXPR values="((cA=0 &amp; B=0) | (cA=1 &amp; B=1))" />		
+        <EXPR values="(cA=1 &amp; B=0)" />
     </SERIES>
 \end{alltt}
 As can be seen, the second method makes the model quite shorter and shuld be used for description of time series.
@@ -191,8 +189,8 @@ As can be seen, the second method makes the model quite shorter and shuld be use
 			\begin{mitem}
 				\item Occurrence: optional.
 				\item Value: string containing letters and numbers.
-				\item Default: ordinal number of the tag, counting from zero.
-				\item Description: name of the specie under which it will be further addressed. System also uses its ordinal number (so the first specie can be addressed using the name \emph{0}).
+				\item Default: Capital letter, starting from {\verb A }.
+				\item Description: name of the specie under which it will be further addressed.
 			\end{mitem}
 			\item \textit{undef} 
 			\begin{mitem}
@@ -244,16 +242,9 @@ As can be seen, the second method makes the model quite shorter and shuld be use
 			\item \textit{label} 
 			\begin{mitem}
 				\item Occurrence: optional.
-				\item Value: + or - or ?.
-				\item Default: ?.
-				\item Description: describes nature of the regulation as activation (+) or inhibition (-) or any (?).
-			\end{mitem}
-			\item \textit{observ} 
-			\begin{mitem}
-				\item Occurrence: optional.
-				\item Value: Boolean.
-				\item Default: 0.
-				\item Description: specifies if the regulation must be observable (1) or can be unobserved (0).
+				\item Value: a string, see Sec.~\ref{EdgeLabel}.
+				\item Default: Free.
+				\item Description: describes nature of the regulation.
 			\end{mitem}
 		\end{menum}
 	\end{mitem}
@@ -262,7 +253,7 @@ As can be seen, the second method makes the model quite shorter and shuld be use
 \begin{mitem}
 	\item \texttt{PARAM}
 	\begin{mitem}
-		\item Occurrence: multiple, present if and only if there is no sibling LOGIC tag.
+		\item Occurrence: multiple.
 		\item Type: solo.
 		\item Parent: SPECIE.
 		\item Description: defines a single kinetic parameter.
@@ -285,25 +276,6 @@ As can be seen, the second method makes the model quite shorter and shuld be use
 	\end{mitem}
 \end{mitem}
 	
-\begin{mitem}
-	\item \texttt{LOGIC}
-	\begin{mitem}
-		\item Occurrence: single, present if and only if there is no sibling PARAM tag.
-		\item Type: solo.
-		\item Parent: SPECIE.
-		\item Description: defines parametrization of the specie using a logical formula over the regulators.
-		\item Attributes:	
-		\begin{menum}
-			\item \textit{formula} 
-			\begin{mitem}
-				\item Occurrence: mandatory.
-				\item Value: logical formula (see Section~\ref{FormulaConstruction}), variables must be names or ordinal numbers of regulators.
-				\item Description: result target value is given as a valuation of the formula, where a variable denoting a regulator is valuated to $1$ if the regulation is active and to $0$ otherwise.
-			\end{mitem}
-		\end{menum}
-	\end{mitem}
-\end{mitem}
-
 \subsection{B\"uchi automaton description}		
 \begin{mitem}
 	\item \texttt{AUTOMATON}
@@ -361,7 +333,7 @@ As can be seen, the second method makes the model quite shorter and shuld be use
 			\begin{mitem}
 				\item Occurrence: mandatory.
 				\item Value: logical formula (see Section~\ref{FormulaConstruction}), variables are atomic propositions (see Section~\ref{AtomicPropositions}).
-				\item Description: conditions that must be met for the edge to be transitible.
+				\item Description: conditions that must be met for the edge to be transitive.
 			\end{mitem}
 		\end{menum}
 	\end{mitem}			
@@ -398,6 +370,27 @@ As can be seen, the second method makes the model quite shorter and shuld be use
 	\end{mitem}
 \end{mitem}	
 
+\subsection{Edge label}
+\label{EdgeLabel}
+There are two basic labels:
+\begin{itemize}
+\item [+]	Meaning that the there must be a regulation whose parameter value increases if we add this regulator.
+\item [-]	Has an opposite meaning.
+\end{itemize}
+One can compose these labels using a logical formula over $+$ and $-$ or use one of the following predefined descriptions:
+\begin{itemize}
+\item Activating: $+$
+\item ActivatingOnly: $(+ \wedge \neg -)$
+\item Inhibiting: $-$
+\item InhibitingOnly $(- \wedge \neg +)$
+\item NotActivating $\neg +$;
+\item NotInhibiting $\neg -$
+\item Observable: $(+ \vee -)$
+\item NotObservable: $(\neg + \wedge \neg -)$
+\item Free: $true$
+
+\end{itemize}
+
 \subsection{Formula construction}
 \label{FormulaConstruction}
 A formula is constructed using the following set of recursive rules:
@@ -426,27 +419,34 @@ Parsybone is a CLI-based tool and therefore all its settings are provided as tex
 \subsection{Execution}
 The syntax of the execution is:
 \begin{alltt}
-Parsybone 
-    filename
-    [-rsvwW]
-    [-d num1 num2]
-    [-f filename]
-    [-m filename]
-    [-M filename]
+parsybone 
+	model.dbm 
+	[-cdfmMrvwW] 
+	[--data database_file] 
+	[--file text_file]  
+	[--min bitmask_file] 
+	[--mout bitmask_file]  
+	[--dist I N]
 \end{alltt}
-The first argument, $filename$, is the only one that must be present and it gives the name of a file containing the specification of a model and a property to be checked on that model. The file also has to have a \emph{.dbm} suffix, otherwise it will be rejected.
+The first argument, $model.dbm$, is the only one that must be present and it gives the name of a file containing the specification of a model and a property to be checked on that model. The file also has to have a \emph{.dbm} suffix, otherwise it will be rejected.
 
 Other arguments tell the tool to alter the procedure somehow and their meaning is described in the following list. Techniques of their usage are explained in more detail later in this section.
 \begin{itemize}
-\item $-r$: for each feasible parametrization compute and display its \textrm{Robustness} value.
-\item $-s$: display statistics during the computation (mainly sizes of graphs and parametrization sets used).
-\item $-v$: display progress of individual parts of the computation.
-\item $-w$: for each feasible parametrization compute and display transitions belonging to the shortest time series walks. Use numerical ID of states when describing transitions.
-\item $-W$: similar to $-w$, but use full values of states instead. This switch has a higher priority than $-w$.
-\item $-d$ $num1$ $num2$: test only a subspace of the parametrization space. This subspace is given as a $num1$-th part from $num2$ total parts.
-\item $-f$ $filename$: store feasible parametrizations and their properties in the given file.
-\item $-m$ $filename$: test only parametrizations marked in the provided file.
-\item $-M$ $filename$: store mask of feasible parametrizations in the given file.
+\item [-c]	display computation results on console
+\item [-d] output computation results to an sqlite database
+		by default the file is model.sqlite, can be changed using the {\verb --data } switch
+\item [-f] output computation results to a text file
+		by default the file is model.out, can be changed using the {\verb --file } switch
+\item [-M] use an input mask for parametrization filtering
+		by default the file is model.pbm, can be changed using the {\verb --min } switch
+\item [-m] output parametrizations as a mask
+		by default the file is model.pbm, can be changed using the {\verb --mout } switch
+\item [-r] compute robustness of a time series
+\item [-v] verbose (output progress to console)
+\item [-w] compute witnesses and store them in encoded form
+\item [-W] compute witnesses and store them in explicit form
+	
+\item {\verb --dist } used for distributed computation with two integers, denoting the I-th process out of N. Total - each of those tests only 1/N of the parametrization space.
 \end{itemize}
 
 \subsection{Output format}
