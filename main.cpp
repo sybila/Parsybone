@@ -25,7 +25,7 @@ using namespace std;
 #include "synthesis/synthesis_manager.hpp"
 
 /**
- * Linear execution of succesive parts of the parameter synthesis.
+ * Execution of succesive parts of the parameter synthesis.
  */
 int main(int argc, char* argv[]) {
    time_manager.startClock("* Runtime", false);
@@ -73,6 +73,8 @@ int main(int argc, char* argv[]) {
       return 3;
    }
 
-   time_manager.writeClock("* Runtime");
+   if (user_options.verbose()) {
+      time_manager.writeClock("* Runtime");
+   }
    return 0;
 }

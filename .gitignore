@@ -1,6 +1,6 @@
 Documentation/*
 ParsyboneMain/*
-ParsyboneTesting/*
+ParsyboneTest/*
 *~
 *.o
 *.out
