@@ -61,9 +61,12 @@ public:
 
 		// Create the Buchi automaton
       AutomatonBuilder automaton_builder(holder.getModel());
-      holder.fillAutomaton(automaton_builder.buildAutomaton(holder.getProperty(0)));
+      for (size_t i : range(holder.getPropertyCount())) {
+         holder.fillAutomaton(automaton_builder.buildAutomaton(holder.getProperty(i)));
+      }
 
 		// Create the product
+      // WARNING: now takes only a single automaton at a time
       ProductStructure * product_structure = new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(0));
       ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(0), *product_structure);
 		product_builder.buildProduct();
