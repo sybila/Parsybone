@@ -12,7 +12,9 @@
 #include "PunyHeaders/common_functions.hpp"
 
 #include "../parsing/model.hpp"
+#include "../parsing/property_automaton.hpp"
 #include "automaton_structure.hpp"
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///  \brief Transform graph of the automaton into a set of labeled transitions in an AutomatonStructure object.
@@ -22,7 +24,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonBuilder {
    const Model & model; ///< Model that holds the data.
-   AutomatonStructure & automaton; ///< Automaton that will be created.
 
    Levels maxes; ///< Maximal activity levels of the species.
    Levels mins; ///< Minimal activity levels of the species.
@@ -172,16 +173,16 @@ class AutomatonBuilder {
     * @param state_num	index of the state of BA
     * @param start_position	index of the last transition created
     */
-   void addTransitions(const StateID ID, size_t & transition_count) const {
-      const vector<Model::Edge> & edges = model.getEdges(ID);
+   void addTransitions(const PropertyAutomaton & source, AutomatonStructure & automaton, const StateID ID, size_t & transition_count) const {
+      const PropertyAutomaton::Edges & edges = source.getEdges(ID);
 
       // Transform each edge into transition and pass it to the automaton
-      for (size_t edge_num = 0; edge_num < model.getEdges(ID).size(); edge_num++) {
+      for (size_t edge_num = 0; edge_num < source.getEdges(ID).size(); edge_num++) {
          // Compute allowed values from string of constrains
          Configurations allowed_values = move(getAllowed(edges[edge_num].second));
          // If the transition is possible for at least some values, add it
          if (!allowed_values.empty()) {
-            automaton.addTransition(ID, edges[edge_num].first, move(allowed_values));
+            automaton.addTransition(ID, edges[edge_num].first, allowed_values);
             transition_count++;
          }
       }
@@ -191,23 +192,26 @@ public:
    /**
     * Constructor computes boundaries of the state space and passes references.
     */
-   AutomatonBuilder(const Model & _model, AutomatonStructure & _automaton) : model(_model), automaton(_automaton) {
+   AutomatonBuilder(const Model & _model) : model(_model) {
       computeBoundaries();
    }
 
    /**
     * Create the transitions from the model and fill the automaton with them.
     */
-   void buildAutomaton() {
+   AutomatonStructure buildAutomaton(const PropertyAutomaton & source) {
+      AutomatonStructure automaton; //< Structure to be built.
       size_t transition_count = 0;
 
       // List throught all the automaton states
-      for (StateID ID = 0; ID < model.getStatesCount(); ID++) {
+      for (StateID ID = 0; ID < source.getStatesCount(); ID++) {
          // Fill auxiliary data
-         automaton.addState(ID, model.isFinal(ID));
+         automaton.addState(ID, source.isFinal(ID));
          // Add transitions for this state
-         addTransitions(ID, transition_count);
+         addTransitions(source, automaton, ID, transition_count);
       }
+
+      return automaton;
    }
 };
 

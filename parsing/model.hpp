@@ -20,10 +20,8 @@
 /// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Model {
-   friend class AutomatonParser;
    friend class ModelParser;
    friend class NetworkParser;
-   friend class TimeSeriesParser;
 
 public:
    /// Structure that stores regulation of a specie by another one
@@ -45,7 +43,7 @@ public:
    typedef vector<Parameter> Parameters;
 
    typedef pair<StateID, string> Edge; ///< Edge in Buchi Automaton (Target ID, edge label).
-   typedef vector<Edge> Edges;
+
 
 private:
    /// Structure that holds data about a single specie. Most of the data is equal to that in the model file.
@@ -59,15 +57,6 @@ private:
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
    };
 
-   /// Structure that holds data about a single state.
-   struct BuchiAutomatonState {
-      string name; ///< Label of the state.
-      SpecieID ID; ///< Numerical constant used to distinguish the state. Starts from 0!
-      bool final; ///< True if the state is final.
-
-      vector<Edge> edges; ///< Edges in Buchi Automaton (Target ID, edge label).
-   };
-
    /// Structure that stores additional information about the model.
    struct AdditionalInformation {
       float ver_number;
@@ -75,7 +64,6 @@ private:
 
    // Actuall data holders.
    vector<ModelSpecie> species; ///< vector of all species of the model
-   vector<BuchiAutomatonState> states; ///< vector of all states of the controlling Buchi automaton
 
 public:
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,23 +104,6 @@ public:
    }
 
    /**
-    * Add a new state to the automaton.
-    *
-    * @return	ID of state in the vector
-    */
-   inline size_t addState(string name, bool final) {
-      states.push_back({name, states.size(), final, Edges()});
-      return states.size() - 1;
-   }
-
-   /**
-    * Add a new transition - transition is specified by the target state and label.
-    */
-   inline void addConditions(StateID source_ID, StateID target_ID, string && edge_label) {
-      states[source_ID].edges.push_back(Edge(target_ID, move(edge_label)));
-   }
-
-   /**
     * Fill in additional information.
     *
     * @param ver_number	float number with version of the model
@@ -157,13 +128,6 @@ public:
    }
 
    /**
-    * @return	number of the states
-    */
-   inline size_t getStatesCount() const {
-      return states.size();
-   }
-
-   /**
     * Finds numerical ID of the specie based on its name or ID string.
     *
     * @return	ID of the specie with the specified name if there is such, otherwise INF
@@ -173,21 +137,6 @@ public:
       for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
                if (spec.name.compare(name) == 0)
                ID = spec.ID;
-      });
-      return ID;
-   }
-
-
-   /**
-    * Finds ordinal number of the BA state based on its name or number string.
-    *
-    * @return	number of the state with the specified name if there is such, otherwise INF
-    */
-   SpecieID findNumber(const string & name) const {
-      StateID ID = INF;
-      for_each(states.begin(), states.end(), [&ID, &name](const BuchiAutomatonState & state) {
-               if (state.name.compare(name) == 0)
-               ID = state.ID;
       });
       return ID;
    }
@@ -279,20 +228,6 @@ public:
       }
 
       return thresholds;
-   }
-
-   /**
-    * @return	true if the state is final
-    */
-   inline bool isFinal(const size_t ID) const {
-      return states[ID].final;
-   }
-
-   /**
-    * @return	edges of the state
-    */
-   inline const vector<Edge> & getEdges(const SpecieID ID) const {
-      return states[ID].edges;
    }
 };
 

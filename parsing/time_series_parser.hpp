@@ -4,6 +4,7 @@
 #include "PunyHeaders/common_functions.hpp"
 
 #include "../auxiliary/data_types.hpp"
+#include "property_automaton.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
 
@@ -13,22 +14,22 @@
 /// \brief This class parses takes the time series and builds it into a Buchi automaton.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class TimeSeriesParser {
-   Model & model; ///< Reference to the model object that will be filled.
-
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // PARSING:
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Function reads an EXPR tag and creates according state and transitions.
     */
-   void parseExpressions(const rapidxml::xml_node<> * const series_node) const {
+   PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node) const {
+      PropertyAutomaton property("measurements");
+
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
       for (rapidxml::xml_node<> *expression = XMLHelper::getChildNode(series_node, "EXPR"); expression; ID++, expression = expression->next_sibling("EXPR") ) {
-         model.addState(toString(ID), false);
+         property.addState(toString(ID), false);
 
          // Self-loop assuring possibility of a value change
-         model.addConditions(ID, ID, move(string("tt")));
+         property.addConditions(ID, ID, "tt");
 
          // Labelled transition to the next measurement
          string values;
@@ -36,12 +37,14 @@ class TimeSeriesParser {
          values.erase(remove_if(values.begin(), values.end(),
                                 [](const char c){return (c == ' ') | (c == '\t') | (c == '\n')  | (c == '\f')  | (c == '\r') | (c == '\v');
          }), values.end());
-         model.addConditions(ID, ID + 1, move(values));
+         property.addConditions(ID, ID + 1, values);
       }
 
       // Add a final state that marks succesful time series walk
-      model.addState(toString(ID), true);
-      model.addConditions(ID, ID, move(string("ff")));
+      property.addState(toString(ID), true);
+      property.addConditions(ID, ID, "ff");
+
+      return property;
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,15 +53,14 @@ class TimeSeriesParser {
    TimeSeriesParser(const TimeSeriesParser & other); ///< Forbidden copy constructor.
    TimeSeriesParser& operator=(const TimeSeriesParser & other); ///< Forbidden assignment operator.
 
-   public:
-   TimeSeriesParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references
-
+public:
+   TimeSeriesParser() = default;
    /**
-          * Main parsing function. It expects a pointer to inside of a MODEL node.
-          */
-   void parse(const rapidxml::xml_node<> * const model_node) {
+     * Main parsing function. It expects a pointer to inside of a MODEL node.
+     */
+   PropertyAutomaton parse(const rapidxml::xml_node<> * const model_node) {
       // Parse Buchi Automaton
-      parseExpressions(XMLHelper::getChildNode(model_node, "SERIES"));
+      return parseExpressions(XMLHelper::getChildNode(model_node, "SERIES"));
    }
 };
 

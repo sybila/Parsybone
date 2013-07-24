@@ -4,12 +4,12 @@
 #include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"
 #include "model.hpp"
+#include "property_automaton.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief This object is responsible for parsing and translation of data related to the tested property.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonParser {
-   Model & model; ///< Reference to the model object that will be filled.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARSING:
@@ -17,7 +17,7 @@ class AutomatonParser {
 	/**
 	 * Starting from the STATE node, the function parses all the EDGE tags and reads the data from them.
 	 */
-	void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID) const {
+   void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID, PropertyAutomaton & automaton) const {
 		// Regulation data
       string label_string; string traget_str; size_t target_ID;
 
@@ -27,12 +27,12 @@ class AutomatonParser {
 			XMLHelper::getAttribute(label_string, edge, "label");
 			// Get max value and conver to integer.
          XMLHelper::getAttribute(traget_str, edge, "target");
-         target_ID = model.findNumber(traget_str);
-         if (target_ID >= model.getStatesCount())
+         target_ID = automaton.findID(traget_str);
+         if (target_ID >= automaton.getStatesCount())
             throw invalid_argument(string("Incorrect value as a target of the state ").append(toString(source_ID)));
 
 			// Add a new regulation to the specified target
-			model.addConditions(source_ID, target_ID, move(label_string));
+         automaton.addConditions(source_ID, target_ID, label_string);
 		}
 	}
 
@@ -40,7 +40,7 @@ class AutomatonParser {
     * Starting from the AUTOMATON node, the function parses all the STATE tags and all their EDGE tags and reads the data from them.
 	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
 	 */
-	void firstParse(const rapidxml::xml_node<> * const automaton_node) const {
+   void firstParse(const rapidxml::xml_node<> * const automaton_node, PropertyAutomaton & automaton) const {
 		// State data
 		bool final; string name;
 
@@ -56,7 +56,7 @@ class AutomatonParser {
 				name = toString(ID);
 
 			// Create a new state
-			model.addState(name, final);
+         automaton.addState(name, final);
 		}
 	}
 
@@ -64,32 +64,36 @@ class AutomatonParser {
     * Starting from the AUTOMATON node, the function parses all the STATE tags and all their EDGE tags and reads the data from them.
 	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
 	 */
-	void secondParse(const rapidxml::xml_node<> * const automaton_node) const {
+   void secondParse(const rapidxml::xml_node<> * const automaton_node, PropertyAutomaton & automaton) const {
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
 		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
 		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
          // Get all the edges of the state and store them to the model.
-			parseEdges(state, ID);
+         parseEdges(state, ID, automaton);
 		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTION METHODS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	AutomatonParser(const AutomatonParser & other); ///< Forbidden copy constructor.
-	AutomatonParser& operator=(const AutomatonParser & other); ///< Forbidden assignment operator.
+   AutomatonParser(const AutomatonParser & other) = delete; ///< Forbidden copy constructor.
+   AutomatonParser& operator=(const AutomatonParser & other) = delete; ///< Forbidden assignment operator.
 
 public:
-	AutomatonParser(Model & _model) : model(_model) { } ///< Simple constructor, passes references
+   AutomatonParser() = default;
 
 	/**
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.
 	 */
-   void parse(const rapidxml::xml_node<> * const model_node) {
+   PropertyAutomaton parse(const rapidxml::xml_node<> * const model_node) {
+      PropertyAutomaton automaton("Buchi");
+
 		// Parse states
-      firstParse(XMLHelper::getChildNode(model_node, "AUTOMATON"));
+      firstParse(XMLHelper::getChildNode(model_node, "AUTOMATON"), automaton);
       // Parse edges for the states from the previous parse
-      secondParse(XMLHelper::getChildNode(model_node, "AUTOMATON"));
+      secondParse(XMLHelper::getChildNode(model_node, "AUTOMATON"), automaton);
+
+      return automaton;
 	}
 };
 

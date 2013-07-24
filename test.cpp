@@ -9,14 +9,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This is a testing suite for the Parsybone program
 
-#define GTEST
-
 using namespace std;
 
 #include "tests/formulae_parser_test.hpp"
 #include "tests/model_functions_test.hpp"
-
-
 
 int main(int argc, char* argv[]) {
     ::testing::InitGoogleTest( &argc, argv );

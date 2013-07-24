@@ -83,8 +83,8 @@ class ModelParser {
 		}
 	}
 	
-	ModelParser(const ModelParser & other); ///< Forbidden copy constructor.
-	ModelParser& operator=(const ModelParser & other); ///< Forbidden assignment operator.
+   ModelParser(const ModelParser & other) = delete; ///< Forbidden copy constructor.
+   ModelParser& operator=(const ModelParser & other)  = delete; ///< Forbidden assignment operator.
 
 public:
 	ModelParser(Model & _model, ifstream * _input_stream) : model( _model), input_stream(_input_stream) {} ///< Simple constructor, passes references
@@ -92,7 +92,8 @@ public:
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.
 	 */
-	void parseInput() {
+   vector<PropertyAutomaton> parseInput() {
+      vector<PropertyAutomaton> properties;
 		createDocument();
 
 		auto model_node = initiateParsing();
@@ -102,22 +103,24 @@ public:
 
       // Find property tag and control its uniqueness
       if (model_node->first_node("AUTOMATON")) {
-         AutomatonParser automaton_parser(model);
-         automaton_parser.parse(model_node);
+         AutomatonParser automaton_parser;
+         properties.push_back(automaton_parser.parse(model_node));
          if ((model_node->first_node("AUTOMATON"))->next_sibling("AUTOMATON") || model_node->first_node("SERIES"))
             throw invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
          if (user_options.analysis())
             throw invalid_argument("Advancet analysis methods not available for the general LTL propery, wrong usage of argument -r, -w or -W");
       }
       else if (model_node->first_node("SERIES")) {
-         TimeSeriesParser series_parser(model);
-         series_parser.parse(model_node);
+         TimeSeriesParser series_parser;
+         properties.push_back(series_parser.parse(model_node));
          if ((model_node->first_node("SERIES"))->next_sibling("SERIES") || model_node->first_node("AUTOMATON"))
             throw invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
          user_options.time_series = true;
       }
       else
          throw invalid_argument("AUTOMATON or SERIES tag missing - no property to be tested found");
+
+      return properties;
    }
 };
 

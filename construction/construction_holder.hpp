@@ -28,9 +28,10 @@
 class ConstructionHolder {
 	friend class ConstructionManager;
 
-	unique_ptr<AutomatonStructure> automaton;
+   vector<AutomatonStructure> automata;
 	unique_ptr<BasicStructure> basic;
 	unique_ptr<ParametrizationsHolder> parametrizations;
+   vector<PropertyAutomaton> properties;
 	unique_ptr<Model> model;
 	unique_ptr<LabelingHolder> labeling;
 	unique_ptr<UnparametrizedStructure> structure;
@@ -44,9 +45,13 @@ public:
 		model.reset(_model);
 	}
 
+   void fillProperties(vector<PropertyAutomaton> & properties) {
+      this->properties = properties;
+   }
+
 private:
-	void fillAutomaton(AutomatonStructure * _automaton) {
-		automaton.reset(_automaton);
+   void fillAutomaton(const AutomatonStructure & automaton) {
+      automata.push_back(automaton);
 	}
 
 	void fillBasicStructure(BasicStructure * _basic) {
@@ -69,6 +74,7 @@ private:
 		product.reset(_product);
 	}
 
+
 	ConstructionHolder(const ConstructionHolder & other); ///< Forbidden copy constructor.
 	ConstructionHolder& operator=(const ConstructionHolder & other); ///< Forbidden assignment operator.
 
@@ -78,8 +84,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const AutomatonStructure & getAutomatonStructure() const {
-		return *automaton.get();
+   const AutomatonStructure & getAutomatonStructure(const size_t ID) const {
+      return automata[ID];
 	}
 
 	const BasicStructure & getBasicStructure() const {
@@ -105,6 +111,14 @@ public:
 	const ProductStructure & getProduct() const {
 		return *product.get();
 	}
+
+   const size_t getPropertyCount() const {
+      return properties.size();
+   }
+
+   const PropertyAutomaton getProperty(const size_t ID) const {
+      return properties[ID];
+   }
 };
 
 #endif // PARSYBONE_CONSTRUCTION_HOLDER_INCLUDED

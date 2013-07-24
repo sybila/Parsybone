@@ -44,7 +44,7 @@ public:
    /**
     * Main parsing function.
     */
-   void parse() {
+   vector<PropertyAutomaton> parse() {
       ifstream model_stream; // Object that will reference input file.
 
       // Parse arguments
@@ -69,7 +69,7 @@ public:
 
       // Parse model itself
       ModelParser model_parser(model, &model_stream);
-      model_parser.parseInput();
+      return  model_parser.parseInput();
    }
 };
 

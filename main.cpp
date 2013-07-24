@@ -38,9 +38,10 @@ int main(int argc, char* argv[]) {
    try {
       Model * model = new Model;
       ParsingManager parsing_manager(argc, argv, *model);
-      parsing_manager.parse();
+      vector<PropertyAutomaton> properties = parsing_manager.parse();
       // Pass the model
       holder.fillModel(model);
+      holder.fillProperties(properties);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));

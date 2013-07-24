@@ -18,8 +18,8 @@
 struct AutTransitionion : public TransitionProperty {
    Configurations allowed_values; ///< Allowed values of species for this transition.
 
-   AutTransitionion(const StateID target_ID, Configurations && _allowed_values)
-      : TransitionProperty(target_ID), allowed_values(move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables.
+   AutTransitionion(const StateID target_ID, Configurations _allowed_values)
+      : TransitionProperty(target_ID), allowed_values(_allowed_values) {}  ///< Simple filler, assigns values to all the variables.
 };
 
 /// Storing a single state of the Buchi automaton. This state is extended with a value saying wheter the states is final.
@@ -45,8 +45,8 @@ class AutomatonStructure : public AutomatonInterface<AutState> {
 	/**
 	 * Add a new transition - having a source, target and permitted values for each specie
 	 */
-   inline void addTransition(const StateID source_state, const StateID target_state, Configurations && allowed_values) {
-		states[source_state].transitions.push_back(move(AutTransitionion(target_state, move(allowed_values))));
+   inline void addTransition(const StateID source_state, const StateID target_state, Configurations & allowed_values) {
+      states[source_state].transitions.push_back(AutTransitionion(target_state, allowed_values));
 	}
 
 	/**
@@ -65,11 +65,7 @@ class AutomatonStructure : public AutomatonInterface<AutState> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OTHER METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	AutomatonStructure(const AutomatonStructure & other); ///< Forbidden copy constructor.
-	AutomatonStructure& operator=(const AutomatonStructure & other); ///< Forbidden assignment operator.
-
 public:
-   AutomatonStructure() {} ///< Default empty constructor.
 
 	/**
     * Checks if a transition of the BA is possible in the current state of a KS.

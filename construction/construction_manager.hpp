@@ -60,14 +60,12 @@ public:
 		holder.fillUnparametrizedStructure(unparametrized_structure);
 
 		// Create the Buchi automaton
-		AutomatonStructure * automaton = new AutomatonStructure; // Set of transitions - controlling automaton
-		AutomatonBuilder automaton_builder(holder.getModel(), *automaton);
-		automaton_builder.buildAutomaton();
-		holder.fillAutomaton(automaton);
+      AutomatonBuilder automaton_builder(holder.getModel());
+      holder.fillAutomaton(automaton_builder.buildAutomaton(holder.getProperty(0)));
 
 		// Create the product
-		ProductStructure * product_structure = new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomatonStructure());
-		ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(), *product_structure);
+      ProductStructure * product_structure = new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(0));
+      ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(0), *product_structure);
 		product_builder.buildProduct();
 		holder.fillProduct(product_structure);
    }
