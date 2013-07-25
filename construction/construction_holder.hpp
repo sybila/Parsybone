@@ -32,7 +32,7 @@ class ConstructionHolder {
 	unique_ptr<BasicStructure> basic;
 	unique_ptr<ParametrizationsHolder> parametrizations;
    vector<PropertyAutomaton> properties;
-	unique_ptr<Model> model;
+   Model model;
 	unique_ptr<LabelingHolder> labeling;
 	unique_ptr<UnparametrizedStructure> structure;
 	unique_ptr<ProductStructure> product;
@@ -41,8 +41,8 @@ class ConstructionHolder {
 // FILLERS:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-	void fillModel(Model * _model) {
-		model.reset(_model);
+   void fillModel(Model _model) {
+      model = _model;
 	}
 
    void fillProperties(vector<PropertyAutomaton> & properties) {
@@ -101,7 +101,7 @@ public:
 	}
 
 	const Model & getModel() const {
-		return *model.get();
+      return model;
 	}
 
 	const LabelingHolder & getLabeling() const {

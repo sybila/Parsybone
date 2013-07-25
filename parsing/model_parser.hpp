@@ -23,10 +23,6 @@
 /// For the reference on how to create a model see the manual/README.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelParser {
-   // Provided with constructor
-   Model & model; ///< Reference to the model object that will be filled
-   ifstream * input_stream; ///< File to parse the data from
-
 	// Created with and for parsing
    rapidxml::xml_document<>  model_xml; ///< Main parsing node
    unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
@@ -52,7 +48,7 @@ class ModelParser {
 	/**
 	 * Creates RapidXML document from the input stream.
 	 */
-	void createDocument() {
+   void createDocument(ifstream * input_stream) {
 		// Copy input data from stream into a string line by line
 		string input_line, input_data;
          for (int lineno = 1; getline(*input_stream, input_line); ++lineno) {
@@ -76,28 +72,40 @@ class ModelParser {
    ModelParser& operator=(const ModelParser & other)  = delete; ///< Forbidden assignment operator.
 
 public:
-	ModelParser(Model & _model, ifstream * _input_stream) : model( _model), input_stream(_input_stream) {} ///< Simple constructor, passes references
+   ModelParser() = default;
 
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.
 	 */
-   vector<PropertyAutomaton> parseInput() {
-      vector<PropertyAutomaton> properties;
-		createDocument();
-
+   Model parseNetwork(ifstream * input_stream) {
+      createDocument(input_stream);
 		auto model_node = initiateParsing();
+
+      Model model;
 
 		NetworkParser network_parser(model);
 		network_parser.parse(model_node);
+      ReadingHelper::fillActivationLevels(model);
       ParameterParser param_parser;
       auto specifications = param_parser.parse(model_node);
       ParameterReader param_reader;
-      auto param_cons = param_reader.computeParams(model, specifications);
+      param_reader.computeParams(specifications, model);
+
+      input_stream->clear();
+      input_stream->seekg(0, ios::beg);
+      return model;
+   }
+
+   PropertyAutomaton parseProperty(ifstream * input_stream) {
+      createDocument(input_stream);
+      auto model_node = initiateParsing();
+
+      PropertyAutomaton property("A1");
 
       // Find property tag and control its uniqueness
       if (model_node->first_node("AUTOMATON")) {
          AutomatonParser automaton_parser;
-         properties.push_back(automaton_parser.parse(model_node));
+         property = automaton_parser.parse(model_node);
          if ((model_node->first_node("AUTOMATON"))->next_sibling("AUTOMATON") || model_node->first_node("SERIES"))
             throw invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
          if (user_options.analysis())
@@ -105,7 +113,7 @@ public:
       }
       else if (model_node->first_node("SERIES")) {
          TimeSeriesParser series_parser;
-         properties.push_back(series_parser.parse(model_node));
+         property = series_parser.parse(model_node);
          if ((model_node->first_node("SERIES"))->next_sibling("SERIES") || model_node->first_node("AUTOMATON"))
             throw invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
          user_options.time_series = true;
@@ -113,7 +121,9 @@ public:
       else
          throw invalid_argument("AUTOMATON or SERIES tag missing - no property to be tested found");
 
-      return properties;
+      input_stream->clear();
+      input_stream->seekg(0, ios::beg);
+      return property;
    }
 };
 

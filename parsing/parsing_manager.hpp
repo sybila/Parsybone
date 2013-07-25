@@ -19,7 +19,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParsingManager {
    vector<string> arguments; ///< Vector containing individual arguments from the input.
-   Model & model; ///< Model object that will contain all the parsed information from the *.dbm file.
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // CONSTRUCTION METHODS
@@ -35,7 +34,7 @@ public:
     * @param argv passed argv from main()
     * @param _model  model storing the reference data
     */
-   ParsingManager(int argc, char* argv[], Model & _model) : model(_model) {
+   ParsingManager(int argc, char* argv[])  {
       for (int argn = 0; argn < argc; argn++) {
          arguments.push_back(argv[argn]);
       }
@@ -44,7 +43,7 @@ public:
    /**
     * Main parsing function.
     */
-   vector<PropertyAutomaton> parse() {
+   void parse(Model & model, vector<PropertyAutomaton> & properties) {
       ifstream model_stream; // Object that will reference input file.
 
       // Parse arguments
@@ -68,8 +67,10 @@ public:
       }
 
       // Parse model itself
-      ModelParser model_parser(model, &model_stream);
-      return  model_parser.parseInput();
+      ModelParser model_parser;
+      model = model_parser.parseNetwork(&model_stream);
+      // Currently reads property from the model file.
+      properties.push_back(model_parser.parseProperty(&model_stream));
    }
 };
 

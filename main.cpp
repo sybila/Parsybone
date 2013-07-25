@@ -36,9 +36,10 @@ int main(int argc, char* argv[]) {
    // Parse input information.
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    try {
-      Model * model = new Model;
-      ParsingManager parsing_manager(argc, argv, *model);
-      vector<PropertyAutomaton> properties = parsing_manager.parse();
+      Model model;
+      vector<PropertyAutomaton> properties;
+      ParsingManager parsing_manager(argc, argv);
+      parsing_manager.parse(model, properties);
       // Pass the model
       holder.fillModel(model);
       holder.fillProperties(properties);

@@ -15,6 +15,7 @@ public:
 
       vector<SpecieParameters> param_specs;
    };
+   typedef vector<ParameterSpecifications::Parameter> ParsList;
 
 private:
 
@@ -26,7 +27,7 @@ private:
          // Obtain context specified.
          string context;
          XMLHelper::getAttribute(context, parameter, desc.c_str());
-         string value;
+         string value = "?";
          XMLHelper::getAttribute(value, parameter, "value", false);
          parameters.push_back(make_pair(context,value));
       }

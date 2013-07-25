@@ -1,23 +1,108 @@
 #ifndef PARAMETER_READER_HPP
 #define PARAMETER_READER_HPP
 
-#include "model.hpp"
-#include "parameter_constraints.hpp"
+#include "reading_helper.hpp"
 #include "parameter_parser.hpp"
 
 class ParameterReader {
+   /**
+    * @brief replaceInContext
+    * @param parameters
+    * @param in_context
+    * @param can_context
+    * @param targets
+    */
+   void replaceInContext(Model::Parameters & parameters, const string & in_context, const string & can_context, const Levels & targets) const {
+      // List through all parameters of the specie.
+      for(auto & param:parameters) {
+         // If the context is matched.
+         if (param.context.compare(can_context) == 0) {
+            param.targets = targets;
+            return;
+         }
+      }
+
+      // If the context was not ever matched.
+      throw runtime_error("Given context " + in_context + " not mached, probably incorrect.");
+   }
+
+   /**
+    * @brief covertToLevels   Take a string of the form (\d,)*\d and transform it into a list of values.
+    * @param val_str
+    * @return
+    */
+   Levels covertToLevels(const Model & model, const string & val_str, const SpecieID t_ID) const {
+      vector<string> numbers;
+      Levels specified;
+      split(numbers, val_str, is_any_of(","));
+
+      // Convert the string into list of numbers.
+      for (const auto & num:numbers) {
+         size_t val;
+
+         // Convert one number.
+         try {
+            val = lexical_cast<size_t>(num);
+         } catch (bad_lexical_cast) {
+            throw runtime_error("Specified value " + num + " in the list " + val_str + " is not a number");
+         }
+
+         if (val < model.getMin(t_ID) || val > model.getMax(t_ID))
+            throw invalid_argument("target value " + val_str + " out of range for specie " + model.getName(t_ID));
+
+         specified.push_back(val);
+      }
+
+      return specified;
+   }
+
+
+   /**
+    * @brief interpretLevels Obtain values from a value string.
+    * @param model
+    * @param val_str
+    * @param t_ID
+    * @return list of possible target values
+    */
+   Levels interpretLevels(const Model & model, const string & val_str, const SpecieID t_ID) const {
+      // ? goes for unspecified.
+      if (val_str.compare("?") == 0)
+         return model.getBasalTargets(t_ID);
+      else
+         return covertToLevels(model, val_str, t_ID);
+   }
+
+   /**
+    * @brief replaceExplicit  change given precomputed values in given target for explicit list of new ones.
+    * @param model   model currently without parameters
+    * @param constraints   constraints on parameters created by enumeration
+    * @param k_params   specification given by the user
+    * @param t_ID
+    */
+   void replaceExplicit(const Model & model, Model::Parameters & constraints, const ParameterParser::ParsList & k_params, const SpecieID t_ID) const {
+      // List through all the PARAM nodes.
+      for (const auto & param : k_params) {
+         // Obtain context specified.
+         string can_context = ReadingHelper::formCanonicContext(model, param.first, t_ID);
+
+         // Get the levels.
+         Levels targets = interpretLevels(model, param.second, t_ID);
+
+         // Find the context and replace it's target values.
+         replaceInContext(constraints, param.first, can_context, targets);
+      }
+   }
 
    /**
     * @brief getSingleParam
     * @param all_thrs
     * @param thrs_comb
     * @param target_ID
-    * @param formula
     * @return
     */
-   ParameterConstraints::Parameter getSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID t_ID) const {
+   Model::Parameter getSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID t_ID) const {
       // Empty data to fill.
-      ParameterConstraints::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
+      Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
 
       // Loop over all the sources.
       for (auto source_num:range(thrs_comb.size())) {
@@ -54,10 +139,10 @@ class ParameterReader {
     * @param formula
     * @return
     */
-   ParameterConstraints::SpecieParameters createParameters(const Model & model, const SpecieID t_ID) const {
+   Model::Parameters createParameters(const Model & model, const SpecieID t_ID) const {
       auto all_thrs = model.getThresholds(t_ID);
       Levels bottom, thrs_comb, top;
-      ParameterConstraints::SpecieParameters parameters;
+      Model::Parameters parameters;
 
       // These containers hold number of thresholds per regulator.
       for (auto & source_thresholds:all_thrs) {
@@ -75,9 +160,13 @@ class ParameterReader {
    }
 
 public:
-   ParameterConstraints computeParams(const Model & model, const ParameterParser::ParameterSpecifications & specs) {
-      ParameterConstraints constraints;
-
+   /**
+    * @brief computeParams
+    * @param model
+    * @param specs
+    * @return
+    */
+   void computeParams(const ParameterParser::ParameterSpecifications & specs, Model & model) {
       // For each specie create its parameters.
       for (SpecieID ID : range(model.getSpeciesCount())) {
          // Create all contexts with all the possible values.
@@ -88,12 +177,11 @@ public:
             throw runtime_error("Logical expression temporarily disabled.");
 
          // Otherwise replace values.
-         // replaceExplicit(parameters, specie, ID);
-         constraints.parameters.push_back(parameters);
+         replaceExplicit(model, parameters, specs.param_specs[ID].k_pars, ID);
+
+         // Add newly created parameters.
+         model.addParameters(ID, parameters);
       }
-
-
-      return constraints;
    }
 };
 
