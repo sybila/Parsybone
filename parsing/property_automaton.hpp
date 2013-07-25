@@ -60,6 +60,8 @@ public:
       for (auto state : states)
          if (state.name.compare(name) == 0)
             return ID;
+
+      return INF;
    }
 
    /**

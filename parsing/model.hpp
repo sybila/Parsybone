@@ -42,9 +42,6 @@ public:
    };
    typedef vector<Parameter> Parameters;
 
-   typedef pair<StateID, string> Edge; ///< Edge in Buchi Automaton (Target ID, edge label).
-
-
 private:
    /// Structure that holds data about a single specie. Most of the data is equal to that in the model file.
    struct ModelSpecie {
@@ -56,11 +53,6 @@ private:
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
    };
-
-   /// Structure that stores additional information about the model.
-   struct AdditionalInformation {
-      float ver_number;
-   } additional_information; ///< Single object that stores the additional information.
 
    // Actuall data holders.
    vector<ModelSpecie> species; ///< vector of all species of the model
@@ -101,15 +93,6 @@ public:
       for (auto & reg:species[target].regulations)
          if (reg.source == source && reg.threshold == levels[0])
             reg.activity = levels;
-   }
-
-   /**
-    * Fill in additional information.
-    *
-    * @param ver_number	float number with version of the model
-    */
-   void addAdditionalInformation(float ver_number) {
-      additional_information.ver_number = ver_number;
    }
 
    Model(const Model & other) = delete; ///< Forbidden copy constructor.

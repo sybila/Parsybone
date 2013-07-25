@@ -13,6 +13,8 @@
 #include "automaton_parser.hpp"
 #include "network_parser.hpp"
 #include "time_series_parser.hpp"
+#include "parameter_parser.hpp"
+#include "parameter_reader.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Starting point of the model parsing.
@@ -39,20 +41,7 @@ class ModelParser {
 		// Step into first MODEL (main) tag
 		current_node = model_xml.first_node();
 		if (strcmp(current_node->name(), "MODEL") != 0)
-			throw runtime_error(string("Parsed found out that input does not start with the tag <MODEL> but with the <")
-											 .append(current_node->name()).append("> instead").c_str());
-
-		/* // Find a version number
-		XMLHelper::getAttribute(file_version, current_node, "ver");
-      if (file_version < program_version) {
-         output_streamer.output(verbose_str, string("Version of the file (").append(toString(file_version)).append(") is lower than version of the program (")
-                        .append(toString(program_version)).append("). Some data can be missing in the file."));
-      } else if (file_version > program_version) {
-         output_streamer.output(verbose_str, string("Version of the file (").append(toString(file_version)).append(") is higher than version of the program (")
-                        .append(toString(program_version)).append("). Some functionality  of the program can be missing."));
-      }
-      // Pass additional information (version number)
-      model.addAdditionalInformation(file_version); */
+         throw runtime_error("Parsed found out that input does not start with the tag <MODEL> but with the <" + string(current_node->name()) + "> instead");
 
 		return current_node;
 	}
@@ -100,6 +89,10 @@ public:
 
 		NetworkParser network_parser(model);
 		network_parser.parse(model_node);
+      ParameterParser param_parser;
+      auto specifications = param_parser.parse(model_node);
+      ParameterReader param_reader;
+      auto param_cons = param_reader.computeParams(model, specifications);
 
       // Find property tag and control its uniqueness
       if (model_node->first_node("AUTOMATON")) {
