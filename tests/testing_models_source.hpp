@@ -40,15 +40,4 @@ protected:
     }
 };
 
-class ParamModelsTest : public ModelsTest {
-   Model constrained_model;
-
-   void SetUp() override {
-      constrained_model = basic_model;
-
-      ParameterParser::ParameterSpecifications specs;
-      specs.param_specs[0].l_pars.push_back(make_pair("A:0,B:1","?"));
-   }
-};
-
 #endif // TESTING_MODELS_SOURCE_HPP

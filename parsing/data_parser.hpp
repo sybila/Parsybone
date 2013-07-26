@@ -82,18 +82,14 @@ public:
 		auto model_node = initiateParsing();
 
       Model model;
-
-		NetworkParser network_parser(model);
-		network_parser.parse(model_node);
+      NetworkParser::parse(model_node, model);
       // Add levels to the regulations.
       ReadingHelper::fillActivationLevels(model);
       // Compute parameter values.
       ReadingHelper::fillParameters(model);
       // Replace explicitly defined parameters.
-      ParameterParser param_parser;
-      auto specifications = param_parser.parse(model_node);
-      ParameterReader param_reader;
-      param_reader.computeParams(specifications, model);
+      auto specifications = ParameterParser::parse(model_node);
+      ParameterReader::computeParams(specifications, model);
 
       input_stream->clear();
       input_stream->seekg(0, ios::beg);

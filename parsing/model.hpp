@@ -6,8 +6,8 @@
  * For affiliations see http://www.mi.fu-berlin.de/en/math/groups/dibimath and http://sybila.fi.muni.cz/ .
  */
 
-#ifndef PARSYBONE_MODEL_INCLUDED
-#define PARSYBONE_MODEL_INCLUDED
+#ifndef MODEL_HPP
+#define MODEL_HPP
 
 #include "PunyHeaders/common_functions.hpp"
 #include "../auxiliary/output_streamer.hpp"
@@ -35,7 +35,7 @@ public:
    struct Parameter {
       string context; ///< String name of the context of regulators.
       map<StateID, Levels> requirements; ///< Levels of the source species.
-      Levels targets; ///< Basal targets (is no basal value is given, then all).
+      Levels targets; ///< Towards which level this context may regulate.
    };
    typedef vector<Parameter> Parameters;
 
@@ -44,7 +44,7 @@ public:
       string name; ///< Actuall name of the specie.
       SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
       ActLevel max_value; ///< Maximal activation level of the specie.
-      Levels basals; ///< Basic constraint on what values can the specie take when unregulated.
+      Levels basals; ///< Basal targets (is no basal value is given, then all).
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
@@ -205,4 +205,4 @@ public:
    }
 };
 
-#endif // PARSYBONE_MODEL_INCLUDED
+#endif // MODEL_HPP

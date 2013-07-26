@@ -12,7 +12,7 @@ class ParameterReader {
     * @param can_context
     * @param targets
     */
-   void replaceInContext(Model::Parameters & parameters, const string & in_context, const string & can_context, const Levels & targets) const {
+   static void replaceInContext(Model::Parameters & parameters, const string & in_context, const string & can_context, const Levels & targets) {
       // List through all parameters of the specie.
       for(auto & param:parameters) {
          // If the context is matched.
@@ -31,7 +31,7 @@ class ParameterReader {
     * @param val_str
     * @return
     */
-   Levels covertToLevels(const Model & model, const string & val_str, const SpecieID t_ID) const {
+   static Levels covertToLevels(const Model & model, const string & val_str, const SpecieID t_ID) {
       vector<string> numbers;
       Levels specified;
       split(numbers, val_str, is_any_of(","));
@@ -64,7 +64,7 @@ class ParameterReader {
     * @param t_ID
     * @return list of possible target values
     */
-   Levels interpretLevels(const Model & model, const string & val_str, const SpecieID t_ID) const {
+   static Levels interpretLevels(const Model & model, const string & val_str, const SpecieID t_ID) {
       // ? goes for unspecified.
       if (val_str.compare("?") == 0)
          return model.getBasalTargets(t_ID);
@@ -79,7 +79,7 @@ class ParameterReader {
     * @param k_params   specification given by the user
     * @param t_ID
     */
-   void replaceExplicit(const Model & model, Model::Parameters & constraints, const ParameterParser::ParsList & k_params, const SpecieID t_ID) const {
+   static void replaceExplicit(const Model & model, Model::Parameters & constraints, const ParameterParser::ParsList & k_params, const SpecieID t_ID) {
       // List through all the PARAM nodes.
       for (const auto & param : k_params) {
          // Obtain context specified.
@@ -96,9 +96,11 @@ class ParameterReader {
 public:
    /**
     * @brief computeParams Constraints parameter values based on explicit specifications given by the user.
+    * @attention  this will not apply edge constraints.
+    *
     * @param model   model to fill the data in
     */
-   void computeParams(const ParameterParser::ParameterSpecifications & specs, Model & model) {
+   static void computeParams(const ParameterParser::ParameterSpecifications & specs, Model & model) {
       // For each specie create its parameters.
       for (SpecieID ID : range(model.getSpeciesCount())) {
          // Create all contexts with all the possible values.

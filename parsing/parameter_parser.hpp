@@ -20,7 +20,7 @@ public:
 
 private:
 
-   vector<ParameterSpecifications::Parameter> parseParameters(const string tag, const string desc, const rapidxml::xml_node<> * const specie_node) const {
+   static vector<ParameterSpecifications::Parameter> parseParameters(const string tag, const string desc, const rapidxml::xml_node<> * const specie_node) {
       vector<ParameterSpecifications::Parameter> parameters;
 
       // List through all the PARAM nodes.
@@ -42,7 +42,7 @@ public:
     * @param model_node
     * @return
     */
-   ParameterSpecifications parse(const rapidxml::xml_node<> * const model_node) {
+   static ParameterSpecifications parse(const rapidxml::xml_node<> * const model_node) {
       ParameterSpecifications specifications;
       auto structure_node = XMLHelper::getChildNode(model_node, "STRUCTURE");
 

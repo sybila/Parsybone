@@ -23,15 +23,10 @@
 /// \attention Only models with up to 9 levels are supported.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class NetworkParser {
-   Model & model; ///< Reference to the model object that will be filled.
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // TRANSLATORS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * In a current regulation get source of that regulation, if possible.
     */
-   SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID ) const {
+   static SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, Model & model ) {
       string source; SpecieID source_ID;
 
       // Find the source and check correctness
@@ -46,7 +41,7 @@ class NetworkParser {
    /**
     * Obtain a treshold of a current regulation and check if it is correct and unique.
     */
-   size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, const SpecieID source_ID ) const {
+   static size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, const SpecieID source_ID, Model & model ) {
       size_t threshold;
 
       // Try to find a threshold, if not present, set to 1
@@ -72,19 +67,19 @@ class NetworkParser {
     * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
     * If not provided, attributes are defaulted - threshold to 1, label to Label::free
     */
-   void parseRegulations(const rapidxml::xml_node<> * const specie_node, size_t specie_ID) const {
+   static void parseRegulations(const rapidxml::xml_node<> * const specie_node, SpecieID t_ID, Model & model) {
       // Regulation data
       string label;
 
       // Cycle through REGUL TAGS
       for (rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL"); regulation; regulation = regulation->next_sibling("REGUL") ) {
-         auto source_ID = getSourceID(regulation, specie_ID);
-         auto threshold = getThreshold(regulation, specie_ID, source_ID);
+         auto s_ID = getSourceID(regulation, t_ID, model);
+         auto threshold = getThreshold(regulation, t_ID, s_ID, model);
          if (!XMLHelper::getAttribute(label, regulation, "label", false))
             label = Label::Free;
 
          // Add a new regulation to the specified target
-         model.addRegulation(source_ID, specie_ID, threshold, label);
+         model.addRegulation(s_ID, t_ID, threshold, label);
       }
    }
 
@@ -92,7 +87,7 @@ class NetworkParser {
     * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
     * If not provided, attributes are defaulted - name is equal to ordinal number starting from 0, max to 1, targets to the whole range.
     */
-   void firstParse(const rapidxml::xml_node<> * const structure_node) const {
+   static void firstParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
       // Start the naming from capital A.
       char specie_name = 'A';
       // Specie data
@@ -127,32 +122,24 @@ class NetworkParser {
    /**
     * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
     */
-   void secondParse(const rapidxml::xml_node<> * const structure_node) const {
+   static void secondParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
       // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
       rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
       for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
          // Get all the regulations of the specie and store them to the model.
-         parseRegulations(specie, ID);
+         parseRegulations(specie, ID, model);
       }
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTRUCTION METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   NetworkParser(const NetworkParser & other) = delete; ///< Forbidden copy constructor.
-   NetworkParser& operator=(const NetworkParser & other) = delete; ///< Forbidden assignment operator.
-
 public:
-   NetworkParser(Model & _model) : model(_model) { } ///< Simple constructor, passes a references.
-
    /**
     * Main parsing function. It expects a pointer to inside of a MODEL node.
     */
-   void parse(const rapidxml::xml_node<> * const model_node) {
+   static void parse(const rapidxml::xml_node<> * const model_node, Model & model) {
       // Create the species.
-      firstParse(XMLHelper::getChildNode(model_node, "STRUCTURE"));
+      firstParse(XMLHelper::getChildNode(model_node, "STRUCTURE"), model);
       // Add regulatory logic.
-      secondParse(XMLHelper::getChildNode(model_node, "STRUCTURE"));
+      secondParse(XMLHelper::getChildNode(model_node, "STRUCTURE"), model);
    }
 };
 
