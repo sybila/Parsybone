@@ -43,6 +43,46 @@ class ReadingHelper {
       return (boost::lexical_cast<size_t>(to_return));
    }
 
+   /**
+    * @brief getSingleParam
+    * @param all_thrs
+    * @param thrs_comb
+    * @param target_ID
+    * @return
+    */
+   static Model::Parameter getSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID t_ID) {
+      // Empty data to fill.
+      Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
+
+      // Loop over all the sources.
+      for (auto source_num:range(thrs_comb.size())) {
+         // Find the source details and its current threshold
+         string source_name = model.getRegulatorsNames(t_ID)[source_num];
+         StateID source_ID = model.getRegulatorsIDs(t_ID)[source_num];
+         auto thresholds = all_thrs.find(source_ID)->second;
+
+         // Find activity level of the current threshold.
+         ActLevel threshold = (thrs_comb[source_num] == 0) ? 0 : thresholds[thrs_comb[source_num] - 1];
+
+         // Add current regulation as present.
+         string regulation_name = source_name + ":" + toString(threshold);
+
+         // Add the regulation to the source
+         parameter.context += regulation_name + ",";
+
+         // Find in which levels the specie must be for the regulation to occur.
+         ActLevel next_th = (thrs_comb[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[thrs_comb[source_num]];
+         Levels activity_levels = range(threshold, next_th);
+         parameter.requirements.insert(make_pair(source_ID, activity_levels));
+      }
+
+      parameter.targets = model.getBasalTargets(t_ID);
+
+      // Remove the last comma and return.
+      parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
+      return parameter;
+   }
+
 public:
    /**
     * @brief formCanonicContext   Transforms the regulation specification into a canonic form (\forall r \in regulator [r:threshold,...]).
@@ -86,6 +126,39 @@ public:
 
             model.addActivityLevels(regul.source, ID, range(begin, end));
          }
+      }
+   }
+
+   /**
+    * @brief createParameters Creates a description of kinetic parameters.
+    * @param target_ID
+    * @param formula
+    * @return
+    */
+   static Model::Parameters createParameters(const Model & model, const SpecieID t_ID) {
+      auto all_thrs = model.getThresholds(t_ID);
+      Levels bottom, thrs_comb, top;
+      Model::Parameters parameters;
+
+      // These containers hold number of thresholds per regulator.
+      for (auto & source_thresholds:all_thrs) {
+         bottom.push_back(0);
+         thrs_comb.push_back(0);
+         top.push_back(source_thresholds.second.size());
+      }
+
+      // Loop over all the contexts.
+      do {
+         parameters.push_back(getSingleParam(model, all_thrs, thrs_comb, t_ID));
+      } while(iterate(top, bottom, thrs_comb));
+
+      return parameters;
+   }
+
+   static void fillParameters(Model & model) {
+      for (const SpecieID ID : range(model.getSpeciesCount())) {
+         auto params = createParameters(model, ID);
+         model.setParameters(ID, params);
       }
    }
 };

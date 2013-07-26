@@ -2,6 +2,7 @@
 #define PARAMETER_PARSER_HPP
 
 #include "model.hpp"
+#include "../parsing/xml_helper.hpp"
 
 class ParameterParser {
 public:
@@ -36,6 +37,11 @@ private:
    }
 
 public:
+   /**
+    * @brief parse   Reads explicit parameter specification from the model file.
+    * @param model_node
+    * @return
+    */
    ParameterSpecifications parse(const rapidxml::xml_node<> * const model_node) {
       ParameterSpecifications specifications;
       auto structure_node = XMLHelper::getChildNode(model_node, "STRUCTURE");

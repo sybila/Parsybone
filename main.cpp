@@ -18,7 +18,7 @@ using namespace std;
 #include "auxiliary/output_streamer.hpp"
 #include "auxiliary/user_options.hpp"
 #include "parsing/argument_parser.hpp"
-#include "parsing/model_parser.hpp"
+#include "parsing/data_parser.hpp"
 #include "parsing/parsing_manager.hpp"
 #include "construction/construction_manager.hpp"
 #include "construction/product_builder.hpp"

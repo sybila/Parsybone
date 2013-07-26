@@ -11,7 +11,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../synthesis/SQLAdapter.hpp"
-#include "model_parser.hpp"
+#include "data_parser.hpp"
 #include "bitmask_manager.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,10 +67,10 @@ public:
       }
 
       // Parse model itself
-      ModelParser model_parser;
-      model = model_parser.parseNetwork(&model_stream);
+      DataParser data_parser;
+      model = data_parser.parseNetwork(&model_stream);
       // Currently reads property from the model file.
-      properties.push_back(model_parser.parseProperty(&model_stream));
+      properties.push_back(data_parser.parseProperty(&model_stream));
    }
 };
 

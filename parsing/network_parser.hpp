@@ -149,11 +149,10 @@ public:
     * Main parsing function. It expects a pointer to inside of a MODEL node.
     */
    void parse(const rapidxml::xml_node<> * const model_node) {
-      // Create the species
+      // Create the species.
       firstParse(XMLHelper::getChildNode(model_node, "STRUCTURE"));
-      // Add regulatory logic
+      // Add regulatory logic.
       secondParse(XMLHelper::getChildNode(model_node, "STRUCTURE"));
-      // Add levels to the regulations.
    }
 };
 

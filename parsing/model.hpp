@@ -20,11 +20,6 @@
 /// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Model {
-   friend class ModelParser;
-   friend class NetworkParser;
-   friend class ParameterReader;
-   friend class ReadingHelper;
-
 public:
    /// Structure that stores regulation of a specie by another one
    struct Regulation {
@@ -44,13 +39,12 @@ public:
    };
    typedef vector<Parameter> Parameters;
 
-private:
    /// Structure that holds data about a single specie. Most of the data is equal to that in the model file.
    struct ModelSpecie {
       string name; ///< Actuall name of the specie.
       SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
       ActLevel max_value; ///< Maximal activation level of the specie.
-      Levels targets; ///< Possible values the specie can take.
+      Levels basals; ///< Basic constraint on what values can the specie take when unregulated.
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
@@ -80,7 +74,7 @@ private:
       species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label});
    }
 
-   inline void addParameters(const SpecieID target_ID, const vector<Parameter> & parameters) {
+   inline void setParameters(const SpecieID target_ID, const vector<Parameter> & parameters) {
       species[target_ID].parameters = parameters;
    }
 
@@ -95,7 +89,6 @@ private:
          if (reg.source == source && reg.threshold == levels[0])
             reg.activity = levels;
    }
-public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
@@ -149,7 +142,7 @@ public:
     * @return
     */
    inline Levels getBasalTargets(const SpecieID ID) const {
-      return species[ID].targets;
+      return species[ID].basals;
    }
 
    /**
