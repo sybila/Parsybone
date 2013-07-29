@@ -26,103 +26,103 @@
 ///   -# get* this method returns a constant reference to a requested object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstructionHolder {
-	friend class ConstructionManager;
+    friend class ConstructionManager;
 
-   vector<AutomatonStructure> automata;
-	unique_ptr<BasicStructure> basic;
-	unique_ptr<ParametrizationsHolder> parametrizations;
-   vector<PropertyAutomaton> properties;
-   Model model;
-	unique_ptr<LabelingHolder> labeling;
-	unique_ptr<UnparametrizedStructure> structure;
-	unique_ptr<ProductStructure> product;
+    vector<AutomatonStructure> automata;
+    unique_ptr<BasicStructure> basic;
+    unique_ptr<ParametrizationsHolder> parametrizations;
+    vector<PropertyAutomaton> properties;
+    Model model;
+    unique_ptr<LabelingHolder> labeling;
+    unique_ptr<UnparametrizedStructure> structure;
+    unique_ptr<ProductStructure> product;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FILLERS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // FILLERS:
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-   void fillModel(Model _model) {
-      model = _model;
-	}
+    void fillModel(Model _model) {
+        model = _model;
+    }
 
-   void fillProperties(vector<PropertyAutomaton> & properties) {
-      this->properties = properties;
-   }
+    void fillProperties(vector<PropertyAutomaton> & properties) {
+        this->properties = properties;
+    }
 
 private:
-   void fillAutomaton(const AutomatonStructure & automaton) {
-      automata.push_back(automaton);
-	}
+    void fillAutomaton(const AutomatonStructure & automaton) {
+        automata.push_back(automaton);
+    }
 
-	void fillBasicStructure(BasicStructure * _basic) {
-		basic.reset(_basic);
-	}
+    void fillBasicStructure(BasicStructure * _basic) {
+        basic.reset(_basic);
+    }
 
-	void fillConstrains(ParametrizationsHolder * _parametrizations) {
-		parametrizations.reset(_parametrizations);
-	}
+    void fillParametrizations(ParametrizationsHolder * _parametrizations) {
+        parametrizations.reset(_parametrizations) ;
+    }
 
-	void fillLabeling(LabelingHolder * _labeling) {
-		labeling.reset(_labeling);
-	}
+    void fillLabeling(LabelingHolder * _labeling) {
+        labeling.reset(_labeling);
+    }
 
-	void fillUnparametrizedStructure(UnparametrizedStructure * _structure) {
-		structure.reset(_structure);
-	}
+    void fillUnparametrizedStructure(UnparametrizedStructure * _structure) {
+        structure.reset(_structure);
+    }
 
-	void fillProduct(ProductStructure * _product) {
-		product.reset(_product);
-	}
+    void fillProduct(ProductStructure * _product) {
+        product.reset(_product);
+    }
 
 
-	ConstructionHolder(const ConstructionHolder & other); ///< Forbidden copy constructor.
-	ConstructionHolder& operator=(const ConstructionHolder & other); ///< Forbidden assignment operator.
+    ConstructionHolder(const ConstructionHolder & other); ///< Forbidden copy constructor.
+    ConstructionHolder& operator=(const ConstructionHolder & other); ///< Forbidden assignment operator.
 
 public:
-   ConstructionHolder() {} ///< Default (empty) constructor.
+    ConstructionHolder() {} ///< Default (empty) constructor.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   size_t getAutomataCOunt() const {
-      return automata.size();
-   }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // CONSTANT GETTERS:
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    size_t getAutomataCOunt() const {
+        return automata.size();
+    }
 
-   const AutomatonStructure & getAutomatonStructure(const size_t ID) const {
-      return automata[ID];
-	}
+    const AutomatonStructure & getAutomatonStructure(const size_t ID) const {
+        return automata[ID];
+    }
 
-	const BasicStructure & getBasicStructure() const {
-		return *basic.get();
-	}
+    const BasicStructure & getBasicStructure() const {
+        return *basic.get();
+    }
 
-	const ParametrizationsHolder & getParametrizations() const {
-		return *parametrizations.get();
-	}
+    const ParametrizationsHolder & getParametrizations() const {
+        return *parametrizations.get();
+    }
 
-	const Model & getModel() const {
-      return model;
-	}
+    const Model & getModel() const {
+        return model;
+    }
 
-	const LabelingHolder & getLabeling() const {
-		return *labeling.get();
-	}
+    const LabelingHolder & getLabeling() const {
+        return *labeling.get();
+    }
 
-	const UnparametrizedStructure & getUnparametrizedStructure() const {
-		return *structure.get();
-	}
+    const UnparametrizedStructure & getUnparametrizedStructure() const {
+        return *structure.get();
+    }
 
-	const ProductStructure & getProduct() const {
-		return *product.get();
-	}
+    const ProductStructure & getProduct() const {
+        return *product.get();
+    }
 
-   size_t getPropertyCount() const {
-      return properties.size();
-   }
+    size_t getPropertyCount() const {
+        return properties.size();
+    }
 
-   const PropertyAutomaton getProperty(const size_t ID) const {
-      return properties[ID];
-   }
+    const PropertyAutomaton getProperty(const size_t ID) const {
+        return properties[ID];
+    }
 };
 
 #endif // PARSYBONE_CONSTRUCTION_HOLDER_INCLUDED

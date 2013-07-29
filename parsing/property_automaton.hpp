@@ -73,7 +73,6 @@ public:
       return states[ID].name;
    }
 
-
    /**
     * @return	true if the state is final
     */
