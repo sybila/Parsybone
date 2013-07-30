@@ -23,8 +23,6 @@
 /// Currently does not include constraint on self-loops.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizationsBuilder {
-
-
     /**
      * Test all possible subcolors and saves valid.
      *
@@ -34,16 +32,17 @@ class ParametrizationsBuilder {
      * @param bottom_color	low bound on possible contexts
      * @param top_color	top bound on possible contexts
      */
-    static void testColors(const Model & model, const SpecieID ID, const vector<size_t> & bottom_color, const vector<size_t> & top_color,
-                            ParametrizationsHolder & params, ParametrizationsHolder::SpecieColors & valid) {
+    static void testColors(const Model & model, const SpecieID ID, const Levels & bottom_color, const Levels & top_color,
+                           ParametrizationsHolder & params, ParametrizationsHolder::SpecieColors & valid) {
         // Cycle through all possible subcolors for this specie
-        vector<size_t> subcolor(bottom_color);
+        Levels subcolor(bottom_color);
 
         // Cycle through all colors
         do {
-            // Test is it is feasieble, if so, save it
-            if (testSubparametrization(model, ID, subcolor))
-                valid.push_back(subcolor);
+            // Test if the parametrization satisfies constraints.
+            if (!testSubparametrization(model, ID, subcolor))
+                continue;
+            valid.push_back(subcolor);
         } while (iterate(top_color, bottom_color, subcolor));
 
         if (valid.subcolors.empty())

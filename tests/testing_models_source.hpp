@@ -27,7 +27,6 @@ class ModelsTest : public ::testing::Test {
 protected:
     Model basic_model;
 
-
     void SetUp() override {
         basic_model.addSpecie("cA", 1, {0,1});
         basic_model.addSpecie("cB", 3, {0,1,2,3});

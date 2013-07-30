@@ -21,13 +21,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Model {
 public:
+    /// Structure that holds additional static constraints inherent to the Thomas framework.
     struct Restrictions {
-        bool bounded_loops;
-        bool force_extremes;
+        bool bounded_loops; ///< True if autoregilations are not created for values below the bound. (conserves all TSs).
+        bool force_extremes; ///< True if for extemal contexts the parameter values are forced to be extremal.
 
         Restrictions() {
-            bounded_loops = false;
-            force_extremes = false;
+            bounded_loops = force_extremes = false;
         }
     } restrictions;
 

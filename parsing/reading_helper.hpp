@@ -44,13 +44,43 @@ class ReadingHelper {
    }
 
    /**
+    * @brief getTargetValues  computes exact target values possible in given context.
+    * @param autoreg index of the regulation that goes from itself
+    */
+   static Levels getTargetValues(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const size_t autoreg, const SpecieID t_ID) {
+      Levels targets = model.getBasalTargets(t_ID);
+
+      // If there is the loop restriction
+      if (model.restrictions.bounded_loops && autoreg != INF) {
+         size_t self_thrs = thrs_comb[autoreg];
+         Levels thresholds = (all_thrs.find(t_ID))->second;
+         size_t bottom_border = 0u < self_thrs ? thresholds[self_thrs - 1] : 0u;
+         size_t top_border = thresholds.size() > self_thrs ? thresholds[self_thrs] : model.getMax(t_ID) + 1;
+         Levels new_targets;
+
+         // Add levels that are between the thresholds and one below/above if corresponds to the original.
+         if (targets.front() < bottom_border)
+            new_targets.push_back(bottom_border-1);
+         for (const auto target:targets)
+            if (target >= bottom_border && target < top_border)
+               new_targets.push_back(target);
+         if (targets.back() >= top_border)
+            new_targets.push_back(top_border);
+
+         targets = new_targets;
+      }
+
+      return targets;
+   }
+
+   /**
     * @brief getSingleParam
     * @param all_thrs
     * @param thrs_comb
     * @param target_ID
     * @return
     */
-   static Model::Parameter getSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels thrs_comb, const SpecieID t_ID) {
+   static Model::Parameter getSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const SpecieID t_ID, const size_t autoreg) {
       // Empty data to fill.
       Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
 
@@ -76,7 +106,7 @@ class ReadingHelper {
          parameter.requirements.insert(make_pair(source_ID, activity_levels));
       }
 
-      parameter.targets = model.getBasalTargets(t_ID);
+      parameter.targets = getTargetValues(model, all_thrs, thrs_comb, autoreg, t_ID);
 
       // Remove the last comma and return.
       parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
@@ -139,17 +169,20 @@ public:
       auto all_thrs = model.getThresholds(t_ID);
       Levels bottom, thrs_comb, top;
       Model::Parameters parameters;
+      size_t autoreg = INF;
 
       // These containers hold number of thresholds per regulator.
       for (auto & source_thresholds:all_thrs) {
          bottom.push_back(0);
          thrs_comb.push_back(0);
          top.push_back(source_thresholds.second.size());
+         if (source_thresholds.first == t_ID)
+            autoreg = thrs_comb.size() - 1;
       }
 
       // Loop over all the contexts.
       do {
-         parameters.push_back(getSingleParam(model, all_thrs, thrs_comb, t_ID));
+         parameters.push_back(getSingleParam(model, all_thrs, thrs_comb, t_ID, autoreg));
       } while(iterate(top, bottom, thrs_comb));
 
       return parameters;

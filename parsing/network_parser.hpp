@@ -15,8 +15,6 @@
 #include "xml_helper.hpp"
 #include "model.hpp"
 
-// TODO: Add input and output node.
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for parsing of the regulatory network.
 ///
@@ -74,7 +72,7 @@ class NetworkParser {
       string label;
 
       // Cycle through REGUL TAGS
-      for (rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL"); regulation; regulation = regulation->next_sibling("REGUL") ) {
+      for (rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL", false); regulation; regulation = regulation->next_sibling("REGUL") ) {
          auto s_ID = getSourceID(regulation, t_ID, model);
          auto threshold = getThreshold(regulation, t_ID, s_ID, model);
          if (!XMLHelper::getAttribute(label, regulation, "label", false))
@@ -146,20 +144,19 @@ public:
 
    /**
     * @brief parseConstraints   Parses the constraints given by the user.
-    * @param model_node
-    * @param model
     */
    static void parseConstraints(const rapidxml::xml_node<> * const model_node, Model & model) {
        auto struct_node = XMLHelper::getChildNode(model_node, "STRUCTURE");
        for (auto constraint = XMLHelper::getChildNode(struct_node, "CONSTRAINT"); constraint; constraint = constraint->next_sibling("CONSTRAINT") ) {
            string const_type;
-           XMLHelper::getAttribute(const_type, constraint, "value");
+           XMLHelper::getAttribute(const_type, constraint, "type");
            if (const_type.compare("bound_loop")) {
                model.restrictions.bounded_loops = true;
            } else if (const_type.compare("force_extremes")) {
                model.restrictions.force_extremes = true;
-           } else
+           } else {
                throw runtime_error("Constraint \"" + const_type + "\" is not a valid constraint.");
+           }
        }
    }
 };
