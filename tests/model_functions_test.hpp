@@ -27,7 +27,7 @@ TEST_F(ModelsTest, ParametrizationControl) {
    ASSERT_NO_THROW(ParameterReader::computeParams(specs, basic_model));
 
    auto params = basic_model.getParameters(0);
-   ASSERT_EQ(6, params.size()) << "There should be 6 contexts for A.";
+   ASSERT_EQ(6, params.size()) << "There should be 6 contexts for cA.";
    for (const auto & param:params) {
       if (param.context.compare("cA:1,cB:1") == 0) {
          ASSERT_EQ(1, param.targets.size()) << "One possible target val in this context.";
@@ -40,7 +40,29 @@ TEST_F(ModelsTest, ParametrizationControl) {
 }
 
 /// This test controls functionality of loop bounding constraint.
-TEST_F(ModelsTest, ParametrizationBounding) {
+TEST_F(ModelsTest, ParametrizationExtremal) {
+   Model extreme_model;
+   extreme_model.addSpecie("cA", 1, range(2u));
+   extreme_model.addRegulation(0, 0, 1, "");
+   extreme_model.restrictions.force_extremes = true;
+   ParameterHelper::fillActivationLevels(extreme_model);
+   ParameterHelper::fillParameters(extreme_model);
+   ParameterParser::ParameterSpecifications specs;
+   specs.param_specs.resize(1);
+
+   // Transform the description into semantics.
+   ParameterReader::computeParams(specs, extreme_model);
+
+   auto params = extreme_model.getParameters(0);
+   ASSERT_EQ(2, params.size()) << "There should be 2 contexts for cB.";
+   ASSERT_EQ(1, params[0].targets.size()) << "Target is supposed to be 0.";
+   EXPECT_EQ(0, params[0].targets[0]) << "Targets {0,1,2}";
+   ASSERT_EQ(1, params[1].targets.size()) << "Target is supposed to be 0.";
+   EXPECT_EQ(1, params[1].targets[0]) << "Targets {0,1,2}";
+}
+
+/// This test controls functionality of loop bounding constraint.
+TEST_F(ModelsTest, ParametrizationLoopBound) {
    Model loop_model;
    loop_model.addSpecie("cA", 1, range(2u));
    loop_model.addSpecie("cB", 5, range(6u));
@@ -58,7 +80,7 @@ TEST_F(ModelsTest, ParametrizationBounding) {
    ASSERT_NO_THROW(ParameterReader::computeParams(specs, loop_model));
 
    auto params = loop_model.getParameters(1);
-   ASSERT_EQ(6, params.size()) << "There should be 6 contexts for B.";
+   ASSERT_EQ(6, params.size()) << "There should be 6 contexts for cB.";
    ASSERT_EQ(3, params[0].targets.size()) << "Targets {0,1,2}";
    EXPECT_EQ(2, params[0].targets[2]) << "Targets {0,1,2}";
    ASSERT_EQ(4, params[3].targets.size()) << "Targets {1,2,3,4}";

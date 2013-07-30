@@ -70,6 +70,22 @@ class ParameterHelper {
          targets = new_targets;
       }
 
+      // Replace the extremal values, if necessary.
+      if (model.restrictions.force_extremes) {
+         if (count(thrs_comb.begin(), thrs_comb.end(), 0) == thrs_comb.size())
+            targets = {0};
+         else {
+            bool maximal = true;
+            size_t regulator = 0;
+            for (auto & t_set:all_thrs) {
+               if (thrs_comb[regulator++] != t_set.second.size())
+                  maximal = false;
+            }
+            if (maximal)
+               targets = {model.getMax(t_ID)};
+         }
+      }
+
       return targets;
    }
 
