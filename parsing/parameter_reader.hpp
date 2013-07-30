@@ -1,7 +1,7 @@
 #ifndef PARAMETER_READER_HPP
 #define PARAMETER_READER_HPP
 
-#include "reading_helper.hpp"
+#include "parameter_helper.hpp"
 #include "parameter_parser.hpp"
 
 class ParameterReader {
@@ -83,7 +83,7 @@ class ParameterReader {
       // List through all the PARAM nodes.
       for (const auto & param : k_params) {
          // Obtain context specified.
-         string can_context = ReadingHelper::formCanonicContext(model, param.first, t_ID);
+         string can_context = ParameterHelper::formCanonicContext(model, param.first, t_ID);
 
          // Get the levels.
          Levels targets = interpretLevels(model, param.second, t_ID);

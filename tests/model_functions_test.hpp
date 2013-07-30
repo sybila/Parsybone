@@ -4,6 +4,7 @@
 #include "testing_models_source.hpp"
 #include "../parsing/parameter_reader.hpp"
 
+/// Test various functions the model class posseses.
 TEST_F(ModelsTest, ModelFunctions) {
    auto tresholds = basic_model.getThresholds(0);
    ASSERT_EQ(2u, tresholds.size());
@@ -12,6 +13,7 @@ TEST_F(ModelsTest, ModelFunctions) {
    ASSERT_EQ(2, basic_model.getRegulatorsIDs(0).size()) << "There must be only two IDs for regulations, even though there are three incoming interactions.";
 }
 
+/// Controls whether explicit parametrizaitions do replace the original values.
 TEST_F(ModelsTest, ParametrizationControl) {
    // Create the parameter specification
    ParameterParser::ParameterSpecifications specs;
@@ -29,7 +31,10 @@ TEST_F(ModelsTest, ParametrizationControl) {
    for (const auto & param:params) {
       if (param.context.compare("cA:1,cB:1") == 0) {
          ASSERT_EQ(1, param.targets.size()) << "One possible target val in this context.";
-         EXPECT_EQ(1, param.targets[0]) << "This context should be one.";
+         EXPECT_EQ(1, param.targets[0]) << "Target value in given countext should be one.";
+      }
+      if (param.context.compare("cA:0,cB:1") == 0) {
+         ASSERT_EQ(2, param.targets.size()) << "Target values should not be constrained.";
       }
    }
 }
@@ -43,8 +48,8 @@ TEST_F(ModelsTest, ParametrizationBounding) {
    loop_model.addRegulation(1, 1, 2, "");
    loop_model.addRegulation(1, 1, 4, "");
    loop_model.restrictions.bounded_loops = true;
-   ReadingHelper::fillActivationLevels(loop_model);
-   ReadingHelper::fillParameters(loop_model);
+   ParameterHelper::fillActivationLevels(loop_model);
+   ParameterHelper::fillParameters(loop_model);
    ParameterParser::ParameterSpecifications specs;
    specs.param_specs.resize(2);
 
@@ -54,6 +59,10 @@ TEST_F(ModelsTest, ParametrizationBounding) {
 
    auto params = loop_model.getParameters(1);
    ASSERT_EQ(6, params.size()) << "There should be 6 contexts for B.";
+   ASSERT_EQ(3, params[0].targets.size()) << "Targets {0,1,2}";
+   EXPECT_EQ(2, params[0].targets[2]) << "Targets {0,1,2}";
+   ASSERT_EQ(4, params[3].targets.size()) << "Targets {1,2,3,4}";
+   EXPECT_EQ(1, params[3].targets[0]) << "Targets {1,2,3,4}";
 }
 
 #endif // MODEL_FUNCTIONS_TEST_HPP

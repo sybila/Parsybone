@@ -6,7 +6,7 @@
 #include "PunyHeaders/common_functions.hpp"
 
 #include "../auxiliary/data_types.hpp"
-#include "../parsing/reading_helper.hpp"
+#include "../parsing/parameter_helper.hpp"
 #include "../parsing/model.hpp"
 #include "../parsing/parameter_parser.hpp"
 
@@ -34,8 +34,8 @@ protected:
         basic_model.addRegulation(0, 0, 1, "-");
         basic_model.addRegulation(1, 0, 1, "-");
         basic_model.addRegulation(1, 0, 3, "- | +");
-        ReadingHelper::fillActivationLevels(basic_model);
-        ReadingHelper::fillParameters(basic_model);
+        ParameterHelper::fillActivationLevels(basic_model);
+        ParameterHelper::fillParameters(basic_model);
     }
 };
 

@@ -85,9 +85,9 @@ public:
       NetworkParser::parseNetwork(model_node, model);
       NetworkParser::parseConstraints(model_node, model);
       // Add levels to the regulations.
-      ReadingHelper::fillActivationLevels(model);
+      ParameterHelper::fillActivationLevels(model);
       // Compute parameter values.
-      ReadingHelper::fillParameters(model);
+      ParameterHelper::fillParameters(model);
       // Replace explicitly defined parameters.
       auto specifications = ParameterParser::parse(model_node);
       ParameterReader::computeParams(specifications, model);

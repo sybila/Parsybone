@@ -1,9 +1,9 @@
-#ifndef READING_HELPER_HPP
-#define READING_HELPER_HPP
+#ifndef PARAMETER_HELPER_HPP
+#define PARAMETER_HELPER_HPP
 
 #include "model.hpp"
 
-class ReadingHelper {
+class ParameterHelper {
    /**
     * @brief getThreshold  For a given regulator, find out what it's threshold in the given context is.
     * @param context
@@ -196,4 +196,4 @@ public:
    }
 };
 
-#endif // READING_HELPER_HPP
+#endif // PARAMETER_HELPER_HPP
