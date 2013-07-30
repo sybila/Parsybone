@@ -171,12 +171,12 @@ public:
     /**
      * Entry function of parsing, tests and stores subcolors for all the species.
      */
-    static ParametrizationsHolder * buildParametrizations(const Model & model) {
-        ParametrizationsHolder * params = new ParametrizationsHolder;
+    static ParametrizationsHolder buildParametrizations(const Model & model) {
+        ParametrizationsHolder params;
 
         // Cycle through species
         for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++)
-            createKinetics(model, ID, *params);
+            createKinetics(model, ID, params);
 
         return params;
     }

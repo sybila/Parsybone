@@ -1,5 +1,6 @@
 <MODEL ver="1.0">
     <STRUCTURE>
+		<CONSTRAINT value="bound_loop" />
         <SPECIE >
             <REGUL source="B" threshold ="1" observ="1" />
             <REGUL source="A" />            

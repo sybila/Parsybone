@@ -36,8 +36,8 @@ public:
      */
     void construct() {
         // Create possible kinetic parameters
-        ParametrizationsHolder * parametrizations_holder = ParametrizationsBuilder::buildParametrizations(holder.getModel());
-        holder.fillParametrizations(parametrizations_holder);
+        ParametrizationsHolder parametrizations_holder = ParametrizationsBuilder::buildParametrizations(holder.getModel());
+        holder.fillParametrizations(move(parametrizations_holder));
 
         // Create implicit form of the kinetic parameters used as edge labels
         LabelingHolder * labeling_holder = new LabelingHolder;

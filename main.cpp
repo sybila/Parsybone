@@ -41,8 +41,8 @@ int main(int argc, char* argv[]) {
       ParsingManager parsing_manager(argc, argv);
       parsing_manager.parse(model, properties);
       // Pass the model
-      holder.fillModel(model);
-      holder.fillProperties(properties);
+      holder.fillModel(move(model));
+      holder.fillProperties(move(properties));
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));

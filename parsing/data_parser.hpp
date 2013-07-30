@@ -82,7 +82,8 @@ public:
 		auto model_node = initiateParsing();
 
       Model model;
-      NetworkParser::parse(model_node, model);
+      NetworkParser::parseNetwork(model_node, model);
+      NetworkParser::parseConstraints(model_node, model);
       // Add levels to the regulations.
       ReadingHelper::fillActivationLevels(model);
       // Compute parameter values.

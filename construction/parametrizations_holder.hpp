@@ -34,7 +34,7 @@ class ParametrizationsHolder {
 		}
 	};
 
-   /// Storage for all the vectors of subcolors for each specie.
+    /// Storage for all the vectors of subcolors for each specie.
 	vector<SpecieColors> colors;
 
 public:

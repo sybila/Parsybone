@@ -15,6 +15,8 @@
 #include "xml_helper.hpp"
 #include "model.hpp"
 
+// TODO: Add input and output node.
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for parsing of the regulatory network.
 ///
@@ -135,11 +137,30 @@ public:
    /**
     * Main parsing function. It expects a pointer to inside of a MODEL node.
     */
-   static void parse(const rapidxml::xml_node<> * const model_node, Model & model) {
+   static void parseNetwork(const rapidxml::xml_node<> * const model_node, Model & model) {
       // Create the species.
       firstParse(XMLHelper::getChildNode(model_node, "STRUCTURE"), model);
       // Add regulatory logic.
       secondParse(XMLHelper::getChildNode(model_node, "STRUCTURE"), model);
+   }
+
+   /**
+    * @brief parseConstraints   Parses the constraints given by the user.
+    * @param model_node
+    * @param model
+    */
+   static void parseConstraints(const rapidxml::xml_node<> * const model_node, Model & model) {
+       auto struct_node = XMLHelper::getChildNode(model_node, "STRUCTURE");
+       for (auto constraint = XMLHelper::getChildNode(struct_node, "CONSTRAINT"); constraint; constraint = constraint->next_sibling("CONSTRAINT") ) {
+           string const_type;
+           XMLHelper::getAttribute(const_type, constraint, "value");
+           if (const_type.compare("bound_loop")) {
+               model.restrictions.bounded_loops = true;
+           } else if (const_type.compare("force_extremes")) {
+               model.restrictions.force_extremes = true;
+           } else
+               throw runtime_error("Constraint \"" + const_type + "\" is not a valid constraint.");
+       }
    }
 };
 

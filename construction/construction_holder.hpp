@@ -30,7 +30,7 @@ class ConstructionHolder {
 
     vector<AutomatonStructure> automata;
     unique_ptr<BasicStructure> basic;
-    unique_ptr<ParametrizationsHolder> parametrizations;
+    ParametrizationsHolder parametrizations;
     vector<PropertyAutomaton> properties;
     Model model;
     unique_ptr<LabelingHolder> labeling;
@@ -42,11 +42,11 @@ class ConstructionHolder {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
     void fillModel(Model _model) {
-        model = _model;
+        model = move(_model);
     }
 
-    void fillProperties(vector<PropertyAutomaton> & properties) {
-        this->properties = properties;
+    void fillProperties(vector<PropertyAutomaton> properties) {
+        this->properties = move(properties);
     }
 
 private:
@@ -58,8 +58,8 @@ private:
         basic.reset(_basic);
     }
 
-    void fillParametrizations(ParametrizationsHolder * _parametrizations) {
-        parametrizations.reset(_parametrizations) ;
+    void fillParametrizations(ParametrizationsHolder _parametrizations) {
+        parametrizations = move(_parametrizations) ;
     }
 
     void fillLabeling(LabelingHolder * _labeling) {
@@ -97,7 +97,7 @@ public:
     }
 
     const ParametrizationsHolder & getParametrizations() const {
-        return *parametrizations.get();
+        return parametrizations;
     }
 
     const Model & getModel() const {
