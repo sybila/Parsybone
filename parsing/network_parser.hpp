@@ -60,9 +60,6 @@ class NetworkParser {
       return threshold;
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // PARSERS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
     * If not provided, attributes are defaulted - threshold to 1, label to Label::free
@@ -85,7 +82,11 @@ class NetworkParser {
 
    /**
     * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
-    * If not provided, attributes are defaulted - name is equal to ordinal number starting from 0, max to 1, targets to the whole range.
+    * If not provided, attributes are defaulted -
+    * name is equal to ordinal number starting from 0,
+    * max to 1,
+    * targets to the range [0,max]
+    * input and output to false
     */
    static void firstParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
       // Start the naming from capital A.
@@ -102,10 +103,12 @@ class NetworkParser {
          // Throw an error if the name is not correct.
          else if (name.length() < 2 || !isalpha(static_cast<int>(name[0])))
             throw invalid_argument("Name of the specie \"" + name + "\" is incorrect. Specie name can start only with a letter and must be at least 2 symbols in lenght.");
+
          // Get a max value and conver to integer.
          if (!XMLHelper::getAttribute(max, specie, "max", false))
             max = 1;
 
+         // Obtain basal values
          if(XMLHelper::getAttribute(basal, specie, "basal", false)) {
             targets.push_back(basal);
             if (basal > max)
@@ -114,8 +117,19 @@ class NetworkParser {
             targets = range(max + 1);
          }
 
+         // Check if the node is either input or output node.
+         bool input = false, output = false;
+         string node_type;
+         if(XMLHelper::getAttribute(node_type, specie, "type", false)) {
+            if (node_type.compare("input") == 0)
+               input = true;
+            else if (node_type.compare("output") == 0) {
+               output = true;
+            }
+         }
+
          // Create a new specie
-         model.addSpecie(name, max, targets);
+         model.addSpecie(name, max, targets, input, output);
       }
    }
 
@@ -147,7 +161,7 @@ public:
     */
    static void parseConstraints(const rapidxml::xml_node<> * const model_node, Model & model) {
        auto struct_node = XMLHelper::getChildNode(model_node, "STRUCTURE");
-       for (auto constraint = XMLHelper::getChildNode(struct_node, "CONSTRAINT"); constraint; constraint = constraint->next_sibling("CONSTRAINT") ) {
+       for (auto constraint = XMLHelper::getChildNode(struct_node, "CONSTRAINT", false); constraint; constraint = constraint->next_sibling("CONSTRAINT") ) {
            string const_type;
            XMLHelper::getAttribute(const_type, constraint, "type");
            if (const_type.compare("bound_loop")) {

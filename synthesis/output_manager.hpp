@@ -86,7 +86,6 @@ public:
       // output numbers
       OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
       output_streamer.output(verbose_str, "Round: " + toString(split_manager.getRoundNum()) + "/" + toString(split_manager.getRoundCount()) + ":", trait);
-      output_streamer.flush();
    }
 
    /**

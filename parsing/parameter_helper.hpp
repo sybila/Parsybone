@@ -6,10 +6,6 @@
 class ParameterHelper {
    /**
     * @brief getThreshold  For a given regulator, find out what it's threshold in the given context is.
-    * @param context
-    * @param target_ID
-    * @param name
-    * @param pos
     * @return  threshold value in the given context
     */
    static size_t getThreshold(const Model & model, const string & context, const SpecieID t_ID, const string & name, const size_t pos) {
@@ -72,7 +68,7 @@ class ParameterHelper {
 
       // Replace the extremal values, if necessary.
       if (model.restrictions.force_extremes) {
-         if (count(thrs_comb.begin(), thrs_comb.end(), 0) == thrs_comb.size())
+         if (static_cast<size_t>(count(thrs_comb.begin(), thrs_comb.end(), 0)) == thrs_comb.size())
             targets = {0};
          else {
             bool maximal = true;
@@ -90,13 +86,10 @@ class ParameterHelper {
    }
 
    /**
-    * @brief getSingleParam
-    * @param all_thrs
-    * @param thrs_comb
-    * @param target_ID
+    * @brief getSingleParam creates a parameter for a single context.
     * @return
     */
-   static Model::Parameter getSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const SpecieID t_ID, const size_t autoreg) {
+   static Model::Parameter getSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const SpecieID t_ID, const size_t autoreg_ID) {
       // Empty data to fill.
       Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
 
@@ -122,7 +115,7 @@ class ParameterHelper {
          parameter.requirements.insert(make_pair(source_ID, activity_levels));
       }
 
-      parameter.targets = getTargetValues(model, all_thrs, thrs_comb, autoreg, t_ID);
+      parameter.targets = getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID);
 
       // Remove the last comma and return.
       parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
@@ -132,8 +125,7 @@ class ParameterHelper {
 public:
    /**
     * @brief formCanonicContext   Transforms the regulation specification into a canonic form (\forall r \in regulator [r:threshold,...]).
-    * @param context
-    * @param target_ID
+    * @param context any valid context form as a string
     * @return canonic context form
     */
    static string formCanonicContext(const Model & model, const string & context, const SpecieID t_ID) {
@@ -177,9 +169,6 @@ public:
 
    /**
     * @brief createParameters Creates a description of kinetic parameters.
-    * @param target_ID
-    * @param formula
-    * @return
     */
    static Model::Parameters createParameters(const Model & model, const SpecieID t_ID) {
       auto all_thrs = model.getThresholds(t_ID);
@@ -204,6 +193,9 @@ public:
       return parameters;
    }
 
+   /**
+    * @brief fillParameters   fill idividual parameter values based on user specifications.
+    */
    static void fillParameters(Model & model) {
       for (const SpecieID ID : range(model.getSpeciesCount())) {
          auto params = createParameters(model, ID);

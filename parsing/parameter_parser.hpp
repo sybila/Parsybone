@@ -6,6 +6,7 @@
 
 class ParameterParser {
 public:
+   /// User given constraints on idividual parameters.
    struct ParameterSpecifications {
       typedef pair<string,string> Parameter; ///< Context or logical condition and the specific target value attached to it.
 
@@ -20,6 +21,9 @@ public:
 
 private:
 
+   /**
+    * @brief parseParameters Reads the constraints.
+    */
    static vector<ParameterSpecifications::Parameter> parseParameters(const string tag, const string desc, const rapidxml::xml_node<> * const specie_node) {
       vector<ParameterSpecifications::Parameter> parameters;
 

@@ -29,11 +29,10 @@ public:
 
 
    /**
-    * Return true if the label (edge constrain) of the regulation is satisfied, false otherwise. All labels can be resolved based only on whether mon+ and mon- are true.
+    * @brief resolveLabel  Return true if the label (edge constrain) of the regulation is satisfied, false otherwise. All labels can be resolved based only on whether mon+ and mon- are true.
     * @param	activating	true if the parametrization satisfies +
     * @param	inhibiting	true if the parametrization satisfies -
     * @param	label	canonical form of edge label given as a string
-    *
     * @return	true if the edge constrain is satisfied
     */
    static bool resolveLabel(const bool & activating, const bool & inhibiting, const string label) {
@@ -65,6 +64,26 @@ public:
          formula = label;
 
       return (FormulaeResolver::resolve(values, formula));
+   }
+
+   /**
+    * Compute and store boundaries on possible context values - used for iterations.
+    */
+   static void getBoundaries(const Model::Parameters & params, vector<size_t> & bottom_color, vector<size_t> & top_color) {
+      for (auto param:params) {
+         bottom_color.push_back(param.targets.front());
+         top_color.push_back(param.targets.back());
+      }
+   }
+
+   /**
+    * @brief getPossibleCount compute the number of possible colors
+    */
+   static ParamNum getPossibleCount(const Model::Parameters & params) {
+      ParamNum colors_num = 1;
+      for (auto param:params)
+         colors_num *= param.targets.size();
+      return colors_num;
    }
 };
 
