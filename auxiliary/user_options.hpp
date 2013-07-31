@@ -115,7 +115,9 @@ public:
    }
 
    /**
-    * @return	true if property is a time series
+    * @return	true if property is a time series\
+    *
+    * TODO: mixing time series with automata currently impossible
     */
    inline bool timeSeries() const {
       return time_series;

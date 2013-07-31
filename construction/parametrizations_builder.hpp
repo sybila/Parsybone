@@ -94,7 +94,6 @@ class ParametrizationsBuilder {
       return true;
    }
 
-
    /**
     * Test all possible subcolors and saves valid.
     * @param valid	data storage to save in
@@ -129,9 +128,8 @@ class ParametrizationsBuilder {
    /**
     * @brief outputProgress
     */
-   static void outputProgress() {
-      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Testing edge constraints on partiall parametrizations: " + toString(++color_tested) + "/" + toString(color_no) + ".", trait);
+   static inline void outputProgress() {
+      output_streamer.output(verbose_str, "Testing edge constraints on partiall parametrizations: " + toString(++color_tested) + "/" + toString(color_no) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
    }
 
    /**

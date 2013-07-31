@@ -10,14 +10,10 @@
 /// \brief This object is responsible for parsing and translation of data related to the tested property.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonParser {
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARSING:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Starting from the STATE node, the function parses all the EDGE tags and reads the data from them.
 	 */
-   void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID, PropertyAutomaton & automaton) const {
+   static void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID, PropertyAutomaton & automaton) {
 		// Regulation data
       string label_string; string traget_str; size_t target_ID;
 
@@ -40,7 +36,7 @@ class AutomatonParser {
     * Starting from the AUTOMATON node, the function parses all the STATE tags and all their EDGE tags and reads the data from them.
 	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
 	 */
-   void firstParse(const rapidxml::xml_node<> * const automaton_node, PropertyAutomaton & automaton) const {
+   static void firstParse(const rapidxml::xml_node<> * const automaton_node, PropertyAutomaton & automaton)  {
 		// State data
 		bool final; string name;
 
@@ -64,7 +60,7 @@ class AutomatonParser {
     * Starting from the AUTOMATON node, the function parses all the STATE tags and all their EDGE tags and reads the data from them.
 	 * If not found, final attribute is defaulted to false and name to state's ordinal number.
 	 */
-   void secondParse(const rapidxml::xml_node<> * const automaton_node, PropertyAutomaton & automaton) const {
+   static void secondParse(const rapidxml::xml_node<> * const automaton_node, PropertyAutomaton & automaton)  {
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
 		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
 		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
@@ -73,19 +69,11 @@ class AutomatonParser {
 		}
 	}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTION METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   AutomatonParser(const AutomatonParser & other) = delete; ///< Forbidden copy constructor.
-   AutomatonParser& operator=(const AutomatonParser & other) = delete; ///< Forbidden assignment operator.
-
 public:
-   AutomatonParser() = default;
-
 	/**
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.
 	 */
-   PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node, string name) {
+   static PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node, string name) {
       PropertyAutomaton automaton(name);
 
 		// Parse states

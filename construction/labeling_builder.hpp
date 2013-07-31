@@ -19,22 +19,12 @@
 /// \brief Creates a labeled graph representation of gene regulatory network and stores it within a LabelingHolder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LabelingBuilder {
-   // Provided with constructor
-   const Model & model; ///< Model that holds the data.
-   const ParametrizationsHolder & parametrizations; ///< Precomputed partial parametrizations.
-   LabelingHolder & labeling_holder; ///< FunctionsStructure class to fill.
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // COMPUTING METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
-    * Creates the kinetic parameters in explicit form from the model information.
-    * All feasible parameters for the specie are then stored in the FunctionsStructure.
-    *
+    * Creates the kinetic parameters in explicit form from the model information. All feasible parameters for the specie are then stored in the FunctionsStructure.
     * @param ID	ID of the specie to compute the kinetic parameters for
     * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
     */
-   void addRegulations(const SpecieID t_ID, ParamNum & step_size) const {
+   static void addRegulations(const Model & model, const ParametrizationsHolder & params, const SpecieID t_ID, ParamNum & step_size,  LabelingHolder & holder) {
       // get referecnces to Specie data
       const auto & tparams = model.getParameters(t_ID);
 
@@ -47,51 +37,42 @@ class LabelingBuilder {
          }
 
          // Add target values (if input negative, add all possibilities), if positive, add current requested value
-         auto possible_values = parametrizations.getTargetVals(t_ID, param_num);
+         auto possible_values = params.getTargetVals(t_ID, param_num);
 
          // pass the function to the holder.
-         labeling_holder.addRegulatoryFunction(t_ID, step_size, possible_values, source_values);
+         holder.addRegulatoryFunction(t_ID, step_size, possible_values, source_values);
       }
 
       // Display stats
       output_streamer.output(verbose_str, "Specie " + model.getName(t_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
-                             + toString(parametrizations.getColorsNum(t_ID)) + " possible parametrizations out of " + toString(parametrizations.getAllColorsNum(t_ID)) + ".");
+                             + toString(params.getColorsNum(t_ID)) + " possible parametrizations out of " + toString(params.getAllColorsNum(t_ID)) + ".");
 
       // Increase step size for the next function
-      step_size *= parametrizations.getColorsNum(t_ID);
+      step_size *= params.getColorsNum(t_ID);
    }
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTRUCTING METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   LabelingBuilder(const LabelingBuilder & other); ///< Forbidden copy constructor.
-   LabelingBuilder& operator=(const LabelingBuilder & other); ///< Forbidden assignment operator.
 
 public:
 	/**
-	 * Constructor just attaches the references to data holders
-	 */
-	LabelingBuilder(const Model & _model, const ParametrizationsHolder & _parametrizations, LabelingHolder & _labeling_holder)
-		: model(_model), parametrizations(_parametrizations), labeling_holder(_labeling_holder)  { }
-
-	/**
 	 * For each specie recreate all its regulatory functions (all possible labels)
 	 */
-	void buildLabeling() {
+   static LabelingHolder buildLabeling(const Model & model, const ParametrizationsHolder & params) {
+      LabelingHolder holder;
 
 		ParamNum step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through all the species
 		for (auto ID:range(model.getSpeciesCount())) {
 			// Add specie
-			labeling_holder.addSpecie(model.getName(ID), ID, model.getRegulatorsIDs(ID));
+         holder.addSpecie(model.getName(ID), ID, model.getRegulatorsIDs(ID));
 			
 			// Add regulations for this specie
-			addRegulations(ID, step_size);
+         addRegulations(model, params, ID, step_size, holder);
 		}
 
 		// Set the number by what would be step size for next function
-		labeling_holder.parameter_count = step_size;
+      holder.parameter_count = step_size;
+
+      return holder;
 	}
 };
 #endif // PARSYBONE_LABELING_BUILDER_INCLUDED

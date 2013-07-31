@@ -111,14 +111,11 @@ public:
 
       vector<PropertyAutomaton> properties;
 
-      AutomatonParser automaton_parser;
-      TimeSeriesParser series_parser;
-
       for (rapidxml::xml_node<> * automaton = XMLHelper::getChildNode(model_node, "AUTOMATON", false); automaton; automaton = automaton->next_sibling("AUTOMATON") ) {
-         properties.push_back(automaton_parser.parse(automaton, "Automaton" + toString(properties.size())));
+         properties.push_back(AutomatonParser::parse(automaton, "Automaton" + toString(properties.size())));
       }
       for (rapidxml::xml_node<> * series = XMLHelper::getChildNode(model_node, "SERIES", false); series; series = series->next_sibling("SERIES") ) {
-         properties.push_back(series_parser.parse(series, "Automaton" + toString(properties.size())));
+         properties.push_back(TimeSeriesParser::parse(series, "Automaton" + toString(properties.size())));
          user_options.time_series = true;
       }
 

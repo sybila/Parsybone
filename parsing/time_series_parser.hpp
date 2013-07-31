@@ -20,7 +20,7 @@ class TimeSeriesParser {
    /**
     * Function reads an EXPR tag and creates according state and transitions.
     */
-   PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node, const string & name) const {
+   static PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node, const string & name) {
       PropertyAutomaton property(name);
 
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
@@ -46,19 +46,11 @@ class TimeSeriesParser {
 
       return property;
    }
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTRUCTION METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   TimeSeriesParser(const TimeSeriesParser & other); ///< Forbidden copy constructor.
-   TimeSeriesParser& operator=(const TimeSeriesParser & other); ///< Forbidden assignment operator.
-
 public:
-   TimeSeriesParser() = default;
    /**
      * Main parsing function. It expects a pointer to inside of a MODEL node.
      */
-   PropertyAutomaton parse(const rapidxml::xml_node<> * const series_node, const string & name) {
+   static PropertyAutomaton parse(const rapidxml::xml_node<> * const series_node, const string & name) {
       // Parse Buchi Automaton
       return parseExpressions(series_node, name);
    }

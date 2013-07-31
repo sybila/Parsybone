@@ -40,10 +40,8 @@ public:
       holder.fillParametrizations(move(parametrizations_holder));
 
       // Create implicit form of the kinetic parameters used as edge labels
-      LabelingHolder * labeling_holder = new LabelingHolder;
-      LabelingBuilder labeling_builder(holder.getModel(), holder.getParametrizations(), *labeling_holder);
-      labeling_builder.buildLabeling();
-      holder.fillLabeling(labeling_holder);
+      LabelingHolder labeling_holder = LabelingBuilder::buildLabeling(holder.getModel(), holder.getParametrizations());
+      holder.fillLabeling(move(labeling_holder));
 
       // Create a simple Kripke structure without parametrization
       BasicStructure * basic_structure = new BasicStructure; // Kripke structure built from the network
