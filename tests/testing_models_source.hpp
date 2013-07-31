@@ -7,7 +7,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../parsing/parameter_helper.hpp"
-#include "../parsing/model.hpp"
+#include "../parsing/model_translators.hpp"
 #include "../parsing/parameter_parser.hpp"
 
 using namespace std;

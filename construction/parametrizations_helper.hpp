@@ -1,7 +1,7 @@
 #ifndef PARAMETRIZATIONS_HELPER_HPP
 #define PARAMETRIZATIONS_HELPER_HPP
 
-#include "../parsing/model.hpp"
+#include "../parsing/model_translators.hpp"
 #include "../auxiliary/data_types.hpp"
 #include <PunyHeaders/formulae_resolver.hpp>
 
@@ -12,7 +12,7 @@ public:
     * @brief isSubordinate returns true if the current context is the same as the compared context only with a lower activity value in specificed regulator.
     */
    static bool isSubordinate(const Model & model, const Model::Parameter & current, const Model::Parameter & compare, const SpecieID target_ID, const SpecieID source_ID) {
-      for (auto regul_ID:model.getRegulatorsIDs(target_ID)) {
+      for (auto regul_ID:ModelTranslators::getRegulatorsIDs(model, target_ID)) {
          // All the regulations must have the same requirements.
          if (regul_ID != source_ID) {
             if (current.requirements.find(regul_ID)->second != compare.requirements.find(regul_ID)->second) {

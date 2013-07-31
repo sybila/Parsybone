@@ -1,7 +1,7 @@
 #ifndef REGULATION_HELPER_HPP
 #define REGULATION_HELPER_HPP
 
-#include "model.hpp"
+#include "model_translators.hpp"
 
 class RegulationHelper {
    /**
@@ -58,11 +58,11 @@ public:
       // Regulator level not specified.
       if (context[COLON_POS] != ':') {
          // Control if the context is unambiguous.
-         auto thresholds = model.getThresholds(t_ID);
-         if (thresholds.find(model.findID(name))->second.size() > 1)
+         auto thresholds = ModelTranslators::getThresholds(model, t_ID);
+         if (thresholds.find(ModelTranslators::findID(model,name))->second.size() > 1)
             throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a regulator " + name + " that has multiple regulations.");
          // If valid, add the threshold 1.
-         return thresholds.find(model.findID(name))->second[0];
+         return thresholds.find(ModelTranslators::findID(model, name))->second[0];
       }
 
       // There is not a threshold given after double colon.
@@ -85,8 +85,8 @@ public:
     */
    static void fillActivationLevels(Model & model) {
       // Fill for all the species.
-      for (auto ID:range(model.getSpeciesCount())) {
-         auto space = model.getThresholds(ID);
+      for (auto ID:range(model.species.size())) {
+         auto space = ModelTranslators::getThresholds(model, ID);
 
          // List through the regulations of the specie.
          for (auto regul:model.getRegulations((ID))) {
@@ -108,7 +108,7 @@ public:
     * @brief setConditions set conditions on nature of the regulation based on its label.
     */
    static void setConditions(Model & model) {
-      for (const SpecieID ID : range(model.getSpeciesCount())) {
+      for (const SpecieID ID : range(model.species.size())) {
          Model::Regulations & reguls = model.species[ID].regulations;
          for (Model::Regulation & regul:reguls) {
             regul.satisf.none = resolveLabel(false, false, regul.label);

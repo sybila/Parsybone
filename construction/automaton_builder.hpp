@@ -11,7 +11,7 @@
 
 #include "PunyHeaders/common_functions.hpp"
 
-#include "../parsing/model.hpp"
+#include "../parsing/model_translators.hpp"
 #include "../parsing/property_automaton.hpp"
 #include "automaton_structure.hpp"
 
@@ -35,7 +35,7 @@ class AutomatonBuilder {
     * Compute a vector of maximal levels and store information about states.
     */
    void computeBoundaries() {
-      for(size_t specie_num = 0; specie_num < model.getSpeciesCount(); specie_num++) {
+      for(size_t specie_num = 0; specie_num < model.species.size(); specie_num++) {
          // Maximal values of species
          maxes.push_back(model.getMax(specie_num));
          mins.push_back(model.getMin(specie_num));
@@ -114,8 +114,8 @@ class AutomatonBuilder {
             throw invalid_argument(string("No comparison operator found in the atom ").append(*atom));
 
          // Find ID of the specie mentioned in the atom
-         SpecieID ID = model.findID(atom->substr(0, symbol));
-         if (ID >= model.getSpeciesCount())
+         SpecieID ID = ModelTranslators::findID(model, atom->substr(0, symbol));
+         if (ID >= model.species.size())
             throw invalid_argument(string("Invalid specie name in the atom ").append(*atom));
 
          // Find a value the specie is compared to

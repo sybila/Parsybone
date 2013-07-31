@@ -62,8 +62,8 @@ class ParameterHelper {
       // Loop over all the sources.
       for (auto source_num:range(thrs_comb.size())) {
          // Find the source details and its current threshold
-         string source_name = model.getRegulatorsNames(t_ID)[source_num];
-         StateID source_ID = model.getRegulatorsIDs(t_ID)[source_num];
+         string source_name = ModelTranslators::getRegulatorsNames(model, t_ID)[source_num];
+         StateID source_ID = ModelTranslators::getRegulatorsIDs(model, t_ID)[source_num];
          auto thresholds = all_thrs.find(source_ID)->second;
 
          // Find activity level of the current threshold.
@@ -96,7 +96,7 @@ public:
     */
    static string formCanonicContext(const Model & model, const string & context, const SpecieID t_ID) {
       string new_context; // new canonic form
-      const auto names = model.getRegulatorsNames(t_ID);
+      const auto names = ModelTranslators::getRegulatorsNames(model, t_ID);
 
       // For each of the regulator of the specie.
       for (const auto & name:names) {
@@ -113,7 +113,7 @@ public:
     * @brief createParameters Creates a description of kinetic parameters.
     */
    static Model::Parameters createParameters(const Model & model, const SpecieID t_ID) {
-      auto all_thrs = model.getThresholds(t_ID);
+      auto all_thrs = ModelTranslators::getThresholds(model, t_ID);
       Levels bottom, thrs_comb, top;
       Model::Parameters parameters;
       size_t autoreg = INF;
@@ -139,7 +139,7 @@ public:
     * @brief fillParameters   fill idividual parameter values based on user specifications.
     */
    static void fillParameters(Model & model) {
-      for (const SpecieID ID : range(model.getSpeciesCount())) {
+      for (const SpecieID ID : range(model.species.size())) {
          auto params = createParameters(model, ID);
          model.setParameters(ID, params);
       }

@@ -110,61 +110,21 @@ public:
             reg.activity = levels;
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTANT GETTERS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   /**
-    * @return	number of the species
-    */
-   inline size_t getSpeciesCount() const {
-      return species.size();
-   }
-
-   /**
-    * Finds numerical ID of the specie based on its name or ID string.
-    *
-    * @return	ID of the specie with the specified name if there is such, otherwise INF
-    */
-   SpecieID findID(const string & name) const {
-      SpecieID ID = INF;
-      for_each(species.begin(), species.end(), [&ID, &name](const ModelSpecie & spec) {
-         if (spec.name.compare(name) == 0)
-            ID = spec.ID;
-      });
-      return ID;
-   }
-
-   /**
-    * @return	name of the specie
-    */
    inline const string & getName(const SpecieID ID) const {
       return species[ID].name;
    }
 
-   /**
-    * @return	minimal value of the specie (always 0)
-    */
    inline size_t getMin(const SpecieID ID) const {
       return ID ? 0 : 0; // Just to disable a warning
    }
 
-   /**
-    * @return	maximal value of the specie
-    */
    inline size_t getMax(const SpecieID ID) const {
       return species[ID].max_value;
    }
 
-   /**
-    * @brief getBasalTargets Values towards which the specie is being regulated by default. Used in case of specification of basal values.
-    * @param ID
-    * @return
-    */
    inline Levels getBasalTargets(const SpecieID ID) const {
       return species[ID].basals;
    }
-
 
    inline const vector<Regulation> & getRegulations(const SpecieID ID) const {
       return species[ID].regulations;
@@ -176,123 +136,6 @@ public:
 
    inline const Configurations & getSubcolors(const SpecieID ID)  const {
       return species[ID].subcolors;
-   }
-
-
-   /**
-    * @return	unique IDs of regulators of the specie
-    */
-   vector<SpecieID> getRegulatorsIDs(const SpecieID ID) const {
-      set<SpecieID> IDs;
-      for (auto regul:species[ID].regulations) {
-         IDs.insert(regul.source);
-      }
-      return vector<SpecieID>(IDs.begin(), IDs.end());
-   }
-
-   /**
-    * @return	names of the regulators of the specie
-    */
-   vector<string> getRegulatorsNames(const SpecieID ID) const {
-      auto regulators = getRegulatorsIDs(ID);
-      vector<string> names;
-      for (auto reg:regulators) {
-         names.push_back(getName(reg));
-      }
-      return names;
-   }
-
-   /**
-    * @brief getThresholds Finds a list of thresholds for each regulator of a given component.
-    * @param ID
-    * @return
-    */
-   map<SpecieID, vector<ActLevel> > getThresholds(const SpecieID ID) const {
-      map<SpecieID, Levels > thresholds;
-      for (auto reg:getRegulations(ID)) {
-         auto key = thresholds.find(reg.source);
-         if (key == thresholds.end()) {
-            thresholds.insert(make_pair(reg.source, Levels(1, reg.threshold)));
-         } else {
-            key->second.push_back(reg.threshold);
-         }
-      }
-
-      for (auto ths:thresholds) {
-         sort(ths.second.begin(), ths.second.end());
-      }
-
-      return thresholds;
-   }
-
-   /**
-    * This function returns a vector containing target value for a given regulatory contexts for ALL the contexts allowed (in lexicographical order).
-    * @param ID	ID of the specie that is regulated
-    * @param param_num	ordinal number of the kinetic parameter (in a lexicographical order)
-    * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
-    */
-   const vector<size_t> getTargetVals(const SpecieID ID, const size_t param_num) const {
-      //Data to fill
-      vector<size_t> all_target_vals;
-      all_target_vals.reserve(species[ID].subcolors.size());
-
-      // Store values for given regulation
-      for (const auto & subcolor : species[ID].subcolors) {
-         all_target_vals.push_back(subcolor[param_num]);
-      }
-
-      return all_target_vals;
-   }
-
-   inline const vector<size_t> & getColor(const SpecieID ID, const ParamNum color_num) const {
-      return species[ID].subcolors[static_cast<size_t>(color_num)];
-   }
-
-   const string createColorString(ParamNum number) const {
-      // compute numbers of partial parametrizations for each component
-      const vector<ParamNum> color_parts = getSpecieVals(number);
-
-      string color_str = "(";
-      // cycle through the species
-      for (SpecieID ID = 0; ID < species.size(); ID++) {
-         auto color = getColor(ID, color_parts[ID]);
-         // fill partial parametrization of the specie
-         for (auto it = color.begin(); it != color.end(); it++) {
-            color_str += lexical_cast<string, size_t>(*it);
-            color_str += ",";
-         }
-      }
-      // Change the last value
-      *(color_str.end() - 1) = ')';
-
-      return color_str;
-   }
-
-   const vector<ParamNum> getSpecieVals(ParamNum number) const {
-      // Prepare storage vector
-      vector<ParamNum> specie_vals(species.size());
-      auto reverse_val_it = specie_vals.rbegin();
-
-      // Go through colors backwards
-      ParamNum divisor = getSpaceSize();
-      for (auto specie_it = species.rbegin(); specie_it != species.rend(); specie_it++, reverse_val_it++) {
-         // lower divisor value
-         divisor /= specie_it->subcolors.size();
-         // pick a number for current specie
-         *reverse_val_it = (number / divisor);
-         // take the rest for next round
-         number = number % divisor;
-      }
-
-      return specie_vals;
-   }
-
-   ParamNum getSpaceSize() const {
-      ParamNum space_size = 1;
-      for (const ModelSpecie & spec:species) {
-         space_size *= spec.subcolors.size();
-      }
-      return space_size;
    }
 };
 

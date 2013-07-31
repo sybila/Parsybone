@@ -11,7 +11,7 @@
 
 #include "PunyHeaders/common_functions.hpp"
 
-#include "../parsing/model.hpp"
+#include "../parsing/model_translators.hpp"
 #include "basic_structure.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ public:
 	 * Constructor initializes basic information from the model
 	 */
 	BasicStructureBuilder(const Model & _model, BasicStructure & _structure) 
-                         : model(_model), species_count(_model.getSpeciesCount()), structure(_structure)  {
+                         : model(_model), species_count(_model.species.size()), structure(_structure)  {
 		// Compute species-related values
 		computeBoundaries();
 		// Compute transitions-related values
@@ -142,7 +142,7 @@ public:
 			storeNeigbours(ID, levels, maxes);
          // Generate new state for the next round
          // Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop.
-			transition_count += structure.getTransitionCount(ID) - model.getSpeciesCount() + 1;
+         transition_count += structure.getTransitionCount(ID) - model.species.size() + 1;
          ID++;
       } while (iterate(maxes, mins, levels));
 

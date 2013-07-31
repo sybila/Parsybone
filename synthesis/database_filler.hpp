@@ -28,7 +28,7 @@ class DatabaseFiller {
       prepareTable(COMPONENTS_TABLE, "(Name TEXT, MaxActivity INTEGER)");
 
       string update = "";
-      for(SpecieID target_ID:range(model.getSpeciesCount())) {
+      for(SpecieID target_ID:range(model.species.size())) {
          string values = "(\"" + model.getName(target_ID) + "\", " + toString(model.getMax(target_ID)) + "); \n";
          update += makeInsert(COMPONENTS_TABLE) + values;
       }
@@ -38,8 +38,8 @@ class DatabaseFiller {
    void fillRegulations() {
       prepareTable(REGULATIONS_TABLE, "(Regulator TEXT, Target TEXT, Thresholds TEXT)");
       string update = "";
-      for(SpecieID target_ID:range(model.getSpeciesCount())) {
-         for(auto regul:model.getThresholds(target_ID)) {
+      for(SpecieID target_ID:range(model.species.size())) {
+         for(auto regul:ModelTranslators::getThresholds(model, target_ID)) {
             string values = "(\"" + model.getName(regul.first) + "\", ";
             values += "\"" + model.getName(target_ID) + "\", ";
             values += "\"";
@@ -57,14 +57,14 @@ class DatabaseFiller {
    string getContexts(bool verbose = false) const {
       string contexts = "";
       if(verbose) {
-         for(SpecieID target_ID:range(model.getSpeciesCount())) {
+         for(SpecieID target_ID:range(model.species.size())) {
             for(auto param:model.getParameters(target_ID)) {
                string context = "K_" + model.getName(target_ID) + "_" + param.context + " INTEGER,";
                contexts += move(context);
             }
          }
       } else {
-         for(SpecieID target_ID:range(model.getSpeciesCount())) {
+         for(SpecieID target_ID:range(model.species.size())) {
             for(auto param:model.getParameters(target_ID)) {
                string context = "K_" + model.getName(target_ID) + "_";
                for (auto values:param.requirements)

@@ -74,13 +74,6 @@ public:
    }
 
    /**
-    * @return	number of the species
-    */
-   inline size_t getSpeciesCount() const {
-      return species.size();
-   }
-
-   /**
     * @return	name of the specie with given ID
     */
    inline const string & getSpecieName(const size_t ID) const {

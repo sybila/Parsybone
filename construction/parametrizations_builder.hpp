@@ -13,7 +13,7 @@
 #include "PunyHeaders/formulae_resolver.hpp"
 
 #include "../auxiliary/data_types.hpp"
-#include "../parsing/model.hpp"
+#include "../parsing/model_translators.hpp"
 #include "parametrizations_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,11 +149,11 @@ public:
    static void buildParametrizations(Model & model) {
       color_tested = 0;
       color_no = 0;
-      for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++)
+      for (SpecieID ID = 0; ID < model.species.size(); ID++)
          color_no += ParametrizationsHelper::getPossibleCount(model.getParameters(ID));
 
       // Cycle through species
-      for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++)
+      for (SpecieID ID = 0; ID < model.species.size(); ID++)
          createKinetics(model, ID);
 
       if(user_options.verbose())

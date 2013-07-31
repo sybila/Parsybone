@@ -102,7 +102,7 @@ public:
     */
    static void computeParams(const ParameterParser::ParameterSpecifications & specs, Model & model) {
       // For each specie create its parameters.
-      for (SpecieID ID : range(model.getSpeciesCount())) {
+      for (SpecieID ID : range(model.species.size())) {
          // Create all contexts with all the possible values.
          auto parameters = model.getParameters(ID);
 

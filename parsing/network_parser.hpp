@@ -13,7 +13,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"
-#include "model.hpp"
+#include "model_translators.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for parsing of the regulatory network.
@@ -31,8 +31,8 @@ class NetworkParser {
 
       // Find the source and check correctness
       XMLHelper::getAttribute(source, regulation, "source");
-      source_ID = model.findID(source);
-      if (source_ID >= model.getSpeciesCount())
+      source_ID = ModelTranslators::findID(model, source);
+      if (source_ID >= model.species.size())
          throw invalid_argument("ID of a regulation of the specie " + toString(model.getName(t_ID)) + " is incorrect");
 
       return source_ID;

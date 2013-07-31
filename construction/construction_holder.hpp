@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_CONSTRUCTION_HOLDER_INCLUDED
 #define PARSYBONE_CONSTRUCTION_HOLDER_INCLUDED
 
-#include "../parsing/model.hpp"
+#include "../parsing/model_translators.hpp"
 #include "automaton_builder.hpp"
 #include "basic_structure_builder.hpp"
 #include "parametrizations_builder.hpp"

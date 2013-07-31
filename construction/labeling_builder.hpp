@@ -11,7 +11,7 @@
 
 #include "PunyHeaders/common_functions.hpp"
 
-#include "../parsing/model.hpp"
+#include "../parsing/model_translators.hpp"
 #include "parametrizations_builder.hpp"
 #include "labeling_holder.hpp"
 
@@ -37,7 +37,7 @@ class LabelingBuilder {
          }
 
          // Add target values (if input negative, add all possibilities), if positive, add current requested value
-         auto possible_values = model.getTargetVals(t_ID, param_num);
+         auto possible_values = ModelTranslators::getTargetVals(model, t_ID, param_num);
 
          // pass the function to the holder.
          holder.addRegulatoryFunction(t_ID, step_size, possible_values, source_values);
@@ -62,9 +62,9 @@ public:
 		ParamNum step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through all the species
-		for (auto ID:range(model.getSpeciesCount())) {
+      for (auto ID:range(model.species.size())) {
 			// Add specie
-         holder.addSpecie(model.getName(ID), ID, model.getRegulatorsIDs(ID));
+         holder.addSpecie(model.getName(ID), ID, ModelTranslators::getRegulatorsIDs(model, ID));
 			
 			// Add regulations for this specie
          addRegulations(model, ID, step_size, holder);

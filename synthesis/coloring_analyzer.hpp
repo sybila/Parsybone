@@ -97,7 +97,7 @@ class ColoringAnalyzer {
 		for (ParamNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters & color_mask)
-            strings.push_back(model.createColorString(col_num));
+            strings.push_back(ModelTranslators::createColorString(model, col_num));
 
 			// Move the mask
 			color_mask >>= 1;

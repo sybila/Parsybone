@@ -154,7 +154,7 @@ public:
       // Create classes that help with the synthesis
       analyzer.reset(new ColoringAnalyzer(holder.getModel()));
       storage.reset(new ColorStorage(holder));
-      split_manager.reset(new SplitManager(holder.getModel().getSpaceSize()));
+      split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(holder.getModel())));
       model_checker.reset(new ModelChecker(holder, *storage.get()));
       searcher.reset(new WitnessSearcher(holder, *storage.get()));
       robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
