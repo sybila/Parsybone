@@ -75,6 +75,17 @@ class DataParser {
 public:
    DataParser() = default;
 
+   void computeModelProps(const ParameterParser::ParameterSpecifications & specs, Model & model) {
+      // Add levels to the regulations.
+      RegulationHelper::fillActivationLevels(model);
+      // Set conditions on the edges.
+      RegulationHelper::setConditions(model);
+      // Compute parameter values.
+      ParameterHelper::fillParameters(model);
+      // Replace explicitly defined parameters.
+      ParameterReader::computeParams(specs, model);
+   }
+
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.
 	 */
@@ -85,15 +96,9 @@ public:
       Model model;
       NetworkParser::parseNetwork(model_node, model);
       NetworkParser::parseConstraints(model_node, model);
-      // Add levels to the regulations.
-      RegulationHelper::fillActivationLevels(model);
-      // Set conditions on the edges.
-      RegulationHelper::setConditions(model);
-      // Compute parameter values.
-      ParameterHelper::fillParameters(model);
-      // Replace explicitly defined parameters.
-      auto specifications = ParameterParser::parse(model_node);
-      ParameterReader::computeParams(specifications, model);
+      auto specs = ParameterParser::parse(model_node);
+
+      computeModelProps(specs, model);
 
       input_stream->clear();
       input_stream->seekg(0, ios::beg);

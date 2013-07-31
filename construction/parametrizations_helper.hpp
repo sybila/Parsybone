@@ -63,6 +63,7 @@ public:
       case 3:
          return sat.both;
       }
+      return false;
    }
 };
 

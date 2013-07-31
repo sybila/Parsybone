@@ -30,155 +30,158 @@ class OutputStreamer {
    // OUTPUT TRAITS DEFINITIONS
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-	typedef const unsigned int Trait;
-	static Trait no_newl    = 1; ///< After last line no newline symbol will be output.
-	static Trait important  = 2; ///< Add "-- " before and " --" after the ouptut.
-	static Trait rewrite_ln = 4; ///< Return the cursor and start from the beginning of the line.
-	static Trait tab        = 8; ///< Add "   " before the output.
+   typedef const unsigned int Trait;
+   static Trait no_newl    = 1; ///< After last line no newline symbol will be output.
+   static Trait important  = 2; ///< Add "-- " before and " --" after the ouptut.
+   static Trait rewrite_ln = 4; ///< Return the cursor and start from the beginning of the line.
+   static Trait tab        = 8; ///< Add "   " before the output.
+   static Trait no_out     = 16; ///< Do not output anything, just apply traits.
 
-	/**
-	 * Test if given trait is present.
-	 *
-	 * @param tested	number of the tested trait
-	 * @param traits	traits given with the function
-	 *
-	 * @return bool if the trait is present
-	 */
-	inline bool testTrait(const unsigned int tested, const unsigned int traits) const {
-		return ((traits | tested)== traits);
-	}
+   /**
+    * Test if given trait is present.
+    *
+    * @param tested	number of the tested trait
+    * @param traits	traits given with the function
+    *
+    * @return bool if the trait is present
+    */
+   inline bool testTrait(const unsigned int tested, const unsigned int traits) const {
+      return ((traits | tested)== traits);
+   }
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// CREATION METHODS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Basic constructor - should be used only for the single object shared throught the program.
-	 */
-	OutputStreamer() {
-		// Basic direction of the streams
-		error_stream = &cerr;
-		result_stream = &cout;
-		verbose_stream = &cout;
-		console_stream = &cout;
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // CREATION METHODS
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+    * Basic constructor - should be used only for the single object shared throught the program.
+    */
+   OutputStreamer() {
+      // Basic direction of the streams
+      error_stream = &cerr;
+      result_stream = &cout;
+      verbose_stream = &cout;
+      console_stream = &cout;
 
-		// Set control variables
-		error_file = result_file = verbose_file = false;
+      // Set control variables
+      error_file = result_file = verbose_file = false;
 
-		// Set stream type in the beggining to error stream
-		last_stream_type = error_str;
-	}
+      // Set stream type in the beggining to error stream
+      last_stream_type = error_str;
+   }
 
-	/**
-	 * If some of the streams has been assigned a file, delete that file object.
-	 */
-	~OutputStreamer() {
-		if (error_file)
-			delete error_stream;
-		if (result_file)
-			delete result_stream;
-		if (verbose_file)
-			delete verbose_stream;
-	}
+   /**
+    * If some of the streams has been assigned a file, delete that file object.
+    */
+   ~OutputStreamer() {
+      if (error_file)
+         delete error_stream;
+      if (result_file)
+         delete result_stream;
+      if (verbose_file)
+         delete verbose_stream;
+   }
 
-	/**
-	 * Create a file to which given stream will be redirected.
-	 *
-	 * @param stream_type	enumeration type specifying the type of stream to output to
-	 * @param data	data to output - should be any possible ostream data
-	 */
-	void createStreamFile(StreamType stream_type, string filename) {
-		// Try to open the file
-		fstream * file_stream = new fstream(filename.c_str(), ios::out);
-		if (file_stream->fail())
-			throw runtime_error(string("Program failed to open an output stream file: ").append(filename));
-		
-		// Assiciate pointer to the file with one of the streams
-		switch (stream_type) {
-		case error_str:
-			error_stream = file_stream;
-			error_file = true;
-		break;
-		case results_str:
-			result_stream = file_stream;
-			result_file = true;
-		break;
-		case verbose_str:
-			verbose_stream = file_stream;
-			verbose_file = true;
-		break;
-		}
-	}
+   /**
+    * Create a file to which given stream will be redirected.
+    *
+    * @param stream_type	enumeration type specifying the type of stream to output to
+    * @param data	data to output - should be any possible ostream data
+    */
+   void createStreamFile(StreamType stream_type, string filename) {
+      // Try to open the file
+      fstream * file_stream = new fstream(filename.c_str(), ios::out);
+      if (file_stream->fail())
+         throw runtime_error(string("Program failed to open an output stream file: ").append(filename));
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// OUTPUT METHODS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Flush all the streams that are in use.
-	 */
-	void flush() {
-		error_stream->flush();
-		result_stream->flush();
-		verbose_stream->flush();
-	}
+      // Assiciate pointer to the file with one of the streams
+      switch (stream_type) {
+      case error_str:
+         error_stream = file_stream;
+         error_file = true;
+         break;
+      case results_str:
+         result_stream = file_stream;
+         result_file = true;
+         break;
+      case verbose_str:
+         verbose_stream = file_stream;
+         verbose_file = true;
+         break;
+      }
+   }
 
-	/**
-	 * Output on a specified stream.
-	 *
-	 * @param stream_type	enumeration type specifying the type of stream to output to
-	 * @param data	data to output - should be any possible ostream data
-	 * @param trait_mask	bitmask of traits for output
-	 */
-	template <class outputType>
-	const OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
-		// Update stream
-		last_stream_type = stream_type;
-		switch (stream_type) {
-		case error_str:
-			// Start with !
-			*error_stream << "! ";
-		break;
-		case verbose_str:
-			// Start with * - if requested, remove previous line
-			if (user_options.verbose()) {
-				if (testTrait(rewrite_ln, trait_mask))
-					*verbose_stream << '\r';
-				*verbose_stream << "* ";
-			}
-		break;
-		case results_str:
-			// This is the only stream that is not enhanced.
-		break;
-		}
-		// Continue with output, then return this object
-		return output(stream_data, trait_mask);
-	}
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // OUTPUT METHODS
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+    * Flush all the streams that are in use.
+    */
+   void flush() {
+      error_stream->flush();
+      result_stream->flush();
+      verbose_stream->flush();
+   }
 
-	/**
-	 * Overloaded method that uses the same stream as the last ouput.
-	 *
-	 * @param data	data to output - should be any possible ostream data
-	 * @param trait_mask	bitmask of traits for output
-	 */
-	template <class outputType>
-	const OutputStreamer & output(const outputType & stream_data, const unsigned int trait_mask = 0) const {
-		// Pick the correct stream and pass the data - output only if requested
-		switch (last_stream_type) {
-		case error_str:
-			actualOutput(*error_stream, stream_data, trait_mask);
-		break;
-		case results_str:
-			if (user_options.toFile())
-				actualOutput(*result_stream, stream_data, trait_mask);
-			if (user_options.toConsole())
-				actualOutput(*console_stream, stream_data, trait_mask);
-		break;
-		case verbose_str:
-			if (user_options.verbose())
-				actualOutput(*verbose_stream, stream_data, trait_mask);
-		break;
-		}
-		return *this;
-	}
+   /**
+    * Output on a specified stream.
+    *
+    * @param stream_type	enumeration type specifying the type of stream to output to
+    * @param data	data to output - should be any possible ostream data
+    * @param trait_mask	bitmask of traits for output
+    */
+   template <class outputType>
+   const OutputStreamer & output(StreamType stream_type, const outputType & stream_data, const unsigned int trait_mask = 0) {
+      // Update stream
+      last_stream_type = stream_type;
+      switch (stream_type) {
+      case error_str:
+         // Start with !
+         if (!testTrait(no_out, trait_mask))
+            *error_stream << "! ";
+         break;
+      case verbose_str:
+         // Start with * - if requested, remove previous line
+         if (user_options.verbose()) {
+            if (testTrait(rewrite_ln, trait_mask))
+               *verbose_stream << '\r';
+            if (!testTrait(no_out, trait_mask))
+               *verbose_stream << "* ";
+         }
+         break;
+      case results_str:
+         // This is the only stream that is not enhanced.
+         break;
+      }
+      // Continue with output, then return this object
+      return output(stream_data, trait_mask);
+   }
+
+   /**
+    * Overloaded method that uses the same stream as the last ouput.
+    *
+    * @param data	data to output - should be any possible ostream data
+    * @param trait_mask	bitmask of traits for output
+    */
+   template <class outputType>
+   const OutputStreamer & output(const outputType & stream_data, const unsigned int trait_mask = 0) const {
+      // Pick the correct stream and pass the data - output only if requested
+      switch (last_stream_type) {
+      case error_str:
+         actualOutput(*error_stream, stream_data, trait_mask);
+         break;
+      case results_str:
+         if (user_options.toFile())
+            actualOutput(*result_stream, stream_data, trait_mask);
+         if (user_options.toConsole())
+            actualOutput(*console_stream, stream_data, trait_mask);
+         break;
+      case verbose_str:
+         if (user_options.verbose())
+            actualOutput(*verbose_stream, stream_data, trait_mask);
+         break;
+      }
+      return *this;
+   }
 
 private:
    /**

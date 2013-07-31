@@ -19,49 +19,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class that computes feasible parametrizations for each specie from the edge constrains and stores them in a ParametrizationHolder object.
+///
+/// This construction may be optimized by including the warm-start constraint satisfaction.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizationsBuilder {
    static ParamNum color_no; ///< Just for output, the total amount of sub-colors.
    static ParamNum color_tested; ///< Just for output, the current amount of sub-colors tested.
-
-   /**
-    * Test all possible subcolors and saves valid.
-    * @param valid	data storage to save in
-    * @param ID	ID of currently used specie
-    * @param colors_num	how many colors are there together
-    * @param bottom_color	low bound on possible contexts
-    * @param top_color	top bound on possible contexts
-    */
-   static void testColors(const Model & model, const SpecieID ID, const Levels & bottom_color, const Levels & top_color,
-                          ParametrizationsHolder & params, ParametrizationsHolder::SpecieColors & valid) {
-      // Cycle through all possible subcolors for this specie
-      Levels subcolor(bottom_color);
-
-      // Cycle through all colors
-      do {
-         if(user_options.verbose()) {
-            outputProgress() ;
-         }
-         // Test if the parametrization satisfies constraints.
-         if (!testSubparametrization(model, ID, subcolor))
-            continue;
-         valid.push_back(subcolor);
-      } while (iterate(top_color, bottom_color, subcolor));
-
-      if (valid.subcolors.empty())
-         throw runtime_error(string("No valid parametrization found for the specie ").append(toString(ID)));
-
-      // Add computed subcolors
-      params.colors.push_back(valid);
-   }
-
-   /**
-    * @brief outputProgress
-    */
-   static void outputProgress() {
-      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Testing edge constraints on parametrization: " + toString(color_tested++) + "/" + toString(color_no) + ".", trait);
-   }
 
    /**
     * Test specific constrain on given color - this function checks both observability and the edge constrain.
@@ -131,6 +94,46 @@ class ParametrizationsBuilder {
       return true;
    }
 
+
+   /**
+    * Test all possible subcolors and saves valid.
+    * @param valid	data storage to save in
+    * @param ID	ID of currently used specie
+    * @param colors_num	how many colors are there together
+    * @param bottom_color	low bound on possible contexts
+    * @param top_color	top bound on possible contexts
+    */
+   static void testColors(const Model & model, const SpecieID ID, const Levels & bottom_color, const Levels & top_color,
+                          ParametrizationsHolder & params, ParametrizationsHolder::SpecieColors & valid) {
+      // Cycle through all possible subcolors for this specie
+      Levels subcolor(bottom_color);
+
+      // Cycle through all colors
+      do {
+         if(user_options.verbose()) {
+            outputProgress() ;
+         }
+         // Test if the parametrization satisfies constraints.
+         if (!testSubparametrization(model, ID, subcolor))
+            continue;
+         valid.push_back(subcolor);
+      } while (iterate(top_color, bottom_color, subcolor));
+
+      if (valid.subcolors.empty())
+         throw runtime_error(string("No valid parametrization found for the specie ").append(toString(ID)));
+
+      // Add computed subcolors
+      params.colors.push_back(valid);
+   }
+
+   /**
+    * @brief outputProgress
+    */
+   static void outputProgress() {
+      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
+      output_streamer.output(verbose_str, "Testing edge constraints on partiall parametrizations: " + toString(++color_tested) + "/" + toString(color_no) + ".", trait);
+   }
+
    /**
     * For this specie, test all possible subcolors (all valuations of this specie contexts) and store those that satisfy edge labels.
     * @param ID specie used in this round
@@ -166,7 +169,7 @@ public:
          createKinetics(model, ID, params);
 
       if(user_options.verbose())
-         output_streamer.output("");
+         output_streamer.output(verbose_str, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 
       return params;
    }
