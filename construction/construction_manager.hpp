@@ -35,12 +35,9 @@ public:
     * Function that constructs all the data in a cascade of temporal builders.
     */
    void construct() {
-      // Create possible kinetic parameters
-      ParametrizationsHolder parametrizations_holder = ParametrizationsBuilder::buildParametrizations(holder.getModel());
-      holder.fillParametrizations(move(parametrizations_holder));
 
       // Create implicit form of the kinetic parameters used as edge labels
-      LabelingHolder labeling_holder = LabelingBuilder::buildLabeling(holder.getModel(), holder.getParametrizations());
+      LabelingHolder labeling_holder = LabelingBuilder::buildLabeling(holder.getModel());
       holder.fillLabeling(move(labeling_holder));
 
       // Create a simple Kripke structure without parametrization

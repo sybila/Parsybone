@@ -68,8 +68,10 @@ public:
       Levels basals; ///< Basal targets (is no basal value is given, then all).
       SpecTraits traits; ///< Description of the specie in the network.
 
+
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
+      Configurations subcolors; ///< Feasible subcolors of the specie.
    };
 
    vector<ModelSpecie> species; ///< vector of all species of the model
@@ -80,7 +82,7 @@ public:
     * @return	index of specie in the vector
     */
    inline size_t addSpecie(string name, size_t max_value, Levels targets, bool input = false, bool output = false) {
-      species.push_back({name, species.size(), max_value, targets, SpecTraits({input, output}), Regulations(), Parameters()});
+      species.push_back({name, species.size(), max_value, targets, SpecTraits({input, output}), Regulations(), Parameters(), Configurations()});
       return species.size() - 1;
    }
 
@@ -163,18 +165,19 @@ public:
       return species[ID].basals;
    }
 
-   /**
-    * @return	regulations of the specie
-    */
+
    inline const vector<Regulation> & getRegulations(const SpecieID ID) const {
       return species[ID].regulations;
    }
-   /**
-    * @return	kinetic parameters of the regulations of the specie
-    */
+
    inline const vector<Parameter> & getParameters(const SpecieID ID)  const {
       return species[ID].parameters;
    }
+
+   inline const Configurations & getSubcolors(const SpecieID ID)  const {
+      return species[ID].subcolors;
+   }
+
 
    /**
     * @return	unique IDs of regulators of the specie
@@ -220,6 +223,76 @@ public:
       }
 
       return thresholds;
+   }
+
+   /**
+    * This function returns a vector containing target value for a given regulatory contexts for ALL the contexts allowed (in lexicographical order).
+    * @param ID	ID of the specie that is regulated
+    * @param param_num	ordinal number of the kinetic parameter (in a lexicographical order)
+    * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
+    */
+   const vector<size_t> getTargetVals(const SpecieID ID, const size_t param_num) const {
+      //Data to fill
+      vector<size_t> all_target_vals;
+      all_target_vals.reserve(species[ID].subcolors.size());
+
+      // Store values for given regulation
+      for (const auto & subcolor : species[ID].subcolors) {
+         all_target_vals.push_back(subcolor[param_num]);
+      }
+
+      return all_target_vals;
+   }
+
+   inline const vector<size_t> & getColor(const SpecieID ID, const ParamNum color_num) const {
+      return species[ID].subcolors[static_cast<size_t>(color_num)];
+   }
+
+   const string createColorString(ParamNum number) const {
+      // compute numbers of partial parametrizations for each component
+      const vector<ParamNum> color_parts = getSpecieVals(number);
+
+      string color_str = "(";
+      // cycle through the species
+      for (SpecieID ID = 0; ID < species.size(); ID++) {
+         auto color = getColor(ID, color_parts[ID]);
+         // fill partial parametrization of the specie
+         for (auto it = color.begin(); it != color.end(); it++) {
+            color_str += lexical_cast<string, size_t>(*it);
+            color_str += ",";
+         }
+      }
+      // Change the last value
+      *(color_str.end() - 1) = ')';
+
+      return color_str;
+   }
+
+   const vector<ParamNum> getSpecieVals(ParamNum number) const {
+      // Prepare storage vector
+      vector<ParamNum> specie_vals(species.size());
+      auto reverse_val_it = specie_vals.rbegin();
+
+      // Go through colors backwards
+      ParamNum divisor = getSpaceSize();
+      for (auto specie_it = species.rbegin(); specie_it != species.rend(); specie_it++, reverse_val_it++) {
+         // lower divisor value
+         divisor /= specie_it->subcolors.size();
+         // pick a number for current specie
+         *reverse_val_it = (number / divisor);
+         // take the rest for next round
+         number = number % divisor;
+      }
+
+      return specie_vals;
+   }
+
+   ParamNum getSpaceSize() const {
+      ParamNum space_size = 1;
+      for (const ModelSpecie & spec:species) {
+         space_size *= spec.subcolors.size();
+      }
+      return space_size;
    }
 };
 

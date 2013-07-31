@@ -16,24 +16,17 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ColoringAnalyzer {
 	friend class SynthesisManager;
-
-   const ParametrizationsHolder & parametrizations; ///< Reference to actuall explicit parametrizations that are further printed.
+   const Model & model;
 
    map<StateID, Paramset> colorings; ///< Vector that stores individual states after the coloring procedure.
 
 	ParamNum parameter_begin; ///< Ordinal number of the first parametrization in this round.
 	ParamNum parameter_end; ///< Ordinal number of the last parametrization used in this round.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   ColoringAnalyzer(const ColoringAnalyzer & other); ///< Forbidden copy constructor.
-	ColoringAnalyzer& operator=(const ColoringAnalyzer & other); ///< Forbidden assignment operator.
-
 	/**
     * Just past the reference and null variables.
 	 */
-	ColoringAnalyzer(const ConstructionHolder & holder) : parametrizations(holder.getParametrizations())  {
+   ColoringAnalyzer(const Model & _model) : model(_model)  {
 		parameter_begin = parameter_end = 0;
 	} 
 
@@ -104,7 +97,7 @@ class ColoringAnalyzer {
 		for (ParamNum col_num = parameter_begin; col_num < parameter_end; col_num++) {
 			// Output current values
 			if (result_parameters & color_mask)
-				strings.push_back(parametrizations.createColorString(col_num));
+            strings.push_back(model.createColorString(col_num));
 
 			// Move the mask
 			color_mask >>= 1;

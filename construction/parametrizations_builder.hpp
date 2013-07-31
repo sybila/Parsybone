@@ -14,7 +14,6 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../parsing/model.hpp"
-#include "parametrizations_holder.hpp"
 #include "parametrizations_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,27 +101,22 @@ class ParametrizationsBuilder {
     * @param bottom_color	low bound on possible contexts
     * @param top_color	top bound on possible contexts
     */
-   static void testColors(const Model & model, const SpecieID ID, const Levels & bottom_color, const Levels & top_color,
-                          ParametrizationsHolder & params, ParametrizationsHolder::SpecieColors & valid) {
+   static void testColors(Model & model, const SpecieID ID, const Levels & bottom_color, const Levels & top_color) {
       // Cycle through all possible subcolors for this specie
       Levels subcolor(bottom_color);
 
       // Cycle through all colors
       do {
-         if(user_options.verbose()) {
-            outputProgress() ;
-         }
+         if(user_options.verbose())
+            outputProgress();
          // Test if the parametrization satisfies constraints.
          if (!testSubparametrization(model, ID, subcolor))
             continue;
-         valid.push_back(subcolor);
+         model.species[ID].subcolors.push_back(subcolor);
       } while (iterate(top_color, bottom_color, subcolor));
 
-      if (valid.subcolors.empty())
+      if (model.species[ID].subcolors.empty())
          throw runtime_error(string("No valid parametrization found for the specie ").append(toString(ID)));
-
-      // Add computed subcolors
-      params.colors.push_back(valid);
    }
 
    /**
@@ -136,27 +130,23 @@ class ParametrizationsBuilder {
     * For this specie, test all possible subcolors (all valuations of this specie contexts) and store those that satisfy edge labels.
     * @param ID specie used in this round
     */
-   static void createKinetics(const Model & model, const SpecieID ID, ParametrizationsHolder & params) {
+   static void createKinetics(Model & model, const SpecieID ID) {
       // Data to fill
-      ParametrizationsHolder::SpecieColors valid;
-      valid.ID = ID;
 
       // Create boundaries for iteration
       vector<size_t> bottom_color, top_color;
       ParametrizationsHelper::getBoundaries(model.getParameters(ID), bottom_color, top_color);
-      valid.possible_count = ParametrizationsHelper::getPossibleCount(model.getParameters(ID));
+      // model.species[ID].possible_count = ParametrizationsHelper::getPossibleCount(model.getParameters(ID));
 
       // Test all the subcolors and save feasible
-      testColors(model, ID, bottom_color, top_color, params, valid);
+      testColors(model, ID, bottom_color, top_color);
    }
 
 public:
    /**
     * Entry function of parsing, tests and stores subcolors for all the species.
     */
-   static ParametrizationsHolder buildParametrizations(const Model & model) {
-      ParametrizationsHolder params;
-
+   static void buildParametrizations(Model & model) {
       color_tested = 0;
       color_no = 0;
       for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++)
@@ -164,12 +154,10 @@ public:
 
       // Cycle through species
       for (SpecieID ID = 0; ID < model.getSpeciesCount(); ID++)
-         createKinetics(model, ID, params);
+         createKinetics(model, ID);
 
       if(user_options.verbose())
          output_streamer.output(verbose_str, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
-
-      return params;
    }
 };
 ParamNum ParametrizationsBuilder::color_tested;

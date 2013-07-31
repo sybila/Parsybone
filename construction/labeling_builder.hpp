@@ -24,7 +24,7 @@ class LabelingBuilder {
     * @param ID	ID of the specie to compute the kinetic parameters for
     * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
     */
-   static void addRegulations(const Model & model, const ParametrizationsHolder & params, const SpecieID t_ID, ParamNum & step_size,  LabelingHolder & holder) {
+   static void addRegulations(const Model & model, const SpecieID t_ID, ParamNum & step_size,  LabelingHolder & holder) {
       // get referecnces to Specie data
       const auto & tparams = model.getParameters(t_ID);
 
@@ -37,7 +37,7 @@ class LabelingBuilder {
          }
 
          // Add target values (if input negative, add all possibilities), if positive, add current requested value
-         auto possible_values = params.getTargetVals(t_ID, param_num);
+         auto possible_values = model.getTargetVals(t_ID, param_num);
 
          // pass the function to the holder.
          holder.addRegulatoryFunction(t_ID, step_size, possible_values, source_values);
@@ -45,17 +45,18 @@ class LabelingBuilder {
 
       // Display stats
       output_streamer.output(verbose_str, "Specie " + model.getName(t_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
-                             + toString(params.getColorsNum(t_ID)) + " possible parametrizations out of " + toString(params.getAllColorsNum(t_ID)) + ".");
+                             + toString(model.getSubcolors(t_ID).size()) + " possible parametrizations out of "
+                             + toString(ParametrizationsHelper::getPossibleCount(model.getParameters(t_ID)) + "."));
 
       // Increase step size for the next function
-      step_size *= params.getColorsNum(t_ID);
+      step_size *= model.getSubcolors(t_ID).size();
    }
 
 public:
 	/**
 	 * For each specie recreate all its regulatory functions (all possible labels)
 	 */
-   static LabelingHolder buildLabeling(const Model & model, const ParametrizationsHolder & params) {
+   static LabelingHolder buildLabeling(const Model & model) {
       LabelingHolder holder;
 
 		ParamNum step_size = 1; // Variable necessary for encoding of colors
@@ -66,7 +67,7 @@ public:
          holder.addSpecie(model.getName(ID), ID, model.getRegulatorsIDs(ID));
 			
 			// Add regulations for this specie
-         addRegulations(model, params, ID, step_size, holder);
+         addRegulations(model, ID, step_size, holder);
 		}
 
 		// Set the number by what would be step size for next function

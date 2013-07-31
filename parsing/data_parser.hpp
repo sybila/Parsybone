@@ -16,6 +16,7 @@
 #include "parameter_parser.hpp"
 #include "parameter_reader.hpp"
 #include "regulation_helper.hpp"
+#include "../construction/parametrizations_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Starting point of the model parsing.
@@ -84,6 +85,8 @@ public:
       ParameterHelper::fillParameters(model);
       // Replace explicitly defined parameters.
       ParameterReader::computeParams(specs, model);
+
+      ParametrizationsBuilder::buildParametrizations(model);
    }
 
 	/**
