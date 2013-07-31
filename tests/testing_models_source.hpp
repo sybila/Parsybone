@@ -34,7 +34,7 @@ protected:
         basic_model.addRegulation(0, 0, 1, "-");
         basic_model.addRegulation(1, 0, 1, "-");
         basic_model.addRegulation(1, 0, 3, "- | +");
-        ParameterHelper::fillActivationLevels(basic_model);
+        RegulationHelper::fillActivationLevels(basic_model);
         ParameterHelper::fillParameters(basic_model);
     }
 };

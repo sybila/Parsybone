@@ -27,45 +27,6 @@ public:
       return true;
    }
 
-
-   /**
-    * @brief resolveLabel  Return true if the label (edge constrain) of the regulation is satisfied, false otherwise. All labels can be resolved based only on whether mon+ and mon- are true.
-    * @param	activating	true if the parametrization satisfies +
-    * @param	inhibiting	true if the parametrization satisfies -
-    * @param	label	canonical form of edge label given as a string
-    * @return	true if the edge constrain is satisfied
-    */
-   static bool resolveLabel(const bool & activating, const bool & inhibiting, const string label) {
-      // Fill the atomic propositions
-      FormulaeResolver::Vals values;
-      values.insert(FormulaeResolver::Val("+", activating));
-      values.insert(FormulaeResolver::Val("-", inhibiting));
-
-      string formula;
-
-      // Find the constrain and return its valuation
-      if (label.compare(Label::Activating) == 0)
-         formula = "+";
-      else if (label.compare(Label::ActivatingOnly) == 0)
-         formula = "(+ & !-)";
-      else if (label.compare(Label::Inhibiting) == 0)
-         formula = "-";
-      else if (label.compare(Label::InhibitingOnly) == 0)
-         formula = "(- & !+)";
-      else if (label.compare(Label::NotActivating) == 0)
-         formula = "!+";
-      else if (label.compare(Label::NotInhibiting) == 0)
-         formula = "!-";
-      else if (label.compare(Label::Observable) == 0)
-         formula = "(+ | -)";
-      else if (label.compare(Label::NotObservable) == 0)
-         formula = "!(+ | -)";
-      else
-         formula = label;
-
-      return (FormulaeResolver::resolve(values, formula));
-   }
-
    /**
     * Compute and store boundaries on possible context values - used for iterations.
     */
@@ -84,6 +45,24 @@ public:
       for (auto param:params)
          colors_num *= param.targets.size();
       return colors_num;
+   }
+
+   /**
+    * @brief fitsConditions
+    * @param sat conditions set by a regulation.
+    */
+   static bool fitsConditions(const Model::Satisfaction & sat, const bool activating, const bool inhibiting) {
+      size_t comb_type = static_cast<size_t>(activating) + 2*static_cast<size_t>(inhibiting);
+      switch (comb_type) {
+      case 0:
+         return sat.none;
+      case 1:
+         return sat.activ;
+      case 2:
+         return sat.inhib;
+      case 3:
+         return sat.both;
+      }
    }
 };
 

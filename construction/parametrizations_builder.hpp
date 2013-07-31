@@ -21,8 +21,8 @@
 /// \brief Class that computes feasible parametrizations for each specie from the edge constrains and stores them in a ParametrizationHolder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizationsBuilder {
-   static ParamNum color_no;
-   static ParamNum color_tested;
+   static ParamNum color_no; ///< Just for output, the total amount of sub-colors.
+   static ParamNum color_tested; ///< Just for output, the current amount of sub-colors tested.
 
    /**
     * Test all possible subcolors and saves valid.
@@ -110,7 +110,7 @@ class ParametrizationsBuilder {
       const auto & parameters = model.getParameters(ID);
 
       // Cycle through all species's regulators
-      for (auto regul:regulations) {
+      for (const Model::Regulation & regul:regulations) {
          // Skip if there are no requirements (free label)
          if (regul.label.compare(Label::Free) == 0)
             continue;
@@ -123,7 +123,7 @@ class ParametrizationsBuilder {
          }
 
          // Test obtained knowledge agains the label itself - return false if the label is not satisfied
-         if (!ParametrizationsHelper::resolveLabel(activating, inhibiting, regul.label))
+         if (!ParametrizationsHelper::fitsConditions(regul.satisf, activating, inhibiting))
             return false;
       }
 

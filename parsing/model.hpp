@@ -32,12 +32,19 @@ public:
    } restrictions;
 
    /// Structure that stores regulation of a specie by another one
+   struct Satisfaction {
+      bool none;
+      bool activ;
+      bool inhib;
+      bool both;
+   };
    struct Regulation {
       StateID source; ///< Regulator specie ID.
       ActLevel threshold; ///< Level of the regulator required for the regulation to be active.
       string name; ///< Name of the regulator.
       Levels activity; ///< Source levels of the regulator.
       string label; ///< A behavioural constrain on this edge.
+      Satisfaction satisf; ///< What constraints must be satisfied by parameterization enforced by this edge.
    };
    typedef vector<Regulation> Regulations;
 
@@ -53,7 +60,6 @@ public:
       bool input;
       bool output;
    };
-
    /// Structure that holds data about a single specie. Most of the data is equal to that in the model file.
    struct ModelSpecie {
       string name; ///< Actuall name of the specie.
@@ -68,9 +74,6 @@ public:
 
    vector<ModelSpecie> species; ///< vector of all species of the model
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // FILLING METHODS (can be used only from a ModelParser)
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Create a new specie with the provided name, basal and maximal value.
     *
@@ -86,7 +89,7 @@ public:
     */
    inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label) {
       string name = species[source_ID].name + ":" + toString(threshold);
-      species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label});
+      species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label, Satisfaction()});
    }
 
    inline void setParameters(const SpecieID target_ID, const vector<Parameter> & parameters) {

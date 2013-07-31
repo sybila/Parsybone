@@ -3,6 +3,7 @@
 
 #include "testing_models_source.hpp"
 #include "../parsing/parameter_reader.hpp"
+#include "../parsing/regulation_helper.hpp"
 
 /// Test various functions the model class posseses.
 TEST_F(ModelsTest, ModelFunctions) {
@@ -45,8 +46,8 @@ TEST_F(ModelsTest, ParametrizationExtremal) {
    extreme_model.addSpecie("cA", 1, range(2u));
    extreme_model.addRegulation(0, 0, 1, "");
    extreme_model.restrictions.force_extremes = true;
-   ParameterHelper::fillActivationLevels(extreme_model);
-   ParameterHelper::fillParameters(extreme_model);
+   RegulationHelper::fillActivationLevels(extreme_model);
+   RegulationHelper::fillParameters(extreme_model);
    ParameterParser::ParameterSpecifications specs;
    specs.param_specs.resize(1);
 

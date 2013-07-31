@@ -15,6 +15,7 @@
 #include "time_series_parser.hpp"
 #include "parameter_parser.hpp"
 #include "parameter_reader.hpp"
+#include "regulation_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Starting point of the model parsing.
@@ -85,7 +86,9 @@ public:
       NetworkParser::parseNetwork(model_node, model);
       NetworkParser::parseConstraints(model_node, model);
       // Add levels to the regulations.
-      ParameterHelper::fillActivationLevels(model);
+      RegulationHelper::fillActivationLevels(model);
+      // Set conditions on the edges.
+      RegulationHelper::setConditions(model);
       // Compute parameter values.
       ParameterHelper::fillParameters(model);
       // Replace explicitly defined parameters.
