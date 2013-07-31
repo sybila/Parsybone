@@ -121,7 +121,7 @@ namespace ModelTranslators {
 
       string color_str = "(";
       // cycle through the species
-      for (SpecieID ID = 0; ID < model.species.size(); ID++) {
+      for (const SpecieID ID : scope(model.species)) {
          auto color = model.species[ID].subcolors[color_parts[ID]];
          // fill partial parametrization of the specie
          for (auto it = color.begin(); it != color.end(); it++) {

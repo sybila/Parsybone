@@ -29,7 +29,7 @@ class LabelingBuilder {
       const auto & tparams = model.getParameters(t_ID);
 
       // Go through regulations of a specie - each represents a single function
-      for (auto param_num:range(tparams.size())) {
+      for (auto param_num:scope(tparams)) {
          Configurations source_values;
          // Compute allowed values for each regulating specie for this function to be active
          for (auto source_num:tparams[param_num].requirements) {

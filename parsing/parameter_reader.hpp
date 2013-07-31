@@ -94,7 +94,7 @@ class ParameterReader {
    }
 
 public:
-   /**
+   /** TODO: replace in the parameters directly.
     * @brief computeParams Constraints parameter values based on explicit specifications given by the user.
     * @attention  this will not apply edge constraints.
     *
@@ -114,7 +114,7 @@ public:
          replaceExplicit(model, parameters, specs.param_specs[ID].k_pars, ID);
 
          // Add newly created parameters.
-         model.setParameters(ID, parameters);
+         model.species[ID].parameters = parameters;
       }
    }
 };

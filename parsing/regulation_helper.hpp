@@ -99,7 +99,7 @@ public:
             // Create the maximum based on whethter this is the last threshold or not.
             ActLevel end = (th_it == thresholds.end()) ? model.getMax(regul.source) + 1 : *th_it;
 
-            model.addActivityLevels(regul.source, ID, range(begin, end));
+            regul.activity = range(begin, end);
          }
       }
    }

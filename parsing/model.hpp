@@ -53,6 +53,9 @@ public:
       string context; ///< String name of the context of regulators.
       map<StateID, Levels> requirements; ///< Levels of the source species.
       Levels targets; ///< Towards which level this context may regulate.
+
+      ParamNum step_size; ///< How many neighbour parameters have the same value for this function.
+      Levels possible_values; ///< Levels towards which this function regulates based on current subcolor.
    };
    typedef vector<Parameter> Parameters;
 
@@ -67,7 +70,6 @@ public:
       ActLevel max_value; ///< Maximal activation level of the specie.
       Levels basals; ///< Basal targets (is no basal value is given, then all).
       SpecTraits traits; ///< Description of the specie in the network.
-
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
@@ -94,20 +96,13 @@ public:
       species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label, Satisfaction()});
    }
 
-   inline void setParameters(const SpecieID target_ID, const vector<Parameter> & parameters) {
-      species[target_ID].parameters = parameters;
+   inline void addParameter(const SpecieID ID, string context, map<StateID, Levels> requirements, Levels targets) {
+      species[ID].parameters.push_back({context, requirements, targets, 0, Levels()});
    }
 
-   /**
-    * For a regulation add levels where it is
-    */
-   inline void addActivityLevels(const SpecieID source, const SpecieID target, const Levels & levels) {
-      if (levels.empty())
-         throw runtime_error("Trying to assign empty levels to the regulation of " + toString(target) + " from the specie " + toString(source));
-
-      for (auto & reg:species[target].regulations)
-         if (reg.source == source && reg.threshold == levels[0])
-            reg.activity = levels;
+   inline void addKineticFunction(const size_t target_ID, const size_t param_ID, const size_t step_size, const Levels & possible_values) {
+      species[target_ID].parameters[param_ID].step_size = step_size;
+      species[target_ID].parameters[param_ID].possible_values = possible_values;
    }
 
    inline const string & getName(const SpecieID ID) const {

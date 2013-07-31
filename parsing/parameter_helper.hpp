@@ -55,9 +55,10 @@ class ParameterHelper {
     * @brief getSingleParam creates a parameter for a single context.
     * @return
     */
-   static Model::Parameter getSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const SpecieID t_ID, const size_t autoreg_ID) {
+   static void addSingleParam(Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const SpecieID t_ID, const size_t autoreg_ID) {
       // Empty data to fill.
-      Model::Parameter parameter = {"", map<StateID, Levels>(), Levels()};
+      string context;
+      map<StateID, Levels> requirements;
 
       // Loop over all the sources.
       for (auto source_num:range(thrs_comb.size())) {
@@ -73,19 +74,15 @@ class ParameterHelper {
          string regulation_name = source_name + ":" + toString(threshold);
 
          // Add the regulation to the source
-         parameter.context += regulation_name + ",";
+         context += regulation_name + ",";
 
          // Find in which levels the specie must be for the regulation to occur.
          ActLevel next_th = (thrs_comb[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[thrs_comb[source_num]];
          Levels activity_levels = range(threshold, next_th);
-         parameter.requirements.insert(make_pair(source_ID, activity_levels));
+         requirements.insert(make_pair(source_ID, activity_levels));
       }
 
-      parameter.targets = getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID);
-
-      // Remove the last comma and return.
-      parameter.context = parameter.context.substr(0, parameter.context.length() - 1);
-      return parameter;
+      model.addParameter(t_ID, move(context.substr(0, context.length() - 1)), move(requirements), move(getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID)));
    }
 
 public:
@@ -112,10 +109,9 @@ public:
    /**
     * @brief createParameters Creates a description of kinetic parameters.
     */
-   static Model::Parameters createParameters(const Model & model, const SpecieID t_ID) {
+   static void createParameters(Model & model, const SpecieID t_ID) {
       auto all_thrs = ModelTranslators::getThresholds(model, t_ID);
       Levels bottom, thrs_comb, top;
-      Model::Parameters parameters;
       size_t autoreg = INF;
 
       // These containers hold number of thresholds per regulator.
@@ -129,10 +125,8 @@ public:
 
       // Loop over all the contexts.
       do {
-         parameters.push_back(getSingleParam(model, all_thrs, thrs_comb, t_ID, autoreg));
+         addSingleParam(model, all_thrs, thrs_comb, t_ID, autoreg);
       } while(iterate(top, bottom, thrs_comb));
-
-      return parameters;
    }
 
    /**
@@ -140,8 +134,7 @@ public:
     */
    static void fillParameters(Model & model) {
       for (const SpecieID ID : range(model.species.size())) {
-         auto params = createParameters(model, ID);
-         model.setParameters(ID, params);
+         createParameters(model, ID);
       }
    }
 };
