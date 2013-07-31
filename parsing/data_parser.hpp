@@ -105,34 +105,29 @@ public:
       return model;
    }
 
-   PropertyAutomaton parseProperty(ifstream * input_stream) {
+   vector<PropertyAutomaton> parseProperties(ifstream * input_stream) {
       createDocument(input_stream);
       auto model_node = initiateParsing();
 
-      PropertyAutomaton property("A1");
+      vector<PropertyAutomaton> properties;
 
-      // Find property tag and control its uniqueness
-      if (model_node->first_node("AUTOMATON")) {
-         AutomatonParser automaton_parser;
-         property = automaton_parser.parse(model_node);
-         if ((model_node->first_node("AUTOMATON"))->next_sibling("AUTOMATON") || model_node->first_node("SERIES"))
-            throw invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
-         if (user_options.analysis())
-            throw invalid_argument("Advancet analysis methods not available for the general LTL propery, wrong usage of argument -r, -w or -W");
+      AutomatonParser automaton_parser;
+      TimeSeriesParser series_parser;
+
+      for (rapidxml::xml_node<> * automaton = XMLHelper::getChildNode(model_node, "AUTOMATON", false); automaton; automaton = automaton->next_sibling("AUTOMATON") ) {
+         properties.push_back(automaton_parser.parse(automaton, "Automaton" + toString(properties.size())));
       }
-      else if (model_node->first_node("SERIES")) {
-         TimeSeriesParser series_parser;
-         property = series_parser.parse(model_node);
-         if ((model_node->first_node("SERIES"))->next_sibling("SERIES") || model_node->first_node("AUTOMATON"))
-            throw invalid_argument("Multiple occurences of property specification (AUTOMATON or SERIES tag)");
+      for (rapidxml::xml_node<> * series = XMLHelper::getChildNode(model_node, "SERIES", false); series; series = series->next_sibling("SERIES") ) {
+         properties.push_back(series_parser.parse(series, "Automaton" + toString(properties.size())));
          user_options.time_series = true;
       }
-      else
-         throw invalid_argument("AUTOMATON or SERIES tag missing - no property to be tested found");
+
+      if (properties.empty())
+         throw runtime_error("No properties in the given file.");
 
       input_stream->clear();
       input_stream->seekg(0, ios::beg);
-      return property;
+      return properties;
    }
 };
 

@@ -36,6 +36,8 @@ class RegulationHelper {
          formula = "(+ | -)";
       else if (label.compare(Label::NotObservable) == 0)
          formula = "!(+ | -)";
+      else if (label.compare(Label::Free) == 0)
+         formula = "tt";
       else
          formula = label;
 

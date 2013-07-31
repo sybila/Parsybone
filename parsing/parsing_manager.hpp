@@ -70,7 +70,7 @@ public:
       DataParser data_parser;
       model = data_parser.parseNetwork(&model_stream);
       // Currently reads property from the model file.
-      properties.push_back(data_parser.parseProperty(&model_stream));
+      properties = data_parser.parseProperties(&model_stream);
    }
 };
 

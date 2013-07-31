@@ -85,13 +85,13 @@ public:
 	/**
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.
 	 */
-   PropertyAutomaton parse(const rapidxml::xml_node<> * const model_node) {
-      PropertyAutomaton automaton("Buchi");
+   PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node, string name) {
+      PropertyAutomaton automaton(name);
 
 		// Parse states
-      firstParse(XMLHelper::getChildNode(model_node, "AUTOMATON"), automaton);
+      firstParse(automaton_node, automaton);
       // Parse edges for the states from the previous parse
-      secondParse(XMLHelper::getChildNode(model_node, "AUTOMATON"), automaton);
+      secondParse(automaton_node, automaton);
 
       return automaton;
 	}
