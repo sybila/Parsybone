@@ -18,17 +18,11 @@
 /// ConstructionManager overviews the whole process of construction of structures from information contained within a model file.
 /// All the objects constructed are stored within a provided CostructionHolder and further acessible only via constant getters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ConstructionManager {
-   ConstructionHolder & holder; ///< Reference to the object that will finally contain all the constructed objects.
-
-   ConstructionManager(const ConstructionManager & other); ///< Forbidden copy constructor.
-   ConstructionManager& operator=(const ConstructionManager & other); ///< Forbidden assignment operator.
-
-public:
+namespace ConstructionManager {
    /**
     * @brief computeModelProps
     */
-   static void computeModelProps(Model & model) {
+   void computeModelProps(Model & model) {
       // Add levels to the regulations.
       RegulationHelper::fillActivationLevels(model);
       // Set conditions on the edges.
@@ -43,28 +37,28 @@ public:
       LabelingBuilder::buildLabeling(model);
    }
 
-   ConstructionManager(ConstructionHolder & _holder) : holder(_holder) { }
-
    /**
     * Function that constructs all the data in a cascade of temporal builders.
     */
-   void construct() {
+   ConstructionHolder construct(const Model & model, const vector<PropertyAutomaton> & properties) {
+      ConstructionHolder holder;
+
       // Create a simple Kripke structure without parametrization
       BasicStructure * basic_structure = new BasicStructure; // Kripke structure built from the network
-      BasicStructureBuilder basic_structure_builder(holder.getModel(), *basic_structure);
+      BasicStructureBuilder basic_structure_builder(model, *basic_structure);
       basic_structure_builder.buildStructure();
       holder.fillBasicStructure(basic_structure);
 
       // Create the UKS
       UnparametrizedStructure * unparametrized_structure = new UnparametrizedStructure; // Kripke structure that has transitions labelled with functions
-      UnparametrizedStructureBuilder unparametrized_structure_builder(holder.getModel(), holder.getBasicStructure(), *unparametrized_structure);
+      UnparametrizedStructureBuilder unparametrized_structure_builder(model, holder.getBasicStructure(), *unparametrized_structure);
       unparametrized_structure_builder.buildStructure();
       holder.fillUnparametrizedStructure(unparametrized_structure);
 
       // Create the Buchi automaton
-      AutomatonBuilder automaton_builder(holder.getModel());
-      for (size_t i : range(holder.getPropertyCount())) {
-         holder.fillAutomaton(automaton_builder.buildAutomaton(holder.getProperty(i)));
+      AutomatonBuilder automaton_builder(model);
+      for (size_t i : scope(properties)) {
+         holder.fillAutomaton(automaton_builder.buildAutomaton(properties[i]));
       }
 
       // Create the product
@@ -73,8 +67,10 @@ public:
       ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(0), *product_structure);
       product_builder.buildProduct();
       holder.fillProduct(product_structure);
+
+      return holder;
    }
-};
+}
 
 
 #endif // PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED

@@ -21,7 +21,6 @@
 class UserOptions {
    friend class ArgumentParser;
    friend class DataParser;
-   friend class ParsingManager;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // OPTIONS
@@ -51,6 +50,7 @@ class UserOptions {
    UserOptions(const UserOptions & other); ///< Forbidden copy constructor.
    UserOptions& operator=(const UserOptions & other); ///< Forbidden assignment operator.
 
+public:
    /**
     * @brief addDefaultFiles    Create default file names where there are none explicitly specified.
     */
@@ -65,7 +65,6 @@ class UserOptions {
          out_mask_file = model_path + model_name + MASK_SUFFIX;
    }
 
-public:
    /**
     * Constructor, sets up default values.
     */
@@ -76,107 +75,78 @@ public:
       model_name = "";
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTANT GETTERS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   /**
-    * @return	true if compute_robustness (robustness output is requested)
-    */
    inline bool robustness() const {
       return compute_robustness;
    }
-
-   /**
-    * @return	true if witnesses are to be computed
-    */
    inline bool witnesses() const {
       return compute_wintess;
    }
 
-   /**
-    * @return	true if additional analysis will be computed (witnesses/robustness)
-    */
    inline bool analysis() const {
       return (compute_robustness | compute_wintess);
    }
 
-   /**
-    * @return	true if use_long_witnesses is set (display state levels instead of just a number)
-    */
    inline bool longWit() const {
       return use_long_witnesses;
    }
 
-   /**
-    * @return	true if verbose is set (displaying additional information during computation)
-    */
    inline bool verbose() const {
       return be_verbose;
    }
 
    /**
-    * @return	true if property is a time series\
-    *
     * TODO: mixing time series with automata currently impossible
     */
    inline bool timeSeries() const {
       return time_series;
    }
 
-   /**
-    * @return	number of this process in distributed computation (indexed from 1)
-    */
    inline size_t procNum() const {
       return process_number;
    }
 
-   /**
-    * @return	total number of processes in distributed computation
-    */
    inline size_t procCount() const {
       return processes_count;
    }
 
-   /**
-    * @return  name of the model being used
-    */
    inline string modelName() const {
       return model_name;
    }
 
-   /**
-    * @return  true if results are sent on-screen;
-    */
    inline bool toConsole() const {
       return output_console;
    }
 
-   /**
-    * @return  true if results are sent on-screen;
-    */
    inline bool toFile() const {
       return use_textfile;
    }
 
-   /**
-    * @return  true if results are sent on-screen;
-    */
    inline bool toDatabase() const {
       return use_database;
    }
 
-   /**
-    * @return	true if the input mask was provided
-    */
    inline size_t inputMask() const {
       return use_in_mask;
    }
 
-   /**
-    * @return	true if the mask of computation should be printed
-    */
    inline size_t outputMask() const {
       return use_out_mask;
+   }
+
+   inline const string & inMaskFile() const {
+      return in_mask_file;
+   }
+
+   inline const string & outMaskFile() const {
+      return out_mask_file;
+   }
+
+   inline const string & textFile() const {
+      return datatext_file;
+   }
+
+   inline const string & dataFile() const {
+      return database_file;
    }
 } user_options; ///< Single program-shared user options object.
 

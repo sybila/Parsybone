@@ -29,6 +29,8 @@ using namespace std;
  */
 int main(int argc, char* argv[]) {
    time_manager.startClock("* Runtime", false);
+   Model model;
+   vector<PropertyAutomaton> properties;
    ConstructionHolder holder; ///< Object that will hold all the constructed data structures that are used as reference.
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,14 +38,7 @@ int main(int argc, char* argv[]) {
    // Parse input information.
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    try {
-      Model model;
-      vector<PropertyAutomaton> properties;
-      ParsingManager parsing_manager(argc, argv);
-      parsing_manager.parse(model, properties);
-      // Pass the model
-      ConstructionManager::computeModelProps(model);
-      holder.fillModel(move(model));
-      holder.fillProperties(move(properties));
+      ParsingManager::parse(argc, argv, model, properties);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
@@ -55,8 +50,11 @@ int main(int argc, char* argv[]) {
    // Construct data structures that correspond to formal verification structures.
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    try {
-      ConstructionManager construction_manager(holder);
-      construction_manager.construct();
+      // Pass the model
+      ConstructionManager::computeModelProps(model);
+      holder = ConstructionManager::construct(model, properties);
+      holder.fillModel(move(model));
+      holder.fillProperties(move(properties));
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while constructing data structures: \"").append(e.what()).append("\"."));

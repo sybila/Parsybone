@@ -25,8 +25,6 @@
 ///   -# get* this method returns a constant reference to a requested object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstructionHolder {
-    friend class ConstructionManager;
-
     vector<AutomatonStructure> automata;
     unique_ptr<BasicStructure> basic;
     vector<PropertyAutomaton> properties;
@@ -34,9 +32,6 @@ class ConstructionHolder {
     unique_ptr<UnparametrizedStructure> structure;
     unique_ptr<ProductStructure> product;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // FILLERS:
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
     void fillModel(Model _model) {
         model = move(_model);
@@ -46,7 +41,6 @@ public:
         this->properties = move(properties);
     }
 
-private:
     void fillAutomaton(const AutomatonStructure & automaton) {
         automata.push_back(automaton);
     }
@@ -63,17 +57,7 @@ private:
         product.reset(_product);
     }
 
-
-    ConstructionHolder(const ConstructionHolder & other); ///< Forbidden copy constructor.
-    ConstructionHolder& operator=(const ConstructionHolder & other); ///< Forbidden assignment operator.
-
-public:
-    ConstructionHolder() {} ///< Default (empty) constructor.
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // CONSTANT GETTERS:
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    size_t getAutomataCOunt() const {
+    size_t getAutomataCount() const {
         return automata.size();
     }
 
@@ -101,7 +85,7 @@ public:
         return properties.size();
     }
 
-    const PropertyAutomaton getProperty(const size_t ID) const {
+    const PropertyAutomaton & getProperty(const size_t ID) const {
         return properties[ID];
     }
 };
