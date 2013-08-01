@@ -13,67 +13,72 @@
 
 #include "../parsing/model_translators.hpp"
 #include "parametrizations_builder.hpp"
-#include "labeling_holder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Creates a labeled graph representation of gene regulatory network and stores it within a LabelingHolder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LabelingBuilder {
    /**
+    * This function returns a vector containing target value for a given regulatory contexts for ALL the contexts allowed (in lexicographical order).
+    * @param ID	ID of the specie that is regulated
+    * @param param_num	ordinal number of the kinetic parameter (in a lexicographical order)
+    * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
+    */
+   static vector<size_t> getTargetVals(const Model & model, const SpecieID ID, const size_t param_num) {
+      //Data to fill
+      vector<size_t> all_target_vals;
+      all_target_vals.reserve(model.species[ID].subcolors.size());
+
+      // Store values for given regulation
+      for (const auto & subcolor : model.species[ID].subcolors) {
+         all_target_vals.push_back(subcolor[param_num]);
+      }
+
+      return all_target_vals;
+   }
+
+   /**
     * Creates the kinetic parameters in explicit form from the model information. All feasible parameters for the specie are then stored in the FunctionsStructure.
     * @param ID	ID of the specie to compute the kinetic parameters for
     * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
     */
-   static void addRegulations(const Model & model, const SpecieID t_ID, ParamNum & step_size,  LabelingHolder & holder) {
+   static void addRegulations(Model & model, const SpecieID ID, ParamNum & step_size) {
       // get referecnces to Specie data
-      const auto & tparams = model.getParameters(t_ID);
+      vector<Model::Parameter> & params = model.species[ID].parameters;
 
       // Go through regulations of a specie - each represents a single function
-      for (auto param_num:scope(tparams)) {
+      for (auto param_no:scope(params)) {
          Configurations source_values;
          // Compute allowed values for each regulating specie for this function to be active
-         for (auto source_num:tparams[param_num].requirements) {
+         for (auto source_num:params[param_no].requirements) {
             source_values.push_back(source_num.second);
          }
 
          // Add target values (if input negative, add all possibilities), if positive, add current requested value
-         auto possible_values = ModelTranslators::getTargetVals(model, t_ID, param_num);
-
-         // pass the function to the holder.
-         holder.addRegulatoryFunction(t_ID, step_size, possible_values, source_values);
+         params[param_no].possible_values = getTargetVals(model, ID, param_no);
+         params[param_no].step_size = step_size;
       }
 
       // Display stats
-      output_streamer.output(verbose_str, "Specie " + model.getName(t_ID) + " has " + toString(tparams.size()) + " regulatory contexts with "
-                             + toString(model.getSubcolors(t_ID).size()) + " possible parametrizations out of "
-                             + toString(ParametrizationsHelper::getPossibleCount(model.getParameters(t_ID)) + "."));
+      output_streamer.output(verbose_str, "Specie " + model.getName(ID) + " has " + toString(params.size()) + " regulatory contexts with "
+                             + toString(model.getSubcolors(ID).size()) + " possible parametrizations out of "
+                             + toString(ParametrizationsHelper::getPossibleCount(model.getParameters(ID)) + "."));
 
       // Increase step size for the next function
-      step_size *= model.getSubcolors(t_ID).size();
+      step_size *= model.getSubcolors(ID).size();
    }
 
 public:
 	/**
 	 * For each specie recreate all its regulatory functions (all possible labels)
 	 */
-   static LabelingHolder buildLabeling(const Model & model) {
-      LabelingHolder holder;
-
+   static void buildLabeling(Model & model) {
 		ParamNum step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through all the species
       for (auto ID:range(model.species.size())) {
-			// Add specie
-         holder.addSpecie(model.getName(ID), ID, ModelTranslators::getRegulatorsIDs(model, ID));
-			
-			// Add regulations for this specie
-         addRegulations(model, ID, step_size, holder);
+         addRegulations(model, ID, step_size);
 		}
-
-		// Set the number by what would be step size for next function
-      holder.parameter_count = step_size;
-
-      return holder;
 	}
 };
 #endif // PARSYBONE_LABELING_BUILDER_INCLUDED

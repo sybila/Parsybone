@@ -94,25 +94,6 @@ namespace ModelTranslators {
    }
 
    /**
-    * This function returns a vector containing target value for a given regulatory contexts for ALL the contexts allowed (in lexicographical order).
-    * @param ID	ID of the specie that is regulated
-    * @param param_num	ordinal number of the kinetic parameter (in a lexicographical order)
-    * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
-    */
-   const vector<size_t> getTargetVals(const Model & model, const SpecieID ID, const size_t param_num) {
-      //Data to fill
-      vector<size_t> all_target_vals;
-      all_target_vals.reserve(model.species[ID].subcolors.size());
-
-      // Store values for given regulation
-      for (const auto & subcolor : model.species[ID].subcolors) {
-         all_target_vals.push_back(subcolor[param_num]);
-      }
-
-      return all_target_vals;
-   }
-
-   /**
     * @brief createColorString
     */
    const string createColorString(const Model & model, ParamNum number) {

@@ -10,8 +10,8 @@
 #define PARSYBONE_UNPARAMETRIZED_STRUCTURE_BUILDER_INCLUDED
 
 #include "basic_structure.hpp"
-#include "labeling_holder.hpp"
 #include "unparametrized_structure.hpp"
+#include "../parsing/model_translators.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Creates a UnparametrizedStructure as a composition of a BasicStructure and ParametrizationsHolder.
@@ -22,9 +22,9 @@
 /// This expects semantically correct data from BasicStructure and FunctionsStructure.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class UnparametrizedStructureBuilder {
-	// Provided with the constructor
+   // Provided with the constructor
+   const Model & model;
    const BasicStructure & basic_structure; ///< Provider of basic KS data.
-   const LabelingHolder & regulatory_functions; ///< Provider of implicit functions.
    UnparametrizedStructure & structure; ///< KipkeStructure to fill.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,23 +39,11 @@ class UnparametrizedStructureBuilder {
 	 *
     * @return true it the state satisfy the requirements
 	 */
-	bool testRegulators(const vector<StateID> & source_species, const Configurations & source_values, const Levels & state_levels) {
+   bool testRegulators(const map<StateID, Levels> requirements, const Levels & state_levels) {
 		// List throught regulating species of the function
-		for (size_t regulator_num = 0; regulator_num < source_species.size(); regulator_num++) {
-			bool is_included = false; // Remains false if the specie level is not in allowed range
-			const StateID ID = source_species[regulator_num]; // real ID of the regulator
-
-			// Does current level of the specie belongs to the levels that are required?
-			for_each(source_values[regulator_num].begin(), source_values[regulator_num].end(), [&]
-				(size_t feasible_level) {
-					if (feasible_level == state_levels[ID])
-						is_included = true;
-			});
-
-			// If specie does not meet requirments, do not even continue.
-			if (!is_included) {
-				return false;
-			}
+      for (auto regul:requirements) {
+         if (count(regul.second.begin(), regul.second.end(), state_levels[regul.first]) == 0)
+            return false;
 		}
 
 		// Return true if all species passed.
@@ -70,19 +58,14 @@ class UnparametrizedStructureBuilder {
 	 *
 	 * @return function that might lead to the next state
 	 */
-	size_t getActiveFunction(const SpecieID specie_ID, const Levels & state_levels) {
-		// Source species that will be tested
-		const vector<size_t> & source_species = regulatory_functions.getSourceSpecies(specie_ID);
-
+   size_t getActiveFunction(const SpecieID ID, const Levels & state_levels) {
 		// Cycle until the function is found
 		bool found = false;
-		for (size_t regul_num = 0; regul_num < regulatory_functions.getRegulationsCount(specie_ID); regul_num++) {
-			const auto source_vals = regulatory_functions.getSourceValues(specie_ID, regul_num);
-
-			found = testRegulators(source_species, source_vals, state_levels);
+      for (size_t param_no = 0; param_no < model.getParameters(ID).size(); param_no++) {
+         found = testRegulators(model.getParameters(ID)[param_no].requirements, state_levels);
 
 			if (found) 
-				return regul_num;
+            return param_no;
 		} 
 		throw runtime_error("Active function in some state not found.");
 	}
@@ -139,20 +122,19 @@ class UnparametrizedStructureBuilder {
 	 *
 	 * @return true if there is a possibility of transition, false otherwise
 	 */
-	bool fillFunctions(const StateID ID, const StateID neighbour_index, const Levels & state_levels,
+   bool fillFunctions(const StateID state, const StateID neighbour_index, const Levels & state_levels,
 									ParamNum & step_size, vector<bool> & transitive_values) {
 		// Get ID of the regulated specie
-		const size_t specie_ID = basic_structure.getSpecieID(ID, neighbour_index);
+      const size_t ID = basic_structure.getSpecieID(state, neighbour_index);
 
 		// Find out which function is currently active
-		size_t function_num = getActiveFunction(specie_ID, state_levels);
+      size_t param_no = getActiveFunction(ID, state_levels);
 
 		// Fill the step size
-		step_size = regulatory_functions.getStepSize(specie_ID, function_num);
+      step_size = model.species[ID].parameters[param_no].step_size;
 
 		// Fill data about transitivity using provided values
-      transitive_values = fillTransitivityData(basic_structure.getDirection(ID, neighbour_index),  state_levels[specie_ID],
-                                                        regulatory_functions.getPossibleValues(specie_ID, function_num));
+      transitive_values = fillTransitivityData(basic_structure.getDirection(state, neighbour_index), state_levels[ID], model.species[ID].parameters[param_no].possible_values);
 
 		// Check if there even is a transition
 		for (auto it = transitive_values.begin(); it != transitive_values.end(); it++) {
@@ -194,8 +176,8 @@ public:
 	/**
     * Constructor just attaches the references to data holders.
 	 */
-	UnparametrizedStructureBuilder(const BasicStructure & _basic_structure, const LabelingHolder & _regulatory_functions, UnparametrizedStructure & _structure)
-        : basic_structure(_basic_structure), regulatory_functions(_regulatory_functions), structure(_structure)  {
+   UnparametrizedStructureBuilder(const Model & _model, const BasicStructure & _basic_structure, UnparametrizedStructure & _structure)
+        : model(_model), basic_structure(_basic_structure), structure(_structure)  {
 	}
 
 	/**

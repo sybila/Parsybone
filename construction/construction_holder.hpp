@@ -32,7 +32,6 @@ class ConstructionHolder {
     unique_ptr<BasicStructure> basic;
     vector<PropertyAutomaton> properties;
     Model model;
-    LabelingHolder labeling;
     unique_ptr<UnparametrizedStructure> structure;
     unique_ptr<ProductStructure> product;
 
@@ -55,10 +54,6 @@ private:
 
     void fillBasicStructure(BasicStructure * _basic) {
         basic.reset(_basic);
-    }
-
-    void fillLabeling(LabelingHolder _labeling) {
-        labeling = move(_labeling);
     }
 
     void fillUnparametrizedStructure(UnparametrizedStructure * _structure) {
@@ -93,10 +88,6 @@ public:
 
     const Model & getModel() const {
         return model;
-    }
-
-    const LabelingHolder & getLabeling() const {
-        return labeling;
     }
 
     const UnparametrizedStructure & getUnparametrizedStructure() const {

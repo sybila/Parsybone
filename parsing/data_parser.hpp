@@ -17,6 +17,7 @@
 #include "parameter_reader.hpp"
 #include "regulation_helper.hpp"
 #include "../construction/parametrizations_builder.hpp"
+#include "../construction/labeling_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Starting point of the model parsing.
@@ -87,6 +88,8 @@ public:
       ParameterReader::computeParams(specs, model);
 
       ParametrizationsBuilder::buildParametrizations(model);
+
+      LabelingBuilder::buildLabeling(model);
    }
 
 	/**

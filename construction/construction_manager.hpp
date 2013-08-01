@@ -35,13 +35,6 @@ public:
     * Function that constructs all the data in a cascade of temporal builders.
     */
    void construct() {
-
-      // Create implicit form of the kinetic parameters used as edge labels
-      LabelingHolder labeling_holder = LabelingBuilder::buildLabeling(holder.getModel());
-      holder.fillLabeling(move(labeling_holder));
-
-      cout << holder.getModel().species[0].name;
-
       // Create a simple Kripke structure without parametrization
       BasicStructure * basic_structure = new BasicStructure; // Kripke structure built from the network
       BasicStructureBuilder basic_structure_builder(holder.getModel(), *basic_structure);
@@ -50,7 +43,7 @@ public:
 
       // Create the UKS
       UnparametrizedStructure * unparametrized_structure = new UnparametrizedStructure; // Kripke structure that has transitions labelled with functions
-      UnparametrizedStructureBuilder unparametrized_structure_builder(holder.getBasicStructure(), holder.getLabeling(), *unparametrized_structure);
+      UnparametrizedStructureBuilder unparametrized_structure_builder(holder.getModel(), holder.getBasicStructure(), *unparametrized_structure);
       unparametrized_structure_builder.buildStructure();
       holder.fillUnparametrizedStructure(unparametrized_structure);
 
