@@ -85,26 +85,30 @@ public:
       return model;
    }
 
-   vector<PropertyAutomaton> parseProperties(ifstream * input_stream) {
+   /**
+    * @brief parseProperties create a property automaton
+    * @param input_stream
+    */
+   PropertyAutomaton parseProperty(ifstream * input_stream) {
       createDocument(input_stream);
       auto model_node = initiateParsing();
 
-      vector<PropertyAutomaton> properties;
+      PropertyAutomaton property;
 
       for (rapidxml::xml_node<> * automaton = XMLHelper::getChildNode(model_node, "AUTOMATON", false); automaton; automaton = automaton->next_sibling("AUTOMATON") ) {
-         properties.push_back(AutomatonParser::parse(automaton, "Automaton" + toString(properties.size())));
+         property = AutomatonParser::parse(automaton, "automaton");
       }
       for (rapidxml::xml_node<> * series = XMLHelper::getChildNode(model_node, "SERIES", false); series; series = series->next_sibling("SERIES") ) {
-         properties.push_back(TimeSeriesParser::parse(series, "Automaton" + toString(properties.size())));
+         property = TimeSeriesParser::parse(series, "series");
          user_options.time_series = true;
       }
 
-      if (properties.empty())
-         throw runtime_error("No properties in the given file.");
+      if (property.getAutomatonName().empty())
+         throw runtime_error("No property found");
 
       input_stream->clear();
       input_stream->seekg(0, ios::beg);
-      return properties;
+      return property;
    }
 };
 

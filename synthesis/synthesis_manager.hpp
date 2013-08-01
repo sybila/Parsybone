@@ -32,6 +32,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynthesisManager {
 	const ConstructionHolder & holder; ///< Holder of all the reference data.
+   const Model & model;
+   const PropertyAutomaton & property;
 
 	unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis.
 	unique_ptr<DatabaseFiller> database; ///< Class to output to a SQLite database;
@@ -150,16 +152,16 @@ public:
    /**
     * Constructor builds all the data objects that are used within.
     */
-   SynthesisManager(const ConstructionHolder & _holder) : holder(_holder) {
+   SynthesisManager(const ConstructionHolder & _holder, const Model & _model, const PropertyAutomaton & _property) : holder(_holder), model(_model), property(_property) {
       // Create classes that help with the synthesis
-      analyzer.reset(new ColoringAnalyzer(holder.getModel()));
+      analyzer.reset(new ColoringAnalyzer(model));
       storage.reset(new ColorStorage(holder));
-      split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(holder.getModel())));
+      split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(model)));
       model_checker.reset(new ModelChecker(holder, *storage.get()));
       searcher.reset(new WitnessSearcher(holder, *storage.get()));
       robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
-      database.reset(new DatabaseFiller(holder));
-      output.reset(new OutputManager(holder, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
+      database.reset(new DatabaseFiller(model));
+      output.reset(new OutputManager(model, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
 
       total_colors = 0;
    }

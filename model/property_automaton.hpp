@@ -22,6 +22,7 @@ private:
    vector<AutomatonState> states; ///< vector of all states of the controlling Buchi automaton
 
 public:
+   PropertyAutomaton() = default;
    PropertyAutomaton(const string & _automaton_name) : automaton_name(_automaton_name) { }
 
    /**
@@ -71,6 +72,10 @@ public:
     */
    const string & getName(StateID ID) {
       return states[ID].name;
+   }
+
+   const string & getAutomatonName() {
+
    }
 
    /**

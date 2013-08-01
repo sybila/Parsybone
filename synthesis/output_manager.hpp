@@ -41,9 +41,9 @@ public:
 	/**
 	 * Simple constructor that only passes the references.
 	 */
-	OutputManager(const ConstructionHolder & holder, const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
+   OutputManager(const Model & _model, const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
 					  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-		: model(holder.getModel()), storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
+      : model(_model), storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// OUTPUT METHODS

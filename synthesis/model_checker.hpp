@@ -290,7 +290,7 @@ public:
     * Constructor, passes the data and sets up auxiliary storage.
 	 */
    ModelChecker(const ConstructionHolder & holder, ColorStorage & _storage) : product(holder.getProduct()), storage(_storage) {
-      BA_presence.resize(holder.getAutomatonStructure(0).getStateCount(), false);
+      BA_presence.resize(holder.getAutomaton().getStateCount(), false);
       next_round_storage = storage; // Create an identical copy of the storage.
 	}
 

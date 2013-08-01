@@ -21,7 +21,7 @@ namespace ParsingManager {
    /**
     * Main parsing function.
     */
-   void parse(int argc, char* argv[], Model & model, vector<PropertyAutomaton> & properties) {
+   void parse(int argc, char* argv[], Model & model, PropertyAutomaton & properties) {
       ifstream model_stream; // Object that will reference input file.
       vector<string> arguments;
       for (int argn = 0; argn < argc; argn++) {
@@ -52,7 +52,7 @@ namespace ParsingManager {
       DataParser data_parser;
       model = data_parser.parseNetwork(&model_stream);
       // Currently reads property from the model file.
-      properties = data_parser.parseProperties(&model_stream);
+      properties = data_parser.parseProperty(&model_stream);
    }
 }
 

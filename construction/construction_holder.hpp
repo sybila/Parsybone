@@ -25,9 +25,9 @@
 ///   -# get* this method returns a constant reference to a requested object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstructionHolder {
-    vector<AutomatonStructure> automata;
+    AutomatonStructure automaton;
     unique_ptr<BasicStructure> basic;
-    vector<PropertyAutomaton> properties;
+    PropertyAutomaton property;
     Model model;
     unique_ptr<UnparametrizedStructure> structure;
     unique_ptr<ProductStructure> product;
@@ -37,12 +37,12 @@ public:
         model = move(_model);
     }
 
-    void fillProperties(vector<PropertyAutomaton> properties) {
-        this->properties = move(properties);
+    void fillProperty(PropertyAutomaton _property) {
+        property = move(_property);
     }
 
-    void fillAutomaton(const AutomatonStructure & automaton) {
-        automata.push_back(automaton);
+    void fillAutomaton(AutomatonStructure _automaton) {
+        automaton = move(_automaton);
     }
 
     void fillBasicStructure(BasicStructure * _basic) {
@@ -57,12 +57,9 @@ public:
         product.reset(_product);
     }
 
-    size_t getAutomataCount() const {
-        return automata.size();
-    }
 
-    const AutomatonStructure & getAutomatonStructure(const size_t ID) const {
-        return automata[ID];
+    const AutomatonStructure & getAutomaton() const {
+        return automaton;
     }
 
     const BasicStructure & getBasicStructure() const {
@@ -81,13 +78,6 @@ public:
         return *product.get();
     }
 
-    size_t getPropertyCount() const {
-        return properties.size();
-    }
-
-    const PropertyAutomaton & getProperty(const size_t ID) const {
-        return properties[ID];
-    }
 };
 
 #endif // PARSYBONE_CONSTRUCTION_HOLDER_INCLUDED

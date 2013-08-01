@@ -90,9 +90,9 @@ class DatabaseFiller {
    }
 
 public:
-   DatabaseFiller(const ConstructionHolder & holder)
+   DatabaseFiller(const Model & _model)
        : COMPONENTS_TABLE("Components"), REGULATIONS_TABLE("Regulations"), PARAMETRIZATIONS_TABLE("Parametrizations"),
-      model(holder.getModel()) {
+      model(_model) {
    }
 
    void creteTables() {

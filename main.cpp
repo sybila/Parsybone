@@ -30,7 +30,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
    time_manager.startClock("* Runtime", false);
    Model model;
-   vector<PropertyAutomaton> properties;
+   PropertyAutomaton property;
    ConstructionHolder holder; ///< Object that will hold all the constructed data structures that are used as reference.
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
    // Parse input information.
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    try {
-      ParsingManager::parse(argc, argv, model, properties);
+      ParsingManager::parse(argc, argv, model, property);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
@@ -52,9 +52,7 @@ int main(int argc, char* argv[]) {
    try {
       // Pass the model
       ConstructionManager::computeModelProps(model);
-      holder = ConstructionManager::construct(model, properties);
-      holder.fillModel(move(model));
-      holder.fillProperties(move(properties));
+      holder = ConstructionManager::construct(model, property);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while constructing data structures: \"").append(e.what()).append("\"."));
@@ -66,7 +64,7 @@ int main(int argc, char* argv[]) {
    // Synthetize the colors and output them
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    try {
-      SynthesisManager synthesis_manager(holder);
+      SynthesisManager synthesis_manager(holder, model, property);
       synthesis_manager.doSynthesis();
    }
    catch (std::exception & e) {

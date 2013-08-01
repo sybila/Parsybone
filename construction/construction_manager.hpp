@@ -40,7 +40,7 @@ namespace ConstructionManager {
    /**
     * Function that constructs all the data in a cascade of temporal builders.
     */
-   ConstructionHolder construct(const Model & model, const vector<PropertyAutomaton> & properties) {
+   ConstructionHolder construct(const Model & model, const PropertyAutomaton & property) {
       ConstructionHolder holder;
 
       // Create a simple Kripke structure without parametrization
@@ -57,14 +57,12 @@ namespace ConstructionManager {
 
       // Create the Buchi automaton
       AutomatonBuilder automaton_builder(model);
-      for (size_t i : scope(properties)) {
-         holder.fillAutomaton(automaton_builder.buildAutomaton(properties[i]));
-      }
+      holder.fillAutomaton(automaton_builder.buildAutomaton(property));
 
       // Create the product
       // WARNING: now takes only a single automaton at a time
-      ProductStructure * product_structure = new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(0));
-      ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomatonStructure(0), *product_structure);
+      ProductStructure * product_structure = new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomaton());
+      ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomaton(), *product_structure);
       product_builder.buildProduct();
       holder.fillProduct(product_structure);
 
