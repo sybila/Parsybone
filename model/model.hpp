@@ -29,7 +29,7 @@ public:
       Restrictions() {
          bounded_loops = force_extremes = false;
       }
-   } restrictions;
+   };
 
    /// Structure that stores regulation of a specie by another one
    struct Satisfaction {
@@ -59,6 +59,11 @@ public:
    };
    typedef vector<Parameter> Parameters;
 
+   typedef pair<string,string> ParamSpec;
+   struct ParamSpecs {
+      vector<ParamSpec> k_pars;
+      vector<ParamSpec> l_pars;
+   };
    struct SpecTraits {
       bool input;
       bool output;
@@ -70,27 +75,21 @@ public:
       ActLevel max_value; ///< Maximal activation level of the specie.
       Levels basals; ///< Basal targets (is no basal value is given, then all).
       SpecTraits traits; ///< Description of the specie in the network.
+      ParamSpecs params_specs; ///< Constraints on parameters.
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
       Configurations subcolors; ///< Feasible subcolors of the specie.
+
    };
 
+   Restrictions restrictions;
    vector<ModelSpecie> species; ///< vector of all species of the model
 
-   /**
-    * Create a new specie with the provided name, basal and maximal value.
-    *
-    * @return	index of specie in the vector
-    */
-   inline size_t addSpecie(string name, size_t max_value, Levels targets, bool input = false, bool output = false) {
-      species.push_back({name, species.size(), max_value, targets, SpecTraits({input, output}), Regulations(), Parameters(), Configurations()});
-      return species.size() - 1;
+   inline void addSpecie(string name, size_t max_value, Levels targets, bool input = false, bool output = false) {
+      species.push_back({name, species.size(), max_value, targets, SpecTraits({input, output}), ParamSpecs(), Regulations(), Parameters(), Configurations()});
    }
 
-   /**
-    * Add a new regulation to the specie. Regulation is stored with the target, not the source.
-    */
    inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label) {
       string name = species[source_ID].name + ":" + toString(threshold);
       species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label, Satisfaction()});

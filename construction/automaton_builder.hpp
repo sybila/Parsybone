@@ -11,8 +11,8 @@
 
 #include "PunyHeaders/common_functions.hpp"
 
-#include "../parsing/model_translators.hpp"
-#include "../parsing/property_automaton.hpp"
+#include "../model/model_translators.hpp"
+#include "../model/property_automaton.hpp"
 #include "automaton_structure.hpp"
 
 

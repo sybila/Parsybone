@@ -10,6 +10,7 @@
 #define PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 
 #include "construction_holder.hpp"
+#include "../model/parameter_reader.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief STEP 2 - Builds all the structures and stores them within a ConstructionHolder.
@@ -25,10 +26,23 @@ class ConstructionManager {
 
 public:
    /**
-    * Constructor, passes the reference.
-    *
-    * @param _holder  object that will hold all the constructed objects
+    * @brief computeModelProps
     */
+   static void computeModelProps(Model & model) {
+      // Add levels to the regulations.
+      RegulationHelper::fillActivationLevels(model);
+      // Set conditions on the edges.
+      RegulationHelper::setConditions(model);
+      // Compute parameter values.
+      ParameterHelper::fillParameters(model);
+      // Replace explicitly defined parameters.
+      ParameterReader::computeParams(model);
+
+      ParametrizationsBuilder::buildParametrizations(model);
+
+      LabelingBuilder::buildLabeling(model);
+   }
+
    ConstructionManager(ConstructionHolder & _holder) : holder(_holder) { }
 
    /**

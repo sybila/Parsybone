@@ -2,7 +2,6 @@
 #define PARAMETER_READER_HPP
 
 #include "parameter_helper.hpp"
-#include "parameter_parser.hpp"
 
 class ParameterReader {
    /**
@@ -79,9 +78,9 @@ class ParameterReader {
     * @param k_params   specification given by the user
     * @param t_ID
     */
-   static void replaceExplicit(const Model & model, Model::Parameters & constraints, const ParameterParser::ParsList & k_params, const SpecieID t_ID) {
+   static void replaceExplicit(const Model & model, Model::Parameters & constraints, const SpecieID t_ID) {
       // List through all the PARAM nodes.
-      for (const auto & param : k_params) {
+      for (const auto & param : model.species[t_ID].params_specs.k_pars) {
          // Obtain context specified.
          string can_context = ParameterHelper::formCanonicContext(model, param.first, t_ID);
 
@@ -100,18 +99,18 @@ public:
     *
     * @param model   model to fill the data in
     */
-   static void computeParams(const ParameterParser::ParameterSpecifications & specs, Model & model) {
+   static void computeParams(Model & model) {
       // For each specie create its parameters.
       for (SpecieID ID : range(model.species.size())) {
          // Create all contexts with all the possible values.
          auto parameters = model.getParameters(ID);
 
          // If logic description is given evaluate results.
-         if (!specs.param_specs[ID].l_pars.empty())
+         if (!model.species[ID].params_specs.l_pars.empty())
             throw runtime_error("Logical expression temporarily disabled.");
 
          // Otherwise replace values.
-         replaceExplicit(model, parameters, specs.param_specs[ID].k_pars, ID);
+         replaceExplicit(model, parameters, ID);
 
          // Add newly created parameters.
          model.species[ID].parameters = parameters;

@@ -3,8 +3,8 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"
-#include "model.hpp"
-#include "property_automaton.hpp"
+#include "../model/model.hpp"
+#include "../model/property_automaton.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief This object is responsible for parsing and translation of data related to the tested property.

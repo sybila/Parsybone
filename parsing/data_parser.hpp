@@ -14,11 +14,7 @@
 #include "network_parser.hpp"
 #include "time_series_parser.hpp"
 #include "parameter_parser.hpp"
-#include "parameter_reader.hpp"
-#include "regulation_helper.hpp"
-#include "../construction/parametrizations_builder.hpp"
-#include "../construction/labeling_builder.hpp"
-
+#include "../model/model_translators.hpp"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Starting point of the model parsing.
 ///
@@ -71,27 +67,7 @@ class DataParser {
 		}
 	}
 	
-   DataParser(const DataParser & other) = delete; ///< Forbidden copy constructor.
-   DataParser& operator=(const DataParser & other)  = delete; ///< Forbidden assignment operator.
-
 public:
-   DataParser() = default;
-
-   void computeModelProps(const ParameterParser::ParameterSpecifications & specs, Model & model) {
-      // Add levels to the regulations.
-      RegulationHelper::fillActivationLevels(model);
-      // Set conditions on the edges.
-      RegulationHelper::setConditions(model);
-      // Compute parameter values.
-      ParameterHelper::fillParameters(model);
-      // Replace explicitly defined parameters.
-      ParameterReader::computeParams(specs, model);
-
-      ParametrizationsBuilder::buildParametrizations(model);
-
-      LabelingBuilder::buildLabeling(model);
-   }
-
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.
 	 */
@@ -102,9 +78,7 @@ public:
       Model model;
       NetworkParser::parseNetwork(model_node, model);
       NetworkParser::parseConstraints(model_node, model);
-      auto specs = ParameterParser::parse(model_node);
-
-      computeModelProps(specs, model);
+      ParameterParser::parse(model_node, model);
 
       input_stream->clear();
       input_stream->seekg(0, ios::beg);

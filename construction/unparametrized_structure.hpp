@@ -16,7 +16,7 @@
 /// Storing a single transition to neighbour state together with its transition function.
 struct ParTransitionion : public TransitionProperty {
 	ParamNum step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-	vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
+   vector<bool> transitive_values; ///< Which values from the original set do not allow a trasition and therefore removes bits from the mask.
 
    ParTransitionion(const StateID target_ID, const ParamNum _step_size, vector<bool>&& _transitive_values)
       : TransitionProperty(target_ID), step_size(_step_size), transitive_values(move(_transitive_values)) {} ///< Simple filler, assigns values to all the variables.

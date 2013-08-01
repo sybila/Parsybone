@@ -11,7 +11,7 @@
 
 #include "basic_structure.hpp"
 #include "unparametrized_structure.hpp"
-#include "../parsing/model_translators.hpp"
+#include "../model/model_translators.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Creates a UnparametrizedStructure as a composition of a BasicStructure and ParametrizationsHolder.

@@ -4,9 +4,9 @@
 #include "PunyHeaders/common_functions.hpp"
 
 #include "../auxiliary/data_types.hpp"
-#include "property_automaton.hpp"
 #include "xml_helper.hpp"
-#include "model.hpp"
+#include "../model/property_automaton.hpp"
+#include "../model/model.hpp"
 
 #include <algorithm>
 

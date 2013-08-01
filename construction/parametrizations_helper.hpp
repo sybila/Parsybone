@@ -1,7 +1,7 @@
 #ifndef PARAMETRIZATIONS_HELPER_HPP
 #define PARAMETRIZATIONS_HELPER_HPP
 
-#include "../parsing/model_translators.hpp"
+#include "../model/model_translators.hpp"
 #include "../auxiliary/data_types.hpp"
 #include <PunyHeaders/formulae_resolver.hpp>
 

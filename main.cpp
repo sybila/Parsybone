@@ -41,6 +41,7 @@ int main(int argc, char* argv[]) {
       ParsingManager parsing_manager(argc, argv);
       parsing_manager.parse(model, properties);
       // Pass the model
+      ConstructionManager::computeModelProps(model);
       holder.fillModel(move(model));
       holder.fillProperties(move(properties));
    }
