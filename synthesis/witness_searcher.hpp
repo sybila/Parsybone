@@ -25,7 +25,7 @@ class WitnessSearcher {
    /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
    vector<set<pair<StateID, StateID> > > transitions;
    /// Vector storing for each parametrization initial states it reached.
-   vector<set<StateID> > initials;
+   vector<set<StateID> > finals;
 
    vector<string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string).
 
@@ -51,7 +51,7 @@ class WitnessSearcher {
     * @param which   mask of the parametrizations that allow currently found path
     * @param initil  if true, stores also the last node as an initial one for given parametrizations
     */
-   void storeTransitions(const Paramset which, bool initial, size_t depth) {
+   void storeTransitions(const Paramset which, bool final, size_t depth) {
       vector<pair<StateID, StateID> > trans;  // Temporary storage for the transitions
 
       // Go from the end till the lastly reached node
@@ -66,8 +66,8 @@ class WitnessSearcher {
       for (size_t param = 0; param < paramset_helper.getSetSize(); param++) {
          if (which & marker) {
             transitions[param].insert(trans.begin(), trans.end());
-            if (initial)
-               initials[param].insert(path[depth]);
+            if (final)
+               finals[param].insert(path[depth]);
          }
          marker >>= 1;
       }
@@ -86,7 +86,7 @@ class WitnessSearcher {
          throw runtime_error("Depth boundary overcome during the DFS procedure.");
 
       // If a way to the source was found, apply it as well
-      if (product.isInitial(ID))
+      if (product.isFinal(ID))
          storeTransitions(paramset, true, depth);
 
       // Remove those with Cost lower than this level of the search (meaning that nothing more that cycles would be found)
@@ -109,11 +109,12 @@ class WitnessSearcher {
       if (paramset) {
          depth++;
 
-         auto predecessors = move(storage.getNeighbours(ID, false, paramset)); // Get predecessors
-         auto pred_label = move(storage.getMarking(ID, false, paramset)); auto label_it = pred_label.begin(); // Get its values
+         auto succs = storage.getNeighbours(ID, true, paramset); // Get predecessors
+         auto label = storage.getMarking(ID, true, paramset);
 
-         for (auto pred = predecessors.begin(); pred != predecessors.end(); pred++, label_it++) {
-            DFS(*pred, paramset & *label_it); // Recursive descent with parametrizations passed from the predecessor.
+         auto label_it = label.begin(); // Get its values
+         for (const auto & succ: succs) {
+            DFS(succ, paramset & *(label_it++)); // Recursive descent with parametrizations passed from the predecessor.
          }
 
          depth--;
@@ -137,8 +138,8 @@ class WitnessSearcher {
       transitions.clear();
       transitions.resize(paramset_helper.getSetSize());
       // Empty the storage of inital states
-      initials.clear();
-      initials.resize(paramset_helper.getSetSize());
+      finals.clear();
+      finals.resize(paramset_helper.getSetSize());
       // Clear markings
       for (auto & marking:markings) {
          marking.succeeded = 0;
@@ -198,10 +199,10 @@ public:
       max_depth = storage.getMaxDepth();
 
       // Search paths from all the final states
-      auto finals = product.getFinalStates();
-      for (auto final = finals.begin(); final != finals.end(); final++) {
-         if (storage.getColor(*final))
-            DFS(*final, storage.getColor(*final));
+      auto inits = product.getInitialStates();
+      for (const auto & init : inits) {
+         if (storage.getColor(init))
+            DFS(init, storage.getColor(init));
       }
    }
 
@@ -218,12 +219,10 @@ public:
             string path = "{";
             // Reformes based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
-               if (product.isFinal(trans_it->second)) // Skip transitions to the real final state (ones)
-                  continue;
                if (!user_options.longWit())
-                  path.append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append(",");
+                  path.append(toString(trans_it->second)).append(">").append(toString(trans_it->first)).append(",");
                else
-                  path.append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second)).append(",");
+                  path.append(product.getString(trans_it->second)).append(">").append(product.getString(trans_it->first)).append(",");
             }
             if (path.length() == 1)
                path.append("}");
@@ -247,7 +246,7 @@ public:
     * @return  a vector of IDs of intial states
     */
    const vector<set<StateID> > & getInitials() const {
-      return initials;
+      return finals;
    }
 };
 

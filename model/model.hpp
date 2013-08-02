@@ -80,7 +80,6 @@ public:
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
       Configurations subcolors; ///< Feasible subcolors of the specie.
-
    };
 
    Restrictions restrictions;
