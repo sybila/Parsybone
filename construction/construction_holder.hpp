@@ -25,7 +25,7 @@
 ///   -# get* this method returns a constant reference to a requested object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstructionHolder {
-    AutomatonStructure automaton;
+    unique_ptr<AutomatonStructure> automaton;
     unique_ptr<BasicStructure> basic;
     PropertyAutomaton property;
     Model model;
@@ -41,8 +41,8 @@ public:
         property = move(_property);
     }
 
-    void fillAutomaton(AutomatonStructure _automaton) {
-        automaton = move(_automaton);
+    void fillAutomaton(const AutomatonStructure & _automaton) {
+       automaton.reset(new AutomatonStructure(_automaton));
     }
 
     void fillBasicStructure(BasicStructure * _basic) {
@@ -57,9 +57,8 @@ public:
         product.reset(_product);
     }
 
-
     const AutomatonStructure & getAutomaton() const {
-        return automaton;
+        return *automaton.get();
     }
 
     const BasicStructure & getBasicStructure() const {

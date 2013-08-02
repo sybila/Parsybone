@@ -15,6 +15,7 @@
 #include "../model/property_automaton.hpp"
 #include "automaton_structure.hpp"
 
+// TODO: All the possible states are stored for outgoing transitions. Change.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///  \brief Transform graph of the automaton into a set of labeled transitions in an AutomatonStructure object.
