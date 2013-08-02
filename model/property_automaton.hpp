@@ -75,7 +75,7 @@ public:
    }
 
    const string & getAutomatonName() {
-
+      return automaton_name;
    }
 
    /**

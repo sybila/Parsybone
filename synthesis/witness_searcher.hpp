@@ -10,7 +10,9 @@
 #define PARSYBONE_WITNESS_SEARCHER_INCLUDED
 
 #include "../construction/construction_holder.hpp"
+#include "coloring_func.hpp"
 #include "color_storage.hpp"
+#include "split_manager.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for search of transitions belonging to shortest time series paths.
@@ -20,6 +22,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties.
+   const SplitManager & split_manager;
    const ColorStorage & storage; ///< Constant storage with the actuall data.
 
    /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
@@ -39,7 +42,6 @@ class WitnessSearcher {
       Paramset succeeded; ///< Mask of those parametrizations that have found a paths from this state.
       vector<Paramset> busted; ///< Mask of the parametrizations that are guaranteed to not find a path in (Cost - depth) steps.
    };
-
    vector<Marking> markings; ///< Actuall marking of the states.
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,12 +111,10 @@ class WitnessSearcher {
       if (paramset) {
          depth++;
 
-         auto succs = storage.getNeighbours(ID, true, paramset); // Get predecessors
-         auto label = storage.getMarking(ID, true, paramset);
+         auto succs = ColoringFunc::broadcastParameters(split_manager.getRoundRange(), product, ID, paramset); // Get predecessors
 
-         auto label_it = label.begin(); // Get its values
-         for (const auto & succ: succs) {
-            DFS(succ, paramset & *(label_it++)); // Recursive descent with parametrizations passed from the predecessor.
+         for (const Coloring & succ: succs) {
+            DFS(succ.first, succ.second); // Recursive descent with parametrizations passed from the predecessor.
          }
 
          depth--;
@@ -160,8 +160,10 @@ class WitnessSearcher {
 
       // Store parametrization numbers with their BFS level (Cost)
       for (const auto & cost:storage.getCost()) {
-         if (cost != ~static_cast<size_t>(0))
+         if (cost != INF)
             members[cost].push_back(param_num);
+         else
+            members[0].push_back(param_num);
          param_num++;
       }
 
@@ -178,8 +180,8 @@ public:
    /**
     * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
-   WitnessSearcher(const ConstructionHolder & _holder, const ColorStorage & _storage)
-      : product(_holder.getProduct()), storage(_storage) {
+   WitnessSearcher(const ConstructionHolder & _holder, const SplitManager & _split_manager, const ColorStorage & _storage)
+      : product(_holder.getProduct()), split_manager(_split_manager), storage(_storage) {
       Marking empty = {0, vector<Paramset>(product.getStateCount(), 0)};
       markings.resize(product.getStateCount(), empty);
       string_paths.resize(paramset_helper.getSetSize(), "");
