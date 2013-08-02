@@ -60,7 +60,7 @@ class LabelingBuilder {
       // Display stats
       output_streamer.output(verbose_str, "Specie " + model.getName(ID) + " has " + toString(params.size()) + " regulatory contexts with "
                              + toString(model.getSubcolors(ID).size()) + " possible parametrizations out of "
-                             + toString(ParametrizationsHelper::getPossibleCount(model.getParameters(ID)) + "."));
+                             + toString(ParametrizationsHelper::getPossibleCount(model.getParameters(ID))) + ".");
 
       // Increase step size for the next function
       step_size *= model.getSubcolors(ID).size();

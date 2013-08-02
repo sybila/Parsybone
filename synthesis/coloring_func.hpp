@@ -57,7 +57,7 @@ namespace ColoringFunc {
     */
    vector<Coloring> broadcastParameters(const Range & synthesis_range, const ProductStructure & product, const StateID ID, const Paramset parameters) {
       // To store parameters that passed the transition but were not yet added to the target
-      vector<StateID> BA_presence;
+      set<StateID> BA_presence;
       vector<Coloring> param_updates;
       param_updates.reserve(product.getTransitionCount(ID));
 
@@ -79,7 +79,7 @@ namespace ColoringFunc {
             loop_params &= passed;
             if(loop_params) {
                StateID BA_ID = product.getBAID(target_ID);
-               BA_presence.push_back(BA_ID);
+               BA_presence.insert(BA_ID);
             }
          }
          // Else add normally and remove from the loop
