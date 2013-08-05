@@ -11,6 +11,8 @@
 
 #include "construction_holder.hpp"
 #include "../model/parameter_reader.hpp"
+#include "../model/parametrizations_builder.hpp"
+#include "../model/labeling_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief STEP 2 - Builds all the structures and stores them within a ConstructionHolder.
@@ -26,14 +28,14 @@ namespace ConstructionManager {
       // Add levels to the regulations.
       RegulationHelper::fillActivationLevels(model);
       // Set conditions on the edges.
-      RegulationHelper::setConditions(model);
+      RegulationHelper::fillConditions(model);
       // Compute parameter values.
       ParameterHelper::fillParameters(model);
       // Replace explicitly defined parameters.
-      ParameterReader::computeParams(model);
-
+      ParameterReader::constrainParameters(model);
+      // Compute exact parametrization for the model.
       ParametrizationsBuilder::buildParametrizations(model);
-
+      // Build labels for regulations.
       LabelingBuilder::buildLabeling(model);
    }
 
@@ -44,27 +46,28 @@ namespace ConstructionManager {
       ConstructionHolder holder;
 
       // Create a simple Kripke structure without parametrization
-      BasicStructure * basic_structure = new BasicStructure; // Kripke structure built from the network
-      BasicStructureBuilder basic_structure_builder(model, *basic_structure);
+      unique_ptr<BasicStructure> basic_structure(new BasicStructure); // Kripke structure built from the network
+      BasicStructureBuilder basic_structure_builder(model, *basic_structure.get());
       basic_structure_builder.buildStructure();
-      holder.fillBasicStructure(basic_structure);
+      holder.setBasicStructure(move(basic_structure));
 
       // Create the UKS
-      UnparametrizedStructure * unparametrized_structure = new UnparametrizedStructure; // Kripke structure that has transitions labelled with functions
-      UnparametrizedStructureBuilder unparametrized_structure_builder(model, holder.getBasicStructure(), *unparametrized_structure);
+      unique_ptr<UnparametrizedStructure> unparametrized_structure(new UnparametrizedStructure); // Kripke structure that has transitions labelled with functions
+      UnparametrizedStructureBuilder unparametrized_structure_builder(model, holder.getBasicStructure(), *unparametrized_structure.get());
       unparametrized_structure_builder.buildStructure();
-      holder.fillUnparametrizedStructure(unparametrized_structure);
+      holder.setUnparametrizedStructure(move(unparametrized_structure));
 
       // Create the Buchi automaton
+      unique_ptr<AutomatonStructure> automaton(new AutomatonStructure);
       AutomatonBuilder automaton_builder(model);
-      holder.fillAutomaton(automaton_builder.buildAutomaton(property));
+      automaton_builder.buildAutomaton(property, *automaton.get());
+      holder.setAutomaton(move(automaton));
 
       // Create the product
-      // WARNING: now takes only a single automaton at a time
-      ProductStructure * product_structure = new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomaton());
-      ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomaton(), *product_structure);
+      unique_ptr<ProductStructure> product_structure(new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomaton()));
+      ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomaton(), *product_structure.get());
       product_builder.buildProduct();
-      holder.fillProduct(product_structure);
+      holder.setProduct(move(product_structure));
 
       return holder;
    }

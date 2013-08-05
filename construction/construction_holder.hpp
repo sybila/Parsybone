@@ -11,72 +11,74 @@
 
 #include "automaton_builder.hpp"
 #include "basic_structure_builder.hpp"
-#include "parametrizations_builder.hpp"
-#include "labeling_builder.hpp"
-#include "unparametrized_structure_builder.hpp"
 #include "product_builder.hpp"
+#include "unparametrized_structure_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Stores pointers to all data objects created for the purpose of the synthesis.
 ///
 /// Class stores and provides all the objects that are built during construction phase.
 /// There are two methods employed:
-///	-# fill* this method obtains a reference for a dynamic object and assigns it to its unique_ptr,
+///	-# set* this method obtains a reference for a dynamic object and assigns it to its unique_ptr,
 ///   -# get* this method returns a constant reference to a requested object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstructionHolder {
-    unique_ptr<AutomatonStructure> automaton;
-    unique_ptr<BasicStructure> basic;
-    PropertyAutomaton property;
-    Model model;
-    unique_ptr<UnparametrizedStructure> structure;
-    unique_ptr<ProductStructure> product;
+   PropertyAutomaton property;
+   Model model;
+   unique_ptr<AutomatonStructure> automaton;
+   unique_ptr<BasicStructure> basic;
+   unique_ptr<UnparametrizedStructure> structure;
+   unique_ptr<ProductStructure> product;
 
 public:
-    void fillModel(Model _model) {
-        model = move(_model);
-    }
+   void setModel(Model _model) {
+      model = move(_model);
+   }
 
-    void fillProperty(PropertyAutomaton _property) {
-        property = move(_property);
-    }
+   void setProperty(PropertyAutomaton _property) {
+      property = move(_property);
+   }
 
-    void fillAutomaton(const AutomatonStructure & _automaton) {
-       automaton.reset(new AutomatonStructure(_automaton));
-    }
+   void setAutomaton(unique_ptr<AutomatonStructure> _automaton) {
+      automaton = move(_automaton);
+   }
 
-    void fillBasicStructure(BasicStructure * _basic) {
-        basic.reset(_basic);
-    }
+   void setBasicStructure(unique_ptr<BasicStructure> _basic) {
+      basic = move(_basic);
+   }
 
-    void fillUnparametrizedStructure(UnparametrizedStructure * _structure) {
-        structure.reset(_structure);
-    }
+   void setUnparametrizedStructure(unique_ptr<UnparametrizedStructure> _structure) {
+      structure = move(_structure);
+   }
 
-    void fillProduct(ProductStructure * _product) {
-        product.reset(_product);
-    }
+   void setProduct(unique_ptr<ProductStructure> _product) {
+      product = move(_product);
+   }
 
-    const AutomatonStructure & getAutomaton() const {
-        return *automaton.get();
-    }
+   const Model & getModel() const {
+      return model;
+   }
 
-    const BasicStructure & getBasicStructure() const {
-        return *basic.get();
-    }
+   const PropertyAutomaton getProperty() const {
+      return property;
+   }
 
-    const Model & getModel() const {
-        return model;
-    }
+   const AutomatonStructure & getAutomaton() const {
+      return *automaton.get();
+   }
 
-    const UnparametrizedStructure & getUnparametrizedStructure() const {
-        return *structure.get();
-    }
+   const BasicStructure & getBasicStructure() const {
+      return *basic.get();
+   }
 
-    const ProductStructure & getProduct() const {
-        return *product.get();
-    }
 
+   const UnparametrizedStructure & getUnparametrizedStructure() const {
+      return *structure.get();
+   }
+
+   const ProductStructure & getProduct() const {
+      return *product.get();
+   }
 };
 
 #endif // PARSYBONE_CONSTRUCTION_HOLDER_INCLUDED

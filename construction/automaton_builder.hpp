@@ -200,8 +200,7 @@ public:
    /**
     * Create the transitions from the model and fill the automaton with them.
     */
-   AutomatonStructure buildAutomaton(const PropertyAutomaton & source) {
-      AutomatonStructure automaton; //< Structure to be built.
+   void buildAutomaton(const PropertyAutomaton & source, AutomatonStructure & automaton) {
       size_t transition_count = 0;
 
       // List throught all the automaton states
@@ -211,8 +210,6 @@ public:
          // Add transitions for this state
          addTransitions(source, automaton, ID, transition_count);
       }
-
-      return automaton;
    }
 };
 

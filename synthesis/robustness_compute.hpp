@@ -11,6 +11,7 @@
 
 #include "witness_searcher.hpp"
 
+/// Currently broken.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class responsible for computation of robustness values for each acceptable parametrization.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,14 +74,14 @@ class RobustnessCompute {
     */
    void initiate() {
       // Cycle through vectors of initial states for every parametrization
-      auto initials = searcher.getInitials();
+      /*auto initials = product.getInitialStates();
       size_t param_num = 0;
       for (auto init_it = initials.begin(); init_it != initials.end(); init_it++, param_num++) {
          // Cycle through the states for this parametrization and assign them the weighted probability
          for (auto node_it = init_it->begin(); node_it != init_it->end(); node_it++) {
             markings[*node_it].next_prob[param_num] = 1.0 / init_it->size();
          }
-      }
+      }*/
    }
 
    /**

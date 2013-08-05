@@ -99,7 +99,7 @@ public:
     *
     * @param model   model to fill the data in
     */
-   static void computeParams(Model & model) {
+   static void constrainParameters(Model & model) {
       // For each specie create its parameters.
       for (SpecieID ID : range(model.species.size())) {
          // Create all contexts with all the possible values.

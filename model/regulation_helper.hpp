@@ -107,7 +107,7 @@ public:
    /**
     * @brief setConditions set conditions on nature of the regulation based on its label.
     */
-   static void setConditions(Model & model) {
+   static void fillConditions(Model & model) {
       for (const SpecieID ID : range(model.species.size())) {
          Model::Regulations & reguls = model.species[ID].regulations;
          for (Model::Regulation & regul:reguls) {

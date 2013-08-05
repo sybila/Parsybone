@@ -12,7 +12,9 @@
 using namespace std;
 
 #include "tests/formulae_parser_test.hpp"
-#include "tests/model_functions_test.hpp"
+#include "tests/model_test.hpp"
+#include "tests/construction_test.hpp"
+#include "tests/synthesis_test.hpp"
 
 int main(int argc, char* argv[]) {
     ::testing::InitGoogleTest( &argc, argv );

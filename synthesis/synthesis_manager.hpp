@@ -70,7 +70,7 @@ class SynthesisManager {
 		// Compute witnesses etc. if there is anything to computed, if so, print
 		if (analyzer->getMask()) {
 			if (user_options.analysis()) {
-				searcher->findWitnesses();
+            searcher->findWitnesses(split_manager.get()->getRoundRange());
 				robustness->compute();
 			}
 			// Output what has been synthetized (colors, witnesses)
@@ -158,7 +158,7 @@ public:
       storage.reset(new ColorStorage(holder));
       split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(model)));
       model_checker.reset(new ModelChecker(holder, *storage.get()));
-      searcher.reset(new WitnessSearcher(holder, *split_manager.get(), *storage.get()));
+      searcher.reset(new WitnessSearcher(holder, *storage.get()));
       robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
       database.reset(new DatabaseFiller(model));
       output.reset(new OutputManager(model, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));

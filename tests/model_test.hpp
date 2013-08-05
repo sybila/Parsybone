@@ -1,31 +1,28 @@
 #ifndef MODEL_FUNCTIONS_TEST_HPP
 #define MODEL_FUNCTIONS_TEST_HPP
 
-#include "testing_models_source.hpp"
-#include "../parsing/parameter_reader.hpp"
-#include "../parsing/regulation_helper.hpp"
+#include "model_test_data.hpp"
+#include "../model/parameter_reader.hpp"
+#include "../model/regulation_helper.hpp"
 
 /// Test various functions the model class posseses.
 TEST_F(ModelsTest, ModelFunctions) {
-   auto tresholds = basic_model.getThresholds(0);
+   auto tresholds = ModelTranslators::getThresholds(basic_model,0);
    ASSERT_EQ(2u, tresholds.size());
    ASSERT_EQ(3u, tresholds.find(1)->second[1]);
 
-   ASSERT_EQ(2, basic_model.getRegulatorsIDs(0).size()) << "There must be only two IDs for regulations, even though there are three incoming interactions.";
+   ASSERT_EQ(2, ModelTranslators::getRegulatorsIDs(basic_model, 0).size()) << "There must be only two IDs for regulations, even though there are three incoming interactions.";
 }
 
 /// Controls whether explicit parametrizaitions do replace the original values.
 TEST_F(ModelsTest, ParametrizationControl) {
-   // Create the parameter specification
-   ParameterParser::ParameterSpecifications specs;
-   specs.param_specs.resize(2);
 
-   specs.param_specs[0].k_pars.push_back(make_pair("cA,cB:1","1"));
-   specs.param_specs[0].k_pars.push_back(make_pair("cB:3","0"));
-   specs.param_specs[1].k_pars.push_back(make_pair("cA","3"));
+   basic_model.species[0].params_specs.k_pars.push_back(make_pair("cA,cB:1","1"));
+   basic_model.species[0].params_specs.k_pars.push_back(make_pair("cB:3","0"));
+   basic_model.species[1].params_specs.k_pars.push_back(make_pair("cA","3"));
 
    // Transform the description into semantics.
-   ASSERT_NO_THROW(ParameterReader::computeParams(specs, basic_model));
+   ASSERT_NO_THROW(ParameterReader::constrainParameters(basic_model));
 
    auto params = basic_model.getParameters(0);
    ASSERT_EQ(6, params.size()) << "There should be 6 contexts for cA.";
@@ -47,12 +44,10 @@ TEST_F(ModelsTest, ParametrizationExtremal) {
    extreme_model.addRegulation(0, 0, 1, "");
    extreme_model.restrictions.force_extremes = true;
    RegulationHelper::fillActivationLevels(extreme_model);
-   RegulationHelper::fillParameters(extreme_model);
-   ParameterParser::ParameterSpecifications specs;
-   specs.param_specs.resize(1);
+   ParameterHelper::fillParameters(extreme_model);
 
    // Transform the description into semantics.
-   ParameterReader::computeParams(specs, extreme_model);
+   ParameterReader::constrainParameters(extreme_model);
 
    auto params = extreme_model.getParameters(0);
    ASSERT_EQ(2, params.size()) << "There should be 2 contexts for cB.";
@@ -71,14 +66,11 @@ TEST_F(ModelsTest, ParametrizationLoopBound) {
    loop_model.addRegulation(1, 1, 2, "");
    loop_model.addRegulation(1, 1, 4, "");
    loop_model.restrictions.bounded_loops = true;
-   ParameterHelper::fillActivationLevels(loop_model);
+   RegulationHelper::fillActivationLevels(loop_model);
    ParameterHelper::fillParameters(loop_model);
-   ParameterParser::ParameterSpecifications specs;
-   specs.param_specs.resize(2);
-
 
    // Transform the description into semantics.
-   ASSERT_NO_THROW(ParameterReader::computeParams(specs, loop_model));
+   ASSERT_NO_THROW(ParameterReader::constrainParameters(loop_model));
 
    auto params = loop_model.getParameters(1);
    ASSERT_EQ(6, params.size()) << "There should be 6 contexts for cB.";

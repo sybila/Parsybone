@@ -12,7 +12,6 @@
 #include "../construction/construction_holder.hpp"
 #include "coloring_func.hpp"
 #include "color_storage.hpp"
-#include "split_manager.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for search of transitions belonging to shortest time series paths.
@@ -22,14 +21,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties.
-   const SplitManager & split_manager;
    const ColorStorage & storage; ///< Constant storage with the actuall data.
 
-   /// Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
-   vector<set<pair<StateID, StateID> > > transitions;
-   /// Vector storing for each parametrization initial states it reached.
-   vector<set<StateID> > finals;
+   Range round_range; ///< Range of parametrizations used this round
 
+   vector<set<pair<StateID, StateID> > > transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
    vector<string> string_paths; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string).
 
    vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position.
@@ -44,16 +40,11 @@ class WitnessSearcher {
    };
    vector<Marking> markings; ///< Actuall marking of the states.
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // SEARCH METHODS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Storest transitions in the form (source, target) within the transitions vector, for the path from the final vertex to the one in the current depth of the DFS procedure.
-    *
     * @param which   mask of the parametrizations that allow currently found path
-    * @param initil  if true, stores also the last node as an initial one for given parametrizations
     */
-   void storeTransitions(const Paramset which, bool final, size_t depth) {
+   void storeTransitions(const Paramset which, const size_t depth) {
       vector<pair<StateID, StateID> > trans;  // Temporary storage for the transitions
 
       // Go from the end till the lastly reached node
@@ -68,8 +59,6 @@ class WitnessSearcher {
       for (size_t param = 0; param < paramset_helper.getSetSize(); param++) {
          if (which & marker) {
             transitions[param].insert(trans.begin(), trans.end());
-            if (final)
-               finals[param].insert(path[depth]);
          }
          marker >>= 1;
       }
@@ -77,7 +66,6 @@ class WitnessSearcher {
 
    /**
     * Searching procedure itself. This method is called recursivelly based on the depth of the search and passes current parametrizations based on the predecessors.
-    *
     * @param ID   ID of the state visited
     * @param paramset   parametrizations passed form the successor
     */
@@ -89,7 +77,7 @@ class WitnessSearcher {
 
       // If a way to the source was found, apply it as well
       if (product.isFinal(ID))
-         storeTransitions(paramset, true, depth);
+         storeTransitions(paramset, depth);
 
       // Remove those with Cost lower than this level of the search (meaning that nothing more that cycles would be found)
       paramset &= ~depth_masks[depth];
@@ -102,7 +90,7 @@ class WitnessSearcher {
       // Note that this works correctly due to the fact, that parametrizations are removed form the BFS during the coloring once they prove acceptable
       Paramset connected = markings[ID].succeeded & paramset;
       if (connected)
-         storeTransitions(connected, false, depth);
+         storeTransitions(connected, depth);
 
       paramset &= ~markings[ID].busted[depth];
       markings[ID].busted[depth] |= paramset; // Forbid usage of these parametrizations for depth levels as high or higher than this one
@@ -111,7 +99,7 @@ class WitnessSearcher {
       if (paramset) {
          depth++;
 
-         auto succs = ColoringFunc::broadcastParameters(split_manager.getRoundRange(), product, ID, paramset); // Get predecessors
+         auto succs = ColoringFunc::broadcastParameters(round_range, product, ID, paramset); // Get predecessors
 
          for (const Coloring & succ: succs) {
             DFS(succ.first, succ.second); // Recursive descent with parametrizations passed from the predecessor.
@@ -121,9 +109,6 @@ class WitnessSearcher {
       }
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CREATION METHODS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Clear the data objects used during the computation that may contain some data from the previous round.
     */
@@ -137,9 +122,6 @@ class WitnessSearcher {
       // Empty the storage of transitions
       transitions.clear();
       transitions.resize(paramset_helper.getSetSize());
-      // Empty the storage of inital states
-      finals.clear();
-      finals.resize(paramset_helper.getSetSize());
       // Clear markings
       for (auto & marking:markings) {
          marking.succeeded = 0;
@@ -173,27 +155,23 @@ class WitnessSearcher {
       }
    }
 
-   WitnessSearcher(const WitnessSearcher & other) = delete; ///< Forbidden copy constructor.
-   WitnessSearcher& operator=(const WitnessSearcher & other) = delete; ///< Forbidden assignment operator.
-
 public:
    /**
     * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
-   WitnessSearcher(const ConstructionHolder & _holder, const SplitManager & _split_manager, const ColorStorage & _storage)
-      : product(_holder.getProduct()), split_manager(_split_manager), storage(_storage) {
+   WitnessSearcher(const ConstructionHolder & _holder, const ColorStorage & _storage)
+      : product(_holder.getProduct()), storage(_storage) {
       Marking empty = {0, vector<Paramset>(product.getStateCount(), 0)};
       markings.resize(product.getStateCount(), empty);
       string_paths.resize(paramset_helper.getSetSize(), "");
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // INTERFACE
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Function that executes the whole searching process
     */
-   void findWitnesses() {
+   void findWitnesses(const Range & _round_range) {
+      round_range = _round_range;
+
       // Preparation
       clearPaths();
       prepareMasks();
@@ -210,7 +188,6 @@ public:
 
    /**
     * Re-formes the transitions computed during the round into strings.
-    *
     * @return  strings with all transitions for each acceptable parametrization
     */
    const vector<string> getOutput() const {
@@ -242,13 +219,6 @@ public:
     */
    const vector<set<pair<StateID, StateID> > > & getTransitions() const {
       return transitions;
-   }
-
-   /**
-    * @return  a vector of IDs of intial states
-    */
-   const vector<set<StateID> > & getInitials() const {
-      return finals;
    }
 };
 

@@ -2,6 +2,7 @@
 #define COLORING_FUNC_HPP
 
 #include "../construction/product_structure.hpp"
+#include "paramset_helper.hpp"
 
 namespace ColoringFunc {
    /**

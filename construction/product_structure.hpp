@@ -46,7 +46,7 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 
     // References to data predecessing data structures
     const UnparametrizedStructure & structure; ///< Stores info about KS states, used in the getString function.
-    const AutomatonStructure automaton; ///< Stores info about BA states, used in the getString function.
+    const AutomatonStructure & automaton; ///< Stores info about BA states, used in the getString function.
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // FILLING METHODS (can be used only from ProductBuilder)
@@ -72,13 +72,9 @@ class ProductStructure : public AutomatonInterface<ProdState> {
         states[ID].transitions.push_back(ProdTransitiontion(target_ID, step_size, transitive_values));
     }
 
-    ProductStructure(const ProductStructure & other) = delete; ///< Forbidden copy constructor.
-    ProductStructure& operator=(const ProductStructure & other) = delete; ///< Forbidden assignment operator.
-    ProductStructure(ProductStructure && other) = delete; ///< Forbidden copy constructor.
-    ProductStructure& operator=(ProductStructure && other) = delete; ///< Forbidden assignment operator.
 public:
-    ProductStructure(const UnparametrizedStructure & _structure,  AutomatonStructure _automaton)
-        : structure(_structure), automaton(move(_automaton)) {} ///< Default constructor, only passes the data.
+    ProductStructure(const UnparametrizedStructure & _structure,  const AutomatonStructure & _automaton)
+        : structure(_structure), automaton(_automaton) {} ///< Default constructor, only passes the data.
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // REFORMING GETTERS
