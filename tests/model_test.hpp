@@ -7,24 +7,25 @@
 
 /// Test various functions the model class posseses.
 TEST_F(ModelsTest, ModelFunctions) {
-   auto tresholds = ModelTranslators::getThresholds(basic_model,0);
+   auto tresholds = ModelTranslators::getThresholds(one_three,0);
    ASSERT_EQ(2u, tresholds.size());
    ASSERT_EQ(3u, tresholds.find(1)->second[1]);
 
-   ASSERT_EQ(2, ModelTranslators::getRegulatorsIDs(basic_model, 0).size()) << "There must be only two IDs for regulations, even though there are three incoming interactions.";
+   ASSERT_EQ(2, ModelTranslators::getRegulatorsIDs(one_three, 0).size()) << "There must be only two IDs for regulations, even though there are three incoming interactions.";
 }
 
 /// Controls whether explicit parametrizaitions do replace the original values.
 TEST_F(ModelsTest, ParametrizationControl) {
 
-   basic_model.species[0].params_specs.k_pars.push_back(make_pair("cA,cB:1","1"));
-   basic_model.species[0].params_specs.k_pars.push_back(make_pair("cB:3","0"));
-   basic_model.species[1].params_specs.k_pars.push_back(make_pair("cA","3"));
+   one_three.species[0].params_specs.k_pars.push_back(make_pair("cA,cB:1","1"));
+   one_three.species[0].params_specs.k_pars.push_back(make_pair("cB:3","0"));
+   one_three.species[1].params_specs.k_pars.push_back(make_pair("cA","3"));
 
    // Transform the description into semantics.
-   ASSERT_NO_THROW(ParameterReader::constrainParameters(basic_model));
+   ASSERT_NO_THROW(ParameterHelper::fillParameters(one_three));
+   ASSERT_NO_THROW(ParameterReader::constrainParameters(one_three));
 
-   auto params = basic_model.getParameters(0);
+   auto params = one_three.getParameters(0);
    ASSERT_EQ(6, params.size()) << "There should be 6 contexts for cA.";
    for (const auto & param:params) {
       if (param.context.compare("cA:1,cB:1") == 0) {
