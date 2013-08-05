@@ -29,7 +29,7 @@ class TimeSeriesParser {
          property.addState(toString(ID), false);
 
          // Self-loop assuring possibility of a value change
-         property.addConditions(ID, ID, "tt");
+         property.addEdge(ID, ID, "tt");
 
          // Labelled transition to the next measurement
          string values;
@@ -37,12 +37,12 @@ class TimeSeriesParser {
          values.erase(remove_if(values.begin(), values.end(),
                                 [](const char c){return (c == ' ') | (c == '\t') | (c == '\n')  | (c == '\f')  | (c == '\r') | (c == '\v');
          }), values.end());
-         property.addConditions(ID, ID + 1, values);
+         property.addEdge(ID, ID + 1, values);
       }
 
       // Add a final state that marks succesful time series walk
       property.addState(toString(ID), true);
-      property.addConditions(ID, ID, "ff");
+      property.addEdge(ID, ID, "ff");
 
       return property;
    }

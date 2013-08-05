@@ -7,7 +7,7 @@
 class PropertyAutomaton {
 public:
    typedef pair<StateID, string> Edge; ///< Edge in Buchi Automaton (Target ID, edge label).
-   typedef vector<Edge> Edges;
+   typedef vector<Edge> Edges; ///< Set of outgoing edges.
 
 private:
    struct AutomatonState {
@@ -45,15 +45,14 @@ public:
    }
 
    /**
-    * Add a new transition - transition is specified by the target state and label.
+    * Add a new edge - edge is specified by the target state and label.
     */
-   inline void addConditions(StateID source_ID, StateID target_ID, const string & edge_label) {
+   inline void addEdge(StateID source_ID, StateID target_ID, const string & edge_label) {
       states[source_ID].edges.push_back(Edge(target_ID, edge_label));
    }
 
    /**
     * Finds ordinal number of the BA state based on its name or number string.
-    *
     * @return	number of the state with the specified name if there is such, otherwise INF
     */
    SpecieID findID(const string & name) const {
@@ -67,8 +66,6 @@ public:
 
    /**
     * @brief getName Gets the name of the given automaton state.
-    * @param ID
-    * @return
     */
    const string & getName(StateID ID) {
       return states[ID].name;

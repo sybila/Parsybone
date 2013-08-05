@@ -28,7 +28,7 @@ class AutomatonParser {
             throw invalid_argument(string("Incorrect value as a target of the state ").append(toString(source_ID)));
 
 			// Add a new regulation to the specified target
-         automaton.addConditions(source_ID, target_ID, label_string);
+         automaton.addEdge(source_ID, target_ID, label_string);
 		}
 	}
 
