@@ -21,8 +21,6 @@ class ColorStorage {
 	struct State {
       StateID ID; ///< Unique ID of the state.
       Paramset parameters; ///< Bits for each color in this round marking its presence or absence in the state.
-      map<StateID, Paramset> predecessors; ///< Stores a predeccesor in the form (product_ID, parameters).
-      map<StateID, Paramset> successors; ///< Stores succesors in the form (product_ID, parameters).
 
       /// Holder of the computed information for a single state.
       State(const StateID _ID) : ID(_ID), parameters(0) { }
@@ -51,17 +49,6 @@ public:
          states.push_back(ID);
 		}
 
-      // Add predecessors and succesors paramset storage, if necessary
-      if (user_options.analysis()) {
-         for (StateID ID = 0; ID < product.getStateCount(); ID++) {
-            for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
-               StateID target = product.getTargetID(ID, trans_num);
-               states[ID].successors.insert(make_pair(target, 0));
-               states[target].predecessors.insert(make_pair(ID, 0));
-            }
-         }
-      }
-
       // Set additional storage
       cost_val = vector<size_t>(ParamsetHelper::getSetSize(), INF); // Set all to max. value
 		acceptable = 0;
@@ -81,23 +68,6 @@ public:
          // Copy from paramset
          m_state_it->parameters |= o_state_it->parameters;
 
-         if (user_options.analysis()) {
-            // Copy from predecessors
-            auto m_preds_it = m_state_it->predecessors.begin();
-            auto o_preds_it = o_state_it->predecessors.begin();
-            while (m_preds_it != m_state_it->predecessors.end()) {
-               m_preds_it->second |= o_preds_it->second;
-               m_preds_it++; o_preds_it++;
-            }
-            // Copy from successors
-            auto m_succs_it = m_state_it->successors.begin();
-            auto o_succs_it = o_state_it->successors.begin();
-            while (m_succs_it != m_state_it->successors.end()) {
-               m_succs_it->second |= o_succs_it->second;
-               m_succs_it++; o_succs_it++;
-            }
-         }
-
          m_state_it++; o_state_it++;
       }
    }
@@ -107,19 +77,9 @@ public:
 	 */ 
 	void reset() {
 		// Clear each state
-		for (auto & state:states) {
+      for (auto & state:states)
 			// Reset merged parameters
 			state.parameters = 0;
-			// Reset parameters from predecessors, if there were new values
-         if (user_options.analysis()) {
-            for(auto & pred:state.predecessors) {
-               pred.second = 0;
-				}
-				for(auto & succ:state.successors) {
-					succ.second = 0;
-				}
-			}
-		}
 	}
 
 	/**
@@ -176,52 +136,12 @@ public:
 			return true;
 	}
 
-	/**
-    * Add passed colors to the state.
-	 *
-	 * @param source_ID	index of the state that passed this update
-	 * @param target_ID	index of the state to fill
-	 * @param parameters to add - if empty, add all, otherwise use bitwise or
-	 * 
-    * @return  true if there was an actuall update
-	 */
-	inline bool update(const StateID source_ID, const StateID target_ID, const Paramset parameters) {
-		// Mark parameters source and target
-      states[target_ID].predecessors.find(source_ID)->second |= parameters;
-      states[source_ID].successors.find(target_ID)->second |= parameters;
-		// Make an actuall update
-		return update(target_ID, parameters);
-	}
 
 	/**
     * Removes given paramset from the coloring of the given state.
 	 */
 	void remove(const StateID ID, const Paramset remove) {
 		states[ID].parameters &= ~remove;
-	}
-
-	/**
-    * Removes given paramset from the label of transitions to successors / from predecessors for a given state.
-	 *
-    * @param successors if true, use successors, predecessors otherwise
-	 */
-	void remove(const StateID source_ID, const Paramset remove, const bool successors) {
-		// reference
-		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
-		for(auto & neighbour:neigbours)
-			neighbour.second &= ~remove;
-	}
-
-	/**
-    * Removes given paramset from the label of transitions to a single successor / from a single predecessor for a given state.
-	 *
-	 * @param target_ID	ID of the state target state to remove parameset from labelling
-	 * @param successors	if true, use successors, predecessors otherwise
-	 */
-	void remove(const StateID source_ID, const StateID target_ID, const Paramset remove, const bool successors) {
-		// reference
-		auto neigbours = successors ? states[source_ID].successors : states[source_ID].predecessors;
-      neigbours.find(target_ID)->second &=~ remove;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -262,55 +182,6 @@ public:
 
 		// Return final vertices with their positions
 		return colors;
-	}
-
-	/** 
-	 * Get all the neigbours for this color from this state.
-	 *
-	 * @param ID	index of the state to ask for predecessors
-	 * @param successors	true if successors are required, false if predecessors
-	 * @param color_mask	if specified, restricts neighbour to only those that contain a subset of the parametrizations
-	 *
-    * @return  neigbours for given state
-	 */
-	inline const Neighbours getNeighbours(const StateID ID, const bool successors, const Paramset color_mask = INF) const {
-		// reference
-		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
-		// Data to fill
-		Neighbours color_neigh;
-
-		// Add these from the color
-		for(auto & neighbour:neigbours) {
-			// Test if the color is present
-         if ((neighbour.second & color_mask) != 0)
-            color_neigh.push_back(neighbour.first);
-      }
-
-		return color_neigh;
-	}
-
-	/** 
-    * Get all the labels on trasintions from given neighbours.
-	 *
-	 * @param ID	index of the state to ask for predecessors
-    * @param successors true if successors are required, false if predecessors
-	 * @param color_mask	if specified, restricts neighbour to only those that contain a subset of the parametrizations
-	 *
-    * @return  labelling on the neighbour labels
-	 */
-	inline const vector<Paramset> getMarking(const StateID ID, const bool successors, const Paramset color_mask = INF) const {
-		// reference
-		auto neigbours = successors ? states[ID].successors : states[ID].predecessors;
-
-		vector<Paramset> restricted;
-		// Add only those that contain the value
-		for(auto & neighbour:neigbours) {
-			// Test if the color is present
-         if ((neighbour.second & color_mask) != 0)
-            restricted.push_back(neighbour.second);
-      }
-
-		return restricted;
 	}
 
 	/**
