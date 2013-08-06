@@ -66,7 +66,7 @@ class SynthesisManager {
 	 * Store results that have not been stored yet and finalize the round where needed.
 	 */
 	void doConclusion() {
-		total_colors += paramset_helper.count(analyzer->getMask());
+		total_colors += ParamsetHelper::count(analyzer->getMask());
 		// Compute witnesses etc. if there is anything to computed, if so, print
 		if (analyzer->getMask()) {
 			if (user_options.analysis()) {
@@ -96,7 +96,7 @@ class SynthesisManager {
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
-			if (!paramset_helper.none(final_it->second) && !user_options.timeSeries())
+			if (!ParamsetHelper::none(final_it->second) && !user_options.timeSeries())
 				detectCycle(*final_it);
 
 			// Store results from this final state
@@ -115,7 +115,7 @@ class SynthesisManager {
 		else
 			starting = split_manager->createStartingParameters();
 
-		if (paramset_helper.none(starting))
+		if (ParamsetHelper::none(starting))
 			return;
 
 		// Set all the initial states to initial color

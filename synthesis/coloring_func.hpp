@@ -33,7 +33,7 @@ namespace ColoringFunc {
             // If transitive, add ones for the width of the step
             if (transitive_values[value_num]) {
                Paramset add = INF;
-               add >>= (paramset_helper.getSetSize() - bits_in_step);
+               add >>= (ParamsetHelper::getSetSize() - bits_in_step);
                temporary |= add;
             }
             // If we went throught the whole size, end

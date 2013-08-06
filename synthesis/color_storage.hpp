@@ -13,7 +13,6 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../construction/construction_holder.hpp"
-#include "paramset_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief An auxiliary class to the ProductStructure and stores colors and possibly predecessors for individual states of the product during the computation.
@@ -64,7 +63,7 @@ public:
       }
 
       // Set additional storage
-      cost_val = vector<size_t>(paramset_helper.getSetSize(), INF); // Set all to max. value
+      cost_val = vector<size_t>(ParamsetHelper::getSetSize(), INF); // Set all to max. value
 		acceptable = 0;
 	}
 

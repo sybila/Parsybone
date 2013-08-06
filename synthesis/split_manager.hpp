@@ -36,20 +36,20 @@ class SplitManager {
 	 */
 	void computeSubspace() {
 		// Number of full rounds for all processes
-		rounds_count = all_colors_count / (user_options.procCount() * paramset_helper.getSetSize());
-		ParamNum rest_bits = all_colors_count % (user_options.procCount() * paramset_helper.getSetSize());
-		last_round_bits = paramset_helper.getSetSize();
+      rounds_count = all_colors_count / (user_options.procCount() * ParamsetHelper::getSetSize());
+      ParamNum rest_bits = all_colors_count % (user_options.procCount() * ParamsetHelper::getSetSize());
+      last_round_bits = ParamsetHelper::getSetSize();
 
 		// If there is some leftover, add a round
-		if (ceil(static_cast<double>(rest_bits) / static_cast<double>(paramset_helper.getSetSize())) >= user_options.procNum()) {
+      if (ceil(static_cast<double>(rest_bits) / static_cast<double>(ParamsetHelper::getSetSize())) >= user_options.procNum()) {
 			rounds_count++;
 			// Pad last round
-			if ((rest_bits / paramset_helper.getSetSize()) == (user_options.procNum() - 1))
-				last_round_bits = rest_bits % paramset_helper.getSetSize();
+         if ((rest_bits / ParamsetHelper::getSetSize()) == (user_options.procNum() - 1))
+            last_round_bits = rest_bits % ParamsetHelper::getSetSize();
 		}
 		
 		// Get colors num for this process
-		process_color_count = (rounds_count - 1) * paramset_helper.getSetSize() + last_round_bits;
+      process_color_count = (rounds_count - 1) * ParamsetHelper::getSetSize() + last_round_bits;
 
 		// Set positions for the round
 		setStartPositions();
@@ -83,8 +83,8 @@ public:
 	 * Set values for the first round of computation.
 	 */
 	void setStartPositions() {
-		round_begin = (user_options.procNum() - 1) * paramset_helper.getSetSize();
-		round_end = round_begin + paramset_helper.getSetSize();
+      round_begin = (user_options.procNum() - 1) * ParamsetHelper::getSetSize();
+      round_end = round_begin + ParamsetHelper::getSetSize();
       round_number = 1;
 	}
 
@@ -97,8 +97,8 @@ public:
       if (++round_number > rounds_count)
          return false;
 
-		round_begin += (paramset_helper.getSetSize() * user_options.procCount());
-		round_end = round_begin + paramset_helper.getSetSize();
+      round_begin += (ParamsetHelper::getSetSize() * user_options.procCount());
+      round_end = round_begin + ParamsetHelper::getSetSize();
       return true;
 	}
 	
@@ -159,9 +159,9 @@ public:
 	 */
 	inline Paramset createStartingParameters() const {
 		if (!lastRound())
-			return paramset_helper.getAll();
+         return ParamsetHelper::getAll();
 		else
-			return (paramset_helper.getAll() >> (paramset_helper.getSetSize() - last_round_bits)) << (paramset_helper.getSetSize() - last_round_bits);
+         return (ParamsetHelper::getAll() >> (ParamsetHelper::getSetSize() - last_round_bits)) << (ParamsetHelper::getSetSize() - last_round_bits);
 	}
 };
 

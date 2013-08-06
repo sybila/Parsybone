@@ -13,3 +13,4 @@ ParsyboneTest/*
 *.toc
 *.dvi
 *autosave*
+count.sh

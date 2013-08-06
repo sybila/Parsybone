@@ -115,7 +115,7 @@ public:
 	 * @return number of Parameters e.g. number of rounds of computation
 	 */
 	inline size_t getColorsCount() {
-		return colors_sets.size() * paramset_helper.getSetSize();
+		return colors_sets.size() * ParamsetHelper::getSetSize();
 	}
 } bitmask_manager; ///< Single program-shared coloring parser object.
 

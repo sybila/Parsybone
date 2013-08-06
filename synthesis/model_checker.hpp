@@ -13,7 +13,6 @@
 
 #include "../construction/construction_holder.hpp"
 #include "color_storage.hpp"
-#include "paramset_helper.hpp"
 #include "coloring_func.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +82,7 @@ class ModelChecker {
         to_find &= ~store;
 
         // Store those that were found in this round
-        for (int color_pos = static_cast<int>(paramset_helper.getSetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
+        for (int color_pos = static_cast<int>(ParamsetHelper::getSetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
             if (store % 2)
                 BFS_reach[color_pos] = BFS_level;
         }
@@ -107,7 +106,7 @@ class ModelChecker {
         // For all passed values make update on target
         for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
             // Skip empty updates
-            if (paramset_helper.none(update_it->second))
+            if (ParamsetHelper::none(update_it->second))
                 continue;
 
             // If something new is added to the target, schedule it for an update
@@ -178,7 +177,7 @@ class ModelChecker {
         BFS_level = 0; // Set sterting number of BFS
         next_updates.clear(); // Ensure emptiness of the next round
         BFS_reach.clear();
-        BFS_reach.resize(paramset_helper.getSetSize(), INF); // Begin with infinite reach (symbolized by INF)
+        BFS_reach.resize(ParamsetHelper::getSetSize(), INF); // Begin with infinite reach (symbolized by INF)
         next_round_storage.reset(); // Copy starting values
     }
 

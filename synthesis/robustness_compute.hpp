@@ -39,16 +39,16 @@ class RobustnessCompute {
          marking.current_prob.assign(marking.current_prob.size(), 0.0);
          marking.next_prob.assign(marking.next_prob.size(), 0.0);
       }
-      results.assign(paramset_helper.getSetSize(), 0.0);
+      results.assign(ParamsetHelper::getSetSize(), 0.0);
    }
 
    /**
     * For each state compute how many exists are under each parametrization.
     */
    void computeExits() {
-      Paramset current_mask = paramset_helper.getLeftOne();
+      Paramset current_mask = ParamsetHelper::getLeftOne();
       // Cycle through parameters
-      for (size_t param_num:range(paramset_helper.getSetSize())) {
+      for (size_t param_num:range(ParamsetHelper::getSetSize())) {
          // If not acceptable, leave zero
          if (current_mask & storage.getAcceptable()) {
             for (StateID ID:range(product.getStateCount())) {
@@ -104,12 +104,12 @@ public:
     */
    RobustnessCompute(const ConstructionHolder & _holder, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
       : product(_holder.getProduct()), storage(_storage), searcher(_searcher) {
-      Marking empty = { vector<unsigned char>(paramset_helper.getSetSize(), 0),
-         vector<double>(paramset_helper.getSetSize(), 0.0),
-         vector<double>(paramset_helper.getSetSize(), 0.0)
+      Marking empty = { vector<unsigned char>(ParamsetHelper::getSetSize(), 0),
+         vector<double>(ParamsetHelper::getSetSize(), 0.0),
+         vector<double>(ParamsetHelper::getSetSize(), 0.0)
       };
       markings.resize(product.getStateCount(), empty);
-      results.resize(paramset_helper.getSetSize(), 0.0);
+      results.resize(ParamsetHelper::getSetSize(), 0.0);
    }
 
    /**
@@ -131,7 +131,7 @@ public:
          // Assign probabilites for the initial states
          initiate();
          // Cycle through parametrizations
-         for (size_t param_num = 0; param_num != paramset_helper.getSetSize(); param_num++) {
+         for (size_t param_num = 0; param_num != ParamsetHelper::getSetSize(); param_num++) {
             // For the parametrization cycle through transitions
             for (const auto & trans:transitions[param_num]) {
                size_t divisor = markings[trans.first].exits[param_num]; // Count succesor

@@ -21,37 +21,30 @@
 /// Here are methods that provide help when working with subsets of parametrization space.
 /// @attention Parametrizations in an Paramset are ordered in an ascending order.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ParamsetHelper {
-   const static size_t subset_size = sizeof(Paramset) * 8; ///< Size in bits of a single subset of parametrization space.
-   const static Paramset all = static_cast<Paramset>(INF); ///< Parametrization set with all the bits set to 1.
+namespace ParamsetHelper {
+   const  size_t subset_size = sizeof(Paramset) * 8; ///< Size in bits of a single subset of parametrization space.
+   const  Paramset all = static_cast<Paramset>(INF); ///< Parametrization set with all the bits set to 1.
 
-public:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// VALUE GETTERS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * @return  number of parametrizations in a single round
     */
-   inline static size_t getSetSize() {
+   inline  size_t getSetSize() {
       return subset_size;
    }
    /**
     * @return  paramset with everything set to 1
     */
-   inline Paramset getAll() const {
+   inline Paramset getAll()  {
       return all;
    }
 
    /**
     * @return  paramset that holds value of the binary form 10...0 (leftmost parametrization)
     */
-   Paramset getLeftOne(ParamNum size = subset_size ) const {
+   Paramset getLeftOne(ParamNum size = subset_size )  {
       return (1 << (size - 1));
    }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// TRANSFORMERS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Computer a vector of masks of single parametrizations - i.e. 10010 would give {10000,00010}.
     *
@@ -59,7 +52,7 @@ public:
     *
     * @return vector containing a paramset with a single parametrization for each parametrization in input paramset
     */
-   vector<Paramset> getSingleMasks(Paramset paramset) const {
+   vector<Paramset> getSingleMasks(Paramset paramset)  {
       vector<Paramset> masks;
       Paramset mask = getLeftOne();
       for (size_t counter = 0; counter < getSetSize(); counter++) {
@@ -77,7 +70,7 @@ public:
     *
     * @return  Paramset mask
     */
-   Paramset getMaskFromNums(const vector<size_t> numbers) const {
+   Paramset getMaskFromNums(const vector<size_t> numbers)  {
       Paramset full_mask = 0;
       for (auto num = numbers.begin(); num != numbers.end(); num++) {
          if (*num > getSetSize())
@@ -94,7 +87,7 @@ public:
     *
     * @return  copy of input with swapped bits.
     */
-   inline Paramset flip(const Paramset paramset)  const {
+   inline Paramset flip(const Paramset paramset)   {
       return ~paramset;
    }
 
@@ -105,7 +98,7 @@ public:
     *
     * @return  copy of input with descending order of paramset
     */
-   inline Paramset swap(Paramset paramset) const {
+   inline Paramset swap(Paramset paramset)  {
       Paramset new_params = 0;
       for (size_t param_num = 0; param_num < getSetSize(); param_num++) {
          new_params <<= 1;
@@ -124,15 +117,11 @@ public:
     *
     * @return  copy of input with descending order of paramset
     */
-   inline Paramset swap(Paramset paramset, const size_t shift) const {
+   inline Paramset swap(Paramset paramset, const size_t shift)  {
       paramset = swap(paramset);
       paramset >>= shift;
       return paramset;
    }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ANALYZERS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Count bits. From The Art of Computer Programming Vol IV, p 11.
     *
@@ -143,7 +132,7 @@ public:
    #define MASK_01010101 (((unsigned int)(-1))/3)
    #define MASK_00110011 (((unsigned int)(-1))/5)
    #define MASK_00001111 (((unsigned int)(-1))/17)
-   int count (Paramset n) const {
+   int count (Paramset n)  {
       n = (n & MASK_01010101) + ((n >> 1) & MASK_01010101) ;
       n = (n & MASK_00110011) + ((n >> 2) & MASK_00110011) ;
       n = (n & MASK_00001111) + ((n >> 4) & MASK_00001111) ;
@@ -157,7 +146,7 @@ public:
     *
     * @return true if none of the paremters is set
     */
-   inline bool none(Paramset paramset) const {
+   inline bool none(Paramset paramset)  {
       return (paramset == 0);
    }
 
@@ -168,7 +157,7 @@ public:
     *
     * @return  position of the bit in the mask (from the left)
     */
-   inline size_t getBitNum(Paramset paramset) const {
+   inline size_t getBitNum(Paramset paramset)  {
       if (count(paramset) != 1)
          throw runtime_error("getBitNum called on colorset with different number of on bits than one.");
 
@@ -182,6 +171,6 @@ public:
       // Return the bit position
       return ((getSetSize() - 1) - bit_num);
    }
-} paramset_helper; ///< Single program-shared paramset helper object.
+}
 
 #endif // PARSYBONE_PARAMSET_HELPER_INCLUDED

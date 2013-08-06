@@ -55,8 +55,8 @@ class WitnessSearcher {
       markings[path[depth]].succeeded |= which;
 
       // Add transitions to the parametrizations that allow them
-      Paramset marker = paramset_helper.getLeftOne();
-      for (size_t param = 0; param < paramset_helper.getSetSize(); param++) {
+      Paramset marker = ParamsetHelper::getLeftOne();
+      for (size_t param = 0; param < ParamsetHelper::getSetSize(); param++) {
          if (which & marker) {
             transitions[param].insert(trans.begin(), trans.end());
          }
@@ -121,7 +121,7 @@ class WitnessSearcher {
       path = vector<StateID>(storage.getMaxDepth() + 1, 0);
       // Empty the storage of transitions
       transitions.clear();
-      transitions.resize(paramset_helper.getSetSize());
+      transitions.resize(ParamsetHelper::getSetSize());
       // Clear markings
       for (auto & marking:markings) {
          marking.succeeded = 0;
@@ -151,7 +151,7 @@ class WitnessSearcher {
 
       // Fill masks based on the members vector
       for (const auto & numbers:members) {
-         depth_masks.push_back(paramset_helper.getMaskFromNums(numbers));
+         depth_masks.push_back(ParamsetHelper::getMaskFromNums(numbers));
       }
    }
 
@@ -163,7 +163,7 @@ public:
       : product(_holder.getProduct()), storage(_storage) {
       Marking empty = {0, vector<Paramset>(product.getStateCount(), 0)};
       markings.resize(product.getStateCount(), empty);
-      string_paths.resize(paramset_helper.getSetSize(), "");
+      string_paths.resize(ParamsetHelper::getSetSize(), "");
    }
 
    /**
