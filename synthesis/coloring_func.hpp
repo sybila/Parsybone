@@ -21,7 +21,7 @@ namespace ColoringFunc {
       // Mask that will be created
       register Paramset temporary = 0;
 
-      // COMPUTATION OF MASK
+      // COMPUTATION OF THE MASK
       // List through all the paramters
       while (true) {
          // List through ALL the target values

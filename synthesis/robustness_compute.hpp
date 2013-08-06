@@ -19,6 +19,7 @@ class RobustnessCompute {
    const ProductStructure & product; ///< Product reference for state properties.
    const ColorStorage & storage; ///< Constant storage with the actuall data.
    const WitnessSearcher & searcher; ///< Reference to the searcher that contains transitions.
+   Range round_range; ///< Range of parametrizations used this round
 
    /// This structure holds values used in the iterative process of robustness computation.
    struct Marking {
@@ -51,15 +52,16 @@ class RobustnessCompute {
       for (size_t param_num:range(ParamsetHelper::getSetSize())) {
          // If not acceptable, leave zero
          if (current_mask & storage.getAcceptable()) {
-            for (StateID ID:range(product.getStateCount())) {
-               auto succs = storage.getNeighbours(ID, true, current_mask);
+            for (StateID ID = 0; ID < product.getStateCount(); ID++) {
+               auto succs = ColoringFunc::broadcastParameters(round_range, product, ID, current_mask);
+
                StateID max_BA = 0;
-               for (auto succ:succs) {
-                  max_BA = max(max_BA, product.getBAID(succ));
+               for (Coloring succ:succs) {
+                  max_BA = max(max_BA, product.getBAID(succ.first));
                }
                size_t exits = 0;
-               for (auto succ:succs) {
-                  exits += static_cast<size_t>(max_BA == product.getBAID(succ));
+               for (Coloring succ:succs) {
+                  exits += static_cast<size_t>(max_BA == product.getBAID(succ.first));
                }
                markings[ID].exits[param_num] = exits;
             }
@@ -74,14 +76,12 @@ class RobustnessCompute {
     */
    void initiate() {
       // Cycle through vectors of initial states for every parametrization
-      /*auto initials = product.getInitialStates();
+      const vector<StateID> & initials = product.getInitialStates();
       size_t param_num = 0;
-      for (auto init_it = initials.begin(); init_it != initials.end(); init_it++, param_num++) {
+      for (StateID init:initials) {
          // Cycle through the states for this parametrization and assign them the weighted probability
-         for (auto node_it = init_it->begin(); node_it != init_it->end(); node_it++) {
-            markings[*node_it].next_prob[param_num] = 1.0 / init_it->size();
-         }
-      }*/
+         markings[init].next_prob[param_num] = 1.0 / initials.size();
+      }
    }
 
    /**
@@ -94,9 +94,6 @@ class RobustnessCompute {
          }
       }
    }
-
-   RobustnessCompute(const RobustnessCompute & other); ///< Forbidden copy constructor.
-   RobustnessCompute& operator=(const RobustnessCompute & other); ///< Forbidden assignment operator.
 
 public:
    /**
@@ -115,7 +112,8 @@ public:
    /**
     * Function that computes robustness values for each parametrization.
     */
-   void compute() {
+   void compute(const Range & _round_range) {
+      round_range = _round_range;
       clear();
       computeExits();
       initiate();

@@ -22,7 +22,6 @@
 class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties.
    const ColorStorage & storage; ///< Constant storage with the actuall data.
-
    Range round_range; ///< Range of parametrizations used this round
 
    vector<set<pair<StateID, StateID> > > transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
@@ -49,7 +48,7 @@ class WitnessSearcher {
 
       // Go from the end till the lastly reached node
       for (size_t step = 0; step < depth; step++) {
-         trans.push_back(make_pair(path[step+1], path[step]));
+         trans.push_back(make_pair(path[step], path[step+1]));
          markings[path[step]].succeeded |= which; // Mark found for given parametrizations
       }
       markings[path[depth]].succeeded |= which;
@@ -199,9 +198,9 @@ public:
             // Reformes based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
                if (!user_options.longWit())
-                  path.append(toString(trans_it->second)).append(">").append(toString(trans_it->first)).append(",");
+                  path.append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append(",");
                else
-                  path.append(product.getString(trans_it->second)).append(">").append(product.getString(trans_it->first)).append(",");
+                  path.append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second)).append(",");
             }
             if (path.length() == 1)
                path.append("}");

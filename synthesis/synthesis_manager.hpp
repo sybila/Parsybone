@@ -71,7 +71,7 @@ class SynthesisManager {
 		if (analyzer->getMask()) {
 			if (user_options.analysis()) {
             searcher->findWitnesses(split_manager.get()->getRoundRange());
-				robustness->compute();
+            robustness->compute(split_manager.get()->getRoundRange());
 			}
 			// Output what has been synthetized (colors, witnesses)
 			output->outputRound();
