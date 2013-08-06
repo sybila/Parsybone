@@ -35,7 +35,7 @@ class WitnessSearcher {
    /// This structure stores "already tested" paramsets for a state.
    struct Marking {
       Paramset succeeded; ///< Mask of those parametrizations that have found a paths from this state.
-      vector<Paramset> busted; ///< Mask of the parametrizations that are guaranteed to not find a path in (Cost - depth) steps.
+      vector<size_t> busted; ///< Mask of the parametrizations that are guaranteed to not find a path in (Cost - depth) steps.
    };
    vector<Marking> markings; ///< Actuall marking of the states.
 
@@ -82,17 +82,23 @@ class WitnessSearcher {
       paramset &= ~depth_masks[depth];
 
       // Remove parametrizations that already have proven to be used/useless
-      for (size_t level = 1; level < depth && paramset; level++)
-         paramset &= ~markings[ID].busted[level];
+      Paramset swapped = ParamsetHelper::swap(paramset);
+      for (size_t param_no = 0; param_no < ParamsetHelper::getSetSize(); param_no++) {
+         if ((swapped >> param_no) % 2) {
+            if (markings[ID].busted[param_no] < depth) {
+               swapped ^= (1u << param_no);
+            } else {
+               markings[ID].busted[param_no] = depth;
+            }
+         }
+      }
+      paramset &= ParamsetHelper::swap(swapped);
 
-      // If this state already has proven to lie on a path to the source, add this possible successors
+      // If this state already has proven to lie on a path to the final, add this possible path
       // Note that this works correctly due to the fact, that parametrizations are removed form the BFS during the coloring once they prove acceptable
       Paramset connected = markings[ID].succeeded & paramset;
       if (connected)
          storeTransitions(connected, depth);
-
-      paramset &= ~markings[ID].busted[depth];
-      markings[ID].busted[depth] |= paramset; // Forbid usage of these parametrizations for depth levels as high or higher than this one
 
       // If there is anything left, pass it further to the predecessors
       if (paramset) {
@@ -124,7 +130,7 @@ class WitnessSearcher {
       // Clear markings
       for (auto & marking:markings) {
          marking.succeeded = 0;
-         marking.busted.assign(marking.busted.size(),0);
+         marking.busted.assign(marking.busted.size(), INF);
       }
    }
 
@@ -160,7 +166,7 @@ public:
     */
    WitnessSearcher(const ConstructionHolder & _holder, const ColorStorage & _storage)
       : product(_holder.getProduct()), storage(_storage) {
-      Marking empty = {0, vector<Paramset>(product.getStateCount(), 0)};
+      Marking empty = {0, vector<size_t>(ParamsetHelper::getSetSize(), INF)};
       markings.resize(product.getStateCount(), empty);
       string_paths.resize(ParamsetHelper::getSetSize(), "");
    }
