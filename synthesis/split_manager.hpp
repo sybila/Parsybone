@@ -12,6 +12,7 @@
 #include "../auxiliary/user_options.hpp"
 #include "../auxiliary/output_streamer.hpp"
 #include "paramset_helper.hpp"
+#include "../parsing/bitmask_manager.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class responsible for division of a parametrization space between rounds within a process.

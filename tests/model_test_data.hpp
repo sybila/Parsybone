@@ -8,24 +8,22 @@
 #include "../construction/construction_manager.hpp"
 
 using namespace std;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class holds an artificial model of the form:
 ///
 ///
-///Basic model:
+/// Basic model:
 /// max(cA)=1, max(cB)=3
 /// cA <- -cA:1, -cB:1, +|-cB:3
 /// cB <- +cA:1
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 class ModelsTest : public ::testing::Test {
 protected:
     Model trivial_model;
     Model one_three;
     Model bool_k_2;
-    PropertyAutomaton trivial_prop;
+    PropertyAutomaton trivial_aut;
     PropertyAutomaton o_t_series_aut;
     PropertyAutomaton cA_cyclic_aut;
 
@@ -49,8 +47,8 @@ protected:
     }
 
     void setUpAutomata() {
-        trivial_prop.addState("triv0", true);
-        trivial_prop.addEdge(0,0,"tt");
+        trivial_aut.addState("triv0", true);
+        trivial_aut.addEdge(0,0,"tt");
 
         o_t_series_aut.addState("ser0", false);
         o_t_series_aut.addState("ser1", false);

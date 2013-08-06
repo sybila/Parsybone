@@ -22,8 +22,8 @@ protected:
       o_t_series = ConstructionManager::construct(one_three, o_t_series_aut);
       o_t_cyclic = ConstructionManager::construct(one_three, cA_cyclic_aut);
       b_k_2_cyclic = ConstructionManager::construct(bool_k_2, cA_cyclic_aut);
-      b_k_2_trivial = ConstructionManager::construct(bool_k_2, trivial_prop);
-      trivial = ConstructionManager::construct(trivial_model, trivial_prop);
+      b_k_2_trivial = ConstructionManager::construct(bool_k_2, trivial_aut);
+      trivial = ConstructionManager::construct(trivial_model, trivial_aut);
    }
 };
 
