@@ -130,6 +130,8 @@ public:
 	 */
 	void buildStructure() {
       size_t transition_count = 0;
+      const size_t state_count = accumulate(maxes.begin(), maxes.end(), 1, [](const size_t res, const size_t val){return res * (val + 1);});
+      size_t state_no = 0;
 
 		// Create initial state (by its values)
 		Levels levels(species_count, 0);
@@ -137,6 +139,7 @@ public:
 		// Create states 
       StateID ID = 0;
       do {
+         output_streamer.output(verbose_str, "Enumerating state: " + toString(++state_no) + "/" + toString(state_count) + ".      ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 			// Fill the structure with the state
 			structure.addState(ID, levels, move(createLabel(levels)));
 			storeNeigbours(ID, levels, maxes);
@@ -146,7 +149,8 @@ public:
          ID++;
       } while (iterate(maxes, mins, levels));
 
-      output_streamer.output(verbose_str, "Transition system has " + toString(states_count) + " states with " + toString(transition_count) + " transitions.");
+      output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+      // output_streamer.output(verbose_str, "Transition system has " + toString(states_count) + " states with " + toString(transition_count) + " transitions.");
 	}
 };
 

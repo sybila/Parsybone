@@ -106,8 +106,7 @@ class ParametrizationsBuilder {
 
       // Cycle through all colors
       do {
-         if(user_options.verbose())
-            outputProgress();
+         outputProgress();
          // Test if the parametrization satisfies constraints.
          if (!testSubparametrization(model, ID, subcolor))
             continue;
@@ -155,8 +154,7 @@ public:
       for (SpecieID ID = 0; ID < model.species.size(); ID++)
          createKinetics(model, ID);
 
-      if(user_options.verbose())
-         output_streamer.output(verbose_str, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+      output_streamer.output(verbose_str, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
    }
 };
 ParamNum ParametrizationsBuilder::color_tested;

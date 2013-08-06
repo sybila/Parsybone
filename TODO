@@ -1,0 +1,7 @@
+Parametrizations must be parseable from a database.
+
+Range-based representations must be included.
+
+Control of automata transitions must be edge-based.
+
+Free states that are not used anymore.

@@ -116,19 +116,22 @@ public:
     */
    void buildProduct() {
       size_t transition_count = 0;
+      const size_t state_count = structure.getStateCount() * automaton.getStateCount();
+      size_t state_no = 0;
 
       // Creates states and their transitions
       for (size_t KS_ID = 0; KS_ID < structure.getStateCount(); KS_ID++) {
          for (size_t BA_ID = 0; BA_ID < automaton.getStateCount(); BA_ID++) {
+            output_streamer.output(verbose_str, "Building product state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
             createProductState(KS_ID, BA_ID, transition_count);
          }
       }
+      output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 
       // Create final and intial states vectors
       markStates();
 
-      output_streamer.output(verbose_str, "Product automaton has " + toString(structure.getStateCount() * automaton.getStateCount()) + " states with "
-                             + toString(transition_count) + " transitions.");
+      // output_streamer.output(verbose_str, "Product automaton has " + toString(structure.getStateCount() * automaton.getStateCount()) + " states with " + toString(transition_count) + " transitions.");
    }
 };
 

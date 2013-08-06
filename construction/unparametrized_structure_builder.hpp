@@ -184,8 +184,12 @@ public:
     * Create the states from the model and fill the structure with them.
 	 */
 	void buildStructure() {
+      const size_t state_count = basic_structure.getStateCount();
+      size_t state_no = 0;
+
 		// Recreate all the states of the simple structure
 		for(StateID ID = 0; ID < basic_structure.getStateCount(); ID++) {
+         output_streamer.output(verbose_str, "Building model state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 
 			// Create a new state from the known data
 			const Levels & state_levels = basic_structure.getStateLevels(ID);
@@ -195,6 +199,8 @@ public:
 			// Add all the transitions
 			addTransitions(ID, state_levels);
 		}
+
+      output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 	}
 };
 

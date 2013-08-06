@@ -27,9 +27,7 @@ class ColorStorage {
 	};
 	
 	vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data.
-	/// This vector stores so-called COST value i.e. number of steps required to reach the final state in TS.
-	/// If it is not reachable, cost is set to INF.
-	vector<size_t> cost_val;
+   vector<size_t> cost_val; ///< This vector stores so-called COST value i.e. number of steps required to reach the final state in TS. If it is not reachable, cost is set to INF.
    Paramset acceptable; ///< Additional value that stores paramset computed in this round.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

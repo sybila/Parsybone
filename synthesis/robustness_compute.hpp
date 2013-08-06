@@ -77,10 +77,12 @@ class RobustnessCompute {
    void initiate() {
       // Cycle through vectors of initial states for every parametrization
       const vector<StateID> & initials = product.getInitialStates();
-      size_t param_num = 0;
-      for (StateID init:initials) {
-         // Cycle through the states for this parametrization and assign them the weighted probability
-         markings[init].next_prob[param_num] = 1.0 / initials.size();
+
+      // Cycle through the states and assign them the weighted probability
+      for (size_t param_num = 0; param_num < ParamsetHelper::getSetSize(); param_num++) {
+         for (StateID init:initials) {
+            markings[init].next_prob[param_num] = 1.0 / initials.size();
+         }
       }
    }
 
@@ -102,9 +104,8 @@ public:
    RobustnessCompute(const ConstructionHolder & _holder, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
       : product(_holder.getProduct()), storage(_storage), searcher(_searcher) {
       Marking empty = { vector<unsigned char>(ParamsetHelper::getSetSize(), 0),
-         vector<double>(ParamsetHelper::getSetSize(), 0.0),
-         vector<double>(ParamsetHelper::getSetSize(), 0.0)
-      };
+                        vector<double>(ParamsetHelper::getSetSize(), 0.0),
+                        vector<double>(ParamsetHelper::getSetSize(), 0.0) };
       markings.resize(product.getStateCount(), empty);
       results.resize(ParamsetHelper::getSetSize(), 0.0);
    }

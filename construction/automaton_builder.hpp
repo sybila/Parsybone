@@ -202,14 +202,19 @@ public:
     */
    void buildAutomaton(const PropertyAutomaton & source, AutomatonStructure & automaton) {
       size_t transition_count = 0;
+      const size_t state_count = source.getStatesCount();
+      size_t state_no = 0;
+
 
       // List throught all the automaton states
       for (StateID ID = 0; ID < source.getStatesCount(); ID++) {
+         output_streamer.output(verbose_str, "Building automaton state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
          // Fill auxiliary data
          automaton.addState(ID, source.isFinal(ID));
          // Add transitions for this state
          addTransitions(source, automaton, ID, transition_count);
       }
+      output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
    }
 };
 
