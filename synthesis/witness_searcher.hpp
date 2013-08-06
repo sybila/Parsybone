@@ -64,20 +64,9 @@ class WitnessSearcher {
    }
 
    /**
-    * Searching procedure itself. This method is called recursivelly based on the depth of the search and passes current parametrizations based on the predecessors.
-    * @param ID   ID of the state visited
-    * @param paramset   parametrizations passed form the successor
+    * @brief removeIrelevant remove parametrizations that either proved to not to lead anywhere from here
     */
-   void DFS(const StateID ID, Paramset paramset) {
-      // Add the state to the path
-      path[depth] = ID;
-      if (depth > max_depth)
-         throw runtime_error("Depth boundary overcome during the DFS procedure.");
-
-      // If a way to the source was found, apply it as well
-      if (product.isFinal(ID))
-         storeTransitions(paramset, depth);
-
+   Paramset removeIrelevant(const StateID ID, Paramset paramset) {
       // Remove those with Cost lower than this level of the search (meaning that nothing more that cycles would be found)
       paramset &= ~depth_masks[depth];
 
@@ -92,23 +81,39 @@ class WitnessSearcher {
             }
          }
       }
-      paramset &= ParamsetHelper::swap(swapped);
+      return (paramset & ParamsetHelper::swap(swapped));
+   }
+
+   /**
+    * Searching procedure itself. This method is called recursivelly based on the depth of the search and passes current parametrizations based on the predecessors.
+    * @param ID   ID of the state visited
+    * @param paramset   parametrizations passed form the successor
+    */
+   void DFS(const StateID ID, Paramset paramset) {
+      // Add the state to the path
+      path[depth] = ID;
+      assert(depth <= max_depth);
+
+      // If a way to the source was found, apply it as well
+      if (product.isFinal(ID))
+         storeTransitions(paramset, depth);
+
+      // Remove those that should be removed.
+      paramset = removeIrelevant(ID, paramset);
 
       // If this state already has proven to lie on a path to the final, add this possible path
-      // Note that this works correctly due to the fact, that parametrizations are removed form the BFS during the coloring once they prove acceptable
       Paramset connected = markings[ID].succeeded & paramset;
       if (connected)
          storeTransitions(connected, depth);
+      paramset &= ~connected;
 
       // If there is anything left, pass it further to the predecessors
       if (paramset) {
          depth++;
 
          auto succs = ColoringFunc::broadcastParameters(round_range, product, ID, paramset); // Get predecessors
-
-         for (const Coloring & succ: succs) {
+         for (const Coloring & succ: succs)
             DFS(succ.first, succ.second); // Recursive descent with parametrizations passed from the predecessor.
-         }
 
          depth--;
       }
@@ -117,7 +122,7 @@ class WitnessSearcher {
    /**
     * Clear the data objects used during the computation that may contain some data from the previous round.
     */
-   void clearPaths() {
+   void clearStorage() {
       // Empty strings
       for(auto & path:string_paths) {
          path = "";
@@ -137,7 +142,7 @@ class WitnessSearcher {
    /**
     * Fills a depth_masks vector that specifies which of the parametrizations end at which round.
     */
-   void prepareMasks() {
+   void prepareDepthMask() {
       // clear the data
       depth_masks.clear();
 
@@ -158,6 +163,10 @@ class WitnessSearcher {
       for (const auto & numbers:members) {
          depth_masks.push_back(ParamsetHelper::getMaskFromNums(numbers));
       }
+
+      // Initialize remaining values
+      depth = 0;
+      max_depth = storage.getMaxDepth();
    }
 
 public:
@@ -178,10 +187,8 @@ public:
       round_range = _round_range;
 
       // Preparation
-      clearPaths();
-      prepareMasks();
-      depth = 0;
-      max_depth = storage.getMaxDepth();
+      clearStorage();
+      prepareDepthMask();
 
       // Search paths from all the final states
       auto inits = product.getInitialStates();
