@@ -12,7 +12,6 @@
 #include "PunyHeaders/common_functions.hpp"
 
 #include "../auxiliary/data_types.hpp"
-#include "../construction/construction_holder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief An auxiliary class to the ProductStructure and stores colors and possibly predecessors for individual states of the product during the computation.
@@ -40,9 +39,8 @@ public:
 	 *
 	 * @param states_count	number of states the structure the data will be saved for has
 	 */
-   ColorStorage(const ConstructionHolder & holder) {
+   ColorStorage(const ProductStructure & product) {
       // Create states
-      const ProductStructure & product = holder.getProduct();
       for (StateID ID = 0; ID < product.getStateCount(); ID++) {
          states.push_back(ID);
 		}

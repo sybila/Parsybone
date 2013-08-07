@@ -9,7 +9,6 @@
 #ifndef PARSYBONE_WITNESS_SEARCHER_INCLUDED
 #define PARSYBONE_WITNESS_SEARCHER_INCLUDED
 
-#include "../construction/construction_holder.hpp"
 #include "coloring_func.hpp"
 #include "color_storage.hpp"
 
@@ -173,8 +172,8 @@ public:
    /**
     * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
-   WitnessSearcher(const ConstructionHolder & _holder, const ColorStorage & _storage)
-      : product(_holder.getProduct()), storage(_storage) {
+   WitnessSearcher(const ProductStructure & _product, const ColorStorage & _storage)
+      : product(_product), storage(_storage) {
       Marking empty = {0, vector<size_t>(ParamsetHelper::getSetSize(), INF)};
       markings.resize(product.getStateCount(), empty);
       string_paths.resize(ParamsetHelper::getSetSize(), "");

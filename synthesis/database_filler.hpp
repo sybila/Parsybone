@@ -3,7 +3,6 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
-#include "../construction/construction_holder.hpp"
 #include "SQLAdapter.hpp"
 
 class DatabaseFiller {

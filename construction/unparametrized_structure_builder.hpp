@@ -25,7 +25,6 @@ class UnparametrizedStructureBuilder {
    // Provided with the constructor
    const Model & model;
    const BasicStructure & basic_structure; ///< Provider of basic KS data.
-   UnparametrizedStructure & structure; ///< KipkeStructure to fill.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TESTING METHODS:
@@ -153,7 +152,7 @@ class UnparametrizedStructureBuilder {
 	 * @param ID	state from which the transitions should lead
 	 * @param state_levels	activation levels in this state
 	 */
-	void addTransitions(const StateID ID, const Levels & state_levels) {
+   void addTransitions(const StateID ID, const Levels & state_levels, UnparametrizedStructure & structure) {
 		// Go through all the original transitions
 		for (size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(ID); trans_num++) {
 			// Data to fill
@@ -168,22 +167,19 @@ class UnparametrizedStructureBuilder {
 			}
 		}	
 	}
-	
-	UnparametrizedStructureBuilder(const UnparametrizedStructureBuilder & other); ///< Forbidden copy constructor.
-	UnparametrizedStructureBuilder& operator=(const UnparametrizedStructureBuilder & other); ///< Forbidden assignment operator.
-
 public:
 	/**
     * Constructor just attaches the references to data holders.
 	 */
-   UnparametrizedStructureBuilder(const Model & _model, const BasicStructure & _basic_structure, UnparametrizedStructure & _structure)
-        : model(_model), basic_structure(_basic_structure), structure(_structure)  {
+   UnparametrizedStructureBuilder(const Model & _model, const BasicStructure & _basic_structure)
+        : model(_model), basic_structure(_basic_structure) {
 	}
 
 	/**
     * Create the states from the model and fill the structure with them.
 	 */
-	void buildStructure() {
+   UnparametrizedStructure buildStructure() {
+      UnparametrizedStructure structure;
       const size_t state_count = basic_structure.getStateCount();
       size_t state_no = 0;
 
@@ -197,10 +193,12 @@ public:
 			structure.addState(ID, state_levels, label);
 
 			// Add all the transitions
-			addTransitions(ID, state_levels);
+         addTransitions(ID, state_levels, structure);
 		}
 
       output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+
+      return structure;
 	}
 };
 

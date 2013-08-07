@@ -18,9 +18,8 @@
 /// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ProductBuilder {
-   const UnparametrizedStructure & structure; ///< Provides info about KS states.
-   const AutomatonStructure & automaton; ///< Provides info about BA states.
-   ProductStructure & product; ///< Product to build.
+   const UnparametrizedStructure & structure;
+   const AutomatonStructure & automaton;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // COMPUTATION METHODS:
@@ -51,7 +50,7 @@ class ProductBuilder {
    /**
     * Create set with indexes of final and initial states of the product.
     */
-   void markStates() {
+   void markStates(ProductStructure & product) const {
       for (size_t ba_state_num = 0; ba_state_num < automaton.getStateCount(); ba_state_num++) {
          // Insert the state if it is an initial state
          if (ba_state_num == 0) {
@@ -75,13 +74,13 @@ class ProductBuilder {
     * @param BA_ID	source in the BA
     * @param transition_count	value which counts the transition for the whole product, will be filled
     */
-   void createProductState(const StateID KS_ID, const StateID BA_ID, size_t & transition_count) {
+   void createProductState(const StateID KS_ID, const StateID BA_ID, size_t & transition_count, ProductStructure & product) const {
       // Add this state
-      product.addState(KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID));
+      product.addState(KS_ID, BA_ID, structure, automaton);
       const StateID ID = product.getProductID(KS_ID, BA_ID);
 
       // Get all possible BA targets
-      auto BA_targets = move(getReachableBA(KS_ID, BA_ID));
+      auto BA_targets = getReachableBA(KS_ID, BA_ID);
 
       // Add all the transitions possible
       for (size_t KS_trans = 0; KS_trans < structure.getTransitionCount(KS_ID); KS_trans++) {
@@ -101,20 +100,15 @@ class ProductBuilder {
       }
    }
 
-   ProductBuilder(const ProductBuilder & other); ///< Forbidden copy constructor.
-   ProductBuilder& operator=(const ProductBuilder & other); ///< Forbidden assignment operator.
 
 public:
-   /**
-    * Constructor just attaches the references of data holders.
-    */
-   ProductBuilder(const UnparametrizedStructure & _structure, const AutomatonStructure & _automaton, ProductStructure & _product)
-      : structure(_structure), automaton(_automaton), product(_product){ }
+   ProductBuilder(const UnparametrizedStructure & _structure, const AutomatonStructure & _automaton) : structure(_structure), automaton(_automaton) {}
 
    /**
     * Create the the synchronous product of the provided BA and UKS.
     */
-   void buildProduct() {
+   ProductStructure buildProduct() const {
+      ProductStructure product(automaton.getStateCount(), structure.getStateCount());
       size_t transition_count = 0;
       const size_t state_count = structure.getStateCount() * automaton.getStateCount();
       size_t state_no = 0;
@@ -123,15 +117,17 @@ public:
       for (size_t KS_ID = 0; KS_ID < structure.getStateCount(); KS_ID++) {
          for (size_t BA_ID = 0; BA_ID < automaton.getStateCount(); BA_ID++) {
             output_streamer.output(verbose_str, "Building product state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-            createProductState(KS_ID, BA_ID, transition_count);
+            createProductState(KS_ID, BA_ID, transition_count, product);
          }
       }
       output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 
       // Create final and intial states vectors
-      markStates();
+      markStates( product);
 
       // output_streamer.output(verbose_str, "Product automaton has " + toString(structure.getStateCount() * automaton.getStateCount()) + " states with " + toString(transition_count) + " transitions.");
+
+      return product;
    }
 };
 

@@ -14,11 +14,11 @@ class SynthesisTest : public StructureTest {
    void SetUp() override {
       StructureTest::SetUp();
 
-      o_t_s_man.reset(new SynthesisManager(o_t_cyclic, one_three, cA_cyclic_aut));
-      o_t_c_man.reset(new SynthesisManager(o_t_series, one_three, o_t_series_aut));
-      b_k_c_man.reset(new SynthesisManager(b_k_2_cyclic, bool_k_2, cA_cyclic_aut));
-      b_k_t_man.reset(new SynthesisManager(b_k_2_trivial, bool_k_2, trivial_aut));
-      t_man.reset(new SynthesisManager(trivial, trivial_model, trivial_aut));
+      o_t_s_man.reset(new SynthesisManager(o_t_cyclic, one_three, cA_cyclic_prop));
+      o_t_c_man.reset(new SynthesisManager(o_t_series, one_three, o_t_series_prop));
+      b_k_c_man.reset(new SynthesisManager(b_k_2_cyclic, bool_k_2, cA_cyclic_prop));
+      b_k_t_man.reset(new SynthesisManager(b_k_2_trivial, bool_k_2, trivial_prop));
+      t_man.reset(new SynthesisManager(trivial, trivial_model, trivial_prop));
    }
 };
 

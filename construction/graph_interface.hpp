@@ -54,6 +54,12 @@ protected:
    vector<StateT> states; ///< Vector holding states of the graph.
 
 public:
+   GraphInterface() = default;
+   GraphInterface(GraphInterface && ) = default;
+   GraphInterface& operator=(GraphInterface && ) = default;
+   GraphInterface(const GraphInterface & ) = delete;
+   GraphInterface& operator=(const GraphInterface & ) = delete;
+
 	/**
 	 * Obtains number of states of the graph.
 	 *

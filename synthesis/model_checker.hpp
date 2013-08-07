@@ -11,7 +11,6 @@
 
 #include "PunyHeaders/common_functions.hpp"
 
-#include "../construction/construction_holder.hpp"
 #include "color_storage.hpp"
 #include "coloring_func.hpp"
 
@@ -185,7 +184,7 @@ public:
     /**
     * Constructor, passes the data and sets up auxiliary storage.
      */
-    ModelChecker(const ConstructionHolder & holder, ColorStorage & _storage) : product(holder.getProduct()), storage(_storage) {
+    ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), storage(_storage) {
         next_round_storage = storage; // Create an identical copy of the storage.
     }
 

@@ -58,18 +58,9 @@ class BasicStructure : public GraphInterface<BasState> {
 		states[ID].transitions.push_back(move(BasTransition(target_ID, changed_specie, change_direction)));
 	}
 
-	BasicStructure(const BasicStructure & other); ///< Forbidden copy constructor.
-	BasicStructure& operator=(const BasicStructure & other); ///< Forbidden assignment operator.
-
 public:
-	BasicStructure() {} ///< Default empty constructor, needed to create an empty object that will be filled
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
+   /**
 	 * @param ID	ID of the state to get
-	 *
 	 * @return	levels of the state
 	 */
 	inline const Levels & getStateLevels(const StateID ID) const { 
@@ -79,7 +70,6 @@ public:
 	/**
 	 * @param ID	ID of the state to get the neighbour from
 	 * @param neighbour_index	index in the vector of neighbours
-	 *
 	 * @return	ID of the specie that vary between the two states
 	 */
 	inline size_t getSpecieID(const StateID ID, const size_t neighbour_index) const {
@@ -89,7 +79,6 @@ public:
 	/**
 	 * @param ID	ID of the state to get the neighbour from
 	 * @param neighbour_index	index in the vector of neighbours
-	 *
 	 * @return	Direction in which the specie changes
 	 */
 	inline Direction getDirection(const StateID ID, const size_t neighbour_index) const {

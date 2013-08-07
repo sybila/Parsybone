@@ -25,6 +25,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonBuilder {
    const Model & model; ///< Model that holds the data.
+   const PropertyAutomaton & source;
 
    Levels maxes; ///< Maximal activity levels of the species.
    Levels mins; ///< Minimal activity levels of the species.
@@ -162,19 +163,13 @@ class AutomatonBuilder {
       return allowed;
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTRUCTING METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   AutomatonBuilder(const AutomatonBuilder & other) = delete;
-   AutomatonBuilder& operator=(const AutomatonBuilder & other) = delete;
-
    /**
     * Creates transitions from labelled edges of BA and passes them to automaton structure.
     *
     * @param state_num	index of the state of BA
     * @param start_position	index of the last transition created
     */
-   void addTransitions(const PropertyAutomaton & source, AutomatonStructure & automaton, const StateID ID, size_t & transition_count) const {
+   void addTransitions(AutomatonStructure & automaton, const StateID ID, size_t & transition_count) const {
       const PropertyAutomaton::Edges & edges = source.getEdges(ID);
 
       // Transform each edge into transition and pass it to the automaton
@@ -193,14 +188,15 @@ public:
    /**
     * Constructor computes boundaries of the state space and passes references.
     */
-   AutomatonBuilder(const Model & _model) : model(_model) {
+   AutomatonBuilder(const Model & _model, const PropertyAutomaton & _source) : model(_model), source(_source) {
       computeBoundaries();
    }
 
    /**
     * Create the transitions from the model and fill the automaton with them.
     */
-   void buildAutomaton(const PropertyAutomaton & source, AutomatonStructure & automaton) {
+   AutomatonStructure buildAutomaton() {
+      AutomatonStructure automaton;
       size_t transition_count = 0;
       const size_t state_count = source.getStatesCount();
       size_t state_no = 0;
@@ -212,9 +208,11 @@ public:
          // Fill auxiliary data
          automaton.addState(ID, source.isFinal(ID));
          // Add transitions for this state
-         addTransitions(source, automaton, ID, transition_count);
+         addTransitions(automaton, ID, transition_count);
       }
       output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+
+      return automaton;
    }
 };
 

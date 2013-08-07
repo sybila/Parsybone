@@ -31,7 +31,7 @@
 ///   -# conclusion: stores additional data and outputs
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynthesisManager {
-	const ConstructionHolder & holder; ///< Holder of all the reference data.
+   const ProductStructure & product; ///< Holder of all the reference data.
    const Model & model;
    const PropertyAutomaton & property;
 
@@ -92,7 +92,7 @@ class SynthesisManager {
 		colorProduct();
 
 		// Store colored final vertices
-		vector<Coloring> final_states = move(storage.get()->getColor(holder.getProduct().getFinalStates()));
+      vector<Coloring> final_states = move(storage.get()->getColor(product.getFinalStates()));
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
@@ -119,11 +119,11 @@ class SynthesisManager {
 			return;
 
 		// Set all the initial states to initial color
-		for (auto init_it = holder.getProduct().getInitialStates().begin(); init_it != holder.getProduct().getInitialStates().end(); init_it++)
+      for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++)
 			storage.get()->update(*init_it, starting);
 
 		// Schedule all initial states for updates
-		set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());
+      set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
 		// Start coloring procedure
 		model_checker->startColoring(starting, updates, split_manager->getRoundRange());
@@ -152,14 +152,14 @@ public:
    /**
     * Constructor builds all the data objects that are used within.
     */
-   SynthesisManager(const ConstructionHolder & _holder, const Model & _model, const PropertyAutomaton & _property) : holder(_holder), model(_model), property(_property) {
+   SynthesisManager(const ProductStructure & _product, const Model & _model, const PropertyAutomaton & _property) : product(_product), model(_model), property(_property) {
       // Create classes that help with the synthesis
       analyzer.reset(new ColoringAnalyzer(model));
-      storage.reset(new ColorStorage(holder));
+      storage.reset(new ColorStorage(product));
       split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(model)));
-      model_checker.reset(new ModelChecker(holder, *storage.get()));
-      searcher.reset(new WitnessSearcher(holder, *storage.get()));
-      robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
+      model_checker.reset(new ModelChecker(product, *storage.get()));
+      searcher.reset(new WitnessSearcher(product, *storage.get()));
+      robustness.reset(new RobustnessCompute(product, *storage, *searcher));
       database.reset(new DatabaseFiller(model));
       output.reset(new OutputManager(model, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
 

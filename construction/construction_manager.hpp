@@ -9,10 +9,13 @@
 #ifndef PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 #define PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 
-#include "construction_holder.hpp"
 #include "../model/parameter_reader.hpp"
 #include "../model/parametrizations_builder.hpp"
 #include "../model/labeling_builder.hpp"
+#include "automaton_builder.hpp"
+#include "basic_structure_builder.hpp"
+#include "unparametrized_structure_builder.hpp"
+#include "product_builder.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief STEP 2 - Builds all the structures and stores them within a ConstructionHolder.
@@ -42,34 +45,23 @@ namespace ConstructionManager {
    /**
     * Function that constructs all the data in a cascade of temporal builders.
     */
-   ConstructionHolder construct(const Model & model, const PropertyAutomaton & property) {
-      ConstructionHolder holder;
-
+   ProductStructure construct(const Model & model, const PropertyAutomaton & property) {
       // Create a simple Kripke structure without parametrization
-      unique_ptr<BasicStructure> basic_structure(new BasicStructure); // Kripke structure built from the network
-      BasicStructureBuilder basic_structure_builder(model, *basic_structure.get());
-      basic_structure_builder.buildStructure();
-      holder.setBasicStructure(move(basic_structure));
+      BasicStructureBuilder basic_structure_builder(model);
+      BasicStructure basic_structure = basic_structure_builder.buildStructure();
 
       // Create the UKS
-      unique_ptr<UnparametrizedStructure> unparametrized_structure(new UnparametrizedStructure); // Kripke structure that has transitions labelled with functions
-      UnparametrizedStructureBuilder unparametrized_structure_builder(model, holder.getBasicStructure(), *unparametrized_structure.get());
-      unparametrized_structure_builder.buildStructure();
-      holder.setUnparametrizedStructure(move(unparametrized_structure));
+      UnparametrizedStructureBuilder unparametrized_structure_builder(model, basic_structure);
+      UnparametrizedStructure unparametrized_structure = unparametrized_structure_builder.buildStructure();
 
       // Create the Buchi automaton
-      unique_ptr<AutomatonStructure> automaton(new AutomatonStructure);
-      AutomatonBuilder automaton_builder(model);
-      automaton_builder.buildAutomaton(property, *automaton.get());
-      holder.setAutomaton(move(automaton));
+      AutomatonBuilder automaton_builder(model, property);
+      AutomatonStructure automaton = automaton_builder.buildAutomaton();
 
       // Create the product
-      unique_ptr<ProductStructure> product_structure(new ProductStructure(holder.getUnparametrizedStructure(), holder.getAutomaton()));
-      ProductBuilder product_builder(holder.getUnparametrizedStructure(), holder.getAutomaton(), *product_structure.get());
-      product_builder.buildProduct();
-      holder.setProduct(move(product_structure));
-
-      return holder;
+      ProductBuilder product_builder(unparametrized_structure, automaton);
+      ProductStructure product = product_builder.buildProduct();
+      return product;
    }
 }
 

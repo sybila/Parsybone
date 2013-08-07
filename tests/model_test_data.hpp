@@ -23,9 +23,9 @@ protected:
     Model trivial_model;
     Model one_three;
     Model bool_k_2;
-    PropertyAutomaton trivial_aut;
-    PropertyAutomaton o_t_series_aut;
-    PropertyAutomaton cA_cyclic_aut;
+    PropertyAutomaton trivial_prop;
+    PropertyAutomaton o_t_series_prop;
+    PropertyAutomaton cA_cyclic_prop;
 
     void setUpModels() {
         trivial_model.addSpecie("cA", 1, {0,1});
@@ -47,27 +47,27 @@ protected:
     }
 
     void setUpAutomata() {
-        trivial_aut.addState("triv0", true);
-        trivial_aut.addEdge(0,0,"tt");
+        trivial_prop.addState("triv0", true);
+        trivial_prop.addEdge(0,0,"tt");
 
-        o_t_series_aut.addState("ser0", false);
-        o_t_series_aut.addState("ser1", false);
-        o_t_series_aut.addState("ser2", true);
-        o_t_series_aut.addEdge(0,0,"tt");
-        o_t_series_aut.addEdge(0,1,"(cA=0|cB=0)");
-        o_t_series_aut.addEdge(1,1,"tt");
-        o_t_series_aut.addEdge(1,2,"(cA=1|cB=3)");
-        o_t_series_aut.addEdge(2,2,"tt");
+        o_t_series_prop.addState("ser0", false);
+        o_t_series_prop.addState("ser1", false);
+        o_t_series_prop.addState("ser2", true);
+        o_t_series_prop.addEdge(0,0,"tt");
+        o_t_series_prop.addEdge(0,1,"(cA=0|cB=0)");
+        o_t_series_prop.addEdge(1,1,"tt");
+        o_t_series_prop.addEdge(1,2,"(cA=1|cB=3)");
+        o_t_series_prop.addEdge(2,2,"tt");
 
-        cA_cyclic_aut.addState("cyc0", false);
-        cA_cyclic_aut.addState("cyc1", true);
-        cA_cyclic_aut.addState("cyc2", false);
-        cA_cyclic_aut.addEdge(0,0,"cA=0");
-        cA_cyclic_aut.addEdge(0,1,"cA=1");
-        cA_cyclic_aut.addEdge(1,0,"cA=0");
-        cA_cyclic_aut.addEdge(1,2,"cA=1");
-        cA_cyclic_aut.addEdge(2,1,"cA=0");
-        cA_cyclic_aut.addEdge(2,2,"cA=1");
+        cA_cyclic_prop.addState("cyc0", false);
+        cA_cyclic_prop.addState("cyc1", true);
+        cA_cyclic_prop.addState("cyc2", false);
+        cA_cyclic_prop.addEdge(0,0,"cA=0");
+        cA_cyclic_prop.addEdge(0,1,"cA=1");
+        cA_cyclic_prop.addEdge(1,0,"cA=0");
+        cA_cyclic_prop.addEdge(1,2,"cA=1");
+        cA_cyclic_prop.addEdge(2,1,"cA=0");
+        cA_cyclic_prop.addEdge(2,2,"cA=1");
     }
 
     void SetUp() override {

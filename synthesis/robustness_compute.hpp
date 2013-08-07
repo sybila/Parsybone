@@ -101,8 +101,8 @@ public:
    /**
     * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
-   RobustnessCompute(const ConstructionHolder & _holder, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
-      : product(_holder.getProduct()), storage(_storage), searcher(_searcher) {
+   RobustnessCompute(const ProductStructure & _product, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
+      : product(_product), storage(_storage), searcher(_searcher) {
       Marking empty = { vector<unsigned char>(ParamsetHelper::getSetSize(), 0),
                         vector<double>(ParamsetHelper::getSetSize(), 0.0),
                         vector<double>(ParamsetHelper::getSetSize(), 0.0) };

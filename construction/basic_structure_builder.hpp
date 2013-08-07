@@ -25,7 +25,6 @@ class BasicStructureBuilder {
 	// Provided with constructor
    const Model & model; ///< Model that holds the data.
    const size_t species_count; ///< Number of species of the model.
-   BasicStructure & structure; ///< KipkeStructure to fill.
 
 	// Computed
    size_t states_count; ///< Number of states in this KS (exponential in number of species).
@@ -44,7 +43,7 @@ class BasicStructureBuilder {
 	 * @param state_levels	levels of species of this state
 	 * @param maxes	globally maximal levels
 	 */
-	void storeNeigbours(const StateID ID, const Levels & state_levels, const Levels & maxes) {
+   void storeNeigbours(const StateID ID, const Levels & state_levels, const Levels & maxes, BasicStructure & structure) {
 		for (size_t specie = 0; specie < species_count; specie++) {
 			// If this value is not the lowest one, add neighbour with lower
 			if (state_levels[specie] > 0) 
@@ -109,16 +108,13 @@ class BasicStructureBuilder {
 
 		return state_string;
 	}
-	
-	BasicStructureBuilder(const BasicStructureBuilder & other); ///<  Forbidden copy constructor.
-	BasicStructureBuilder& operator=(const BasicStructureBuilder & other); ///<  Forbidden assignment operator.
 
 public:
 	/**
 	 * Constructor initializes basic information from the model
 	 */
-	BasicStructureBuilder(const Model & _model, BasicStructure & _structure) 
-                         : model(_model), species_count(_model.species.size()), structure(_structure)  {
+   BasicStructureBuilder(const Model & _model)
+                         : model(_model), species_count(_model.species.size()) {
 		// Compute species-related values
 		computeBoundaries();
 		// Compute transitions-related values
@@ -128,7 +124,8 @@ public:
 	/**
 	 * Create the states from the model and fill the structure with them.
 	 */
-	void buildStructure() {
+   BasicStructure buildStructure() {
+      BasicStructure structure;
       size_t transition_count = 0;
       const size_t state_count = accumulate(maxes.begin(), maxes.end(), 1, [](const size_t res, const size_t val){return res * (val + 1);});
       size_t state_no = 0;
@@ -142,7 +139,7 @@ public:
          output_streamer.output(verbose_str, "Enumerating state: " + toString(++state_no) + "/" + toString(state_count) + ".      ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 			// Fill the structure with the state
 			structure.addState(ID, levels, move(createLabel(levels)));
-			storeNeigbours(ID, levels, maxes);
+         storeNeigbours(ID, levels, maxes, structure);
          // Generate new state for the next round
          // Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop.
          transition_count += structure.getTransitionCount(ID) - model.species.size() + 1;
@@ -151,7 +148,9 @@ public:
 
       output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
       // output_streamer.output(verbose_str, "Transition system has " + toString(states_count) + " states with " + toString(transition_count) + " transitions.");
-	}
+
+      return structure;
+   }
 };
 
 #endif // PARSYBONE_BASIC_STRUCTURE_BUILDER_INCLUDED
