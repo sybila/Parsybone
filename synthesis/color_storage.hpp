@@ -41,9 +41,13 @@ public:
 	 */
    ColorStorage(const ProductStructure & product) {
       // Create states
+      const size_t STATE_COUNT = product.getStateCount();
+
       for (StateID ID = 0; ID < product.getStateCount(); ID++) {
+         output_streamer.output(verbose_str, "Building storage state: " + toString(ID) + "/" + toString(STATE_COUNT) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
          states.push_back(ID);
 		}
+      output_streamer.clear_line();
 
       // Set additional storage
       cost_val = vector<size_t>(ParamsetHelper::getSetSize(), INF); // Set all to max. value

@@ -53,6 +53,7 @@ namespace ConstructionManager {
       // Create the UKS
       UnparametrizedStructureBuilder unparametrized_structure_builder(model, basic_structure);
       UnparametrizedStructure unparametrized_structure = unparametrized_structure_builder.buildStructure();
+      basic_structure = BasicStructure();
 
       // Create the Buchi automaton
       AutomatonBuilder automaton_builder(model, property);

@@ -120,7 +120,7 @@ public:
             createProductState(KS_ID, BA_ID, transition_count, product);
          }
       }
-      output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+      output_streamer.clear_line(verbose_str);
 
       // Create final and intial states vectors
       markStates( product);

@@ -1,3 +1,5 @@
+Hack simple range for true edges.
+
 Parametrizations must be parseable from a database.
 
 Range-based representations must be included.

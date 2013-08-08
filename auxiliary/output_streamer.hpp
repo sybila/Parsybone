@@ -24,7 +24,7 @@ class OutputStreamer {
    /// True if these streams are assigned a file.
    bool error_file, verbose_file, result_file;
 
-   StreamType last_stream_type;	///< Used to ease usage of output - last stream is stored and used if no new is specified.
+   static StreamType last_stream_type;	///< Used to ease usage of output - last stream is stored and used if no new is specified.
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // OUTPUT TRAITS DEFINITIONS
@@ -64,9 +64,6 @@ public:
 
       // Set control variables
       error_file = result_file = verbose_file = false;
-
-      // Set stream type in the beggining to error stream
-      last_stream_type = error_str;
    }
 
    /**
@@ -183,6 +180,10 @@ public:
       return *this;
    }
 
+   void clear_line(StreamType stream_type = last_stream_type) {
+      output(stream_type, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+   }
+
 private:
    /**
     * Method that actually puts the data on the stream.
@@ -209,5 +210,6 @@ private:
          stream << endl;
    }
 } output_streamer; ///< Single program-shared output object.
+StreamType OutputStreamer::last_stream_type = error_str;
 
 #endif // PARSYBONE_OUTPUT_STREAMER_INCLUDED

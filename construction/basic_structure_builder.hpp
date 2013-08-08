@@ -146,7 +146,7 @@ public:
          ID++;
       } while (iterate(maxes, mins, levels));
 
-      output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+      output_streamer.clear_line(verbose_str);
       // output_streamer.output(verbose_str, "Transition system has " + toString(states_count) + " states with " + toString(transition_count) + " transitions.");
 
       return structure;
