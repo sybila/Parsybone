@@ -29,10 +29,10 @@ class ArgumentParser {
       // Get numbers
       try {
          if (++position == end)
-            throw invalid_argument("Both values missing");
+            throw invalid_argument("The number of processes and the total count of processes are missing");
          user_options.process_number = lexical_cast<size_t>(*position);
          if (++position == end)
-            throw invalid_argument("Total count is missing");
+            throw invalid_argument("The number of processes or the total count of processes is missing");
          user_options.processes_count = lexical_cast<size_t>(*position);
       } catch (bad_lexical_cast & e) {
          throw invalid_argument("Error while parsing the modifier --dist" + toString(e.what()));
@@ -43,6 +43,21 @@ class ArgumentParser {
          throw runtime_error("Error while parsing the modifier --dist - ID of the process is bigger than number of processes");
 
       return 2;
+   }
+
+   /**
+    * Obtain parameters for synthesis distribution.
+    */
+   int getDistribution(vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
+      try {
+         if (++position == end)
+            throw invalid_argument("Bound values is missing");
+         user_options.step_bound = lexical_cast<size_t>(*position);
+      } catch (bad_lexical_cast & e) {
+         throw invalid_argument("Error while parsing the modifier --bound" + toString(e.what()));
+      }
+
+      return 1;
    }
 
    /**
@@ -116,6 +131,9 @@ class ArgumentParser {
       } else if (position->compare("--mout") == 0) {
          user_options.use_out_mask = true;
          return getFileName(output_mask, position, arguments.end());
+      } else if (position->compare("--bound") == 0) {
+         user_options.bounded_check = true;
+         return getBound(output_mask, position, arguments.end());
       } else {
          throw invalid_argument("Unknown modifier " + *position);
       }
@@ -161,6 +179,10 @@ class ArgumentParser {
 
       case 'c':
          user_options.output_console = true;
+         break;
+
+      case 'b':
+         user_options.bounded_check = true;
          break;
 
       default:

@@ -32,6 +32,8 @@ public:
    bool output_console;
    bool use_textfile;
    bool use_database;
+   bool bounded_check;
+   size_t bound_size;
    size_t process_number; ///< What is the ID of this process?
    size_t processes_count; ///< How many processes are included in the computation?
    string model_path;
@@ -59,8 +61,9 @@ public:
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = be_verbose = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
+      compute_wintess = bounded_check = be_verbose = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
       database_file = datatext_file = in_mask_file = out_mask_file = "";
+      bound_size = 0;
       process_number = processes_count = 1;
       model_name = "";
    }
@@ -106,6 +109,14 @@ public:
 
    inline bool toDatabase() const {
       return use_database;
+   }
+
+   inline bool isBounded() const {
+      return bounded_check;
+   }
+
+   inline size_t getBoundSize() const {
+      return bound_size;
    }
 
    inline size_t inputMask() const {

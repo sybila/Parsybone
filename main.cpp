@@ -1,6 +1,6 @@
 /*! \mainpage Welcome to the Parsybone code documentation.
  *
- * This is a documentation of code belonging solely to the Parsybone tool, version 1.0.
+ * This is a documentation of code belonging solely to the Parsybone tool, version 1.2.
  * This text is not supposed to be a user manual in any way, but as an reference for further development of this tool.
  * For a description of usage of the tool, please refer to the Manual that is shipped together with the tool.
  *
