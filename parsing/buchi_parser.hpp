@@ -9,7 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief This object is responsible for parsing and translation of data related to the tested property.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class AutomatonParser {
+class BuchiParser {
 	/**
 	 * Starting from the STATE node, the function parses all the EDGE tags and reads the data from them.
 	 */
@@ -74,7 +74,7 @@ public:
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.
 	 */
    static PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node, string name) {
-      PropertyAutomaton automaton(name);
+      PropertyAutomaton automaton(name, LTL);
 
 		// Parse states
       firstParse(automaton_node, automaton);

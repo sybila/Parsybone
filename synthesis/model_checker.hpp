@@ -22,6 +22,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelChecker {
     // Information
+    PropType prop_type;
     const ProductStructure & product; ///< Product on which the computation will be conducted.
     Range synthesis_range; ///< First and one beyond last color to be computed in this round.
     StateID starting_state; ///< State from which the synthesis goes during the general LTL search.
@@ -127,7 +128,7 @@ class ModelChecker {
             // Within updates, find the one with most bits
             StateID ID = getStrongestUpdate();
             // Check if this is not the last round
-            if (user_options.timeSeries()) {
+            if (prop_type == TimeSeries) {
                 if (product.isFinal(ID))
                     markLevels(storage.getColor(ID));
                 else
@@ -149,7 +150,7 @@ class ModelChecker {
         } while (!updates.empty());
 
         // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
-        if (user_options.timeSeries())
+        if (prop_type == TimeSeries)
             storage.setResults(BFS_reach, ~to_find & starting);
         else if (starting_state != ~static_cast<size_t>(0))
             storage.setResults(storage.getColor(starting_state));
@@ -184,7 +185,7 @@ public:
     /**
     * Constructor, passes the data and sets up auxiliary storage.
      */
-    ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), storage(_storage) {
+    ModelChecker(const PropType _prop_type, const ProductStructure & _product, ColorStorage & _storage) : prop_type(_prop_type), product(_product), storage(_storage) {
         next_round_storage = storage; // Create an identical copy of the storage.
     }
 

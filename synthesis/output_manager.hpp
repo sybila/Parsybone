@@ -10,6 +10,7 @@
 #define PARSYBONE_OUTPUT_MANAGER_INCLUDED
 
 #include "../auxiliary/user_options.hpp"
+#include "../model/property_automaton.hpp"
 #include "../construction/product_structure.hpp"
 #include "color_storage.hpp"
 #include "coloring_analyzer.hpp"
@@ -22,6 +23,7 @@
 /// \brief Class that outputs formatted resulting data.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OutputManager {
+   const PropertyAutomaton & property; ///< Property automaton.
    const Model & model; ///< Reference to the model itself.
    const ColorStorage & storage; ///< Provides current costs.
    const ColoringAnalyzer & analyzer; ///< Provides parametrizations' numbers and exact values.
@@ -41,9 +43,9 @@ public:
 	/**
 	 * Simple constructor that only passes the references.
 	 */
-   OutputManager(const Model & _model, const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
+   OutputManager(const PropertyAutomaton & _property, const Model & _model, const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
 					  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-      : model(_model), storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
+      : property(_property), model(_model), storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// OUTPUT METHODS
@@ -113,7 +115,7 @@ public:
       auto robusts = move(robustness.getOutput()); auto robust_it = robusts.begin();
 
       // Control the actual size of vectors - they must be the same, if the vectors are employed
-      if (user_options.timeSeries() && (params.size() != costs.size())) {
+      if (property.getPropType() == TimeSeries && (params.size() != costs.size())) {
          string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
          throw invalid_argument(sizes_err);
       } else if (user_options.witnesses() && (params.size() != witnesses.size())) {
@@ -129,7 +131,7 @@ public:
          string line = toString(*num_it) + separator + *param_it + separator;
          string update = *param_it; update.back() = ',';
 
-         if (user_options.timeSeries()) {
+         if (property.getPropType() == TimeSeries) {
             line += *cost_it;
             update += *cost_it + ",";
          } line += separator;
@@ -148,7 +150,10 @@ public:
          if (user_options.toDatabase())
             database.addParametrization(update);
 
-         num_it++; param_it++; cost_it+= user_options.timeSeries(); robust_it += user_options.robustness(); witness_it += user_options.witnesses();
+         num_it++; param_it++;
+         cost_it+= property.getPropType() == TimeSeries;
+         robust_it += user_options.robustness();
+         witness_it += user_options.witnesses();
       }
    }
 };

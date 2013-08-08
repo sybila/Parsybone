@@ -19,14 +19,11 @@
 /// Only a single object is intended to exist.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class UserOptions {
-   friend class ArgumentParser;
-   friend class DataParser;
-
+public:
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // OPTIONS
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
-   bool time_series; ///< Work with the property as with a time series (meaning check only reachability property)
    bool compute_robustness; ///< Should robustness value be computed and displyed?
    bool compute_wintess; ///< Should witnesses be computed and displayed?
    bool use_long_witnesses; ///< How witnesses should be displayed - complete state or only ID?
@@ -44,13 +41,6 @@ class UserOptions {
    string in_mask_file;
    string out_mask_file;
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTRUCTION METHODS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   UserOptions(const UserOptions & other); ///< Forbidden copy constructor.
-   UserOptions& operator=(const UserOptions & other); ///< Forbidden assignment operator.
-
-public:
    /**
     * @brief addDefaultFiles    Create default file names where there are none explicitly specified.
     */
@@ -69,7 +59,7 @@ public:
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = be_verbose = time_series = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
+      compute_wintess = be_verbose = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
       database_file = datatext_file = in_mask_file = out_mask_file = "";
       process_number = processes_count = 1;
       model_name = "";
@@ -92,13 +82,6 @@ public:
 
    inline bool verbose() const {
       return be_verbose;
-   }
-
-   /**
-    * TODO: mixing time series with automata currently impossible
-    */
-   inline bool timeSeries() const {
-      return time_series;
    }
 
    inline size_t procNum() const {

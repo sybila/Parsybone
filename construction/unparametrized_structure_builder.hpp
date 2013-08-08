@@ -196,7 +196,7 @@ public:
          addTransitions(ID, state_levels, structure);
 		}
 
-      output_streamer.output(verbose_str, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+      output_streamer.clear_line(verbose_str);
 
       return structure;
 	}

@@ -77,8 +77,7 @@ class DatabaseFiller {
 
    void fillParametrizations() {
       string columns = "(" + getContexts();
-      if (user_options.timeSeries())
-         columns += "Cost INTEGER,";
+      columns += "Cost INTEGER,";
       if (user_options.robustness())
          columns += "Robustness REAL,";
       if (user_options.witnesses())

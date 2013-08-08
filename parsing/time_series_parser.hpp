@@ -21,7 +21,7 @@ class TimeSeriesParser {
     * Function reads an EXPR tag and creates according state and transitions.
     */
    static PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node, const string & name) {
-      PropertyAutomaton property(name);
+      PropertyAutomaton property(name, TimeSeries);
 
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;

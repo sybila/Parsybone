@@ -10,6 +10,7 @@ protected:
    ProductStructure o_t_cyclic;
    ProductStructure b_k_2_cyclic;
    ProductStructure b_k_2_trivial;
+   ProductStructure c_2_set_two_ones;
    ProductStructure trivial;
 
    void SetUp() override {
@@ -18,12 +19,14 @@ protected:
       ConstructionManager::computeModelProps(trivial_model);
       ConstructionManager::computeModelProps(one_three);
       ConstructionManager::computeModelProps(bool_k_2);
+      ConstructionManager::computeModelProps(circuit_2);
 
       o_t_series = ConstructionManager::construct(one_three, o_t_series_prop);
       o_t_cyclic = ConstructionManager::construct(one_three, cA_cyclic_prop);
       b_k_2_cyclic = ConstructionManager::construct(bool_k_2, cA_cyclic_prop);
       b_k_2_trivial = ConstructionManager::construct(bool_k_2, trivial_prop);
       trivial = ConstructionManager::construct(trivial_model, trivial_prop);
+      c_2_set_two_ones = ConstructionManager::construct(circuit_2, set_two_ones_prop);
    }
 };
 

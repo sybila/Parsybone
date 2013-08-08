@@ -21,6 +21,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Model {
 public:
+   NO_COPY(Model)
+
    /// Structure that holds additional static constraints inherent to the Thomas framework.
    struct Restrictions {
       bool bounded_loops; ///< True if autoregilations are not created for values below the bound. (conserves all TSs).

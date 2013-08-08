@@ -10,7 +10,7 @@
 #define PARSYBONE_DATA_PARSER_INCLUDED
 
 #include "../auxiliary/output_streamer.hpp"
-#include "automaton_parser.hpp"
+#include "buchi_parser.hpp"
 #include "network_parser.hpp"
 #include "time_series_parser.hpp"
 #include "parameter_parser.hpp"
@@ -96,11 +96,10 @@ public:
       PropertyAutomaton property;
 
       for (rapidxml::xml_node<> * automaton = XMLHelper::getChildNode(model_node, "AUTOMATON", false); automaton; automaton = automaton->next_sibling("AUTOMATON") ) {
-         property = AutomatonParser::parse(automaton, "automaton");
+         property = BuchiParser::parse(automaton, "automaton");
       }
       for (rapidxml::xml_node<> * series = XMLHelper::getChildNode(model_node, "SERIES", false); series; series = series->next_sibling("SERIES") ) {
          property = TimeSeriesParser::parse(series, "series");
-         user_options.time_series = true;
       }
 
       if (property.getAutomatonName().empty())

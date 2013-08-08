@@ -11,14 +11,13 @@
 
 #include "witness_searcher.hpp"
 
-/// Currently broken.
+/// Values are problematic as the time_series is not currently
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class responsible for computation of robustness values for each acceptable parametrization.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class RobustnessCompute {
    const ProductStructure & product; ///< Product reference for state properties.
    const ColorStorage & storage; ///< Constant storage with the actuall data.
-   const WitnessSearcher & searcher; ///< Reference to the searcher that contains transitions.
    Range round_range; ///< Range of parametrizations used this round
 
    /// This structure holds values used in the iterative process of robustness computation.
@@ -101,8 +100,8 @@ public:
    /**
     * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
-   RobustnessCompute(const ProductStructure & _product, const ColorStorage & _storage,  const WitnessSearcher & _searcher)
-      : product(_product), storage(_storage), searcher(_searcher) {
+   RobustnessCompute(const ProductStructure & _product, const ColorStorage & _storage)
+      : product(_product), storage(_storage) {
       Marking empty = { vector<unsigned char>(ParamsetHelper::getSetSize(), 0),
                         vector<double>(ParamsetHelper::getSetSize(), 0.0),
                         vector<double>(ParamsetHelper::getSetSize(), 0.0) };
@@ -113,12 +112,11 @@ public:
    /**
     * Function that computes robustness values for each parametrization.
     */
-   void compute(const Range & _round_range) {
+   void compute(const Range & _round_range, const vector<set<pair<StateID,StateID> > > & transitions) {
       round_range = _round_range;
       clear();
       computeExits();
       initiate();
-      auto transitions = searcher.getTransitions();
 
       // Cycle through the levels of the DFS procedure
       for (size_t round_num = 0; round_num < storage.getMaxDepth(); round_num++) {
