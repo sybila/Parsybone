@@ -116,11 +116,11 @@ public:
    /**
        * Output parametrizations from this round together with additional data, if requested.
        */
-   void outputRound() const {
+   void outputRound(const SynthesisResults & results) const {
       // Get referencese
       auto numbers = move(analyzer.getNumbers()); auto num_it = numbers.begin();
 
-      auto costs = move(getCosts(storage.getCost())); auto cost_it = costs.begin();
+      auto costs = move(getCosts(results.getCost())); auto cost_it = costs.begin();
       auto params = move(analyzer.getStrings()); auto param_it = params.begin();
       auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
       auto robusts = move(robustness.getOutput()); auto robust_it = robusts.begin();

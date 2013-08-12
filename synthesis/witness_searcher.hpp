@@ -11,6 +11,7 @@
 
 #include "coloring_func.hpp"
 #include "color_storage.hpp"
+#include "synthesis_results.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for search of transitions belonging to shortest time series paths.
@@ -121,13 +122,13 @@ class WitnessSearcher {
    /**
     * Clear the data objects used during the computation that may contain some data from the previous round.
     */
-   void clearStorage() {
+   void clearStorage(const SynthesisResults & results) {
       // Empty strings
       for(auto & path:string_paths) {
          path = "";
       }
       // Empty path tracker
-      path = vector<StateID>(storage.getMaxDepth() + 1, 0);
+      path = vector<StateID>(results.getMaxDepth() + 1, 0);
       // Empty the storage of transitions
       transitions.clear();
       transitions.resize(ParamsetHelper::getSetSize());
@@ -141,16 +142,16 @@ class WitnessSearcher {
    /**
     * Fills a depth_masks vector that specifies which of the parametrizations end at which round.
     */
-   void prepareDepthMask() {
+   void prepareDepthMask(const SynthesisResults & results) {
       // clear the data
       depth_masks.clear();
 
       // Helping data
-      vector<vector<size_t> > members(storage.getMaxDepth() + 1); // Stores parametrization numbers with their Cost
+      vector<vector<size_t> > members(results.getMaxDepth() + 1); // Stores parametrization numbers with their Cost
       size_t param_num = 0; // number in the interval (0,|paramset|-1)
 
       // Store parametrization numbers with their BFS level (Cost)
-      for (const auto & cost:storage.getCost()) {
+      for (const auto & cost:results.getCost()) {
          if (cost != INF)
             members[cost].push_back(param_num);
          else
@@ -165,7 +166,7 @@ class WitnessSearcher {
 
       // Initialize remaining values
       depth = 0;
-      max_depth = storage.getMaxDepth();
+      max_depth = results.getMaxDepth();
    }
 
 public:
@@ -182,12 +183,12 @@ public:
    /**
     * Function that executes the whole searching process
     */
-   void findWitnesses(const Range & _round_range) {
+   void findWitnesses(const Range & _round_range, const SynthesisResults & results) {
       round_range = _round_range;
 
       // Preparation
-      clearStorage();
-      prepareDepthMask();
+      clearStorage(results);
+      prepareDepthMask(results);
 
       // Search paths from all the final states
       auto inits = product.getInitialStates();

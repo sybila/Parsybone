@@ -38,6 +38,7 @@ class SynthesisManager {
 
    ParamNum total_colors;
    size_t BFS_bound;
+   SynthesisResults results;
 
    /**
     * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
@@ -61,7 +62,7 @@ class SynthesisManager {
       set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
       // Start coloring procedure
-      model_checker->startColoring(starting, updates, split_manager->getRoundRange(), BFS_bound);
+      results = model_checker->startColoring(starting, updates, split_manager->getRoundRange(), BFS_bound);
    }
 
    /**
@@ -73,7 +74,7 @@ class SynthesisManager {
       storage->reset();
 
       // Sechedule nothing for updates (will be done during transfer in the next step)
-      model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange(), BFS_bound);
+      results = model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange(), BFS_bound);
    }
 
 public:
@@ -100,25 +101,27 @@ public:
       database.reset(new DatabaseFiller(model));
       output.reset(new OutputManager(property, model, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
 
-      total_colors = 0;
+      total_colors = 0ul;
       BFS_bound = user_options.getBoundSize();
+      results.setResults(vector<size_t>(ParamsetHelper::getSetSize(), INF), 0u);
    }
 
    /**
     * @brief checkDepthBound see if there is not a new BFS depth bound
     */
    void checkDepthBound() {
-      if (storage->getMinDepth() < BFS_bound) {
+      const size_t min_depth = results.getMinDepth();
+      if (min_depth < BFS_bound) {
          output_streamer.clear_line(verbose_str);
-         if (true) { // storage->getMinDepth() != storage->getMaxDepth() || BFS_bound != INF
+         if (min_depth != results.getMaxDepth() || BFS_bound != INF) {
             split_manager->setStartPositions();
             output->eraseData();
-            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(storage->getMinDepth()));
+            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(min_depth));
             total_colors = 0;
          } else { // You may not have to restart if the bound was found this round and everyone has it.
-            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(storage->getMinDepth()));
+            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(min_depth));
          }
-         BFS_bound = storage->getMinDepth();
+         BFS_bound = min_depth;
       }
    }
 
@@ -164,8 +167,8 @@ public:
    void doAnalysis() {
       // Compute witnesses etc. if there is anything to computed, if so, print
       if (analyzer->getMask()) {
-         searcher->findWitnesses(split_manager->getRoundRange());
-         robustness->compute(split_manager->getRoundRange(), searcher->getTransitions());
+         searcher->findWitnesses(split_manager->getRoundRange(), results);
+         robustness->compute(split_manager->getRoundRange(), results, searcher->getTransitions());
       }
    }
 
@@ -175,7 +178,7 @@ public:
    void doOutput() {
       if (analyzer->getMask())
          // Output what has been synthetized (colors, witnesses)
-         output->outputRound();
+         output->outputRound(results);
 
       // Output mask if requested
       if (user_options.outputMask())

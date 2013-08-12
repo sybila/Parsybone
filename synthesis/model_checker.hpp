@@ -12,6 +12,7 @@
 #include "PunyHeaders/common_functions.hpp"
 #include "color_storage.hpp"
 #include "coloring_func.hpp"
+#include "synthesis_results.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Main class of the computation - responsible for the CMC procedure.
@@ -111,7 +112,7 @@ class ModelChecker {
     * Main coloring function - passes parametrizations from newly colored states to their neighbours.
     * Executed as an BFS - in rounds.
     */
-   void doColoring() {
+   SynthesisResults doColoring() {
       // While there are updates, pass them to succesing vertices
       do  {
          // Within updates, find the one with most bits
@@ -139,10 +140,12 @@ class ModelChecker {
       } while (!updates.empty());
 
       // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
+      SynthesisResults results;
       if (prop_type == TimeSeries)
-         storage.setResults(BFS_reach, ~to_find & starting);
+         results.setResults(BFS_reach, ~to_find & starting);
       else if (starting_state != ~static_cast<size_t>(0))
-         storage.setResults(storage.getColor(starting_state));
+         results.setResults(BFS_reach, storage.getColor(starting_state));
+      return results;
    }
 
    /**
@@ -178,11 +181,11 @@ public:
     * @param parameters	starting parameters for the cycle detection
     * @param _range	range of parameters for this coloring round
     */
-   void startColoring(const StateID ID, const Paramset parameters, const Range & _range, const size_t _BFS_BOUND = INF) {
+   SynthesisResults startColoring(const StateID ID, const Paramset parameters, const Range & _range, const size_t _BFS_BOUND = INF) {
       prepareCheck(parameters, _range, _BFS_BOUND);
       transferUpdates(ID, parameters); // Transfer updates from the start of the detection
       starting_state = ID;
-      doColoring();
+      return doColoring();
    }
 
    /**
@@ -191,10 +194,10 @@ public:
     * @param _updates	states that are will be scheduled for an update in this round
     * @param _range	range of parameters for this coloring round
     */
-   void startColoring(const Paramset parameters, const set<StateID> & _updates, const Range & _range, const size_t _BFS_BOUND = INF){
+   SynthesisResults startColoring(const Paramset parameters, const set<StateID> & _updates, const Range & _range, const size_t _BFS_BOUND = INF){
       prepareCheck(parameters, _range, _BFS_BOUND, _updates);
       starting_state = INF;
-      doColoring();
+      return doColoring();
    }
 };
 

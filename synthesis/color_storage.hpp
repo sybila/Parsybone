@@ -18,16 +18,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ColorStorage {
 	struct State {
-      StateID ID; ///< Unique ID of the state.
       Paramset parameters; ///< Bits for each color in this round marking its presence or absence in the state.
 
       /// Holder of the computed information for a single state.
-      State(const StateID _ID) : ID(_ID), parameters(0) { }
+      State() : parameters(0) { }
 	};
 	
 	vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data.
-   vector<size_t> cost_val; ///< This vector stores so-called COST value i.e. number of steps required to reach the final state in TS. If it is not reachable, cost is set to INF.
-   Paramset acceptable; ///< Additional value that stores paramset computed in this round.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CREATION METHODS
@@ -44,13 +41,9 @@ public:
 
       for (StateID ID = 0; ID < product.getStateCount(); ID++) {
          output_streamer.output(verbose_str, "Building storage state: " + toString(ID) + "/" + toString(STATE_COUNT) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-         states.push_back(ID);
+         states.push_back(State());
 		}
       output_streamer.clear_line();
-
-      // Set additional storage
-      cost_val = vector<size_t>(ParamsetHelper::getSetSize(), INF); // Set all to max. value
-		acceptable = 0;
 	}
 
 	ColorStorage() = default; ///< Empty constructor for an empty storage.
@@ -76,31 +69,11 @@ public:
 	 */ 
 	void reset() {
 		// Clear each state
-      for (auto & state:states)
+      for (State & state:states)
 			// Reset merged parameters
 			state.parameters = 0;
 	}
 
-	/**
-    * Fills after time series check finished.
-	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use INF
-	 */
-	void setResults(const vector<size_t> & new_cost, const Paramset resulting) {
-		cost_val = new_cost;
-		acceptable = resulting;
-	}
-
-   /**
-    * Fills after a general LTL check finished.
-    * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use INF
-    */
-   void setResults(const Paramset resulting) {
-      acceptable = resulting;
-   }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COLORING HANDLERS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
     * Add passed colors to the state.
 	 * @param ID	index of the state to fill
@@ -142,23 +115,6 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANT GETTERS 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   /**
-    * @return  max finite cost among parametrizations used this round
-    */
-   size_t getMaxDepth () const {
-      size_t max_depth = 0;
-      for (const auto depth:cost_val)
-         max_depth = max((depth == INF) ? 0 : depth, max_depth);
-      return max_depth;
-   }
-
-   size_t getMinDepth() const {
-      size_t min_depth = INF;
-      for (const size_t depth:cost_val)
-         min_depth = min(depth, min_depth);
-      return min_depth;
-   }
-
 	/**
 	 * @param ID	index of the state to ask for parameters
     * @return  parameters assigned to the state
@@ -176,33 +132,11 @@ public:
 		vector<Coloring> colors;
 
 		// Get the states and their colors
-		for (const auto ID:states)
+      for (const StateID ID:states)
 			colors.push_back(Coloring(ID, getColor(ID)));
 
 		// Return final vertices with their positions
 		return colors;
-	}
-
-	/**
-	 * @param number of the parametrization relative in this round
-    * @return  Cost value of a particular parametrization
-	 */
-	size_t getCost(size_t position) const {
-		return cost_val[position];
-	}
-
-	/**
-    * @return  Cost value of all the parametrizations from this round
-	 */
-	const vector<size_t> & getCost() const {
-		return cost_val;
-	}
-
-	/**
-    * @return  mask of parametrizations that are computed acceptable in this round
-	 */
-	const Paramset & getAcceptable() const {
-		return acceptable;
 	}
 };
 

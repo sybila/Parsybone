@@ -45,12 +45,12 @@ class RobustnessCompute {
    /**
     * For each state compute how many exists are under each parametrization.
     */
-   void computeExits() {
+   void computeExits(const SynthesisResults & results) {
       Paramset current_mask = ParamsetHelper::getLeftOne();
       // Cycle through parameters
       for (size_t param_num:range(ParamsetHelper::getSetSize())) {
          // If not acceptable, leave zero
-         if (current_mask & storage.getAcceptable()) {
+         if (current_mask & results.getAcceptable()) {
             for (StateID ID = 0; ID < product.getStateCount(); ID++) {
                auto succs = ColoringFunc::broadcastParameters(round_range, product, ID, current_mask);
 
@@ -112,14 +112,14 @@ public:
    /**
     * Function that computes robustness values for each parametrization.
     */
-   void compute(const Range & _round_range, const vector<set<pair<StateID,StateID> > > & transitions) {
+   void compute(const Range & _round_range, const SynthesisResults & results, const vector<set<pair<StateID,StateID> > > & transitions) {
       round_range = _round_range;
       clear();
-      computeExits();
+      computeExits(results);
       initiate();
 
       // Cycle through the levels of the DFS procedure
-      for (size_t round_num = 0; round_num < storage.getMaxDepth(); round_num++) {
+      for (size_t round_num = 0; round_num < results.getMaxDepth(); round_num++) {
          // Update markings from the previous round
          for (auto & marking:markings) {
             marking.current_prob = marking.next_prob;
