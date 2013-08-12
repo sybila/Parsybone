@@ -18,7 +18,6 @@ TEST_F(SynthesisTest, TestColoring) {
 TEST_F(SynthesisTest, TestRobustness) {
    user_options.compute_robustness = true;
    user_options.compute_wintess = true;
-   user_options.time_series = true;
 
    c_2_s_2_o_man->doPreparation();
    c_2_s_2_o_man->doColoring();
