@@ -51,6 +51,17 @@ public:
 	// OUTPUT METHODS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
+   void eraseData() const {
+      if (user_options.toFile()) {
+         output_streamer.createStreamFile(results_str, user_options.textFile());
+      }
+      if (user_options.toDatabase()) {
+         database.finishOutpout();
+         database.dropTables();
+      }
+      outputForm();
+   }
+
    void outputForm() const {
       if (user_options.toDatabase())
          database.creteTables();

@@ -63,7 +63,7 @@ public:
    UserOptions() {
       compute_wintess = bounded_check = be_verbose = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
       database_file = datatext_file = in_mask_file = out_mask_file = "";
-      bound_size = 0;
+      bound_size = INF;
       process_number = processes_count = 1;
       model_name = "";
    }

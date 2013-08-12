@@ -36,7 +36,6 @@ public:
 	/**
     * Constructor allocates necessary memory for further usage (this memory is not supposed to be freed until endo of the computation).
 	 * Every state has predecessors and succesors allocated for EVERY other state, this consumes memory but benefits the complexity of operations.
-	 *
 	 * @param states_count	number of states the structure the data will be saved for has
 	 */
    ColorStorage(const ProductStructure & product) {
@@ -84,7 +83,6 @@ public:
 
 	/**
     * Fills after time series check finished.
-	 *
 	 * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use INF
 	 */
 	void setResults(const vector<size_t> & new_cost, const Paramset resulting) {
@@ -94,7 +92,6 @@ public:
 
    /**
     * Fills after a general LTL check finished.
-    *
     * @param new_cost	a vector of lenght |parameter_set| containing cost values. If the value does not exist (state is not reachable), use INF
     */
    void setResults(const Paramset resulting) {
@@ -106,10 +103,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
     * Add passed colors to the state.
-	 *
 	 * @param ID	index of the state to fill
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
-	 * 
     * @return  true if there was an actuall update
 	 */
 	inline bool update(const StateID ID, const Paramset parameters) {
@@ -151,16 +146,21 @@ public:
     * @return  max finite cost among parametrizations used this round
     */
    size_t getMaxDepth () const {
-      size_t depth = 0;
-      for (const auto val:cost_val)
-              depth = max((val == INF) ? 0 : val, depth);
+      size_t max_depth = 0;
+      for (const auto depth:cost_val)
+         max_depth = max((depth == INF) ? 0 : depth, max_depth);
+      return max_depth;
+   }
 
-      return depth;
+   size_t getMinDepth() const {
+      size_t min_depth = INF;
+      for (const size_t depth:cost_val)
+         min_depth = min(depth, min_depth);
+      return min_depth;
    }
 
 	/**
 	 * @param ID	index of the state to ask for parameters
-	 * 
     * @return  parameters assigned to the state
 	 */
 	inline const Paramset & getColor(const StateID ID) const {
@@ -169,7 +169,6 @@ public:
 
 	/**
 	 * @param states	indexes of states to ask for parameters
-	 *
     * @return  queue with all colorings of states
 	 */
 	const vector<Coloring> getColor(const vector<StateID> & states) const {
@@ -186,7 +185,6 @@ public:
 
 	/**
 	 * @param number of the parametrization relative in this round
-	 *
     * @return  Cost value of a particular parametrization
 	 */
 	size_t getCost(size_t position) const {

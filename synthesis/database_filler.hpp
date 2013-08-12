@@ -12,6 +12,8 @@ class DatabaseFiller {
 
    const Model & model;
 
+   bool in_output;
+
    void prepareTable(const string & name, const string & columns) {
       // Drop old tables if any.
       string drop_cmd = "DROP TABLE IF EXISTS " + name + "; ";
@@ -91,6 +93,7 @@ public:
    DatabaseFiller(const Model & _model)
        : COMPONENTS_TABLE("Components"), REGULATIONS_TABLE("Regulations"), PARAMETRIZATIONS_TABLE("Parametrizations"),
       model(_model) {
+      in_output = false;
    }
 
    void creteTables() {
@@ -101,6 +104,13 @@ public:
       sql_adapter.safeExec("END;");
    }
 
+   void dropTables() {
+      const string DROP_CMD("DROP TABLE ");
+      sql_adapter.safeExec(DROP_CMD + COMPONENTS_TABLE + ";");
+      sql_adapter.safeExec(DROP_CMD + REGULATIONS_TABLE + ";");
+      sql_adapter.safeExec(DROP_CMD + PARAMETRIZATIONS_TABLE + ";");
+   }
+
    void addParametrization(string parametrization) {
       auto insert = makeInsert(PARAMETRIZATIONS_TABLE);
       sql_adapter.safeExec(insert + parametrization + " 1);");
@@ -108,10 +118,13 @@ public:
 
    void startOutput() {
       sql_adapter.safeExec("BEGIN TRANSACTION;");
+      in_output = true;
    }
 
    void finishOutpout() {
-      sql_adapter.safeExec("END;");
+      if (in_output)
+         sql_adapter.safeExec("END;");
+      in_output = false;
    }
 };
 

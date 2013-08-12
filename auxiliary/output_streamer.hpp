@@ -20,15 +20,15 @@ class OutputStreamer {
    ostream * verbose_stream; ///< Stream to output work status in case it is requested by user.
    ostream * result_stream; ///< Stream to output results of coloring.
    ostream * console_stream; ///< This one always goes to console.
+   string result_filename;
 
    /// True if these streams are assigned a file.
    bool error_file, verbose_file, result_file;
 
    static StreamType last_stream_type;	///< Used to ease usage of output - last stream is stored and used if no new is specified.
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // OUTPUT TRAITS DEFINITIONS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   const size_t PAD_LENGTH = 70; ///< How long should a padded line be.
+
 public:
    typedef const unsigned int Trait;
    static Trait no_newl    = 1; ///< After last line no newline symbol will be output.
@@ -39,19 +39,14 @@ public:
 
    /**
     * Test if given trait is present.
-    *
     * @param tested	number of the tested trait
     * @param traits	traits given with the function
-    *
     * @return bool if the trait is present
     */
    inline bool testTrait(const unsigned int tested, const unsigned int traits) const {
       return ((traits | tested)== traits);
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CREATION METHODS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Basic constructor - should be used only for the single object shared throught the program.
     */
@@ -80,7 +75,6 @@ public:
 
    /**
     * Create a file to which given stream will be redirected.
-    *
     * @param stream_type	enumeration type specifying the type of stream to output to
     * @param data	data to output - should be any possible ostream data
     */
@@ -107,9 +101,6 @@ public:
       }
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // OUTPUT METHODS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Flush all the streams that are in use.
     */
@@ -181,7 +172,7 @@ public:
    }
 
    void clear_line(StreamType stream_type = last_stream_type) {
-      output(stream_type, string(' ', 100), OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
+      output(stream_type, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
    }
 
 private:
@@ -206,6 +197,8 @@ private:
       if (testTrait(important, trait_mask))
          stream << " --";
       // End of the line if not requested otherwise
+      if (testTrait(rewrite_ln, trait_mask) && !testTrait(no_out, trait_mask))
+         stream << string(max(0u, PAD_LENGTH - string(stream_data).size()), ' ');
       if (!testTrait(no_newl, trait_mask))
          stream << endl;
    }

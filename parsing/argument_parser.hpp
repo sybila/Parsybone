@@ -46,13 +46,13 @@ class ArgumentParser {
    }
 
    /**
-    * Obtain parameters for synthesis distribution.
+    * Obtain parameters for bounded computation.
     */
-   int getDistribution(vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
+   int getBound(vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
       try {
          if (++position == end)
             throw invalid_argument("Bound values is missing");
-         user_options.step_bound = lexical_cast<size_t>(*position);
+         user_options.bound_size = lexical_cast<size_t>(*position);
       } catch (bad_lexical_cast & e) {
          throw invalid_argument("Error while parsing the modifier --bound" + toString(e.what()));
       }
@@ -133,7 +133,7 @@ class ArgumentParser {
          return getFileName(output_mask, position, arguments.end());
       } else if (position->compare("--bound") == 0) {
          user_options.bounded_check = true;
-         return getBound(output_mask, position, arguments.end());
+         return getBound(position, arguments.end());
       } else {
          throw invalid_argument("Unknown modifier " + *position);
       }

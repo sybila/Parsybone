@@ -112,6 +112,7 @@ class ParametrizationsBuilder {
             continue;
          model.species[ID].subcolors.push_back(subcolor);
       } while (iterate(top_color, bottom_color, subcolor));
+      output_streamer.clear_line(verbose_str);
 
       if (model.species[ID].subcolors.empty())
          throw runtime_error(string("No valid parametrization found for the specie ").append(toString(ID)));

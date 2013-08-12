@@ -11,6 +11,7 @@
 
 #include "PunyHeaders/time_manager.hpp"
 
+#include "../model/model.hpp"
 #include "coloring_analyzer.hpp"
 #include "witness_searcher.hpp"
 #include "output_manager.hpp"
@@ -35,6 +36,9 @@ class SynthesisManager {
    const Model & model;
    const PropertyAutomaton & property;
 
+   ParamNum total_colors;
+   size_t BFS_bound;
+
    /**
     * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
     */
@@ -57,12 +61,11 @@ class SynthesisManager {
       set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
       // Start coloring procedure
-      model_checker->startColoring(starting, updates, split_manager->getRoundRange());
+      model_checker->startColoring(starting, updates, split_manager->getRoundRange(), BFS_bound);
    }
 
    /**
     * For each final state that has at least one parameter assigned, start cycle detection.
-    *
     * @param init_coloring	reference to the final state that starts the coloring search with its parameters
     */
    void detectCycle(const Coloring & init_coloring) {
@@ -70,10 +73,8 @@ class SynthesisManager {
       storage->reset();
 
       // Sechedule nothing for updates (will be done during transfer in the next step)
-      model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange());
+      model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange(), BFS_bound);
    }
-   /// Overall statistics
-   ParamNum total_colors;
 
 public:
 	unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis.
@@ -100,6 +101,25 @@ public:
       output.reset(new OutputManager(property, model, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
 
       total_colors = 0;
+      BFS_bound = user_options.getBoundSize();
+   }
+
+   /**
+    * @brief checkDepthBound see if there is not a new BFS depth bound
+    */
+   void checkDepthBound() {
+      if (storage->getMinDepth() < BFS_bound) {
+         output_streamer.clear_line(verbose_str);
+         if (true) { // storage->getMinDepth() != storage->getMaxDepth() || BFS_bound != INF
+            split_manager->setStartPositions();
+            output->eraseData();
+            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(storage->getMinDepth()));
+            total_colors = 0;
+         } else { // You may not have to restart if the bound was found this round and everyone has it.
+            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(storage->getMinDepth()));
+         }
+         BFS_bound = storage->getMinDepth();
+      }
    }
 
 	/**
@@ -134,13 +154,14 @@ public:
 			// Store results from this final state
          analyzer->storeResults(Coloring(final_it->first, storage->getColor(final_it->first)));
 		}
+
+      total_colors += ParamsetHelper::count(analyzer->getMask());
 	}
 
    /**
     * @brief doAnalysis Compute additional analyses.
     */
    void doAnalysis() {
-      total_colors += ParamsetHelper::count(analyzer->getMask());
       // Compute witnesses etc. if there is anything to computed, if so, print
       if (analyzer->getMask()) {
          searcher->findWitnesses(split_manager->getRoundRange());
@@ -161,9 +182,6 @@ public:
          bitmask_manager.outputComputed(analyzer->getMask());
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // SYNTHESIS ENTRY FUNCTION
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Main synthesis function that iterates through all the rounds of the synthesis.
     */
@@ -173,6 +191,8 @@ public:
 
       // Do the computation for all the rounds
       do {
+         if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
+            checkDepthBound();
          doPreparation();
          doColoring();
          if (user_options.analysis())

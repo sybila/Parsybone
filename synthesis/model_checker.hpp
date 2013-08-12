@@ -38,6 +38,7 @@ class ModelChecker {
    Paramset restrict_mask; ///< Mask of parameters that are secure to left out.
    vector<size_t> BFS_reach; ///< In which round this color was found.
    size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
+   size_t BFS_BOUND; ///< Boundary on depth, if exists.
 
    /**
     * From all the updates pick the one from the state with most bits.
@@ -129,7 +130,7 @@ class ModelChecker {
          updates.erase(ID);
 
          // If there this round is finished, but there are still paths to find
-         if (updates.empty() && to_find ) {
+         if (updates.empty() && to_find && (BFS_level < BFS_BOUND)) {
             updates = move(next_updates);
             storage.addFrom(next_round_storage);
             restrict_mask = to_find;
@@ -150,12 +151,13 @@ class ModelChecker {
     * @param _range	range of parameters for this coloring round
     * @param _updates	states that are will be scheduled for an update in this round
     */
-   void prepareCheck(const Paramset parameters, const Range & _range, set<StateID> start_updates = set<StateID>()) {
+   void prepareCheck(const Paramset parameters, const Range & _range, const size_t _BFS_BOUND, set<StateID> start_updates = set<StateID>()) {
       starting = to_find = restrict_mask = parameters; // Store which parameters are we searching for
       updates = move(start_updates); // Copy starting updates
       synthesis_range = _range; // Copy range of this round
 
       BFS_level = 0; // Set sterting number of BFS
+      BFS_BOUND = _BFS_BOUND;
       next_updates.clear(); // Ensure emptiness of the next round
       BFS_reach.clear();
       BFS_reach.resize(ParamsetHelper::getSetSize(), INF); // Begin with infinite reach (symbolized by INF)
@@ -172,13 +174,12 @@ public:
 
    /**
     * Start a new coloring round for cycle detection from a single state.
-    *
     * @param ID	ID of the state to start cycle detection from
     * @param parameters	starting parameters for the cycle detection
     * @param _range	range of parameters for this coloring round
     */
-   void startColoring(const StateID ID, const Paramset parameters, const Range & _range) {
-      prepareCheck(parameters, _range);
+   void startColoring(const StateID ID, const Paramset parameters, const Range & _range, const size_t _BFS_BOUND = INF) {
+      prepareCheck(parameters, _range, _BFS_BOUND);
       transferUpdates(ID, parameters); // Transfer updates from the start of the detection
       starting_state = ID;
       doColoring();
@@ -186,14 +187,13 @@ public:
 
    /**
     * Start a new coloring round for coloring of the nodes from the set of inital ones.
-    *
     * @param parameters	starting parameters to color the structure with
     * @param _updates	states that are will be scheduled for an update in this round
     * @param _range	range of parameters for this coloring round
     */
-   void startColoring(const Paramset parameters, const set<StateID> & _updates, const Range & _range){
-      prepareCheck(parameters, _range, _updates);
-      starting_state = ~static_cast<size_t>(0);
+   void startColoring(const Paramset parameters, const set<StateID> & _updates, const Range & _range, const size_t _BFS_BOUND = INF){
+      prepareCheck(parameters, _range, _BFS_BOUND, _updates);
+      starting_state = INF;
       doColoring();
    }
 };
