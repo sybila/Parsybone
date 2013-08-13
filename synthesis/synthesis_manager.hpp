@@ -17,7 +17,7 @@
 #include "output_manager.hpp"
 #include "color_storage.hpp"
 #include "model_checker.hpp"
-#include "paramset_helper.hpp"
+#include "../auxiliary/paramset_helper.hpp"
 #include "split_manager.hpp"
 #include "SQLAdapter.hpp"
 #include "robustness_compute.hpp"
@@ -51,7 +51,7 @@ class SynthesisManager {
       else
          starting = split_manager->createStartingParameters();
 
-      if (ParamsetHelper::none(starting))
+      if (ParamsetHelper::hasNone(starting))
          return;
 
       // Set all the initial states to initial color
@@ -103,7 +103,7 @@ public:
 
       total_colors = 0ul;
       BFS_bound = user_options.getBoundSize();
-      results.setResults(vector<size_t>(ParamsetHelper::getSetSize(), INF), 0u);
+      results.setResults(vector<size_t>(ParamsetHelper::getSetSize(), INF), ParamsetHelper::getNone());
    }
 
    /**
@@ -151,7 +151,7 @@ public:
 		// Get the actuall results by cycle detection for each final vertex
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
-         if (!ParamsetHelper::none(final_it->second) && property.getPropType() == LTL)
+         if (!ParamsetHelper::hasNone(final_it->second) && property.getPropType() == LTL)
 				detectCycle(*final_it);
 
 			// Store results from this final state

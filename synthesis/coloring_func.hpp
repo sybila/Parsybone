@@ -2,7 +2,7 @@
 #define COLORING_FUNC_HPP
 
 #include "../construction/product_structure.hpp"
-#include "paramset_helper.hpp"
+#include "../auxiliary/paramset_helper.hpp"
 
 namespace ColoringFunc {
    /**
@@ -32,7 +32,7 @@ namespace ColoringFunc {
             temporary <<= bits_in_step;
             // If transitive, add ones for the width of the step
             if (transitive_values[value_num]) {
-               Paramset add = INF;
+               Paramset add = ParamsetHelper::getAll();
                add >>= (ParamsetHelper::getSetSize() - bits_in_step);
                temporary |= add;
             }
@@ -63,7 +63,7 @@ namespace ColoringFunc {
       param_updates.reserve(product.getTransitionCount(ID));
 
       size_t KS_state = product.getKSID(ID);
-      Paramset loop_params = INF; // Which of the parameters allow only to remain in this state
+      Paramset loop_params = ParamsetHelper::getAll(); // Which of the parameters allow only to remain in this state
 
       // Cycle through all the transition
       for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {

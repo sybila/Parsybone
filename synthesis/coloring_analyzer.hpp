@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_COLORING_ANALYZER_INCLUDED
 #define PARSYBONE_COLORING_ANALYZER_INCLUDED
 
-#include "../synthesis/paramset_helper.hpp"
+#include "../auxiliary/paramset_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief A storage of individual final states together with their coloring and to further provide necessary data for the output as requested.

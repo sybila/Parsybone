@@ -96,7 +96,7 @@ class ModelChecker {
       // For all passed values make update on target
       for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
          // Skip empty updates
-         if (ParamsetHelper::none(update_it->second))
+         if (ParamsetHelper::hasNone(update_it->second))
             continue;
 
          // If something new is added to the target, schedule it for an update
@@ -154,9 +154,9 @@ class ModelChecker {
     * @param _range	range of parameters for this coloring round
     * @param _updates	states that are will be scheduled for an update in this round
     */
-   void prepareCheck(const Paramset parameters, const Range & _range, const bool _bounded_search, const size_t _BFS_BOUND,  set<StateID> start_updates = set<StateID>()) {
+   void prepareCheck(const Paramset parameters, const Range & _range, const bool _bounded_search, const size_t _BFS_BOUND,  set<StateID> initials = set<StateID>()) {
       starting = to_find = restrict_mask = parameters; // Store which parameters are we searching for
-      updates = move(start_updates); // Copy starting updates
+      updates = move(initials); // Copy starting updates
       synthesis_range = _range; // Copy range of this round
 
       BFS_level = 0; // Set sterting number of BFS
@@ -169,9 +169,6 @@ class ModelChecker {
    }
 
 public:
-   /**
-    * Constructor, passes the data and sets up auxiliary storage.
-    */
    ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), storage(_storage) {
       next_round_storage = storage; // Create an identical copy of the storage.
    }
@@ -192,11 +189,11 @@ public:
    /**
     * Start a new coloring round for coloring of the nodes from the set of inital ones.
     * @param parameters	starting parameters to color the structure with
-    * @param _updates	states that are will be scheduled for an update in this round
+    * @param initials	states that are will be scheduled for an update in this round
     * @param _range	range of parameters for this coloring round
     */
-   SynthesisResults startColoring(const Paramset parameters, const set<StateID> & _updates, const Range & _range, const bool _bounded_search = false, const size_t _BFS_BOUND = INF){
-      prepareCheck(parameters, _range, _bounded_search, _BFS_BOUND, _updates);
+   SynthesisResults startColoring(const Paramset parameters, const set<StateID> & initials, const Range & _range, const bool _bounded_search = false, const size_t _BFS_BOUND = INF){
+      prepareCheck(parameters, _range, _bounded_search, _BFS_BOUND, initials);
       starting_state = INF;
       return doColoring();
    }
