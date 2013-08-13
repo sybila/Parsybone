@@ -42,8 +42,6 @@ int main(int argc, char* argv[]) {
       return 1;
    }
 
-
-
    try {
       // Pass the model
       ConstructionManager::computeModelProps(model);

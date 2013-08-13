@@ -104,7 +104,7 @@ enum PropType { LTL, TimeSeries };
 // COMPUTATION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Mask of parameters - each bit represents single combination of target values for each function.
-typedef unsigned long long Paramset;
+typedef unsigned int Paramset;
 
 /// Index of the color - may be a big number.
 typedef unsigned long long ParamNum;

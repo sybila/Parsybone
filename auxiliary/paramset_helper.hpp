@@ -27,6 +27,9 @@ namespace ParamsetHelper {
    const Paramset one = static_cast<Paramset>(1u); ///< Parametrization with the right bit set to 1.
    const Paramset all = ~none; ///< Parametrization set with all the bits set to 1.
 
+   /**
+    * @brief testParametrizations   conduct a test on correctness of the parametrization representations.
+    */
    void testParametrizations() {
       for (size_t i = 0; i < subset_size; i++)
          if ((none >> i) % 2)

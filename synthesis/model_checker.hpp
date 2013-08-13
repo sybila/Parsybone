@@ -25,7 +25,8 @@ class ModelChecker {
    bool bounded_search;
    const ProductStructure & product; ///< Product on which the computation will be conducted.
    Range synthesis_range; ///< First and one beyond last color to be computed in this round.
-   StateID starting_state; ///< State from which the synthesis goes during the general LTL search.
+   StateID starting_state; ///< A state from which the search is being conducted, if specified explicitly.
+   StateID finishing_state; ///< A state towards which the search is being conducted, if specified explicitly.
 
    // Coloring storage
    ColorStorage & storage; ///< Class that actually stores colors during the computation.

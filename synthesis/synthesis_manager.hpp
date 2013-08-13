@@ -11,16 +11,18 @@
 
 #include "PunyHeaders/time_manager.hpp"
 
+#include "../auxiliary/paramset_helper.hpp"
 #include "../model/model.hpp"
+
 #include "coloring_analyzer.hpp"
 #include "witness_searcher.hpp"
 #include "output_manager.hpp"
 #include "color_storage.hpp"
 #include "model_checker.hpp"
-#include "../auxiliary/paramset_helper.hpp"
 #include "split_manager.hpp"
 #include "SQLAdapter.hpp"
 #include "robustness_compute.hpp"
+#include "checker_setting.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief STEP 3 - Control class for the computation.
@@ -62,6 +64,7 @@ class SynthesisManager {
       set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
       // Start coloring procedure
+      CheckerSettings settings(product);
       results = model_checker->startColoring(starting, updates, split_manager->getRoundRange(), bounded, BFS_bound);
    }
 
