@@ -22,7 +22,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelChecker {
    // Information
-   PropType prop_type;
+   bool bounded_search;
    const ProductStructure & product; ///< Product on which the computation will be conducted.
    Range synthesis_range; ///< First and one beyond last color to be computed in this round.
    StateID starting_state; ///< State from which the synthesis goes during the general LTL search.
@@ -118,12 +118,11 @@ class ModelChecker {
          // Within updates, find the one with most bits
          StateID ID = getStrongestUpdate();
          // Check if this is not the last round
-         if (prop_type == TimeSeries) {
-            if (product.isFinal(ID))
-               markLevels(storage.getColor(ID));
-            else
-               transferUpdates(ID, storage.getColor(ID) & restrict_mask);
-         }
+         if (product.isFinal(ID))
+            markLevels(storage.getColor(ID));
+
+         if (bounded_search)
+            transferUpdates(ID, storage.getColor(ID) & restrict_mask);
          else
             transferUpdates(ID, storage.getColor(ID));
 
@@ -141,10 +140,11 @@ class ModelChecker {
 
       // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
       SynthesisResults results;
-      if (prop_type == TimeSeries)
-         results.setResults(BFS_reach, ~to_find & starting);
-      else if (starting_state != ~static_cast<size_t>(0))
+      if (starting_state != INF)
          results.setResults(BFS_reach, storage.getColor(starting_state));
+      else
+         results.setResults(BFS_reach, ~to_find & starting);
+
       return results;
    }
 
@@ -154,12 +154,13 @@ class ModelChecker {
     * @param _range	range of parameters for this coloring round
     * @param _updates	states that are will be scheduled for an update in this round
     */
-   void prepareCheck(const Paramset parameters, const Range & _range, const size_t _BFS_BOUND, set<StateID> start_updates = set<StateID>()) {
+   void prepareCheck(const Paramset parameters, const Range & _range, const bool _bounded_search, const size_t _BFS_BOUND,  set<StateID> start_updates = set<StateID>()) {
       starting = to_find = restrict_mask = parameters; // Store which parameters are we searching for
       updates = move(start_updates); // Copy starting updates
       synthesis_range = _range; // Copy range of this round
 
       BFS_level = 0; // Set sterting number of BFS
+      bounded_search = _bounded_search;
       BFS_BOUND = _BFS_BOUND;
       next_updates.clear(); // Ensure emptiness of the next round
       BFS_reach.clear();
@@ -171,7 +172,7 @@ public:
    /**
     * Constructor, passes the data and sets up auxiliary storage.
     */
-   ModelChecker(const PropType _prop_type, const ProductStructure & _product, ColorStorage & _storage) : prop_type(_prop_type), product(_product), storage(_storage) {
+   ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), storage(_storage) {
       next_round_storage = storage; // Create an identical copy of the storage.
    }
 
@@ -181,8 +182,8 @@ public:
     * @param parameters	starting parameters for the cycle detection
     * @param _range	range of parameters for this coloring round
     */
-   SynthesisResults startColoring(const StateID ID, const Paramset parameters, const Range & _range, const size_t _BFS_BOUND = INF) {
-      prepareCheck(parameters, _range, _BFS_BOUND);
+   SynthesisResults startColoring(const StateID ID, const Paramset parameters, const Range & _range, const bool _bounded_search = false, const size_t _BFS_BOUND = INF) {
+      prepareCheck(parameters, _range, _bounded_search, _BFS_BOUND);
       transferUpdates(ID, parameters); // Transfer updates from the start of the detection
       starting_state = ID;
       return doColoring();
@@ -194,8 +195,8 @@ public:
     * @param _updates	states that are will be scheduled for an update in this round
     * @param _range	range of parameters for this coloring round
     */
-   SynthesisResults startColoring(const Paramset parameters, const set<StateID> & _updates, const Range & _range, const size_t _BFS_BOUND = INF){
-      prepareCheck(parameters, _range, _BFS_BOUND, _updates);
+   SynthesisResults startColoring(const Paramset parameters, const set<StateID> & _updates, const Range & _range, const bool _bounded_search = false, const size_t _BFS_BOUND = INF){
+      prepareCheck(parameters, _range, _bounded_search, _BFS_BOUND, _updates);
       starting_state = INF;
       return doColoring();
    }

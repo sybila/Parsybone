@@ -43,7 +43,7 @@ class SynthesisManager {
    /**
     * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
     */
-   void colorProduct() {
+   void colorProduct(bool bounded) {
       // Get initial coloring
       Paramset starting;
       if(user_options.inputMask())
@@ -62,7 +62,7 @@ class SynthesisManager {
       set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
 
       // Start coloring procedure
-      results = model_checker->startColoring(starting, updates, split_manager->getRoundRange(), BFS_bound);
+      results = model_checker->startColoring(starting, updates, split_manager->getRoundRange(), bounded, BFS_bound);
    }
 
    /**
@@ -74,7 +74,7 @@ class SynthesisManager {
       storage->reset();
 
       // Sechedule nothing for updates (will be done during transfer in the next step)
-      results = model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange(), BFS_bound);
+      results = model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange(), true, BFS_bound);
    }
 
 public:
@@ -95,7 +95,7 @@ public:
       analyzer.reset(new ColoringAnalyzer(model));
       storage.reset(new ColorStorage(product));
       split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(model)));
-      model_checker.reset(new ModelChecker(property.getPropType(), product, *storage));
+      model_checker.reset(new ModelChecker(product, *storage));
       searcher.reset(new WitnessSearcher(product, *storage));
       robustness.reset(new RobustnessCompute(product, *storage));
       database.reset(new DatabaseFiller(model));
@@ -144,7 +144,7 @@ public:
 	 */
    void doColoring() {
 		// Basic (initial) coloring
-		colorProduct();
+      colorProduct(property.getPropType() == TimeSeries);
 
 		// Store colored final vertices
       vector<Coloring> final_states = storage->getColor(product.getFinalStates());
