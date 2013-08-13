@@ -15,14 +15,22 @@ TEST_F(SynthesisTest, TestColoring) {
 
 }
 
+TEST_F(SynthesisTest, TestGeneral) {
+   user_options.compute_robustness = false;
+   user_options.compute_wintess = false;
+
+   c_2_s_2_o_man->checkGeneral();
+   EXPECT_EQ(1, ParamsetHelper::count(c_2_s_2_o_man->analyzer->getMask()));
+
+   b_k_c_man->checkGeneral();
+   EXPECT_LE(1, ParamsetHelper::count(b_k_c_man->analyzer->getMask()));
+}
+
 TEST_F(SynthesisTest, TestRobustness) {
    user_options.compute_robustness = true;
    user_options.compute_wintess = true;
-
-   c_2_s_2_o_man->doPreparation();
-   c_2_s_2_o_man->doColoring();
-   c_2_s_2_o_man->doAnalysis();
-   EXPECT_GE(1, ParamsetHelper::count(c_2_s_2_o_man->analyzer->getMask()));
+   c_2_s_2_o_man->checkFinite();
+   EXPECT_EQ(1, ParamsetHelper::count(c_2_s_2_o_man->analyzer->getMask()));
 }
 
 #endif // SYNTHESIS_TESTS_HPP

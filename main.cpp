@@ -54,7 +54,10 @@ int main(int argc, char* argv[]) {
 
    try {
       SynthesisManager synthesis_manager(product, model, property);
-      synthesis_manager.doSynthesis();
+      if (property.getPropType() == TimeSeries)
+         synthesis_manager.checkFinite();
+      else if (property.getPropType() == LTL)
+         synthesis_manager.checkGeneral();
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while syntetizing the parameters: \"").append(e.what()).append("\"."));

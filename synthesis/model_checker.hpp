@@ -24,7 +24,7 @@
 class ModelChecker {
    // Information
    const ProductStructure & product; ///< Product on which the computation will be conducted.
-   CheckerSettings settings;
+   CheckerSettings settings; ///< Setup for the process.
 
    // Coloring storage
    ColorStorage & storage; ///< Class that actually stores colors during the computation.
@@ -88,30 +88,24 @@ class ModelChecker {
     * Executed as an BFS - in rounds.
     */
    void doColoring() {
-      // While there are updates, pass them to succesing vertices
-      do  {
-         // Within updates, find the one with most bits
-         StateID ID = *updates.begin();
-         // Check if this is not the last round
-         if (settings.isFinal(ID))
-            markLevels(storage.getColor(ID));
+      StateID ID = *updates.begin();
 
+      // Check if this is not the last round
+      if (settings.isFinal(ID))
+         markLevels(storage.getColor(ID));
+
+      transferUpdates(ID, storage.getColor(ID) & restrict_mask);
+
+      updates.erase(ID);
+
+      // If there this round is finished, but there are still paths to find
+      if (updates.empty() && to_find && (BFS_level < settings.getBound())) {
+         updates = move(next_updates);
+         storage.addFrom(next_round_storage);
          if (settings.isBounded())
-            transferUpdates(ID, storage.getColor(ID) & restrict_mask);
-         else
-            transferUpdates(ID, storage.getColor(ID));
-
-         // Erase completed update from the set
-         updates.erase(ID);
-
-         // If there this round is finished, but there are still paths to find
-         if (updates.empty() && to_find && (BFS_level < settings.getBound())) {
-            updates = move(next_updates);
-            storage.addFrom(next_round_storage);
             restrict_mask = to_find;
-            BFS_level++; // Increase level
-         }
-      } while (!updates.empty());
+         BFS_level++; // Increase level
+      }
    }
 
    /**
@@ -151,7 +145,10 @@ public:
       prepareObjects();
       initiateCheck();
 
-      doColoring();
+      // While there are updates, pass them to succesing vertices
+      do  {
+         doColoring();
+      } while (!updates.empty());
 
       // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
       SynthesisResults results;

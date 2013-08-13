@@ -43,44 +43,57 @@ class SynthesisManager {
    size_t global_BFS_bound;
    SynthesisResults results;
 
+   CheckerSettings createRoundSetting() {
+      CheckerSettings settings(product);
+      settings.bfs_bound = global_BFS_bound;
+      settings.range = split_manager->getRoundRange();
+      return settings;
+   }
+
    /**
     * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
     */
    void colorProduct(const bool bounded) {
-      CheckerSettings settings(product);
-      settings.bfs_bound = global_BFS_bound;
+      storage->reset();
+
+      CheckerSettings settings = createRoundSetting();
+      settings.tested_params = split_manager->createStartingParameters();
       settings.bounded = bounded;
-      settings.range = split_manager->getRoundRange();
-
-      // Get initial coloring
-      if(user_options.inputMask())
-         settings.tested_params = bitmask_manager.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
-      else
-         settings.tested_params = split_manager->createStartingParameters();
-
-      if (ParamsetHelper::hasNone(settings.tested_params))
-         return;
 
       // Start coloring procedure
       results = model_checker->conductCheck(settings);
    }
 
    /**
-    * For each final state that has at least one parameter assigned, start cycle detection.
-    * @param init_coloring	reference to the final state that starts the coloring search with its parameters
+    * @brief colorAccepting
+    * @param accepting
     */
-   void detectCycle(const Coloring & init_coloring, const bool bounded) {
-      CheckerSettings settings(product);
-      settings.bfs_bound = global_BFS_bound;
-      settings.bounded = bounded;
-      settings.range = split_manager->getRoundRange();
-      settings.tested_params = init_coloring.second;
-      settings.starting_state = init_coloring.first;
-
-      // Assure emptyness
+   void colorAccepting(const Coloring & accepting) {
       storage->reset();
 
-      // Sechedule nothing for updates (will be done during transfer in the next step)
+      CheckerSettings settings = createRoundSetting();
+      settings.bounded = false;
+      settings.final_state = accepting.first;
+      settings.tested_params = accepting.second;
+
+      // Start coloring procedure
+      results = model_checker->conductCheck(settings);
+   }
+
+   /**
+    * @brief detectCycle
+    * @param accepting
+    */
+   void detectCycle(const Coloring & accepting) {
+      storage->reset();
+
+      CheckerSettings settings = createRoundSetting();
+      settings.bounded = false;
+      settings.starting_state = accepting.first;
+      settings.final_state = accepting.first;
+      settings.tested_params = accepting.second;
+
+      // Start coloring procedure
       results = model_checker->conductCheck(settings);
    }
 
@@ -136,36 +149,10 @@ public:
 	 * Setup everything that needs it for computation in this round.
 	 */
 	void doPreparation() {
-		// Assure emptyness
-      storage->reset();
 		// Output round number
 		output->outputRoundNum();
 		// Pass information about round (necessary for setup)
 		analyzer->strartNewRound(split_manager->getRoundRange());
-	}
-
-	/**
-	 * Entry point of the parameter synthesis.
-	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
-	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
-	 */
-   void doColoring() {
-      // Basic (initial) coloring, for a time series is bounded
-      colorProduct(property.getPropType() == TimeSeries);
-
-		// Store colored final vertices
-      vector<Coloring> final_states = storage->getColor(product.getFinalStates());
-		// Get the actuall results by cycle detection for each final vertex
-		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
-			// For general property, there must be new coloring for each final state!
-         if (!ParamsetHelper::hasNone(final_it->second) && property.getPropType() == LTL)
-            detectCycle(*final_it, false);
-
-			// Store results from this final state
-         analyzer->storeResults(Coloring(final_it->first, storage->getColor(final_it->first)));
-		}
-
-      total_colors += ParamsetHelper::count(analyzer->getMask());
 	}
 
    /**
@@ -186,32 +173,59 @@ public:
       if (analyzer->getMask())
          // Output what has been synthetized (colors, witnesses)
          output->outputRound(results);
-
-      // Output mask if requested
-      if (user_options.outputMask())
-         bitmask_manager.outputComputed(analyzer->getMask());
    }
 
    /**
     * Main synthesis function that iterates through all the rounds of the synthesis.
     */
-   void doSynthesis() {
+   void checkFinite() {
       // time_manager.startClock("coloring");
       output->outputForm();
 
       // Do the computation for all the rounds
       do {
-         if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
+         if (user_options.getBoundSize() == INF && user_options.isBounded()) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
          doPreparation();
-         doColoring();
+         colorProduct(true);
+         for (const Coloring & final : storage->getColorings(product.getFinalStates()))
+            analyzer->storeResults(final);
          if (user_options.analysis())
             doAnalysis();
          doOutput();
+         total_colors += ParamsetHelper::count(analyzer->getMask());
       } while (split_manager->increaseRound());
 
       output->outputSummary(total_colors);
       // time_manager.writeClock("coloring");
+   }
+
+   /**
+    * @brief checkGeneral
+    */
+   void checkGeneral() {
+      output->outputForm();
+
+      // Do the computation for all the rounds
+      do {
+         if (user_options.getBoundSize() == INF && user_options.isBounded()) // If there is a requirement for computing with the minimal bound.
+            checkDepthBound();
+         doPreparation();
+         colorProduct(false);
+         vector<Coloring> finals = storage->getColorings(product.getFinalStates());
+         for (const Coloring & final : finals) {
+            if (ParamsetHelper::hasNone(final.second))
+               continue;
+            colorAccepting(final);
+            detectCycle(Coloring(final.first, storage->getColor(final.first)));
+            analyzer->storeResults(Coloring(final.first, storage->getColor(final.first)));
+         }
+
+         doOutput();
+         total_colors += ParamsetHelper::count(analyzer->getMask());
+      } while (split_manager->increaseRound());
+
+      output->outputSummary(total_colors);
    }
 };
 

@@ -122,7 +122,7 @@ public:
 	 * @param states	indexes of states to ask for parameters
     * @return  queue with all colorings of states
 	 */
-	const vector<Coloring> getColor(const vector<StateID> & states) const {
+   const vector<Coloring> getColorings(const vector<StateID> & states) const {
 		// Queue tates colored in basic coloring
 		vector<Coloring> colors;
 
