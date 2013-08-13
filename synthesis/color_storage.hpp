@@ -80,30 +80,25 @@ public:
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
     * @return  true if there was an actuall update
 	 */
-	inline bool update(const StateID ID, const Paramset parameters) {
+   inline bool update(const Coloring & col) {
 		// If nothing is new return false
-		if (states[ID].parameters == (parameters | states[ID].parameters))
+      if (states[col.first].parameters == (col.second | states[col.first].parameters))
 			return false;
 		// Add new parameters and return true
-		states[ID].parameters |= parameters;
+      states[col.first].parameters |= col.second;
 		return true;
 	}
 
 	/**
 	 * Return true if the state would be updated, false otherwise.
-	 *
-	 * @param ID	index of the state to fill
-	 * @param parameters to add - if empty, add all, otherwise use bitwise or
-	 *
     * @return  true if there would be an update
 	 */
-	inline bool soft_update(const StateID ID, const Paramset parameters) {
-		if (states[ID].parameters == (parameters | states[ID].parameters))
+   inline bool soft_update(const Coloring & col) {
+      if (states[col.first].parameters == (col.second | states[col.first].parameters))
 			return false;
 		else
 			return true;
 	}
-
 
 	/**
     * Removes given paramset from the coloring of the given state.

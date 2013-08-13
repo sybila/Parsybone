@@ -13,6 +13,7 @@
 #include "color_storage.hpp"
 #include "coloring_func.hpp"
 #include "synthesis_results.hpp"
+#include "checker_setting.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Main class of the computation - responsible for the CMC procedure.
@@ -22,11 +23,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ModelChecker {
    // Information
-   bool bounded_search;
    const ProductStructure & product; ///< Product on which the computation will be conducted.
-   Range synthesis_range; ///< First and one beyond last color to be computed in this round.
-   StateID starting_state; ///< A state from which the search is being conducted, if specified explicitly.
-   StateID finishing_state; ///< A state towards which the search is being conducted, if specified explicitly.
+   CheckerSettings settings;
 
    // Coloring storage
    ColorStorage & storage; ///< Class that actually stores colors during the computation.
@@ -35,12 +33,10 @@ class ModelChecker {
    set<StateID> next_updates; ///< Updates that are sheduled forn the next round.
 
    // BFS boundaries
-   Paramset starting; ///< Mask of parameters provided for this round.
    Paramset to_find; ///< Mask of parameters that are still not found.
    Paramset restrict_mask; ///< Mask of parameters that are secure to left out.
    vector<size_t> BFS_reach; ///< In which round this color was found.
    size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
-   size_t BFS_BOUND; ///< Boundary on depth, if exists.
 
    /**
     * From all the updates pick the one from the state with most bits.
@@ -51,12 +47,12 @@ class ModelChecker {
       register StateID ID = 0;
       register Paramset current = 0;
       // Cycle throught the updates
-      for (auto update_it = updates.begin(); update_it != updates.end(); update_it++) {
-         Paramset test = storage.getColor(*update_it);
+      for (const StateID up_ID : updates) {
+         Paramset test = storage.getColor(up_ID);
          // Compare with current data - if better, replace
          if (test != current) {
             if (test == (current | test)) {
-               ID = *update_it;
+               ID = up_ID;
                current = test;
             }
          }
@@ -92,19 +88,19 @@ class ModelChecker {
     */
    void transferUpdates(const StateID ID, const Paramset parameters) {
       // Get passed colors, unique for each sucessor
-      vector<Coloring> update = ColoringFunc::broadcastParameters(synthesis_range, product, ID, parameters);
+      vector<Coloring> transports = ColoringFunc::broadcastParameters(settings.getRange(), product, ID, parameters);
 
       // For all passed values make update on target
-      for (auto update_it = update.begin(); update_it != update.end(); update_it++) {
+      for (const Coloring trans : transports) {
          // Skip empty updates
-         if (ParamsetHelper::hasNone(update_it->second))
+         if (ParamsetHelper::hasNone(trans.second))
             continue;
 
          // If something new is added to the target, schedule it for an update
-         if (storage.soft_update(update_it->first, update_it->second)) {
+         if (storage.soft_update(trans)) {
             // Determine what is necessary to update
-            next_round_storage.update(update_it->first, update_it->second);
-            next_updates.insert(update_it->first);
+            next_round_storage.update(trans);
+            next_updates.insert(trans.first);
          }
       }
    }
@@ -113,16 +109,16 @@ class ModelChecker {
     * Main coloring function - passes parametrizations from newly colored states to their neighbours.
     * Executed as an BFS - in rounds.
     */
-   SynthesisResults doColoring() {
+   void doColoring() {
       // While there are updates, pass them to succesing vertices
       do  {
          // Within updates, find the one with most bits
          StateID ID = getStrongestUpdate();
          // Check if this is not the last round
-         if (product.isFinal(ID))
+         if (settings.isFinal(ID))
             markLevels(storage.getColor(ID));
 
-         if (bounded_search)
+         if (settings.isBounded())
             transferUpdates(ID, storage.getColor(ID) & restrict_mask);
          else
             transferUpdates(ID, storage.getColor(ID));
@@ -131,72 +127,53 @@ class ModelChecker {
          updates.erase(ID);
 
          // If there this round is finished, but there are still paths to find
-         if (updates.empty() && to_find && (BFS_level < BFS_BOUND)) {
+         if (updates.empty() && to_find && (BFS_level < settings.getBound())) {
             updates = move(next_updates);
             storage.addFrom(next_round_storage);
             restrict_mask = to_find;
             BFS_level++; // Increase level
          }
       } while (!updates.empty());
-
-      // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
-      SynthesisResults results;
-      if (starting_state != INF)
-         results.setResults(BFS_reach, storage.getColor(starting_state));
-      else
-         results.setResults(BFS_reach, ~to_find & starting);
-
-      return results;
    }
 
-   /**
-    * Sets/resets all coloring reference values.
-    * @param parameters starting parameters for the cycle detection
-    * @param _range	range of parameters for this coloring round
-    * @param _updates	states that are will be scheduled for an update in this round
-    */
-   void prepareCheck(const Paramset parameters, const Range & _range, const bool _bounded_search, const size_t _BFS_BOUND,  set<StateID> initials = set<StateID>()) {
-      starting = to_find = restrict_mask = parameters; // Store which parameters are we searching for
-      updates = move(initials); // Copy starting updates
-      synthesis_range = _range; // Copy range of this round
-
-      BFS_level = 0; // Set sterting number of BFS
-      bounded_search = _bounded_search;
-      BFS_BOUND = _BFS_BOUND;
+   void prepareObjects() {
       next_updates.clear(); // Ensure emptiness of the next round
-      BFS_reach.clear();
-      BFS_reach.resize(ParamsetHelper::getSetSize(), INF); // Begin with infinite reach (symbolized by INF)
       next_round_storage.reset(); // Copy starting values
+      BFS_reach = vector<size_t>(ParamsetHelper::getSetSize(), INF); // Begin with infinite reach (symbolized by INF)
+      BFS_level = 0;
+   }
+
+   void initiateCheck() {
+      if (settings.getCoreState() != INF) {
+         transferUpdates(settings.getCoreState(), settings.getStartingParams());
+      } else {
+         updates = settings.hashInitials();
+         for (const StateID init_ID : updates)
+            storage.update(Coloring(init_ID, settings.getStartingParams()));
+      }
    }
 
 public:
-   ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), storage(_storage) {
+   ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), settings(_product), storage(_storage) {
       next_round_storage = storage; // Create an identical copy of the storage.
    }
 
    /**
     * Start a new coloring round for cycle detection from a single state.
-    * @param ID	ID of the state to start cycle detection from
-    * @param parameters	starting parameters for the cycle detection
-    * @param _range	range of parameters for this coloring round
     */
-   SynthesisResults startColoring(const StateID ID, const Paramset parameters, const Range & _range, const bool _bounded_search = false, const size_t _BFS_BOUND = INF) {
-      prepareCheck(parameters, _range, _bounded_search, _BFS_BOUND);
-      transferUpdates(ID, parameters); // Transfer updates from the start of the detection
-      starting_state = ID;
-      return doColoring();
-   }
+   SynthesisResults startColoring(const CheckerSettings & _settings) {
+      settings = _settings;
+      to_find = restrict_mask = settings.getStartingParams();
+      prepareObjects();
+      initiateCheck();
 
-   /**
-    * Start a new coloring round for coloring of the nodes from the set of inital ones.
-    * @param parameters	starting parameters to color the structure with
-    * @param initials	states that are will be scheduled for an update in this round
-    * @param _range	range of parameters for this coloring round
-    */
-   SynthesisResults startColoring(const Paramset parameters, const set<StateID> & initials, const Range & _range, const bool _bounded_search = false, const size_t _BFS_BOUND = INF){
-      prepareCheck(parameters, _range, _bounded_search, _BFS_BOUND, initials);
-      starting_state = INF;
-      return doColoring();
+      doColoring();
+
+      // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
+      SynthesisResults results;
+      results.setResults(BFS_reach, ~to_find & settings.getStartingParams());
+
+      return results;
    }
 };
 

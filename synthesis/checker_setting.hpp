@@ -7,48 +7,76 @@
 class CheckerSettings {
 public:
    const ProductStructure & product;
-   StateID initial_state;
+   StateID starting_state;
    StateID final_state;
    bool bounded;
    Range range;
    size_t bfs_bound;
    Paramset tested_params;
 
-   CheckerSettings(const ProductStructure & _product) : product(_product), initial_state(INF), final_state(INF),
+   CheckerSettings(const ProductStructure & _product) : product(_product), starting_state(INF), final_state(INF),
       bounded(false), range({0lu,0lu}), bfs_bound(INF), tested_params(ParamsetHelper::getNone()) { }
 
-   Paramset getStartingParams() {
+   void copyData(const CheckerSettings & other) {
+      starting_state = other.starting_state;
+      final_state = other.final_state;
+      bounded = other.bounded;
+      range = other.range;
+      bfs_bound = other.bfs_bound;
+      tested_params = other.tested_params;
+   }
+
+   CheckerSettings operator=(const CheckerSettings & other) {
+      if (&other.product != &product)
+         throw runtime_error("Copying model checker settings for different product.");
+      copyData(other);
+
+      return *this;
+   }
+
+   CheckerSettings(const CheckerSettings & other) : product(other.product) {
+      copyData(other);
+   }
+
+   inline Paramset getStartingParams() const {
       return tested_params;
    }
 
-   const Range & getRange() {
+   inline const Range & getRange() const {
       return range;
    }
 
-   bool isBounded() const {
+  inline  bool isBounded() const {
       return bounded;
    }
 
-   bool isInitial(const StateID ID) const {
-      if (initial_state != INF)
-         return (initial_state == ID);
+   inline bool isInitial(const StateID ID) const {
+      if (starting_state != INF)
+         return (starting_state == ID);
       else
          return product.isInitial(ID);
    }
 
-   bool isFinal(const StateID ID) const {
+   inline bool isFinal(const StateID ID) const {
       if (final_state != INF)
          return (final_state == ID);
       else
          return product.isFinal(ID);
    }
 
-   size_t getBound() {
+   inline size_t getBound() const {
       return bfs_bound;
    }
 
+   inline StateID getCoreState() const {
+      return starting_state;
+   }
+
    const set<StateID> hashInitials() const {
-      return set<StateID>(product.getInitialStates().begin(), product.getInitialStates().end());
+      if (starting_state != INF)
+         return set<StateID>();
+      else
+         return set<StateID>(product.getInitialStates().begin(), product.getInitialStates().end());
    }
 };
 

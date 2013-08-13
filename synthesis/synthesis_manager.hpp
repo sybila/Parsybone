@@ -39,45 +39,48 @@ class SynthesisManager {
    const PropertyAutomaton & property;
 
    ParamNum total_colors;
-   size_t BFS_bound;
+   size_t global_BFS_bound;
    SynthesisResults results;
 
    /**
     * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
     */
-   void colorProduct(bool bounded) {
-      // Get initial coloring
-      Paramset starting;
-      if(user_options.inputMask())
-         starting = bitmask_manager.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
-      else
-         starting = split_manager->createStartingParameters();
+   void colorProduct(const bool bounded) {
+      CheckerSettings settings(product);
+      settings.bfs_bound = global_BFS_bound;
+      settings.bounded = bounded;
+      settings.range = split_manager->getRoundRange();
 
-      if (ParamsetHelper::hasNone(starting))
+      // Get initial coloring
+      if(user_options.inputMask())
+         settings.tested_params = bitmask_manager.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
+      else
+         settings.tested_params = split_manager->createStartingParameters();
+
+      if (ParamsetHelper::hasNone(settings.tested_params))
          return;
 
-      // Set all the initial states to initial color
-      for (auto init_it = product.getInitialStates().begin(); init_it != product.getInitialStates().end(); init_it++)
-         storage->update(*init_it, starting);
-
-      // Schedule all initial states for updates
-      set<StateID> updates(product.getInitialStates().begin(), product.getInitialStates().end());
-
       // Start coloring procedure
-      CheckerSettings settings(product);
-      results = model_checker->startColoring(starting, updates, split_manager->getRoundRange(), bounded, BFS_bound);
+      results = model_checker->startColoring(settings);
    }
 
    /**
     * For each final state that has at least one parameter assigned, start cycle detection.
     * @param init_coloring	reference to the final state that starts the coloring search with its parameters
     */
-   void detectCycle(const Coloring & init_coloring) {
+   void detectCycle(const Coloring & init_coloring, const bool bounded) {
+      CheckerSettings settings(product);
+      settings.bfs_bound = global_BFS_bound;
+      settings.bounded = bounded;
+      settings.range = split_manager->getRoundRange();
+      settings.tested_params = init_coloring.second;
+      settings.starting_state = init_coloring.first;
+
       // Assure emptyness
       storage->reset();
 
       // Sechedule nothing for updates (will be done during transfer in the next step)
-      results = model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange(), true, BFS_bound);
+      results = model_checker->startColoring(settings);
    }
 
 public:
@@ -105,7 +108,7 @@ public:
       output.reset(new OutputManager(property, model, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
 
       total_colors = 0ul;
-      BFS_bound = user_options.getBoundSize();
+      global_BFS_bound = user_options.getBoundSize();
       results.setResults(vector<size_t>(ParamsetHelper::getSetSize(), INF), ParamsetHelper::getNone());
    }
 
@@ -114,9 +117,9 @@ public:
     */
    void checkDepthBound() {
       const size_t min_depth = results.getMinDepth();
-      if (min_depth < BFS_bound) {
+      if (min_depth < global_BFS_bound) {
          output_streamer.clear_line(verbose_str);
-         if (min_depth != results.getMaxDepth() || BFS_bound != INF) {
+         if (min_depth != results.getMaxDepth() || global_BFS_bound != INF) {
             split_manager->setStartPositions();
             output->eraseData();
             output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(min_depth));
@@ -124,7 +127,7 @@ public:
          } else { // You may not have to restart if the bound was found this round and everyone has it.
             output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(min_depth));
          }
-         BFS_bound = min_depth;
+         global_BFS_bound = min_depth;
       }
    }
 
@@ -146,7 +149,7 @@ public:
 	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
 	 */
    void doColoring() {
-		// Basic (initial) coloring
+      // Basic (initial) coloring, for a time series is bounded
       colorProduct(property.getPropType() == TimeSeries);
 
 		// Store colored final vertices
@@ -155,7 +158,7 @@ public:
 		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
 			// For general property, there must be new coloring for each final state!
          if (!ParamsetHelper::hasNone(final_it->second) && property.getPropType() == LTL)
-				detectCycle(*final_it);
+            detectCycle(*final_it, false);
 
 			// Store results from this final state
          analyzer->storeResults(Coloring(final_it->first, storage->getColor(final_it->first)));
