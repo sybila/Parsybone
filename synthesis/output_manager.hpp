@@ -9,15 +9,11 @@
 #ifndef PARSYBONE_OUTPUT_MANAGER_INCLUDED
 #define PARSYBONE_OUTPUT_MANAGER_INCLUDED
 
-#include "../auxiliary/user_options.hpp"
-#include "../model/property_automaton.hpp"
-#include "../construction/product_structure.hpp"
-#include "color_storage.hpp"
-#include "coloring_analyzer.hpp"
-#include "database_filler.hpp"
+#include "synthesis_manager.hpp"
+#include "split_manager.hpp"
 #include "witness_searcher.hpp"
 #include "robustness_compute.hpp"
-#include "split_manager.hpp"
+#include "database_filler.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class that outputs formatted resulting data.
@@ -32,14 +28,9 @@ class OutputManager {
    const RobustnessCompute & robustness; ///< Provides Robustness value.
 
    DatabaseFiller & database; ///< Fills data to the database.
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CREATION METHODS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   OutputManager(const OutputManager & other) = delete;
-   OutputManager& operator=(const OutputManager & other) = delete;
-
 public:
+   NO_COPY(OutputManager)
+
 	/**
 	 * Simple constructor that only passes the references.
 	 */
@@ -47,9 +38,6 @@ public:
 					  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
       : property(_property), model(_model), storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// OUTPUT METHODS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
    void eraseData() const {
       if (user_options.toFile()) {

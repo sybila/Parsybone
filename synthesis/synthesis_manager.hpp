@@ -13,6 +13,7 @@
 
 #include "../auxiliary/paramset_helper.hpp"
 #include "../model/model.hpp"
+#include "../model/property_automaton.hpp"
 
 #include "coloring_analyzer.hpp"
 #include "witness_searcher.hpp"
@@ -61,7 +62,7 @@ class SynthesisManager {
          return;
 
       // Start coloring procedure
-      results = model_checker->startColoring(settings);
+      results = model_checker->conductCheck(settings);
    }
 
    /**
@@ -80,7 +81,7 @@ class SynthesisManager {
       storage->reset();
 
       // Sechedule nothing for updates (will be done during transfer in the next step)
-      results = model_checker->startColoring(settings);
+      results = model_checker->conductCheck(settings);
    }
 
 public:

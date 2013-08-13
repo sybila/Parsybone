@@ -4,8 +4,8 @@
 #include "../auxiliary/data_types.hpp"
 
 class SynthesisResults {
-   vector<size_t> costs;
-   Paramset accepting;
+   vector<size_t> costs; ///< costs of individual parametrizations used this round
+   Paramset accepting; ///< a mask for parametrizations accepting in this round
 
 public:
    /**
@@ -27,6 +27,9 @@ public:
       return max_depth;
    }
 
+   /**
+    * @return min cost among parametrizations used this round
+    */
    size_t getMinDepth() const {
       size_t min_depth = INF;
       for (const size_t depth:costs)

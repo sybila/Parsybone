@@ -39,28 +39,6 @@ class ModelChecker {
    size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
 
    /**
-    * From all the updates pick the one from the state with most bits.
-    * @return	index of the state to start an update from
-    */
-   StateID getStrongestUpdate() const {
-      // Reference value
-      register StateID ID = 0;
-      register Paramset current = 0;
-      // Cycle throught the updates
-      for (const StateID up_ID : updates) {
-         Paramset test = storage.getColor(up_ID);
-         // Compare with current data - if better, replace
-         if (test != current) {
-            if (test == (current | test)) {
-               ID = up_ID;
-               current = test;
-            }
-         }
-      }
-      return ID;
-   }
-
-   /**
     * For each found color add this BFS level as a first when the state was updated, if it was not already found.
     * @param colors	current coloring
     */
@@ -113,7 +91,7 @@ class ModelChecker {
       // While there are updates, pass them to succesing vertices
       do  {
          // Within updates, find the one with most bits
-         StateID ID = getStrongestUpdate();
+         StateID ID = *updates.begin();
          // Check if this is not the last round
          if (settings.isFinal(ID))
             markLevels(storage.getColor(ID));
@@ -136,6 +114,9 @@ class ModelChecker {
       } while (!updates.empty());
    }
 
+   /**
+    * @brief prepareObjects   create empty space in the employed objects
+    */
    void prepareObjects() {
       next_updates.clear(); // Ensure emptiness of the next round
       next_round_storage.reset(); // Copy starting values
@@ -143,6 +124,9 @@ class ModelChecker {
       BFS_level = 0;
    }
 
+   /**
+    * @brief initiateCheck initiate data for the check based on the settings
+    */
    void initiateCheck() {
       if (settings.getCoreState() != INF) {
          transferUpdates(settings.getCoreState(), settings.getStartingParams());
@@ -161,7 +145,7 @@ public:
    /**
     * Start a new coloring round for cycle detection from a single state.
     */
-   SynthesisResults startColoring(const CheckerSettings & _settings) {
+   SynthesisResults conductCheck(const CheckerSettings & _settings) {
       settings = _settings;
       to_find = restrict_mask = settings.getStartingParams();
       prepareObjects();
