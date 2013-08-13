@@ -65,7 +65,7 @@ public:
       database_file = datatext_file = in_mask_file = out_mask_file = "";
       bound_size = INF;
       process_number = processes_count = 1;
-      model_name = "";
+      model_path = model_name = "";
    }
 
    inline bool robustness() const {
@@ -93,6 +93,10 @@ public:
 
    inline size_t procCount() const {
       return processes_count;
+   }
+
+   inline string modelPath() const {
+      return model_path;
    }
 
    inline string modelName() const {

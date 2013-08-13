@@ -34,7 +34,7 @@ protected:
    Model bool_k_2;
    PropertyAutomaton trivial_prop;
    PropertyAutomaton o_t_series_prop;
-   PropertyAutomaton cA_cyclic_prop;
+   PropertyAutomaton A_cyclic_prop;
    PropertyAutomaton set_two_ones_prop;
 
    void setUpModels() {
@@ -75,16 +75,16 @@ protected:
       o_t_series_prop.addEdge(1,2,"(cA=1|cB=3)");
       o_t_series_prop.addEdge(2,2,"tt");
 
-      cA_cyclic_prop = PropertyAutomaton("cA_cycle");
-      cA_cyclic_prop.addState("cyc0", false);
-      cA_cyclic_prop.addState("cyc1", true);
-      cA_cyclic_prop.addState("cyc2", false);
-      cA_cyclic_prop.addEdge(0,0,"cA=0");
-      cA_cyclic_prop.addEdge(0,1,"cA=1");
-      cA_cyclic_prop.addEdge(1,0,"cA=0");
-      cA_cyclic_prop.addEdge(1,2,"cA=1");
-      cA_cyclic_prop.addEdge(2,1,"cA=0");
-      cA_cyclic_prop.addEdge(2,2,"cA=1");
+      A_cyclic_prop = PropertyAutomaton("cA_cycle");
+      A_cyclic_prop.addState("cyc0", false);
+      A_cyclic_prop.addState("cyc1", true);
+      A_cyclic_prop.addState("cyc2", false);
+      A_cyclic_prop.addEdge(0,0,"cA=0");
+      A_cyclic_prop.addEdge(0,1,"cA=1");
+      A_cyclic_prop.addEdge(1,0,"cA=0");
+      A_cyclic_prop.addEdge(1,2,"cA=1");
+      A_cyclic_prop.addEdge(2,1,"cA=0");
+      A_cyclic_prop.addEdge(2,2,"cA=1");
 
       set_two_ones_prop = PropertyAutomaton("set_two_ones", TimeSeries);
       set_two_ones_prop.addState("ser0", false);

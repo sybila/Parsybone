@@ -10,17 +10,19 @@ public:
    StateID starting_state;
    StateID final_state;
    bool bounded;
+   bool minimal;
    Range range;
    size_t bfs_bound;
    Paramset tested_params;
 
    CheckerSettings(const ProductStructure & _product) : product(_product), starting_state(INF), final_state(INF),
-      bounded(false), range({0lu,0lu}), bfs_bound(INF), tested_params(ParamsetHelper::getNone()) { }
+      bounded(false), minimal(false), range({0lu,0lu}), bfs_bound(INF), tested_params(ParamsetHelper::getNone()) { }
 
    void copyData(const CheckerSettings & other) {
       starting_state = other.starting_state;
       final_state = other.final_state;
       bounded = other.bounded;
+      minimal = other.minimal;
       range = other.range;
       bfs_bound = other.bfs_bound;
       tested_params = other.tested_params;
@@ -46,8 +48,12 @@ public:
       return range;
    }
 
-  inline  bool isBounded() const {
+   inline bool isBounded() const {
       return bounded;
+   }
+
+   inline bool isMinimal() const {
+      return minimal;
    }
 
    inline bool isInitial(const StateID ID) const {

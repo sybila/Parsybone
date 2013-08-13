@@ -192,18 +192,17 @@ class ArgumentParser {
    }
 
    /**
-     * @brief referenceModel save the model name and connect the given file to its stream.
+     * @brief referenceModel save the model name
      * @param path  path to model
-     * @param model_stream
      */
-   void referenceModel(const string & path, ifstream & model_stream) {
+   void referenceModel(const string & path) {
       // If the model is alredy parsed.
       if (!user_options.model_name.empty())
          throw invalid_argument("Model file (file with a .dbm suffix) occurs multiple times on the input, only a single occurence is allowed");
 
       // Attach the stream to the file.
-      model_stream.open(path, ios::in);
-      if (model_stream.fail())
+      ifstream file(path, ios::in);
+      if (file.fail())
          throw runtime_error("Program failed to open an intput stream file: " + path);
 
       // Store the models name.
@@ -219,9 +218,8 @@ public:
     *
     * @param argc value passed from main function
     * @param argv	value passed from main function
-    * @param intput_stream pointer to a file that will be used as an input stream
     */
-   void parseArguments (const vector<string> & arguments, ifstream & model_stream) {
+   void parseArguments (const vector<string> & arguments) {
       int skip = 1;
 
       // Cycle through arguments (skip the first - name of the program).
@@ -239,7 +237,7 @@ public:
          }
          // If it is a model file.
          else if (argument.find(MODEL_SUFFIX) != string::npos) {
-            referenceModel(argument, model_stream);
+            referenceModel(argument);
          }
          else {
             throw runtime_error("Wrong argument on the input stream: " +  argument);

@@ -35,7 +35,9 @@ int main(int argc, char* argv[]) {
 
    try {
       ParamsetHelper::testParametrizations();
-      ParsingManager::parse(argc, argv, model, property);
+      ParsingManager::parseOptions(argc, argv);
+      model = ParsingManager::parseModel(user_options.modelPath() + user_options.modelName() + MODEL_SUFFIX);
+      property = ParsingManager::parseProperty(user_options.modelPath() + user_options.modelName() + MODEL_SUFFIX);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));

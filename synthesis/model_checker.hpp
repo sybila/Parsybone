@@ -102,7 +102,7 @@ class ModelChecker {
       if (updates.empty() && to_find && (BFS_level < settings.getBound())) {
          updates = move(next_updates);
          storage.addFrom(next_round_storage);
-         if (settings.isBounded())
+         if (settings.isMinimal())
             restrict_mask = to_find;
          BFS_level++; // Increase level
       }

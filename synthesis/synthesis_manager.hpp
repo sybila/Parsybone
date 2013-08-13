@@ -53,12 +53,13 @@ class SynthesisManager {
    /**
     * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
     */
-   void colorProduct(const bool bounded) {
+   void colorProduct(const bool bounded, const bool minimal) {
       storage->reset();
 
       CheckerSettings settings = createRoundSetting();
       settings.tested_params = split_manager->createStartingParameters();
       settings.bounded = bounded;
+      settings.minimal = minimal;
 
       // Start coloring procedure
       results = model_checker->conductCheck(settings);
@@ -187,7 +188,7 @@ public:
          if (user_options.getBoundSize() == INF && user_options.isBounded()) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
          doPreparation();
-         colorProduct(true);
+         colorProduct(user_options.isBounded(), true);
          for (const Coloring & final : storage->getColorings(product.getFinalStates()))
             analyzer->storeResults(final);
          if (user_options.analysis())
@@ -211,7 +212,7 @@ public:
          if (user_options.getBoundSize() == INF && user_options.isBounded()) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
          doPreparation();
-         colorProduct(false);
+         colorProduct(user_options.isBounded(), false);
          vector<Coloring> finals = storage->getColorings(product.getFinalStates());
          for (const Coloring & final : finals) {
             if (ParamsetHelper::hasNone(final.second))

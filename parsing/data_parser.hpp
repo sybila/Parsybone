@@ -31,10 +31,12 @@ class DataParser {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    const rapidxml::xml_node<> * initiateParsing() const {
       // Temporaries
-      rapidxml::xml_node<> *current_node;
+      rapidxml::xml_node<> *current_node = nullptr;
 
 		// Step into first MODEL (main) tag
 		current_node = model_xml.first_node();
+      if (current_node == nullptr)
+         throw runtime_error("Parser did not find any nodes in the model file.");
 		if (strcmp(current_node->name(), "MODEL") != 0)
          throw runtime_error("Parsed found out that input does not start with the tag <MODEL> but with the <" + string(current_node->name()) + "> instead");
 
@@ -47,10 +49,10 @@ class DataParser {
 	/**
 	 * Creates RapidXML document from the input stream.
 	 */
-   void createDocument(ifstream * input_stream) {
+   void createDocument(ifstream & input_stream) {
 		// Copy input data from stream into a string line by line
 		string input_line, input_data;
-         for (int lineno = 1; getline(*input_stream, input_line); ++lineno) {
+         for (int lineno = 1; getline(input_stream, input_line); ++lineno) {
 			input_data += input_line + "\n";
 		}
 
@@ -71,7 +73,7 @@ public:
 	/**
 	 * Functions that causes the parser to read the input from the stream, parse it and store model information in the model object.
 	 */
-   Model parseNetwork(ifstream * input_stream) {
+   Model parseNetwork(ifstream & input_stream) {
       createDocument(input_stream);
 		auto model_node = initiateParsing();
 
@@ -80,8 +82,8 @@ public:
       NetworkParser::parseConstraints(model_node, model);
       ParameterParser::parse(model_node, model);
 
-      input_stream->clear();
-      input_stream->seekg(0, ios::beg);
+      input_stream.clear();
+      input_stream.seekg(0, ios::beg);
       return model;
    }
 
@@ -89,7 +91,7 @@ public:
     * @brief parseProperties create a property automaton
     * @param input_stream
     */
-   PropertyAutomaton parseProperty(ifstream * input_stream) {
+   PropertyAutomaton parseProperty(ifstream & input_stream) {
       createDocument(input_stream);
       auto model_node = initiateParsing();
 
@@ -105,8 +107,8 @@ public:
       if (property.getAutomatonName().empty())
          throw runtime_error("No property found");
 
-      input_stream->clear();
-      input_stream->seekg(0, ios::beg);
+      input_stream.clear();
+      input_stream.seekg(0, ios::beg);
       return property;
    }
 };

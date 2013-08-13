@@ -22,7 +22,7 @@ TEST_F(StructureTest, TestCorrectAutomata) {
    ASSERT_EQ(1, o_t_series_aut.getFinalStates().size());
    EXPECT_EQ(2, o_t_series_aut.getFinalStates().front());
 
-   AutomatonBuilder o_t_cyclic_builder(one_three, cA_cyclic_prop);
+   AutomatonBuilder o_t_cyclic_builder(one_three, A_cyclic_prop);
    AutomatonStructure o_t_cyclic_aut = o_t_cyclic_builder.buildAutomaton();
    ASSERT_EQ(1, o_t_cyclic_aut.getInitialStates().size());
    EXPECT_EQ(0, o_t_cyclic_aut.getInitialStates().front());
