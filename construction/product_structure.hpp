@@ -13,24 +13,15 @@
 #include "../construction/automaton_structure.hpp"
 #include "../construction/unparametrized_structure.hpp"
 
-/// Storing a single transition to a neighbour state together with its transition function.
-struct ProdTransitiontion : public TransitionProperty {
-   ParamNum step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-   vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
-
-   ProdTransitiontion(const StateID target_ID, const ParamNum _step_size, const vector<bool>& _transitive_values)
-      : TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {} ///< Simple filler, assigns values to all the variables.
-};
-
 /// State of the product - same as the state of UKS but put together with a BA state.
-struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
+struct ProdState : public AutomatonStateProperty<ParTransitionion> {
    StateID KS_ID; ///< ID of an original KS state this one is built from
    StateID BA_ID; ///< ID of an original BA state this one is built from
    Levels species_level; ///< species_level[i] = activation level of specie i in this state
 
    /// Simple filler, assigns values to all the variables
    ProdState(const StateID ID, const string && label, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const  Levels & _species_level)
-      : AutomatonStateProperty<ProdTransitiontion>(initial, final, ID, move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) {}
+      : AutomatonStateProperty<ParTransitionion>(initial, final, ID, move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,62 +56,45 @@ class ProductStructure : public AutomatonInterface<ProdState> {
     * Add a new transition with all its values.
     * @param ID	add data to the state with this IS
     */
-   inline void addTransition(const StateID ID, const StateID target_ID, const size_t step_size, const vector<bool> & transitive_values) {
-      states[ID].transitions.push_back(ProdTransitiontion(target_ID, step_size, transitive_values));
+   inline void addTransition(const StateID ID, const StateID target_ID, ParTransitionion transition) {
+      transition.target_ID = target_ID;
+      states[ID].transitions.push_back(transition);
    }
 
 public:
    ProductStructure() : aut_state_count(0), struct_state_count(0) {}
    ProductStructure(size_t _aut_state_count, size_t _struct_state_count) : aut_state_count(_aut_state_count), struct_state_count(_struct_state_count) {}
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // REFORMING GETTERS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   /**
-    * @return index of this combination of states in the product
-    */
    inline StateID getProductID(const StateID KS_ID, const StateID BA_ID) const {
       return (KS_ID * aut_state_count + BA_ID);
    }
 
-   /**
-    * @return index of BA state form the product
-    */
    inline StateID getBAID(const StateID ID) const {
       return states[ID].BA_ID;
    }
 
-   /**
-    * @return index of BA state form the product
-    */
    inline StateID getKSID(const StateID ID) const {
       return states[ID].KS_ID;
    }
 
-   /**
-    * @param ID	ID of the state to get the data from
-    * @return	species level
-    */
    inline const Levels & getStateLevels(const StateID ID) const {
       return states[ID].species_level;
    }
 
-   /**
-    * @param ID	ID of the state to get the data from
-    * @param transition_num index of the transition to get the data from
-    * @return	number of neighbour parameters that share the same value of the function
-    */
    inline size_t getStepSize(const StateID ID, const size_t transtion_num) const {
       return states[ID].transitions[transtion_num].step_size;
    }
 
-   /**
-    * @param ID	ID of the state to get the data from
-    * @param transition_num index of the transition to get the data from
-    * @return	target values that are includete in non-transitive parameters that have to be removed
-    */
-   inline const vector<bool> & getTransitive(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num].transitive_values;
+   inline const Levels & getTargets(const StateID ID, const size_t transtion_num) const {
+      return states[ID].transitions[transtion_num].targets;
+   }
+
+   inline Comparison getOp(const StateID ID, const size_t transtion_num) const {
+      return states[ID].transitions[transtion_num].req_op;
+   }
+
+   inline ActLevel getVal(const StateID ID, const size_t transtion_num) const {
+      return states[ID].transitions[transtion_num].req_comp;
    }
 };
 

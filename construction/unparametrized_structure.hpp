@@ -16,10 +16,12 @@
 /// Storing a single transition to neighbour state together with its transition function.
 struct ParTransitionion : public TransitionProperty {
 	ParamNum step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-   vector<bool> transitive_values; ///< Which values from the original set do not allow a trasition and therefore removes bits from the mask.
+   Comparison req_op; ///<
+   ActLevel req_comp; ///<
+   const Levels & targets; ///<
 
-   ParTransitionion(const StateID target_ID, const ParamNum _step_size, vector<bool>&& _transitive_values)
-      : TransitionProperty(target_ID), step_size(_step_size), transitive_values(move(_transitive_values)) {} ///< Simple filler, assigns values to all the variables.
+   ParTransitionion(const StateID target_ID, const ParamNum _step_size, const Comparison _req_op, const ActLevel _req_comp, const Levels & _targets)
+      : TransitionProperty(target_ID), step_size(_step_size), req_op(_req_op), req_comp(_req_comp), targets(_targets) {}
 };
 
 /// Simple state enriched with transition functions
@@ -54,17 +56,15 @@ class UnparametrizedStructure : public GraphInterface<ParState> {
 
 	/**
 	 * @param ID	add data to the state with this IS
-	 *
 	 * Add a new transition to the source specie, containg necessary edge labels for the CMC
 	 */
-	inline void addTransition(const StateID ID, const StateID target_ID, const ParamNum step_size, vector<bool>&& transitive_values) {
-		states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, move(transitive_values)));
+   inline void addTransition(const StateID ID, const StateID target_ID, const ParamNum step_size,  const Comparison op, const ActLevel level, const Levels & targets) {
+      states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, op, level, targets));
 	}
 
 public:
    /**
 	 * @param ID	ID of the state to get the data from
-	 *
 	 * @return	species level 
 	 */
 	inline const Levels & getStateLevels(const StateID ID) const {
@@ -74,22 +74,15 @@ public:
 	/**
 	 * @param ID	ID of the state to get the data from
 	 * @param transition_num	index of the transition to get the data from
-	 *
 	 * @return	number of neighbour parameters that share the same value of the function
 	 */
 	inline ParamNum getStepSize(const StateID ID, const size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].step_size;
 	}
 
-	/**
-	 * @param ID	ID of the state to get the data from
-	 * @param transition_num	index of the transition to get the data from
-	 *
-	 * @return	target values that are includete in non-transitive parameters that have to be removed
-	 */
-	inline const vector<bool> & getTransitive(const StateID ID, const size_t transtion_num) const {
-		return states[ID].transitions[transtion_num].transitive_values;
-	}
+   inline const ParTransitionion & getTransition(const StateID ID, const size_t transtion_num) const {
+      return states[ID].transitions[transtion_num];
+   }
 };
 
 #endif // PARSYBONE_UNPARAMETRIZED_STRUCTURE_INCLUDED

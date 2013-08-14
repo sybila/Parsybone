@@ -12,12 +12,12 @@ namespace ColoringFunc {
     * @param step_size	how many parameters share the same value for given function
     * @param transitive_values	mask of all values from which those that have false are non-transitive
     */
-   void passParameters(const Range & synthesis_range, Paramset & passed, const size_t step_size, const vector<bool> & transitive_values) {
+   void passParameters(const Range & synthesis_range, Paramset & passed, const size_t step_size, const vector<ActLevel> targtes, const Comparison comp, const ActLevel val) {
       // INITIALIZATION OF VALUES FOR POSITIONING
       // Number of the first parameter
       ParamNum param_num = synthesis_range.first;
       // First value might not bet 0 - get it from current parameter position
-      size_t value_num = (param_num / step_size) % transitive_values.size();
+      size_t value_num = (param_num / step_size) % targtes.size();
       // Mask that will be created
       register Paramset temporary = 0;
 
@@ -25,13 +25,26 @@ namespace ColoringFunc {
       // List through all the paramters
       while (true) {
          // List through ALL the target values
-         for (; value_num < transitive_values.size(); value_num++) {
+         for (; value_num < targtes.size(); value_num++) {
             // Get size of the step for current value
             size_t bits_in_step = min<size_t>((step_size - (param_num % step_size)), static_cast<size_t>(synthesis_range.second - param_num));
             // Move the mask so new value data can be add
             temporary <<= bits_in_step;
             // If transitive, add ones for the width of the step
-            if (transitive_values[value_num]) {
+            bool transitive = false;
+            switch (comp) {
+            case Greater:
+               transitive = targtes[value_num] > val;
+               break;
+            case Equal:
+               transitive = targtes[value_num] == val;
+               break;
+            case Lower:
+               transitive = targtes[value_num] < val;
+               break;
+            }
+
+            if (transitive) {
                Paramset add = ParamsetHelper::getAll();
                add >>= (ParamsetHelper::getSetSize() - bits_in_step);
                temporary |= add;
@@ -73,7 +86,7 @@ namespace ColoringFunc {
          Paramset passed = parameters;
 
          // From an update strip all the parameters that can not pass through the transition - color intersection on the transition
-         ColoringFunc::passParameters(synthesis_range, passed, product.getStepSize(ID, trans_num), product.getTransitive(ID, trans_num));
+         ColoringFunc::passParameters(synthesis_range, passed, product.getStepSize(ID, trans_num), product.getTargets(ID, trans_num), product.getOp(ID, trans_num), product.getVal(ID, trans_num));
 
          // Test if it is a possibility for a loop, if there is nothing outcoming, add to self-loop (if it is still possible)
          if (KS_state == product.getKSID(target_ID) ) {
