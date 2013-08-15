@@ -32,13 +32,9 @@ class BasicStructureBuilder {
    Levels maxes; ///< Maximal activity levels of the species.
    Levels mins; ///< Minimal activity levels of the species.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FILLING METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Compute indexes of the neighbour states of this state and pass them to the state. For each dimension store self and upper and lower neighbour. 
 	 * If none such exists, store max value of size_t. 
-	 *
 	 * @param state_num	 ID of the current state
 	 * @param state_levels	levels of species of this state
 	 * @param maxes	globally maximal levels
@@ -57,11 +53,8 @@ class BasicStructureBuilder {
 				structure.addNeighbour(ID, ID + index_jumps[specie], specie, up_dir);
 		}	
 	}
-	
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTING METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
+
+   /**
 	 * Compute a vector of maximal levels and store information about states
 	 */
 	void computeBoundaries() {
@@ -91,24 +84,6 @@ class BasicStructureBuilder {
 		}
 	}
 
-	/**
-	 * Creates a label of a state from its activation levels
-	 *
-	 * @param levels	current activation levels of the specie
-	 */
-	const string createLabel(const Levels & levels) const {
-		string state_string = "(";
-		// Add species levels
-		for (auto spec_it = levels.begin(); spec_it != levels.end(); spec_it++) {
-			state_string += toString(*spec_it);
-			state_string += ",";
-		}
-		// End the state
-      state_string[state_string.length() - 1] = ')';
-
-		return state_string;
-	}
-
 public:
 	/**
 	 * Constructor initializes basic information from the model
@@ -136,9 +111,9 @@ public:
 		// Create states 
       StateID ID = 0;
       do {
-         output_streamer.output(verbose_str, "Enumerating state: " + toString(++state_no) + "/" + toString(state_count) + ".      ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+         output_streamer.output(verbose_str, "Building state: " + toString(++state_no) + "/" + toString(state_count) + ".      ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 			// Fill the structure with the state
-			structure.addState(ID, levels, move(createLabel(levels)));
+         structure.addState(ID, levels);
          storeNeigbours(ID, levels, maxes, structure);
          // Generate new state for the next round
          // Counting function - due to the fact, that self-loop is possible under all the species, the number has to be tweaked to account for just one self-loop.

@@ -17,11 +17,11 @@
 struct ProdState : public AutomatonStateProperty<ParTransitionion> {
    StateID KS_ID; ///< ID of an original KS state this one is built from
    StateID BA_ID; ///< ID of an original BA state this one is built from
-   Levels species_level; ///< species_level[i] = activation level of specie i in this state
+   Levels levels; ///< species_level[i] = activation level of specie i in this state
 
    /// Simple filler, assigns values to all the variables
-   ProdState(const StateID ID, const string && label, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const  Levels & _species_level)
-      : AutomatonStateProperty<ParTransitionion>(initial, final, ID, move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) {}
+   ProdState(const StateID ID, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const  Levels & _species_level)
+      : AutomatonStateProperty<ParTransitionion>(initial, final, ID), KS_ID(_KS_ID), BA_ID(_BA_ID), levels(_species_level) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,11 +45,7 @@ class ProductStructure : public AutomatonInterface<ProdState> {
     */
    inline void addState(const StateID KS_ID, const StateID BA_ID, const UnparametrizedStructure & structure, const AutomatonStructure & automaton) {
       // Create the state label
-      string label = structure.getString(KS_ID);
-      label[label.length() - 1] = ';';
-      label += automaton.getString(BA_ID).substr(1);
-
-      states.push_back(ProdState(getProductID(KS_ID, BA_ID), move(label), KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID)));
+      states.push_back(ProdState(getProductID(KS_ID, BA_ID), KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID)));
    }
 
    /**
@@ -78,7 +74,7 @@ public:
    }
 
    inline const Levels & getStateLevels(const StateID ID) const {
-      return states[ID].species_level;
+      return states[ID].levels;
    }
 
    inline size_t getStepSize(const StateID ID, const size_t transtion_num) const {
@@ -89,12 +85,24 @@ public:
       return states[ID].transitions[transtion_num].targets;
    }
 
-   inline Comparison getOp(const StateID ID, const size_t transtion_num) const {
+   inline Direction getOp(const StateID ID, const size_t transtion_num) const {
       return states[ID].transitions[transtion_num].req_op;
    }
 
    inline ActLevel getVal(const StateID ID, const size_t transtion_num) const {
       return states[ID].transitions[transtion_num].req_comp;
+   }
+
+   const string getString(const StateID ID) const {
+      string label = "(";
+
+      for (const ActLevel lev : states[getKSID(ID)].levels)
+         label += toString(lev) + ",";
+
+      label[label.length() - 1] = ';';
+      label += getBAID(ID) + ")";
+
+      return label;
    }
 };
 

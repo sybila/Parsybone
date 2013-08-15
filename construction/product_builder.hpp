@@ -21,9 +21,6 @@ class ProductBuilder {
    const UnparametrizedStructure & structure;
    const AutomatonStructure & automaton;
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // COMPUTATION METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Given this source BA state, find out all the target BA that are reachable under this KS state.
     *
@@ -44,9 +41,6 @@ class ProductBuilder {
       return reachable;
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTRUCTING METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Create set with indexes of final and initial states of the product.
     */
@@ -69,7 +63,6 @@ class ProductBuilder {
 
    /**
     * Create state of the product as a combination of a single BA and a single UKS state
-    *
     * @param KS_ID	source in the KS
     * @param BA_ID	source in the BA
     * @param transition_count	value which counts the transition for the whole product, will be filled
@@ -125,7 +118,6 @@ public:
       markStates( product);
 
       // output_streamer.output(verbose_str, "Product automaton has " + toString(structure.getStateCount() * automaton.getStateCount()) + " states with " + toString(transition_count) + " transitions.");
-
       return product;
    }
 };

@@ -11,16 +11,16 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "PunyHeaders/common_functions.hpp"
-#include "graph_interface.hpp"
+#include "basic_structure.hpp"
 
 /// Storing a single transition to neighbour state together with its transition function.
 struct ParTransitionion : public TransitionProperty {
 	ParamNum step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-   Comparison req_op; ///<
+   Direction req_op; ///<
    ActLevel req_comp; ///<
    const Levels & targets; ///<
 
-   ParTransitionion(const StateID target_ID, const ParamNum _step_size, const Comparison _req_op, const ActLevel _req_comp, const Levels & _targets)
+   ParTransitionion(const StateID target_ID, const ParamNum _step_size, const Direction _req_op, const ActLevel _req_comp, const Levels & _targets)
       : TransitionProperty(target_ID), step_size(_step_size), req_op(_req_op), req_comp(_req_comp), targets(_targets) {}
 };
 
@@ -28,8 +28,8 @@ struct ParTransitionion : public TransitionProperty {
 struct ParState : public StateProperty<ParTransitionion> {
    Levels species_level; ///< Species_level[i] = activation level of specie i.
 
-	ParState(const StateID ID, const Levels& _species_level, const string && label)
-      : StateProperty<ParTransitionion>(ID, move(label)), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables.
+   ParState(const StateID ID, const Levels& _species_level)
+      : StateProperty<ParTransitionion>(ID), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables.
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,42 +44,39 @@ struct ParState : public StateProperty<ParTransitionion> {
 class UnparametrizedStructure : public GraphInterface<ParState> {
 	friend class UnparametrizedStructureBuilder;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FILLING METHODS (can be used only from UnparametrizedStructureBuilder)
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
+   /**
 	 * Add a new state, only with ID and levels
 	 */
-	inline void addState(const StateID ID, const Levels& species_level, const string label) {
-		states.push_back(ParState(ID, species_level, move(label)));
+   inline void addState(const StateID ID, const Levels& species_level) {
+      states.push_back(ParState(ID, species_level));
 	}
 
 	/**
 	 * @param ID	add data to the state with this IS
 	 * Add a new transition to the source specie, containg necessary edge labels for the CMC
 	 */
-   inline void addTransition(const StateID ID, const StateID target_ID, const ParamNum step_size,  const Comparison op, const ActLevel level, const Levels & targets) {
+   inline void addTransition(const StateID ID, const StateID target_ID, const ParamNum step_size,  const Direction op, const ActLevel level, const Levels & targets) {
       states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, op, level, targets));
 	}
 
 public:
    /**
-	 * @param ID	ID of the state to get the data from
-	 * @return	species level 
-	 */
+    * @return
+    */
 	inline const Levels & getStateLevels(const StateID ID) const {
 		return states[ID].species_level;
 	}
 
-	/**
-	 * @param ID	ID of the state to get the data from
-	 * @param transition_num	index of the transition to get the data from
-	 * @return	number of neighbour parameters that share the same value of the function
-	 */
+   /**
+    * @return
+    */
 	inline ParamNum getStepSize(const StateID ID, const size_t transtion_num) const {
 		return states[ID].transitions[transtion_num].step_size;
 	}
 
+   /**
+    * @return
+    */
    inline const ParTransitionion & getTransition(const StateID ID, const size_t transtion_num) const {
       return states[ID].transitions[transtion_num];
    }

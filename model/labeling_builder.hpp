@@ -22,9 +22,9 @@ class LabelingBuilder {
     * @param param_num	ordinal number of the kinetic parameter (in a lexicographical order)
     * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
     */
-   static vector<size_t> getTargetVals(const Model & model, const SpecieID ID, const size_t param_num) {
+   static Levels getTargetVals(const Model & model, const SpecieID ID, const size_t param_num) {
       //Data to fill
-      vector<size_t> all_target_vals;
+      Levels all_target_vals;
       all_target_vals.reserve(model.species[ID].subcolors.size());
 
       // Store values for given regulation

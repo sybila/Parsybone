@@ -26,16 +26,11 @@ class UnparametrizedStructureBuilder {
    const Model & model;
    const BasicStructure & basic_structure; ///< Provider of basic KS data.
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // TESTING METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Test wheather the current state corresponds to the requirements put on values of the specified species.
-    *
     * @param source_species	species that can possibly regulate the target
     * @param source_values	in which levels the species have to be for regulation to be active
     * @param state_levels	activation levels of the current state
-    *
     * @return true it the state satisfy the requirements
     */
    bool testRegulators(const map<StateID, Levels> requirements, const Levels & state_levels) {
@@ -50,10 +45,8 @@ class UnparametrizedStructureBuilder {
 
    /**
     * Obtain index of the function that might lead to the specified state based on current activation levels of the species and target state.
-    *
     * @param neighbour_num	index of the neighbour state. Specie that change is used to determine wich function to use.
     * @param state_levels	species level of the state we are currently at
-    *
     * @return function that might lead to the next state
     */
    size_t getActiveFunction(const SpecieID ID, const Levels & state_levels) {
@@ -68,46 +61,18 @@ class UnparametrizedStructureBuilder {
       throw runtime_error("Active function in some state not found.");
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // FILLING METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   /**
-    * Creates a mask of transitivity for all the target values of the current function.
-    *
-    * @param direction	the way the specie's value changes
-    * @param current_specie_level	current value the specie has in this state
-    * @param possible_values	all the values the function can have
-    *
-    * @return mask of transitivity - false means the value is not allowed for this transition
-    */
-   void fillTransitivityData(const Direction direction, Comparison & op){
-      // Vector to fill
-      // Based on direction of the change create a mask of transitivity for all parameter values
-      if (direction == up_dir) {
-         op = Greater;
-      }
-      else if (direction == stay_dir){
-         op = Equal;
-      }
-      else if (direction == down_dir) {
-         op = Lower;
-      }
-   }
-
    /**
     * Fill properties of the specified transition for the CMC procedure.
-    *
     * @param ID	ID of this state in KS
     * @param neighbour_index	index of the neighbour state. Specie that change is used to determine wich function to use.
     * @param state_levels	species level of the state we are currently at
     * @param function_num	ID of the active function
     * @param step_size	step size of the function
     * @param transitive_values	those parameter values that does not cause transition
-    *
     * @return true if there is a possibility of transition, false otherwise
     */
    void fillFunctions(const StateID state, const StateID neighbour_index, const Levels & state_levels, SpecieID & spec_ID,
-                      ParamNum & step_size, Comparison & op, ActLevel & level, size_t & fun_no) {
+                      ParamNum & step_size, Direction & op, ActLevel & level, size_t & fun_no) {
       // Get ID of the regulated specie
       spec_ID = basic_structure.getSpecieID(state, neighbour_index);
 
@@ -119,15 +84,11 @@ class UnparametrizedStructureBuilder {
 
       // Fill data about transitivity using provided values
       level = state_levels[spec_ID];
-      fillTransitivityData(basic_structure.getDirection(state, neighbour_index), op);
+      op = basic_structure.getDirection(state, neighbour_index);
    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CONSTRUCTING METHODS:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * For each existing neighbour add a transition to the newly created state
-    *
     * @param ID	state from which the transitions should lead
     * @param state_levels	activation levels in this state
     */
@@ -138,7 +99,7 @@ class UnparametrizedStructureBuilder {
          StateID target_ID = basic_structure.getTargetID(ID, trans_num); // ID of the state the transition leads to
          ParamNum step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
          SpecieID spec_ID;
-         Comparison op;
+         Direction op;
          ActLevel lvl;
          size_t fun_no;
 
@@ -166,12 +127,11 @@ public:
 
       // Recreate all the states of the simple structure
       for(StateID ID = 0; ID < basic_structure.getStateCount(); ID++) {
-         output_streamer.output(verbose_str, "Building model state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+         output_streamer.output(verbose_str, "Creating transitions for state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 
          // Create a new state from the known data
          const Levels & state_levels = basic_structure.getStateLevels(ID);
-         const string & label = basic_structure.getString(ID);
-         structure.addState(ID, state_levels, label);
+         structure.addState(ID, state_levels);
 
          // Add all the transitions
          addTransitions(ID, state_levels, structure);

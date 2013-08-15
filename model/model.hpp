@@ -87,11 +87,11 @@ public:
    Restrictions restrictions;
    vector<ModelSpecie> species; ///< vector of all species of the model
 
-   inline void addSpecie(string name, size_t max_value, Levels targets, bool input = false, bool output = false) {
+   inline void addSpecie(string name, ActLevel max_value, Levels targets, bool input = false, bool output = false) {
       species.push_back({name, species.size(), max_value, targets, SpecTraits({input, output}), ParamSpecs(), Regulations(), Parameters(), Configurations()});
    }
 
-   inline void addRegulation(SpecieID source_ID, SpecieID target_ID, size_t threshold, string label) {
+   inline void addRegulation(SpecieID source_ID, SpecieID target_ID, ActLevel threshold, string label) {
       string name = species[source_ID].name + ":" + toString(threshold);
       species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label, Satisfaction()});
    }
@@ -109,11 +109,11 @@ public:
       return species[ID].name;
    }
 
-   inline size_t getMin(const SpecieID ID) const {
+   inline ActLevel getMin(const SpecieID ID) const {
       return ID ? 0 : 0; // Just to disable a warning
    }
 
-   inline size_t getMax(const SpecieID ID) const {
+   inline ActLevel getMax(const SpecieID ID) const {
       return species[ID].max_value;
    }
 

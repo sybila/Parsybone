@@ -35,7 +35,7 @@ class ParametrizationsBuilder {
     * @return	true if constrains are satisfied
     */
    static void testConstrains(const Model & model, const SpecieID target_ID, const size_t & param_num, const Model::Regulation & regul,
-                              const vector<size_t> & subparam, bool & activating, bool & inhibiting ) {
+                              const Levels & subparam, bool & activating, bool & inhibiting ) {
       // Get reference data
       const auto & parameters = model.getParameters(target_ID);
       const StateID source_ID = regul.source;
@@ -65,7 +65,7 @@ class ParametrizationsBuilder {
     * @param subcolor	unique valuation of all regulatory contexts
     * @return	true if the subparametrization is feasible
     */
-   static bool testSubparametrization (const Model & model, const SpecieID ID, const vector<size_t> & subparam) {
+   static bool testSubparametrization (const Model & model, const SpecieID ID, const Levels & subparam) {
       // get referecnces to Specie data
       const auto & regulations = model.getRegulations(ID);
       const auto & parameters = model.getParameters(ID);
@@ -133,7 +133,7 @@ class ParametrizationsBuilder {
       // Data to fill
 
       // Create boundaries for iteration
-      vector<size_t> bottom_color, top_color;
+      Levels bottom_color, top_color;
       ParametrizationsHelper::getBoundaries(model.getParameters(ID), bottom_color, top_color);
       // model.species[ID].possible_count = ParametrizationsHelper::getPossibleCount(model.getParameters(ID));
 

@@ -30,7 +30,7 @@ public:
    /**
     * Compute and store boundaries on possible context values - used for iterations.
     */
-   static void getBoundaries(const Model::Parameters & params, vector<size_t> & bottom_color, vector<size_t> & top_color) {
+   static void getBoundaries(const Model::Parameters & params, Levels & bottom_color, Levels & top_color) {
       for (auto param:params) {
          bottom_color.push_back(param.targets.front());
          top_color.push_back(param.targets.back());

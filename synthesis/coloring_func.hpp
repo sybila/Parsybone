@@ -12,7 +12,7 @@ namespace ColoringFunc {
     * @param step_size	how many parameters share the same value for given function
     * @param transitive_values	mask of all values from which those that have false are non-transitive
     */
-   void passParameters(const Range & synthesis_range, Paramset & passed, const size_t step_size, const vector<ActLevel> targtes, const Comparison comp, const ActLevel val) {
+   void passParameters(const Range & synthesis_range, Paramset & passed, const size_t step_size, const vector<ActLevel> targtes, const Direction comp, const ActLevel val) {
       // INITIALIZATION OF VALUES FOR POSITIONING
       // Number of the first parameter
       ParamNum param_num = synthesis_range.first;
@@ -33,13 +33,13 @@ namespace ColoringFunc {
             // If transitive, add ones for the width of the step
             bool transitive = false;
             switch (comp) {
-            case Greater:
+            case up_dir:
                transitive = targtes[value_num] > val;
                break;
-            case Equal:
+            case stay_dir:
                transitive = targtes[value_num] == val;
                break;
-            case Lower:
+            case down_dir:
                transitive = targtes[value_num] < val;
                break;
             }

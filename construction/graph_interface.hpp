@@ -34,15 +34,13 @@ template <typename Transition>
 struct StateProperty {
    /// Unique ID of the state.
    StateID ID;
-   /// Label of the state (usually a number or series of numbers) descibing the state.
-   string label;
    /// Graph or automaton transitions, basically it is an edge with a label.
    vector<Transition> transitions;
 
    /**
     * Basic constructor that fills in the ID and label.
     */
-   StateProperty<Transition>(const StateID _ID, const string && _label) : ID(_ID), label(move(_label)) { }
+   StateProperty<Transition>(const StateID _ID) : ID(_ID) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +60,6 @@ public:
 
 	/**
 	 * Obtains number of states of the graph.
-	 *
 	 * @return integer with size of the graph
 	 */
 	inline size_t getStateCount() const {
@@ -71,9 +68,7 @@ public:
 
 	/**
 	 * Obtains number of outcoming transitions for given state.
-	 *
 	 * @param ID	ID of the state to get the number from
-	 *
 	 * @return	integer with number of outcoming transitions 
 	 */
 	inline size_t getTransitionCount(const StateID ID) const {
@@ -82,10 +77,8 @@ public:
 
 	/**
 	 * Obtains ID of the target of given transition for given state.
-	 *
 	 * @param ID	ID of the state to get the neighbour from
 	 * @param trans_number	index in the vector of transitions
-	 *
 	 * @return	ID of the requested target
 	 */
 	inline StateID getTargetID(const StateID ID, const size_t transition_number) const {
@@ -94,13 +87,12 @@ public:
 
 	/**
 	 * Returns given state as a string.
-	 *
 	 * @param ID	ID of the state to turn into the string
-	 *
 	 * @return	given state as a string
 	 */
-	inline const string & getString(const StateID ID) const {
-		return states[ID].label;
+
+   const string getString(const StateID ID) const {
+      return toString(ID);
 	}
 };
 

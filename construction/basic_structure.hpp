@@ -27,8 +27,8 @@ struct BasTransition : public TransitionProperty {
 struct BasState : public StateProperty<BasTransition> {
    Levels species_level; ///< Species_level[i] = activation level of specie i.
 
-	BasState(const StateID ID, const Levels _species_level, const string && label)
-      : StateProperty<BasTransition>(ID, move(label)), species_level(_species_level) { }  ///< Simple filler, assigns values to all the variables.
+   BasState(const StateID ID, const Levels _species_level)
+      : StateProperty<BasTransition>(ID), species_level(_species_level) { }  ///< Simple filler, assigns values to all the variables.
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,14 +41,11 @@ struct BasState : public StateProperty<BasTransition> {
 class BasicStructure : public GraphInterface<BasState> {
 	friend class BasicStructureBuilder;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FILLING METHODS (can be used only from BasicStructureBuilder)
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Add a new state, with its ID, levels and label
 	 */
-	inline void addState(const StateID ID, const Levels& species_level, const string && label) {
-		states.push_back(BasState(ID, species_level, move(label)));
+   inline void addState(const StateID ID, const Levels& species_level) {
+      states.push_back(BasState(ID, species_level));
 	}
 
 	/**
