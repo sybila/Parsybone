@@ -40,10 +40,10 @@ public:
 
 public:
    void eraseData() const {
-      if (user_options.toFile()) {
-         output_streamer.createStreamFile(results_str, user_options.textFile());
+      if (user_options.use_textfile) {
+         output_streamer.createStreamFile(results_str, user_options.datatext_file);
       }
-      if (user_options.toDatabase()) {
+      if (user_options.use_database) {
          database.finishOutpout();
          database.dropTables();
       }
@@ -51,7 +51,7 @@ public:
    }
 
    void outputForm() const {
-      if (user_options.toDatabase())
+      if (user_options.use_database)
          database.creteTables();
       string format_desc = "#:(";
 
@@ -64,7 +64,7 @@ public:
       format_desc += ":Cost:Robustness:WitnessPath";
       output_streamer.output(results_str, format_desc);
 
-      if (user_options.toDatabase())
+      if (user_options.use_database)
          database.startOutput();
    }
 
@@ -74,9 +74,9 @@ public:
     * @param total_count	number of all feasible colors
     */
    void outputSummary(const size_t total_count) const {
-      if (user_options.toDatabase())
+      if (user_options.use_database)
          database.finishOutpout();
-      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::rewrite_ln;
+      OutputStreamer::Trait trait = (user_options.use_textfile) ? 0 : OutputStreamer::rewrite_ln;
       output_streamer.output(verbose_str, "Total number of parametrizations: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".", trait);
    }
 
@@ -85,7 +85,7 @@ public:
     */
    void outputRoundNum() const {
       // output numbers
-      OutputStreamer::Trait trait = (user_options.toConsole()) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
+      OutputStreamer::Trait trait = (user_options.use_textfile) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
       output_streamer.output(verbose_str, "Round: " + toString(split_manager.getRoundNum()) + "/" + toString(split_manager.getRoundCount()) + ":", trait);
    }
 
@@ -117,10 +117,10 @@ public:
       if (property.getPropType() == TimeSeries && (params.size() != costs.size())) {
          string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
          throw invalid_argument(sizes_err);
-      } else if (user_options.witnesses() && (params.size() != witnesses.size())) {
+      } else if (user_options.compute_wintess && (params.size() != witnesses.size())) {
          string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
          throw invalid_argument(sizes_err);
-      } else if (user_options.robustness() && (params.size() != robusts.size())) {
+      } else if (user_options.compute_robustness && (params.size() != robusts.size())) {
          string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
          throw invalid_argument(sizes_err);
       }
@@ -135,24 +135,24 @@ public:
             update += *cost_it + ",";
          } line += separator;
 
-         if (user_options.robustness()) {
+         if (user_options.compute_robustness) {
             line += *robust_it;
             update += *robust_it + ",";
          } line += separator;
 
-         if (user_options.witnesses()) {
+         if (user_options.compute_wintess) {
             line += *witness_it;
             update += "\"" + *witness_it + "\",";
          }
 
          output_streamer.output(results_str, line);
-         if (user_options.toDatabase())
+         if (user_options.use_database)
             database.addParametrization(update);
 
          num_it++; param_it++;
          cost_it+= property.getPropType() == TimeSeries;
-         robust_it += user_options.robustness();
-         witness_it += user_options.witnesses();
+         robust_it += user_options.compute_robustness;
+         witness_it += user_options.compute_wintess;
       }
    }
 };

@@ -48,7 +48,7 @@ public:
       return range;
    }
 
-   inline bool isBounded() const {
+   inline bool getBounded() const {
       return bounded;
    }
 

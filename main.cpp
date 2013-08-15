@@ -36,8 +36,8 @@ int main(int argc, char* argv[]) {
    try {
       ParamsetHelper::testParametrizations();
       ParsingManager::parseOptions(argc, argv);
-      model = ParsingManager::parseModel(user_options.modelPath() + user_options.modelName() + MODEL_SUFFIX);
-      property = ParsingManager::parseProperty(user_options.modelPath() + user_options.modelName() + MODEL_SUFFIX);
+      model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
+      property = ParsingManager::parseProperty(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
       return 3;
    }
 
-   if (user_options.verbose()) {
+   if (user_options.be_verbose) {
       time_manager.writeClock("* Runtime");
    }
    return 0;

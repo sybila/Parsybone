@@ -123,7 +123,7 @@ public:
       output.reset(new OutputManager(property, model, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
 
       total_colors = 0ul;
-      global_BFS_bound = user_options.getBoundSize();
+      global_BFS_bound = user_options.bound_size;
       results.setResults(vector<size_t>(ParamsetHelper::getSetSize(), INF), ParamsetHelper::getNone());
    }
 
@@ -185,10 +185,10 @@ public:
 
       // Do the computation for all the rounds
       do {
-         if (user_options.getBoundSize() == INF && user_options.isBounded()) // If there is a requirement for computing with the minimal bound.
+         if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
          doPreparation();
-         colorProduct(user_options.isBounded(), true);
+         colorProduct(user_options.bounded_check, true);
          for (const Coloring & final : storage->getColorings(product.getFinalStates()))
             analyzer->storeResults(final);
          if (user_options.analysis())
@@ -209,10 +209,10 @@ public:
 
       // Do the computation for all the rounds
       do {
-         if (user_options.getBoundSize() == INF && user_options.isBounded()) // If there is a requirement for computing with the minimal bound.
+         if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
          doPreparation();
-         colorProduct(user_options.isBounded(), false);
+         colorProduct(user_options.bounded_check, false);
          vector<Coloring> finals = storage->getColorings(product.getFinalStates());
          for (const Coloring & final : finals) {
             if (ParamsetHelper::hasNone(final.second))

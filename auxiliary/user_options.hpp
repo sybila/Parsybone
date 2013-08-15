@@ -18,11 +18,7 @@
 /// Further access to global object user_options is possible only due to constant getters.
 /// Only a single object is intended to exist.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class UserOptions {
-public:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // OPTIONS
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct UserOptions {
    bool be_verbose; ///< Display data from verbose stream (verbose_str), mainly progress information
    bool compute_robustness; ///< Should robustness value be computed and displyed?
    bool compute_wintess; ///< Should witnesses be computed and displayed?
@@ -68,83 +64,8 @@ public:
       model_path = model_name = "";
    }
 
-   inline bool robustness() const {
-      return compute_robustness;
-   }
-   inline bool witnesses() const {
-      return compute_wintess;
-   }
-
    inline bool analysis() const {
       return (compute_robustness | compute_wintess);
-   }
-
-   inline bool longWit() const {
-      return use_long_witnesses;
-   }
-
-   inline bool verbose() const {
-      return be_verbose;
-   }
-
-   inline size_t procNum() const {
-      return process_number;
-   }
-
-   inline size_t procCount() const {
-      return processes_count;
-   }
-
-   inline string modelPath() const {
-      return model_path;
-   }
-
-   inline string modelName() const {
-      return model_name;
-   }
-
-   inline bool toConsole() const {
-      return output_console;
-   }
-
-   inline bool toFile() const {
-      return use_textfile;
-   }
-
-   inline bool toDatabase() const {
-      return use_database;
-   }
-
-   inline bool isBounded() const {
-      return bounded_check;
-   }
-
-   inline size_t getBoundSize() const {
-      return bound_size;
-   }
-
-   inline size_t inputMask() const {
-      return use_in_mask;
-   }
-
-   inline size_t outputMask() const {
-      return use_out_mask;
-   }
-
-   inline const string & inMaskFile() const {
-      return in_mask_file;
-   }
-
-   inline const string & outMaskFile() const {
-      return out_mask_file;
-   }
-
-   inline const string & textFile() const {
-      return datatext_file;
-   }
-
-   inline const string & dataFile() const {
-      return database_file;
    }
 } user_options; ///< Single program-shared user options object.
 

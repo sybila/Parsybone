@@ -23,10 +23,8 @@ class ProductBuilder {
 
    /**
     * Given this source BA state, find out all the target BA that are reachable under this KS state.
-    *
     * @param KS_ID	source KS state
     * @param BA_ID	source BA state
-    *
     * @return	vector of all the reachable BA states from give product state
     */
    vector<StateID> getReachableBA(const StateID KS_ID, const StateID BA_ID) const {
@@ -91,7 +89,6 @@ class ProductBuilder {
          }
       }
    }
-
 
 public:
    ProductBuilder(const UnparametrizedStructure & _structure, const AutomatonStructure & _automaton) : structure(_structure), automaton(_automaton) {}

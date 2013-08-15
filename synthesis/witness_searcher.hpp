@@ -210,7 +210,7 @@ public:
             string path = "{";
             // Reformes based on the user request
             for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
-               if (!user_options.longWit())
+               if (!user_options.use_long_witnesses)
                   path.append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append(",");
                else
                   path.append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second)).append(",");

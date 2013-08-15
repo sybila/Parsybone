@@ -80,9 +80,9 @@ class DatabaseFiller {
    void fillParametrizations() {
       string columns = "(" + getContexts();
       columns += "Cost INTEGER,";
-      if (user_options.robustness())
+      if (user_options.compute_robustness)
          columns += "Robustness REAL,";
-      if (user_options.witnesses())
+      if (user_options.compute_wintess)
          columns += "Witness_path TEXT,";
       columns += "Selection TEXT )";
 

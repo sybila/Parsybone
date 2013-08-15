@@ -6,6 +6,8 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
+// TODO: Include the source structures and just refer to their content.
+
 #ifndef PARSYBONE_PRODUCT_INCLUDED
 #define PARSYBONE_PRODUCT_INCLUDED
 
@@ -37,9 +39,6 @@ class ProductStructure : public AutomatonInterface<ProdState> {
    size_t aut_state_count;
    size_t struct_state_count;
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // FILLING METHODS (can be used only from ProductBuilder)
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Add a new state, only with ID and levels.
     */

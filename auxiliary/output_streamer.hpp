@@ -129,7 +129,7 @@ public:
          break;
       case verbose_str:
          // Start with * - if requested, remove previous line
-         if (user_options.verbose()) {
+         if (user_options.be_verbose) {
             if (testTrait(rewrite_ln, trait_mask))
                *verbose_stream << '\r';
             if (!testTrait(no_out, trait_mask))
@@ -158,13 +158,13 @@ public:
          actualOutput(*error_stream, stream_data, trait_mask);
          break;
       case results_str:
-         if (user_options.toFile())
+         if (user_options.use_textfile)
             actualOutput(*result_stream, stream_data, trait_mask);
-         if (user_options.toConsole())
+         if (user_options.use_textfile)
             actualOutput(*console_stream, stream_data, trait_mask);
          break;
       case verbose_str:
-         if (user_options.verbose())
+         if (user_options.be_verbose)
             actualOutput(*verbose_stream, stream_data, trait_mask);
          break;
       }

@@ -34,15 +34,15 @@ class SplitManager {
 	 */
 	void computeSubspace() {
 		// Number of full rounds for all processes
-      rounds_count = all_colors_count / (user_options.procCount() * ParamsetHelper::getSetSize());
-      ParamNum rest_bits = all_colors_count % (user_options.procCount() * ParamsetHelper::getSetSize());
+      rounds_count = all_colors_count / (user_options.processes_count * ParamsetHelper::getSetSize());
+      ParamNum rest_bits = all_colors_count % (user_options.processes_count * ParamsetHelper::getSetSize());
       last_round_bits = ParamsetHelper::getSetSize();
 
 		// If there is some leftover, add a round
-      if (ceil(static_cast<double>(rest_bits) / static_cast<double>(ParamsetHelper::getSetSize())) >= user_options.procNum()) {
+      if (ceil(static_cast<double>(rest_bits) / static_cast<double>(ParamsetHelper::getSetSize())) >= user_options.process_number) {
 			rounds_count++;
 			// Pad last round
-         if ((rest_bits / ParamsetHelper::getSetSize()) == (user_options.procNum() - 1))
+         if ((rest_bits / ParamsetHelper::getSetSize()) == (user_options.process_number - 1))
             last_round_bits = rest_bits % ParamsetHelper::getSetSize();
 		}
 		
@@ -54,7 +54,7 @@ class SplitManager {
 		// Compute number of full rounds
 
 		// Check if it fits together with number from mask
-      if (user_options.inputMask())
+      if (user_options.use_in_mask)
          if (bitmask_manager.getColors().size() != rounds_count)
             throw runtime_error("The number of rounds computed from the bitmask: " + toString(bitmask_manager.getColors().size()) +
                                 " it not equal to the round number computed from the model: " + toString(rounds_count));
@@ -78,7 +78,7 @@ public:
 	 * Set values for the first round of computation.
 	 */
 	void setStartPositions() {
-      round_begin = (user_options.procNum() - 1) * ParamsetHelper::getSetSize();
+      round_begin = (user_options.process_number - 1) * ParamsetHelper::getSetSize();
       round_end = round_begin + ParamsetHelper::getSetSize();
       round_number = 1;
 	}
@@ -92,7 +92,7 @@ public:
       if (++round_number > rounds_count)
          return false;
 
-      round_begin += (ParamsetHelper::getSetSize() * user_options.procCount());
+      round_begin += (ParamsetHelper::getSetSize() * user_options.processes_count);
       round_end = round_begin + ParamsetHelper::getSetSize();
       return true;
 	}
