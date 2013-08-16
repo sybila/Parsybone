@@ -98,7 +98,7 @@ public:
       // For each of the regulator of the specie.
       for (const auto & name:names) {
          auto pos = context.find(name);
-         size_t threshold = RegulationHelper::getThreshold(model, context, t_ID, name, pos);
+         ActLevel threshold = RegulationHelper::getThreshold(model, context, t_ID, name, pos);
          new_context += name + ":" + toString(threshold) + ",";
       }
 

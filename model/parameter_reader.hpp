@@ -20,7 +20,6 @@ class ParameterReader {
             return;
          }
       }
-
       // If the context was not ever matched.
       throw runtime_error("Given context " + in_context + " not mached, probably incorrect.");
    }
@@ -51,10 +50,8 @@ class ParameterReader {
 
          specified.push_back(val);
       }
-
       return specified;
    }
-
 
    /**
     * @brief interpretLevels Obtain values from a value string.

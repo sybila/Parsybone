@@ -49,7 +49,7 @@ public:
     * @brief getThreshold  For a given regulator, find out what it's threshold in the given context is.
     * @return  threshold value in the given context
     */
-   static size_t getThreshold(const Model & model, const string & context, const SpecieID t_ID, const string & name, const size_t pos) {
+   static ActLevel getThreshold(const Model & model, const string & context, const SpecieID t_ID, const string & name, const size_t pos) {
       // Regulator not present.
       if (pos == context.npos)
          return 0;

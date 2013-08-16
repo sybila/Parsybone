@@ -49,7 +49,7 @@ TEST_F(ModelsTest, ParametrizationControl) {
 /// This test controls functionality of loop bounding constraint.
 TEST_F(ModelsTest, ParametrizationExtremal) {
    Model extreme_model;
-   extreme_model.addSpecie("A", 1, range(2u));
+   extreme_model.addSpecie("A", 1, range<ActLevel>(2u));
    extreme_model.addRegulation(0, 0, 1, "");
    extreme_model.restrictions.force_extremes = true;
    RegulationHelper::fillActivationLevels(extreme_model);
@@ -69,8 +69,8 @@ TEST_F(ModelsTest, ParametrizationExtremal) {
 /// This test controls functionality of loop bounding constraint.
 TEST_F(ModelsTest, ParametrizationLoopBound) {
    Model loop_model;
-   loop_model.addSpecie("A", 1, range(2u));
-   loop_model.addSpecie("B", 5, range(6u));
+   loop_model.addSpecie("A", 1, range<ActLevel>(2u));
+   loop_model.addSpecie("B", 5, range<ActLevel>(6u));
    loop_model.addRegulation(0, 1, 1, "");
    loop_model.addRegulation(1, 1, 2, "");
    loop_model.addRegulation(1, 1, 4, "");
