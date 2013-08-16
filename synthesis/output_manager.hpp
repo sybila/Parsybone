@@ -14,6 +14,7 @@
 #include "witness_searcher.hpp"
 #include "robustness_compute.hpp"
 #include "database_filler.hpp"
+#include "../model/model_translators.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class that outputs formatted resulting data.
@@ -22,7 +23,6 @@ class OutputManager {
    const PropertyAutomaton & property; ///< Property automaton.
    const Model & model; ///< Reference to the model itself.
    const ColorStorage & storage; ///< Provides current costs.
-   const ColoringAnalyzer & analyzer; ///< Provides parametrizations' numbers and exact values.
    const SplitManager & split_manager; ///< Provides round and split information.
    const WitnessSearcher & searcher; ///< Provides witnesses in the form of transitions.
    const RobustnessCompute & robustness; ///< Provides Robustness value.
@@ -31,14 +31,17 @@ class OutputManager {
 public:
    NO_COPY(OutputManager)
 
-	/**
-	 * Simple constructor that only passes the references.
-	 */
-   OutputManager(const PropertyAutomaton & _property, const Model & _model, const ColorStorage & _storage, DatabaseFiller & _database, const ColoringAnalyzer & _analyzer,
-					  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-      : property(_property), model(_model), storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
+   /**
+    * Simple constructor that only passes the references.
+    */
+   OutputManager(const PropertyAutomaton & _property, const Model & _model, const ColorStorage & _storage, DatabaseFiller & _database,
+                 const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
+      : property(_property), model(_model), storage(_storage), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
 
 public:
+   /**
+    * @brief eraseData
+    */
    void eraseData() const {
       if (user_options.use_textfile) {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);
@@ -50,6 +53,9 @@ public:
       outputForm();
    }
 
+   /**
+    * @brief outputForm
+    */
    void outputForm() const {
       if (user_options.use_database)
          database.creteTables();
@@ -90,70 +96,33 @@ public:
    }
 
    /**
-    * Recreate vector of cost values into a vector of strings.
+    * Output parametrizations from this round together with additional data, if requested.
     */
-   const vector<string> getCosts(const vector<size_t> cost_vals) const {
-      vector<string> costs;
-      for(const auto & cost:cost_vals){
-         if (cost != INF)
-            costs.push_back(toString(cost));
-      }
-      return costs;
-   }
-
-   /**
-       * Output parametrizations from this round together with additional data, if requested.
-       */
    void outputRound(const SynthesisResults & results) const {
-      // Get referencese
-      auto numbers = move(analyzer.getNumbers()); auto num_it = numbers.begin();
 
-      auto costs = move(getCosts(results.getCost())); auto cost_it = costs.begin();
-      auto params = move(analyzer.getStrings()); auto param_it = params.begin();
-      auto witnesses = move(searcher.getOutput()); auto witness_it = witnesses.begin();
-      auto robusts = move(robustness.getOutput()); auto robust_it = robusts.begin();
+      ParamNum param_no = split_manager.getParamNo();
+      string line = toString(param_no) + separator + ModelTranslators::createColorString(model,param_no) + separator;
+      string update = ModelTranslators::createColorString(model,param_no);
+      update.back() = ',';
 
-      // Control the actual size of vectors - they must be the same, if the vectors are employed
-      if (property.getPropType() == TimeSeries && (params.size() != costs.size())) {
-         string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
-         throw invalid_argument(sizes_err);
-      } else if (user_options.compute_wintess && (params.size() != witnesses.size())) {
-         string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
-         throw invalid_argument(sizes_err);
-      } else if (user_options.compute_robustness && (params.size() != robusts.size())) {
-         string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
-         throw invalid_argument(sizes_err);
+      if (property.getPropType() == TimeSeries) {
+         line += toString(results.getCost());
+         update += toString(results.getCost()) + ",";
+      } line += separator;
+
+      if (user_options.compute_robustness) {
+         line += robustness.getOutput();
+         update += robustness.getOutput() + ",";
+      } line += separator;
+
+      if (user_options.compute_wintess) {
+         line += searcher.getOutput();
+         update += "\"" + searcher.getOutput() + "\",";
       }
 
-      // Cycle through parametrizations, display requested data
-      while (param_it != params.end()) {
-         string line = toString(*num_it) + separator + *param_it + separator;
-         string update = *param_it; update.back() = ',';
-
-         if (property.getPropType() == TimeSeries) {
-            line += *cost_it;
-            update += *cost_it + ",";
-         } line += separator;
-
-         if (user_options.compute_robustness) {
-            line += *robust_it;
-            update += *robust_it + ",";
-         } line += separator;
-
-         if (user_options.compute_wintess) {
-            line += *witness_it;
-            update += "\"" + *witness_it + "\",";
-         }
-
-         output_streamer.output(results_str, line);
-         if (user_options.use_database)
-            database.addParametrization(update);
-
-         num_it++; param_it++;
-         cost_it+= property.getPropType() == TimeSeries;
-         robust_it += user_options.compute_robustness;
-         witness_it += user_options.compute_wintess;
-      }
+      output_streamer.output(results_str, line);
+      if (user_options.use_database)
+         database.addParametrization(update);
    }
 };
 

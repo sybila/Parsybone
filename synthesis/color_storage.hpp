@@ -16,19 +16,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief An auxiliary class to the ProductStructure and stores colors and possibly predecessors for individual states of the product during the computation.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ColorStorage {
-	struct State {
-      Paramset parameters; ///< Bits for each color in this round marking its presence or absence in the state.
+class ColorStorage {	
+   vector<bool> states; ///< Vector of states that correspond to those of Product Structure and store coloring data.
 
-      /// Holder of the computed information for a single state.
-      State() : parameters(0) { }
-	};
-	
-	vector<State> states; ///< Vector of states that correspond to those of Product Structure and store coloring data.
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 	/**
     * Constructor allocates necessary memory for further usage (this memory is not supposed to be freed until endo of the computation).
@@ -37,13 +27,7 @@ public:
 	 */
    ColorStorage(const ProductStructure & product) {
       // Create states
-      const size_t STATE_COUNT = product.getStateCount();
-
-      for (StateID ID = 0; ID < product.getStateCount(); ID++) {
-         output_streamer.output(verbose_str, "Building storage state: " + toString(ID) + "/" + toString(STATE_COUNT) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-         states.push_back(State());
-		}
-      output_streamer.clear_line();
+      states.resize(product.getStateCount(), false);
 	}
 
 	ColorStorage() = default; ///< Empty constructor for an empty storage.
@@ -58,7 +42,7 @@ public:
 
       while (m_state_it != states.end()) {
          // Copy from paramset
-         m_state_it->parameters |= o_state_it->parameters;
+         *m_state_it = (*m_state_it == true) || (*o_state_it == true);
 
          m_state_it++; o_state_it++;
       }
@@ -68,10 +52,7 @@ public:
 	 * Sets all values for all the states to zero. Allocated memory remains.
 	 */ 
 	void reset() {
-		// Clear each state
-      for (State & state:states)
-			// Reset merged parameters
-			state.parameters = 0;
+      states.assign(states.size(),false);
 	}
 
 	/**
@@ -80,12 +61,12 @@ public:
 	 * @param parameters to add - if empty, add all, otherwise use bitwise or
     * @return  true if there was an actuall update
 	 */
-   inline bool update(const Coloring & col) {
+   inline bool update(const StateID & col) {
 		// If nothing is new return false
-      if (states[col.first].parameters == (col.second | states[col.first].parameters))
+      if (states[col])
 			return false;
 		// Add new parameters and return true
-      states[col.first].parameters |= col.second;
+      states[col] = true;
 		return true;
 	}
 
@@ -93,42 +74,33 @@ public:
 	 * Return true if the state would be updated, false otherwise.
     * @return  true if there would be an update
 	 */
-   inline bool soft_update(const Coloring & col) {
-      if (states[col.first].parameters == (col.second | states[col.first].parameters))
+   inline bool soft_update(const StateID & col) {
+      if (states[col])
 			return false;
 		else
 			return true;
 	}
 
-	/**
-    * Removes given paramset from the coloring of the given state.
-	 */
-	void remove(const StateID ID, const Paramset remove) {
-		states[ID].parameters &= ~remove;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANT GETTERS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
+   /**
 	 * @param ID	index of the state to ask for parameters
     * @return  parameters assigned to the state
 	 */
-	inline const Paramset & getColor(const StateID ID) const {
-		return states[ID].parameters;
+    inline bool getColor(const StateID ID) const {
+        return states[ID];
 	}
 
 	/**
 	 * @param states	indexes of states to ask for parameters
     * @return  queue with all colorings of states
 	 */
-   const vector<Coloring> getColorings(const vector<StateID> & states) const {
+   const vector<StateID> getFound(const vector<StateID> & tested) const {
 		// Queue tates colored in basic coloring
-		vector<Coloring> colors;
+      vector<StateID> colors;
 
 		// Get the states and their colors
-      for (const StateID ID:states)
-			colors.push_back(Coloring(ID, getColor(ID)));
+      for (const StateID ID:tested)
+         if (states[ID])
+             colors.push_back(ID);
 
 		// Return final vertices with their positions
 		return colors;

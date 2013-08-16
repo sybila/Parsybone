@@ -33,52 +33,25 @@ class ModelChecker {
    set<StateID> next_updates; ///< Updates that are sheduled forn the next round.
 
    // BFS boundaries
-   Paramset to_find; ///< Mask of parameters that are still not found.
-   Paramset restrict_mask; ///< Mask of parameters that are secure to left out.
-   vector<size_t> BFS_reach; ///< In which round this color was found.
    size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
-
-   /**
-    * For each found color add this BFS level as a first when the state was updated, if it was not already found.
-    * @param colors	current coloring
-    */
-   void markLevels(const Paramset colors) {
-      // If all is found, end
-      if (!to_find || !(to_find & colors))
-         return;
-
-      // Which are new
-      Paramset store = to_find & colors;
-      // Remove currently found
-      to_find &= ~store;
-
-      // Store those that were found in this round
-      for (int color_pos = static_cast<int>(ParamsetHelper::getSetSize() - 1); color_pos >= 0 ; store >>= 1, color_pos--) {
-         if (store % 2)
-            BFS_reach[color_pos] = BFS_level;
-      }
-   }
+   bool found;
 
    /**
     * From the source distribute its parameters and newly colored neighbours shedule for update.
     * @param ID	ID of the source state in the product
     * @param parameters	parameters that will be distributed
     */
-   void transferUpdates(const StateID ID, const Paramset parameters) {
+   void transferUpdates(const StateID ID) {
       // Get passed colors, unique for each sucessor
-      vector<Coloring> transports = ColoringFunc::broadcastParameters(settings.getRange(), product, ID, parameters);
+      vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getTestedNum(), product, ID);
 
       // For all passed values make update on target
-      for (const Coloring trans : transports) {
-         // Skip empty updates
-         if (ParamsetHelper::hasNone(trans.second))
-            continue;
-
+      for (const StateID trans : transports) {
          // If something new is added to the target, schedule it for an update
          if (storage.soft_update(trans)) {
             // Determine what is necessary to update
             next_round_storage.update(trans);
-            next_updates.insert(trans.first);
+            next_updates.insert(trans);
          }
       }
    }
@@ -92,18 +65,17 @@ class ModelChecker {
 
       // Check if this is not the last round
       if (settings.isFinal(ID))
-         markLevels(storage.getColor(ID));
+         found = true;
 
-      transferUpdates(ID, storage.getColor(ID) & restrict_mask);
-
+      transferUpdates(ID);
       updates.erase(ID);
 
       // If there this round is finished, but there are still paths to find
-      if (updates.empty() && to_find && (BFS_level < settings.getBound())) {
+      if (updates.empty() && (BFS_level < settings.getBound())) {
          updates = move(next_updates);
          storage.addFrom(next_round_storage);
-         if (settings.isMinimal())
-            restrict_mask = to_find;
+         if (settings.isMinimal() && found)
+            return;
          BFS_level++; // Increase level
       }
    }
@@ -114,8 +86,8 @@ class ModelChecker {
    void prepareObjects() {
       next_updates.clear(); // Ensure emptiness of the next round
       next_round_storage.reset(); // Copy starting values
-      BFS_reach = vector<size_t>(ParamsetHelper::getSetSize(), INF); // Begin with infinite reach (symbolized by INF)
       BFS_level = 0;
+      found = false;
    }
 
    /**
@@ -123,11 +95,11 @@ class ModelChecker {
     */
    void initiateCheck() {
       if (settings.getCoreState() != INF) {
-         transferUpdates(settings.getCoreState(), settings.getStartingParams());
+         transferUpdates(settings.getCoreState());
       } else {
          updates = settings.hashInitials();
          for (const StateID init_ID : updates)
-            storage.update(Coloring(init_ID, settings.getStartingParams()));
+            storage.update(init_ID);
       }
    }
 
@@ -141,7 +113,6 @@ public:
     */
    SynthesisResults conductCheck(const CheckerSettings & _settings) {
       settings = _settings;
-      to_find = restrict_mask = settings.getStartingParams();
       prepareObjects();
       initiateCheck();
 
@@ -152,7 +123,7 @@ public:
 
       // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
       SynthesisResults results;
-      results.setResults(BFS_reach, ~to_find & settings.getStartingParams());
+      results.setResults(BFS_level, found);
 
       return results;
    }

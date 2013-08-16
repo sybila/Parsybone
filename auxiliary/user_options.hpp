@@ -23,8 +23,6 @@ struct UserOptions {
    bool compute_robustness; ///< Should robustness value be computed and displyed?
    bool compute_wintess; ///< Should witnesses be computed and displayed?
    bool use_long_witnesses; ///< How witnesses should be displayed - complete state or only ID?
-   bool use_in_mask; ///< Is there a paramset mask on the input?
-   bool use_out_mask; ///< Should computed parametrizations be output in the form of mask?
    bool output_console;
    bool use_textfile;
    bool use_database;
@@ -36,8 +34,6 @@ struct UserOptions {
    string model_name; ///< What is the name of the model?
    string database_file;
    string datatext_file;
-   string in_mask_file;
-   string out_mask_file;
 
    /**
     * @brief addDefaultFiles    Create default file names where there are none explicitly specified.
@@ -47,18 +43,14 @@ struct UserOptions {
          database_file = model_path + model_name + DATABASE_SUFFIX;
       if (datatext_file.empty())
          datatext_file = model_path + model_name + OUTPUT_SUFFIX;
-      if (in_mask_file.empty())
-         in_mask_file = model_path + model_name + MASK_SUFFIX;
-      if (out_mask_file.empty())
-         out_mask_file = model_path + model_name + MASK_SUFFIX;
    }
 
    /**
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = bounded_check = be_verbose = use_long_witnesses = compute_robustness = use_in_mask = use_out_mask = output_console = use_textfile = use_database = false;
-      database_file = datatext_file = in_mask_file = out_mask_file = "";
+      compute_wintess = bounded_check = be_verbose = use_long_witnesses = compute_robustness =  output_console = use_textfile = use_database = false;
+      database_file = datatext_file = "";
       bound_size = INF;
       process_number = processes_count = 1;
       model_path = model_name = "";

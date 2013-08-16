@@ -34,7 +34,6 @@ int main(int argc, char* argv[]) {
    ProductStructure product;
 
    try {
-      ParamsetHelper::testParametrizations();
       ParsingManager::parseOptions(argc, argv);
       model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
       property = ParsingManager::parseProperty(user_options.model_path + user_options.model_name + MODEL_SUFFIX);

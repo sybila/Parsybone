@@ -11,7 +11,6 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../auxiliary/user_options.hpp"
-#include "bitmask_manager.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief A class responsible for reading the arguments on the input.
@@ -20,7 +19,7 @@
 /// All values that are not used for direct setup are stored within a UserOptions class.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ArgumentParser {
-   enum Filetype {database, datatext, input_mask, output_mask};
+   enum Filetype {database, datatext};
 
    /**
     * Obtain parameters for synthesis distribution.
@@ -82,15 +81,7 @@ class ArgumentParser {
          user_options.datatext_file = *position;
          user_options.use_textfile = true;
          break;
-      case input_mask:
-         user_options.in_mask_file = *position;
-         user_options.use_in_mask = true;
-         break;
-      case output_mask:
-         user_options.out_mask_file = *position;
-         user_options.use_out_mask = true;
-         break;
-      };
+      }
 
       return 1;
    }
@@ -125,12 +116,6 @@ class ArgumentParser {
       } else if (position->compare("--data") == 0) {
          user_options.use_database = true;
          return getFileName(database, position, arguments.end());
-      } else if (position->compare("--min") == 0) {
-         user_options.use_in_mask = true;
-         return getFileName(input_mask, position, arguments.end());
-      } else if (position->compare("--mout") == 0) {
-         user_options.use_out_mask = true;
-         return getFileName(output_mask, position, arguments.end());
       } else if (position->compare("--bound") == 0) {
          user_options.bounded_check = true;
          return getBound(position, arguments.end());
@@ -159,14 +144,6 @@ class ArgumentParser {
 
       case 'v':
          user_options.be_verbose = true;
-         break;
-
-      case 'm':
-         user_options.use_in_mask = true;
-         break;
-
-      case 'M':
-         user_options.use_out_mask = true;
          break;
 
       case 'f':

@@ -12,7 +12,6 @@
 #include "../auxiliary/data_types.hpp"
 #include "../synthesis/SQLAdapter.hpp"
 #include "data_parser.hpp"
-#include "bitmask_manager.hpp"
 #include "argument_parser.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,14 +32,6 @@ namespace ParsingManager {
       parser.parseArguments(arguments);
       user_options.addDefaultFiles();
 
-      // Open datafiles that were requested by the user.
-      if (user_options.use_in_mask) {
-         bitmask_manager.openFile(user_options.in_mask_file);
-         bitmask_manager.parseMask();
-      }
-      if (user_options.use_out_mask) {
-         bitmask_manager.createOutput(user_options.out_mask_file);
-      }
       if (user_options.use_textfile) {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);
       }

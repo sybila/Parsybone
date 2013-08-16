@@ -20,81 +20,81 @@ class RobustnessCompute {
    const ColorStorage & storage; ///< Constant storage with the actuall data.
    Range round_range; ///< Range of parametrizations used this round
 
-   /// This structure holds values used in the iterative process of robustness computation.
-   struct Marking {
-      vector<unsigned char> exits; ///< For each parametrization stores a number of transitions this state can be left through under given parametrization.
-      vector<double> current_prob; ///< For each parametrization stores current probability of reaching.
-      vector<double> next_prob; ///< For each parametrizations will store the probability in the next round.
-   };
+//   /// This structure holds values used in the iterative process of robustness computation.
+//   struct Marking {
+//      vector<unsigned char> exits; ///< For each parametrization stores a number of transitions this state can be left through under given parametrization.
+//      vector<double> current_prob; ///< For each parametrization stores current probability of reaching.
+//      vector<double> next_prob; ///< For each parametrizations will store the probability in the next round.
+//   };
 
-   vector<Marking> markings; /// Marking of all states.
-   vector<double> results; /// Resultig probability for each parametrization.
+//   vector<Marking> markings; /// Marking of all states.
+//   vector<double> results; /// Resultig probability for each parametrization.
 
-   /**
-    * Clear data objects used throughout the whole computation process.
-    */
-   void clear() {
-      for (auto & marking:markings) {
-         marking.exits.assign(marking.exits.size(), 0);
-         marking.current_prob.assign(marking.current_prob.size(), 0.0);
-         marking.next_prob.assign(marking.next_prob.size(), 0.0);
-      }
-      results.assign(ParamsetHelper::getSetSize(), 0.0);
-   }
+//   /**
+//    * Clear data objects used throughout the whole computation process.
+//    */
+//   void clear() {
+//      for (auto & marking:markings) {
+//         marking.exits.assign(marking.exits.size(), 0);
+//         marking.current_prob.assign(marking.current_prob.size(), 0.0);
+//         marking.next_prob.assign(marking.next_prob.size(), 0.0);
+//      }
+//      results.assign(ParamsetHelper::getSetSize(), 0.0);
+//   }
 
-   /**
-    * For each state compute how many exists are under each parametrization.
-    */
-   void computeExits(const SynthesisResults & results) {
-      Paramset current_mask = ParamsetHelper::getLeftOne();
-      // Cycle through parameters
-      for (size_t param_num:range(ParamsetHelper::getSetSize())) {
-         // If not acceptable, leave zero
-         if (current_mask & results.getAcceptable()) {
-            for (StateID ID = 0; ID < product.getStateCount(); ID++) {
-               auto succs = ColoringFunc::broadcastParameters(round_range, product, ID, current_mask);
+//   /**
+//    * For each state compute how many exists are under each parametrization.
+//    */
+//   void computeExits(const SynthesisResults & results) {
+//      Paramset current_mask = ParamsetHelper::getLeftOne();
+//      // Cycle through parameters
+//      for (size_t param_num:range(ParamsetHelper::getSetSize())) {
+//         // If not acceptable, leave zero
+//         if (current_mask & results.getAcceptable()) {
+//            for (StateID ID = 0; ID < product.getStateCount(); ID++) {
+//               auto succs = ColoringFunc::broadcastParameters(round_range, product, ID, current_mask);
 
-               StateID max_BA = 0;
-               for (Coloring succ:succs) {
-                  max_BA = max(max_BA, product.getBAID(succ.first));
-               }
-               size_t exits = 0;
-               for (Coloring succ:succs) {
-                  exits += static_cast<size_t>(max_BA == product.getBAID(succ.first));
-               }
-               markings[ID].exits[param_num] = exits;
-            }
-         }
+//               StateID max_BA = 0;
+//               for (Coloring succ:succs) {
+//                  max_BA = max(max_BA, product.getBAID(succ.first));
+//               }
+//               size_t exits = 0;
+//               for (Coloring succ:succs) {
+//                  exits += static_cast<size_t>(max_BA == product.getBAID(succ.first));
+//               }
+//               markings[ID].exits[param_num] = exits;
+//            }
+//         }
 
-         current_mask >>= 1;
-      }
-   }
+//         current_mask >>= 1;
+//      }
+//   }
 
-   /**
-    * Set probability of each initial state to 1.0 / number of used initial states for this parametrization.
-    */
-   void initiate() {
-      // Cycle through vectors of initial states for every parametrization
-      const vector<StateID> & initials = product.getInitialStates();
+//   /**
+//    * Set probability of each initial state to 1.0 / number of used initial states for this parametrization.
+//    */
+//   void initiate() {
+//      // Cycle through vectors of initial states for every parametrization
+//      const vector<StateID> & initials = product.getInitialStates();
 
-      // Cycle through the states and assign them the weighted probability
-      for (size_t param_num = 0; param_num < ParamsetHelper::getSetSize(); param_num++) {
-         for (StateID init:initials) {
-            markings[init].next_prob[param_num] = 1.0 / initials.size();
-         }
-      }
-   }
+//      // Cycle through the states and assign them the weighted probability
+//      for (size_t param_num = 0; param_num < ParamsetHelper::getSetSize(); param_num++) {
+//         for (StateID init:initials) {
+//            markings[init].next_prob[param_num] = 1.0 / initials.size();
+//         }
+//      }
+//   }
 
-   /**
-    * Compute the resulting values as a sum of probabilites of reaching any state.
-    */
-   void finish() {
-      for (StateID ID:product.getFinalStates()) {
-         for (size_t param_num = 0; param_num < results.size(); param_num++) {
-            results[param_num] += markings[ID].next_prob[param_num];
-         }
-      }
-   }
+//   /**
+//    * Compute the resulting values as a sum of probabilites of reaching any state.
+//    */
+//   void finish() {
+//      for (StateID ID:product.getFinalStates()) {
+//         for (size_t param_num = 0; param_num < results.size(); param_num++) {
+//            results[param_num] += markings[ID].next_prob[param_num];
+//         }
+//      }
+//   }
 
 public:
    /**
@@ -102,44 +102,44 @@ public:
     */
    RobustnessCompute(const ProductStructure & _product, const ColorStorage & _storage)
       : product(_product), storage(_storage) {
-      Marking empty = { vector<unsigned char>(ParamsetHelper::getSetSize(), 0),
-                        vector<double>(ParamsetHelper::getSetSize(), 0.0),
-                        vector<double>(ParamsetHelper::getSetSize(), 0.0) };
-      markings.resize(product.getStateCount(), empty);
-      results.resize(ParamsetHelper::getSetSize(), 0.0);
+//      Marking empty = { vector<unsigned char>(ParamsetHelper::getSetSize(), 0),
+//                        vector<double>(ParamsetHelper::getSetSize(), 0.0),
+//                        vector<double>(ParamsetHelper::getSetSize(), 0.0) };
+//      markings.resize(product.getStateCount(), empty);
+//      results.resize(ParamsetHelper::getSetSize(), 0.0);
    }
 
    /**
     * Function that computes robustness values for each parametrization.
     */
-   void compute(const Range & _round_range, const SynthesisResults & results, const vector<set<pair<StateID,StateID> > > & transitions) {
-      round_range = _round_range;
-      clear();
-      computeExits(results);
-      initiate();
+   void compute(const ParamNum _param_no, const SynthesisResults & results, const set<pair<StateID,StateID> > & transitions) {
+//      round_range = _round_range;
+//      clear();
+//      computeExits(results);
+//      initiate();
 
-      // Cycle through the levels of the DFS procedure
-      for (size_t round_num = 0; round_num < results.getMaxDepth(); round_num++) {
-         // Update markings from the previous round
-         for (auto & marking:markings) {
-            marking.current_prob = marking.next_prob;
-            marking.next_prob.assign(marking.next_prob.size(), 0.0);
-         }
-         // Assign probabilites for the initial states
-         initiate();
-         // Cycle through parametrizations
-         for (size_t param_num = 0; param_num != ParamsetHelper::getSetSize(); param_num++) {
-            // For the parametrization cycle through transitions
-            for (const auto & trans:transitions[param_num]) {
-               size_t divisor = markings[trans.first].exits[param_num]; // Count succesor
-               // Add probabilities
-               if (divisor)
-                  markings[trans.second].next_prob[param_num] += markings[trans.first].current_prob[param_num] / divisor ;
-            }
-         }
-      }
+//      // Cycle through the levels of the DFS procedure
+//      for (size_t round_num = 0; round_num < results.getMaxDepth(); round_num++) {
+//         // Update markings from the previous round
+//         for (auto & marking:markings) {
+//            marking.current_prob = marking.next_prob;
+//            marking.next_prob.assign(marking.next_prob.size(), 0.0);
+//         }
+//         // Assign probabilites for the initial states
+//         initiate();
+//         // Cycle through parametrizations
+//         for (size_t param_num = 0; param_num != ParamsetHelper::getSetSize(); param_num++) {
+//            // For the parametrization cycle through transitions
+//            for (const auto & trans:transitions[param_num]) {
+//               size_t divisor = markings[trans.first].exits[param_num]; // Count succesor
+//               // Add probabilities
+//               if (divisor)
+//                  markings[trans.second].next_prob[param_num] += markings[trans.first].current_prob[param_num] / divisor ;
+//            }
+//         }
+//      }
 
-      finish();
+//      finish();
    }
 
    /**
@@ -147,14 +147,14 @@ public:
     *
     * @return  a vector of robustness strings
     */
-   const vector<string> getOutput() const {
-      vector<string> to_return;
+   const string getOutput() const {
+      /*vector<string> to_return;
       for (const double & robust:results){
          if (robust) // Add if the value is non-zero
             to_return.push_back(toString(robust));
-      }
+      }*/
 
-      return to_return;
+       return "0.0";
    }
 };
 

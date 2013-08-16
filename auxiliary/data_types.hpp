@@ -105,9 +105,6 @@ enum Comparison { Lower, Equal, Greater };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Mask of parameters - each bit represents single combination of target values for each function.
-typedef unsigned int Paramset;
-
 /// Index of the color - may be a big number.
 typedef unsigned long long ParamNum;
 
@@ -116,9 +113,6 @@ typedef unsigned long long RoundNum;
 
 /// IDs of predecessors of a state.
 typedef vector<StateID> Neighbours;
-
-/// State number and its coloring.
-typedef pair<StateID, Paramset> Coloring;
 
 /// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not.
 typedef pair<ParamNum, ParamNum> Range;

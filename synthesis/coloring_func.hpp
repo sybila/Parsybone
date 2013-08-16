@@ -2,112 +2,64 @@
 #define COLORING_FUNC_HPP
 
 #include "../construction/product_structure.hpp"
-#include "../auxiliary/paramset_helper.hpp"
 
 namespace ColoringFunc {
    /**
     * Main function of coloring - creates intersection of passing and transition colors to create and update color.
-    *
     * @param passed	parameters that are passed through the transition
     * @param step_size	how many parameters share the same value for given function
     * @param transitive_values	mask of all values from which those that have false are non-transitive
     */
-   void passParameters(const Range & synthesis_range, Paramset & passed, const size_t step_size, const vector<ActLevel> targtes, const Direction comp, const ActLevel val) {
-      // INITIALIZATION OF VALUES FOR POSITIONING
-      // Number of the first parameter
-      ParamNum param_num = synthesis_range.first;
-      // First value might not bet 0 - get it from current parameter position
-      size_t value_num = (param_num / step_size) % targtes.size();
-      // Mask that will be created
-      register Paramset temporary = 0;
+   bool passParameters(const ParamNum param_no, const size_t step_size, const vector<ActLevel> & targets, const Direction comp, const ActLevel val) {
+      size_t value_num = (param_no / step_size) % targets.size();
 
-      // COMPUTATION OF THE MASK
-      // List through all the paramters
-      while (true) {
-         // List through ALL the target values
-         for (; value_num < targtes.size(); value_num++) {
-            // Get size of the step for current value
-            size_t bits_in_step = min<size_t>((step_size - (param_num % step_size)), static_cast<size_t>(synthesis_range.second - param_num));
-            // Move the mask so new value data can be add
-            temporary <<= bits_in_step;
-            // If transitive, add ones for the width of the step
-            bool transitive = false;
-            switch (comp) {
-            case up_dir:
-               transitive = targtes[value_num] > val;
-               break;
-            case stay_dir:
-               transitive = targtes[value_num] == val;
-               break;
-            case down_dir:
-               transitive = targtes[value_num] < val;
-               break;
-            }
-
-            if (transitive) {
-               Paramset add = ParamsetHelper::getAll();
-               add >>= (ParamsetHelper::getSetSize() - bits_in_step);
-               temporary |= add;
-            }
-            // If we went throught the whole size, end
-            if ((param_num += bits_in_step) == synthesis_range.second) {
-               // Create interection of source parameters and transition parameters
-               passed &= temporary;
-               return;
-            }
-         }
-         // Reset the value
-         value_num = 0;
+      switch (comp) {
+      case up_dir:
+         return targets[value_num] > val;
+      case stay_dir:
+         return targets[value_num] == val;
+      case down_dir:
+         return targets[value_num] < val;
       }
    }
 
    /**
     * Get stripped parameters for each unique edge (if there are multi-edges, intersect their values).
-    *
     * @param ID	ID of the source state in the product
     * @param parameters	parameters that will be distributed
-    *
     * @return vector of passed parameters together with their targets
     */
-   vector<Coloring> broadcastParameters(const Range & synthesis_range, const ProductStructure & product, const StateID ID, const Paramset parameters) {
+   vector<StateID> broadcastParameters(const ParamNum param_no,  const ProductStructure & product, const StateID ID) {
       // To store parameters that passed the transition but were not yet added to the target
       set<StateID> BA_presence;
-      vector<Coloring> param_updates;
-      param_updates.reserve(product.getTransitionCount(ID));
+      vector<StateID> param_updates;
 
       size_t KS_state = product.getKSID(ID);
-      Paramset loop_params = ParamsetHelper::getAll(); // Which of the parameters allow only to remain in this state
+      bool loop = true; // Which of the parameters allow only to remain in this state
 
       // Cycle through all the transition
       for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
          StateID target_ID = product.getTargetID(ID, trans_num);
 
-         // Parameters to pass through the transition
-         Paramset passed = parameters;
-
          // From an update strip all the parameters that can not pass through the transition - color intersection on the transition
-         ColoringFunc::passParameters(synthesis_range, passed, product.getStepSize(ID, trans_num), product.getTargets(ID, trans_num), product.getOp(ID, trans_num), product.getVal(ID, trans_num));
+         bool passed = ColoringFunc::passParameters(param_no, product.getStepSize(ID, trans_num), product.getTargets(ID, trans_num),
+                                                    product.getOp(ID, trans_num), product.getVal(ID, trans_num));
 
          // Test if it is a possibility for a loop, if there is nothing outcoming, add to self-loop (if it is still possible)
-         if (KS_state == product.getKSID(target_ID) ) {
-            loop_params &= passed;
-            if(loop_params) {
+         if (passed) {
+            if (loop && KS_state == product.getKSID(target_ID) ) {
                StateID BA_ID = product.getBAID(target_ID);
                BA_presence.insert(BA_ID);
+            } else  {
+               loop = false;
             }
-         }
-         // Else add normally and remove from the loop
-         else if (passed) {
-            loop_params &= ~passed; // Retain only others within a loop
-            param_updates.push_back(make_pair(target_ID, passed));
          }
       }
 
       // If there is a self-loop, add it for all the BA states (its an intersection of transitional parameters for independent loops)
-      if (loop_params) {
+      if (loop) {
          for(const StateID BA_state:BA_presence) {
-            StateID target = product.getProductID(KS_state, BA_state) ;
-            param_updates.push_back(Coloring(target, loop_params));
+            param_updates.push_back(product.getProductID(KS_state, BA_state));
          }
       }
 
