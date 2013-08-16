@@ -19,108 +19,108 @@
 /// All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SplitManager {
-   ParamNum all_colors_count; ///< All the parameters.
-   ParamNum process_color_count; ///< All the parameters.
-   size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
-   RoundNum rounds_count; ///< Number of rounds totally.
-   RoundNum round_number; ///< Number of this round (starting from 0).
-   ParamNum param_no; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
-   ParamNum round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
+    ParamNum all_colors_count; ///< All the parameters.
+    ParamNum process_color_count; ///< All the parameters.
+    size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
+    RoundNum rounds_count; ///< Number of rounds totally.
+    RoundNum round_number; ///< Number of this round (starting from 0).
+    ParamNum param_no; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
+    ParamNum round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
 
-	/**
-	 * This function computes index of the first parameter, size of a single round, number of rounds and other auxiliary data members used for splitting.
-	 */
-	void computeSubspace() {
-		// Number of full rounds for all processes
-      rounds_count = all_colors_count / user_options.processes_count;
-      ParamNum rest_bits = all_colors_count % user_options.processes_count;
+    /**
+     * This function computes index of the first parameter, size of a single round, number of rounds and other auxiliary data members used for splitting.
+     */
+    void computeSubspace() {
+        // Number of full rounds for all processes
+        rounds_count = all_colors_count / user_options.processes_count;
+        ParamNum rest_bits = all_colors_count % user_options.processes_count;
 
-		// If there is some leftover, add a round
-      if (rest_bits >= user_options.process_number)
-			rounds_count++;
-		
-		// Get colors num for this process
-      process_color_count = rounds_count - 1;
+        // If there is some leftover, add a round
+        if (rest_bits >= user_options.process_number)
+            rounds_count++;
 
-		// Set positions for the round
-		setStartPositions();
-	}
+        // Get colors num for this process
+        process_color_count = rounds_count;
+
+        // Set positions for the round
+        setStartPositions();
+    }
 
 public:
-	/**
-	 * Computes splitting for both process (in case of a distributed computation) and its rounds that are of a size of the Parameters data type.
-	 * 
-	 * @param _processes_count	how many processes compute the coloring
-	 * @param _process_number	index of this process
-	 * @param _parameters_count	complete number of parameters that have to be tested by all the processes
-	 */
-	SplitManager(ParamNum _all_colors_count) {
-		all_colors_count = _all_colors_count;
-		// Compute the rest
-		computeSubspace();
-	}
+    /**
+     * Computes splitting for both process (in case of a distributed computation) and its rounds that are of a size of the Parameters data type.
+     *
+     * @param _processes_count	how many processes compute the coloring
+     * @param _process_number	index of this process
+     * @param _parameters_count	complete number of parameters that have to be tested by all the processes
+     */
+    SplitManager(ParamNum _all_colors_count) {
+        all_colors_count = _all_colors_count;
+        // Compute the rest
+        computeSubspace();
+    }
 
-	/**
-	 * Set values for the first round of computation.
-	 */
-	void setStartPositions() {
-      param_no = user_options.process_number - 1;
-      round_number = 1;
-	}
+    /**
+     * Set values for the first round of computation.
+     */
+    void setStartPositions() {
+        param_no = user_options.process_number - 1;
+        round_number = 1;
+    }
 
-	/**
-	 * Increase parameter positions so a new round can be computed.
+    /**
+     * Increase parameter positions so a new round can be computed.
     * @return  true if the increase is possible
-	 */
-   bool increaseRound() {
-      if (++round_number > rounds_count)
-         return false;
+     */
+    bool increaseRound() {
+        if (++round_number > rounds_count)
+            return false;
 
-      param_no += user_options.processes_count;
-      return true;
-	}
-	
-	/**
-	 * @return	total number of parameters for all the processes
-	 */ 
-	inline ParamNum getAllColorsCount() const {
-		return all_colors_count;
-	}
+        param_no += user_options.processes_count;
+        return true;
+    }
 
-	/**
-	 * @return	range with first and one before last parameter to compute this round
-	 */ 
-   inline ParamNum getParamNo() const {
-      return param_no;
-	}
+    /**
+     * @return	total number of parameters for all the processes
+     */
+    inline ParamNum getAllColorsCount() const {
+        return all_colors_count;
+    }
 
-	/**
-	 * @return	range with first and one before last parameter to compute for this process
-	 */ 
-	inline ParamNum getProcColorsCount() const {
-		return process_color_count;
-	}
+    /**
+     * @return	range with first and one before last parameter to compute this round
+     */
+    inline ParamNum getParamNo() const {
+        return param_no;
+    }
 
-	/**
-	 * @return	true if this round is not the last
-	 */ 
-	inline bool lastRound() const {
-      return round_number == rounds_count;
-	}
+    /**
+     * @return	range with first and one before last parameter to compute for this process
+     */
+    inline ParamNum getProcColorsCount() const {
+        return process_color_count;
+    }
 
-	/**
-	 * @return	number of this round
-	 */ 
-	inline RoundNum getRoundNum() const {
-		return round_number;
-	}
+    /**
+     * @return	true if this round is not the last
+     */
+    inline bool lastRound() const {
+        return round_number == rounds_count;
+    }
 
-	/**
-	 * @return	total number of rounds
-	 */ 
-	inline RoundNum getRoundCount() const {
-		return rounds_count;
-	}
+    /**
+     * @return	number of this round
+     */
+    inline RoundNum getRoundNum() const {
+        return round_number;
+    }
+
+    /**
+     * @return	total number of rounds
+     */
+    inline RoundNum getRoundCount() const {
+        return rounds_count;
+    }
 };
 
 #endif // PARSYBONE_SPLIT_MANAGER_INCLUDED

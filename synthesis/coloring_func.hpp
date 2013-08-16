@@ -51,6 +51,7 @@ namespace ColoringFunc {
                StateID BA_ID = product.getBAID(target_ID);
                BA_presence.insert(BA_ID);
             } else  {
+               param_updates.push_back(target_ID);
                loop = false;
             }
          }
