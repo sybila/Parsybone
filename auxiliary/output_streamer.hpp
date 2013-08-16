@@ -160,7 +160,7 @@ public:
       case results_str:
          if (user_options.use_textfile)
             actualOutput(*result_stream, stream_data, trait_mask);
-         if (user_options.use_textfile)
+         if (user_options.output_console)
             actualOutput(*console_stream, stream_data, trait_mask);
          break;
       case verbose_str:

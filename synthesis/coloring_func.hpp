@@ -11,7 +11,7 @@ namespace ColoringFunc {
     * @param transitive_values	mask of all values from which those that have false are non-transitive
     */
    bool passParameters(const ParamNum param_no, const size_t step_size, const vector<ActLevel> & targets, const Direction comp, const ActLevel val) {
-      size_t value_num = (param_no / step_size) % targets.size();
+      const size_t value_num = (param_no / step_size) % targets.size();
 
       switch (comp) {
       case up_dir:
@@ -31,7 +31,7 @@ namespace ColoringFunc {
     */
    vector<StateID> broadcastParameters(const ParamNum param_no,  const ProductStructure & product, const StateID ID) {
       // To store parameters that passed the transition but were not yet added to the target
-      set<StateID> BA_presence;
+      set<StateID> self_loop;
       vector<StateID> param_updates;
 
       size_t KS_state = product.getKSID(ID);
@@ -48,23 +48,20 @@ namespace ColoringFunc {
          // Test if it is a possibility for a loop, if there is nothing outcoming, add to self-loop (if it is still possible)
          if (passed) {
             if (loop && KS_state == product.getKSID(target_ID) ) {
-               StateID BA_ID = product.getBAID(target_ID);
-               BA_presence.insert(BA_ID);
+               self_loop.insert(target_ID);
             } else  {
                param_updates.push_back(target_ID);
                loop = false;
             }
          }
       }
-
       // If there is a self-loop, add it for all the BA states (its an intersection of transitional parameters for independent loops)
       if (loop) {
-         for(const StateID BA_state:BA_presence) {
-            param_updates.push_back(product.getProductID(KS_state, BA_state));
+         for(const StateID looper:self_loop) {
+            param_updates.push_back(looper);
          }
       }
 
-      // Return all filled updates
       return param_updates;
    }
 }
