@@ -1,7 +1,6 @@
 #ifndef CHECKER_SETTING_HPP
 #define CHECKER_SETTING_HPP
 
-#include "../auxiliary/paramset_helper.hpp"
 #include "../construction/product_structure.hpp"
 
 class CheckerSettings {
@@ -11,21 +10,18 @@ public:
    StateID final_state;
    bool bounded;
    bool minimal;
-   Range range;
+   ParamNum tested;
    size_t bfs_bound;
-   Paramset tested_params;
 
-   CheckerSettings(const ProductStructure & _product) : product(_product), starting_state(INF), final_state(INF),
-      bounded(false), minimal(false), range({0lu,0lu}), bfs_bound(INF), tested_params(ParamsetHelper::getNone()) { }
+   CheckerSettings(const ProductStructure & _product) : product(_product), starting_state(INF), final_state(INF), bounded(false), minimal(false), tested(0ul), bfs_bound(INF) { }
 
    void copyData(const CheckerSettings & other) {
       starting_state = other.starting_state;
       final_state = other.final_state;
       bounded = other.bounded;
       minimal = other.minimal;
-      range = other.range;
+      tested = other.tested;
       bfs_bound = other.bfs_bound;
-      tested_params = other.tested_params;
    }
 
    CheckerSettings operator=(const CheckerSettings & other) {
@@ -40,12 +36,8 @@ public:
       copyData(other);
    }
 
-   inline Paramset getStartingParams() const {
-      return tested_params;
-   }
-
-   inline const Range & getRange() const {
-      return range;
+   inline const ParamNum & getTestedNum() const {
+      return tested;
    }
 
    inline bool getBounded() const {

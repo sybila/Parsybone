@@ -11,11 +11,9 @@
 
 #include "PunyHeaders/time_manager.hpp"
 
-#include "../auxiliary/paramset_helper.hpp"
 #include "../model/model.hpp"
 #include "../model/property_automaton.hpp"
 
-#include "coloring_analyzer.hpp"
 #include "witness_searcher.hpp"
 #include "output_manager.hpp"
 #include "color_storage.hpp"
@@ -46,7 +44,7 @@ class SynthesisManager {
    CheckerSettings createRoundSetting() {
       CheckerSettings settings(product);
       settings.bfs_bound = global_BFS_bound;
-      settings.range = split_manager->getRoundRange();
+      settings.tested = split_manager->getParamNo();
       return settings;
    }
 
@@ -57,7 +55,6 @@ class SynthesisManager {
       storage->reset();
 
       CheckerSettings settings = createRoundSetting();
-      settings.tested_params = split_manager->createStartingParameters();
       settings.bounded = bounded;
       settings.minimal = minimal;
 
@@ -69,13 +66,12 @@ class SynthesisManager {
     * @brief colorAccepting
     * @param accepting
     */
-   void colorAccepting(const Coloring & accepting) {
+   void colorAccepting(const StateID accepting) {
       storage->reset();
 
       CheckerSettings settings = createRoundSetting();
       settings.bounded = false;
-      settings.final_state = accepting.first;
-      settings.tested_params = accepting.second;
+      settings.final_state = accepting;
 
       // Start coloring procedure
       results = model_checker->conductCheck(settings);
@@ -85,21 +81,19 @@ class SynthesisManager {
     * @brief detectCycle
     * @param accepting
     */
-   void detectCycle(const Coloring & accepting) {
+   void detectCycle(const StateID accepting) {
       storage->reset();
 
       CheckerSettings settings = createRoundSetting();
       settings.bounded = false;
-      settings.starting_state = accepting.first;
-      settings.final_state = accepting.first;
-      settings.tested_params = accepting.second;
+      settings.starting_state = accepting;
+      settings.final_state = accepting;
 
       // Start coloring procedure
       results = model_checker->conductCheck(settings);
    }
 
 public:
-	unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis.
 	unique_ptr<DatabaseFiller> database; ///< Class to output to a SQLite database;
 	unique_ptr<ModelChecker> model_checker; ///< Class for synthesis.
 	unique_ptr<OutputManager> output; ///< Class for output.
@@ -113,36 +107,35 @@ public:
     */
    SynthesisManager(const ProductStructure & _product, const Model & _model, const PropertyAutomaton & _property) : product(_product), model(_model), property(_property) {
       // Create classes that help with the synthesis
-      analyzer.reset(new ColoringAnalyzer(model));
       storage.reset(new ColorStorage(product));
       split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(model)));
       model_checker.reset(new ModelChecker(product, *storage));
       searcher.reset(new WitnessSearcher(product, *storage));
       robustness.reset(new RobustnessCompute(product, *storage));
       database.reset(new DatabaseFiller(model));
-      output.reset(new OutputManager(property, model, *storage, *database, *analyzer, *split_manager, *searcher, *robustness));
+      output.reset(new OutputManager(property, model, *storage, *database, *split_manager, *searcher, *robustness));
 
       total_colors = 0ul;
       global_BFS_bound = user_options.bound_size;
-      results.setResults(vector<size_t>(ParamsetHelper::getSetSize(), INF), ParamsetHelper::getNone());
+      results.setResults(INF, false);
    }
 
    /**
     * @brief checkDepthBound see if there is not a new BFS depth bound
     */
    void checkDepthBound() {
-      const size_t min_depth = results.getMinDepth();
-      if (min_depth < global_BFS_bound) {
+      const size_t cur_cost = results.getCost();
+      if (cur_cost < global_BFS_bound) {
          output_streamer.clear_line(verbose_str);
-         if (min_depth != results.getMaxDepth() || global_BFS_bound != INF) {
+         if (cur_cost != results.getCost() || global_BFS_bound != INF) {
             split_manager->setStartPositions();
             output->eraseData();
-            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(min_depth));
+            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(cur_cost));
             total_colors = 0;
          } else { // You may not have to restart if the bound was found this round and everyone has it.
-            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(min_depth));
+            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(cur_cost));
          }
-         global_BFS_bound = min_depth;
+         global_BFS_bound = cur_cost;
       }
    }
 
@@ -152,8 +145,6 @@ public:
 	void doPreparation() {
 		// Output round number
 		output->outputRoundNum();
-		// Pass information about round (necessary for setup)
-		analyzer->strartNewRound(split_manager->getRoundRange());
 	}
 
    /**
@@ -161,9 +152,9 @@ public:
     */
    void doAnalysis() {
       // Compute witnesses etc. if there is anything to computed, if so, print
-      if (analyzer->getMask()) {
-         searcher->findWitnesses(split_manager->getRoundRange(), results);
-         robustness->compute(split_manager->getRoundRange(), results, searcher->getTransitions());
+      if (results.isAccepting()) {
+         searcher->findWitnesses(split_manager->getParamNo(), results);
+         robustness->compute(split_manager->getParamNo(), results, searcher->getTransitions());
       }
    }
 
@@ -171,7 +162,7 @@ public:
     * Store results that have not been stored yet and finalize the round where needed.
     */
    void doOutput() {
-      if (analyzer->getMask())
+      if (results.isAccepting())
          // Output what has been synthetized (colors, witnesses)
          output->outputRound(results);
    }
@@ -189,12 +180,10 @@ public:
             checkDepthBound();
          doPreparation();
          colorProduct(user_options.bounded_check, true);
-         for (const Coloring & final : storage->getColorings(product.getFinalStates()))
-            analyzer->storeResults(final);
          if (user_options.analysis())
             doAnalysis();
          doOutput();
-         total_colors += ParamsetHelper::count(analyzer->getMask());
+         total_colors += results.isAccepting();
       } while (split_manager->increaseRound());
 
       output->outputSummary(total_colors);
@@ -213,17 +202,14 @@ public:
             checkDepthBound();
          doPreparation();
          colorProduct(user_options.bounded_check, false);
-         vector<Coloring> finals = storage->getColorings(product.getFinalStates());
-         for (const Coloring & final : finals) {
-            if (ParamsetHelper::hasNone(final.second))
-               continue;
+         vector<StateID> finals = storage->getFound(product.getFinalStates());
+         for (const StateID & final : finals) {
             colorAccepting(final);
-            detectCycle(Coloring(final.first, storage->getColor(final.first)));
-            analyzer->storeResults(Coloring(final.first, storage->getColor(final.first)));
+            detectCycle(final);
          }
 
          doOutput();
-         total_colors += ParamsetHelper::count(analyzer->getMask());
+         total_colors += results.isAccepting();
       } while (split_manager->increaseRound());
 
       output->outputSummary(total_colors);

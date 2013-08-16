@@ -11,8 +11,6 @@
 
 #include "../auxiliary/user_options.hpp"
 #include "../auxiliary/output_streamer.hpp"
-#include "../auxiliary/paramset_helper.hpp"
-#include "../parsing/bitmask_manager.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class responsible for division of a parametrization space between rounds within a process.
@@ -26,7 +24,7 @@ class SplitManager {
    size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
    RoundNum rounds_count; ///< Number of rounds totally.
    RoundNum round_number; ///< Number of this round (starting from 0).
-   ParamNum round_begin; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
+   ParamNum param_no; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
    ParamNum round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
 
 	/**
@@ -34,30 +32,18 @@ class SplitManager {
 	 */
 	void computeSubspace() {
 		// Number of full rounds for all processes
-      rounds_count = all_colors_count / (user_options.processes_count * ParamsetHelper::getSetSize());
-      ParamNum rest_bits = all_colors_count % (user_options.processes_count * ParamsetHelper::getSetSize());
-      last_round_bits = ParamsetHelper::getSetSize();
+      rounds_count = all_colors_count / user_options.processes_count;
+      ParamNum rest_bits = all_colors_count % user_options.processes_count;
 
 		// If there is some leftover, add a round
-      if (ceil(static_cast<double>(rest_bits) / static_cast<double>(ParamsetHelper::getSetSize())) >= user_options.process_number) {
+      if (rest_bits >= user_options.process_number)
 			rounds_count++;
-			// Pad last round
-         if ((rest_bits / ParamsetHelper::getSetSize()) == (user_options.process_number - 1))
-            last_round_bits = rest_bits % ParamsetHelper::getSetSize();
-		}
 		
 		// Get colors num for this process
-      process_color_count = (rounds_count - 1) * ParamsetHelper::getSetSize() + last_round_bits;
+      process_color_count = rounds_count - 1;
 
 		// Set positions for the round
 		setStartPositions();
-		// Compute number of full rounds
-
-		// Check if it fits together with number from mask
-      if (user_options.use_in_mask)
-         if (bitmask_manager.getColors().size() != rounds_count)
-            throw runtime_error("The number of rounds computed from the bitmask: " + toString(bitmask_manager.getColors().size()) +
-                                " it not equal to the round number computed from the model: " + toString(rounds_count));
 	}
 
 public:
@@ -78,22 +64,19 @@ public:
 	 * Set values for the first round of computation.
 	 */
 	void setStartPositions() {
-      round_begin = (user_options.process_number - 1) * ParamsetHelper::getSetSize();
-      round_end = round_begin + ParamsetHelper::getSetSize();
+      param_no = user_options.process_number - 1;
       round_number = 1;
 	}
 
 	/**
 	 * Increase parameter positions so a new round can be computed.
-    *
     * @return  true if the increase is possible
 	 */
    bool increaseRound() {
       if (++round_number > rounds_count)
          return false;
 
-      round_begin += (ParamsetHelper::getSetSize() * user_options.processes_count);
-      round_end = round_begin + ParamsetHelper::getSetSize();
+      param_no += user_options.processes_count;
       return true;
 	}
 	
@@ -107,15 +90,8 @@ public:
 	/**
 	 * @return	range with first and one before last parameter to compute this round
 	 */ 
-	inline const Range getRoundRange() const {
-		return Range(round_begin, round_end);
-	}
-
-	/**
-	 * @return	number of bits in current round
-	 */
-	inline ParamNum getRoundSize() const {
-		return round_end - round_begin;
+   inline ParamNum getParamNo() const {
+      return param_no;
 	}
 
 	/**
@@ -144,16 +120,6 @@ public:
 	 */ 
 	inline RoundNum getRoundCount() const {
 		return rounds_count;
-	}
-
-	/**
-    * @return all the parameters of the current round - for the last round, finish has to be cropped
-	 */
-	inline Paramset createStartingParameters() const {
-		if (!lastRound())
-         return ParamsetHelper::getAll();
-		else
-         return (ParamsetHelper::getAll() >> (ParamsetHelper::getSetSize() - last_round_bits)) << (ParamsetHelper::getSetSize() - last_round_bits);
 	}
 };
 
