@@ -13,15 +13,19 @@
 #include "PunyHeaders/common_functions.hpp"
 #include "basic_structure.hpp"
 
-/// Storing a single transition to neighbour state together with its transition function.
-struct ParTransitionion : public TransitionProperty {
-	ParamNo step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
+struct TransConst {
+   ParamNo step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
    Direction req_op; ///<
    ActLevel req_comp; ///<
    const Levels & targets; ///<
+};
+
+/// Storing a single transition to neighbour state together with its transition function.
+struct ParTransitionion : public TransitionProperty {
+   TransConst trans_const;
 
    ParTransitionion(const StateID target_ID, const ParamNo _step_size, const Direction _req_op, const ActLevel _req_comp, const Levels & _targets)
-      : TransitionProperty(target_ID), step_size(_step_size), req_op(_req_op), req_comp(_req_comp), targets(_targets) {}
+      : TransitionProperty(target_ID), trans_const({_step_size, _req_op, _req_comp, _targets}) {}
 };
 
 /// Simple state enriched with transition functions
@@ -71,7 +75,7 @@ public:
     * @return
     */
 	inline ParamNo getStepSize(const StateID ID, const size_t transtion_num) const {
-		return states[ID].transitions[transtion_num].step_size;
+      return states[ID].transitions[transtion_num].trans_const.step_size;
 	}
 
    /**

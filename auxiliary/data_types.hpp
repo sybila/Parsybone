@@ -103,8 +103,6 @@ typedef vector<Levels> Configurations;
 /// What properties may be examined.
 enum PropType { LTL, TimeSeries };
 
-enum Comparison { Lower, Equal, Greater };
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // COMPUTATION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,13 +110,10 @@ enum Comparison { Lower, Equal, Greater };
 typedef unsigned long long ParamNo;
 
 /// Index of the color - may be a big number as well.
-typedef unsigned long long RoundNum;
+typedef unsigned long long RoundNo;
 
 /// IDs of predecessors of a state.
 typedef vector<StateID> Neighbours;
-
-/// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not.
-typedef pair<ParamNo, ParamNo> Range;
 
 /// this value represents infinite value - used for showing that a variable is unset
 const size_t INF = ~0u;

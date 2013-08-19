@@ -22,8 +22,8 @@ class SplitManager {
     ParamNo all_colors_count; ///< All the parameters.
     ParamNo process_color_count; ///< All the parameters.
     size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
-    RoundNum rounds_count; ///< Number of rounds totally.
-    RoundNum round_number; ///< Number of this round (starting from 0).
+    RoundNo rounds_count; ///< Number of rounds totally.
+    RoundNo round_number; ///< Number of this round (starting from 0).
     ParamNo param_no; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
     ParamNo round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
 
@@ -111,14 +111,14 @@ public:
     /**
      * @return	number of this round
      */
-    inline RoundNum getRoundNum() const {
+    inline RoundNo getRoundNum() const {
         return round_number;
     }
 
     /**
      * @return	total number of rounds
      */
-    inline RoundNum getRoundCount() const {
+    inline RoundNo getRoundCount() const {
         return rounds_count;
     }
 };

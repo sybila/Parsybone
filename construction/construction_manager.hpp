@@ -53,15 +53,15 @@ namespace ConstructionManager {
       // Create the UKS
       UnparametrizedStructureBuilder unparametrized_structure_builder(model, basic_structure);
       UnparametrizedStructure unparametrized_structure = unparametrized_structure_builder.buildStructure();
-      basic_structure = BasicStructure();
+      basic_structure = BasicStructure(); // Free the memory.
 
       // Create the Buchi automaton
       AutomatonBuilder automaton_builder(model, property);
       AutomatonStructure automaton = automaton_builder.buildAutomaton();
 
       // Create the product
-      ProductBuilder product_builder(unparametrized_structure, automaton);
-      ProductStructure product = product_builder.buildProduct();
+      ProductBuilder product_builder;
+      ProductStructure product = product_builder.buildProduct(move(unparametrized_structure), move(automaton));
       return product;
    }
 }

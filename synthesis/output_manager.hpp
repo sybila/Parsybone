@@ -31,9 +31,6 @@ class OutputManager {
 public:
    NO_COPY(OutputManager)
 
-   /**
-    * Simple constructor that only passes the references.
-    */
    OutputManager(const PropertyAutomaton & _property, const Model & _model, const ColorStorage & _storage, DatabaseFiller & _database,
                  const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
       : property(_property), model(_model), storage(_storage), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}

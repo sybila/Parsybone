@@ -16,8 +16,8 @@
 
 /// Stores an unlabelled transition to next state.
 struct BasTransition : public TransitionProperty {
-   size_t changed_specie; ///< ID of specie that differs between this and neighbour.
-   Direction change_direction; ///< Way the specie's value is changed.
+   const size_t changed_specie; ///< ID of specie that differs between this and neighbour.
+   const Direction change_direction; ///< Way the specie's value is changed.
 
    BasTransition(const StateID target_ID, const size_t _changed_specie, const Direction _change_direction)
       : TransitionProperty(target_ID), changed_specie(_changed_specie), change_direction(_change_direction) { } ///< Simple filler, assigns values to all the variables.
@@ -25,7 +25,7 @@ struct BasTransition : public TransitionProperty {
 
 /// Storing a single state - its activation levels of each of the species and IDs of states that are neighbours (differ only in single step of single value).
 struct BasState : public StateProperty<BasTransition> {
-   Levels species_level; ///< Species_level[i] = activation level of specie i.
+   const Levels species_level; ///< Species_level[i] = activation level of specie i.
 
    BasState(const StateID ID, const Levels _species_level)
       : StateProperty<BasTransition>(ID), species_level(_species_level) { }  ///< Simple filler, assigns values to all the variables.

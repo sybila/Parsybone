@@ -19,7 +19,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct TransitionProperty {
    /// Unique ID of the state.
-   StateID target_ID;
+   const StateID target_ID;
 
    /**
     * Basic constructor fills in the ID.
@@ -33,7 +33,7 @@ struct TransitionProperty {
 template <typename Transition>
 struct StateProperty {
    /// Unique ID of the state.
-   StateID ID;
+   const StateID ID;
    /// Graph or automaton transitions, basically it is an edge with a label.
    vector<Transition> transitions;
 
