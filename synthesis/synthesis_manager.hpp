@@ -37,10 +37,6 @@ class SynthesisManager {
    const Model & model;
    const PropertyAutomaton & property;
 
-   ParamNo total_colors;
-   size_t global_BFS_bound;
-   SynthesisResults results;
-
    CheckerSettings createRoundSetting() {
       CheckerSettings settings(product);
       settings.bfs_bound = global_BFS_bound;
@@ -101,6 +97,9 @@ public:
 	unique_ptr<ColorStorage> storage; ///< Class that holds.
 	unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
 	unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness.
+   ParamNo total_colors;
+   size_t global_BFS_bound;
+   SynthesisResults results;
 
    /**
     * Constructor builds all the data objects that are used within.

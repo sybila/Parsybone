@@ -20,17 +20,17 @@ TEST_F(SynthesisTest, TestGeneral) {
    user_options.compute_wintess = false;
 
    c_2_s_2_o_man->checkGeneral();
-   EXPECT_EQ(1, ParamsetHelper::count(c_2_s_2_o_man->analyzer->getMask()));
+   EXPECT_TRUE(c_2_s_2_o_man->results.isAccepting());
 
    b_k_c_man->checkGeneral();
-   EXPECT_LE(1, ParamsetHelper::count(b_k_c_man->analyzer->getMask()));
+   EXPECT_TRUE(b_k_c_man->results.isAccepting());
 }
 
 TEST_F(SynthesisTest, TestRobustness) {
    user_options.compute_robustness = true;
    user_options.compute_wintess = true;
    c_2_s_2_o_man->checkFinite();
-   EXPECT_EQ(1, ParamsetHelper::count(c_2_s_2_o_man->analyzer->getMask()));
+   EXPECT_TRUE(c_2_s_2_o_man->results.isAccepting());
 }
 
 #endif // SYNTHESIS_TESTS_HPP
