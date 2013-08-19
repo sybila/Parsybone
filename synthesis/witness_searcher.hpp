@@ -22,19 +22,16 @@
 class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties.
    const ColorStorage & storage; ///< Constant storage with the actuall data.
-   ParamNum param_no; ///<
+   ParamNum param_no; ///< Number of the parametrization for which the path is being searched.
 
-   set<pair<StateID, StateID> >  transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
-   string string_path; ///< This vector stores paths for every parametrization (even those that are not acceptable, having an empty string).
+   vector<pair<StateID, StateID> >  transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
 
    vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position.
-   size_t depth; ///< Current level of the DFS.
    size_t max_depth; ///< Maximal level of recursion that is possible (maximal Cost in this round).
-   size_t last_branch; ///< TODO
 
    /// This structure stores "already tested" paramsets for a state.
    struct Marking {
-      size_t succeeded;
+      size_t succeeded; ///< Mask of the parametrizations that are
       size_t busted; ///< Mask of the parametrizations that are guaranteed to not find a path in (Cost - depth) steps.
    };
    vector<Marking> markings; ///< Actuall marking of the states.
@@ -43,54 +40,48 @@ class WitnessSearcher {
     * Storest transitions in the form (source, target) within the transitions vector, for the path from the final vertex to the one in the current depth of the DFS procedure.
     * @param which   mask of the parametrizations that allow currently found path
     */
-   void storeTransitions(const size_t depth) {
+   void storeTransitions(const size_t depth, size_t & last_branch) {
       // Go from the end till the lastly reached node
-      for (size_t step = 0; step < depth; step++) {
-         transitions.insert(make_pair(path[step], path[step+1]));
+      for (size_t step = last_branch; step < depth; step++) {
+         transitions.push_back(make_pair(path[step], path[step+1]));
          markings[path[step]].succeeded = step; // Mark found for given parametrizations
       }
       markings[path[depth]].succeeded = depth;
+      last_branch = depth;
    }
 
    /**
     * Searching procedure itself. This method is called recursivelly based on the depth of the search and passes current parametrizations based on the predecessors.
     * @param ID   ID of the state visited
-    * @param paramset   parametrizations passed form the successor
     */
-   void DFS(const StateID ID) {
-      if (markings[ID].busted <= depth)
-         return;
-      markings[ID].busted = depth;
+   size_t DFS(const StateID ID, const size_t depth, size_t last_branch) {
+      if (markings[ID].busted <= depth && markings[ID].succeeded <= depth)
+         return last_branch;
 
       path[depth] = ID;
       if (product.isFinal(ID))
-         storeTransitions(depth);
-      else if (markings[ID].succeeded <= depth)
-         storeTransitions(depth);
-      else if (depth > max_depth) {
-         return;
-      } else {
-         depth++;
+         storeTransitions(depth, last_branch);
+      else if (markings[ID].succeeded > depth)
+         storeTransitions(depth, last_branch);
+      else if (depth < max_depth){
          const vector<StateID> succs = ColoringFunc::broadcastParameters(param_no, product, ID); // Get predecessors
-         for (const StateID & succ: succs)
-            DFS(succ); // Recursive descent with parametrizations passed from the predecessor.
-         depth--;
+         for (const StateID & succ: succs) {
+            last_branch = min(DFS(succ, depth + 1, last_branch), depth); // Recursive descent with parametrizations passed from the predecessor.
+         }
       }
+      return last_branch;
    }
 
    /**
     * Clear the data objects used during the computation that may contain some data from the previous round.
     */
    void clearStorage(const SynthesisResults & results) {
-      string_path = "";
-
-      depth = 0;
       max_depth = results.getCost();
-      path.assign(results.getCost() + 1, INF);
+      path = vector<StateID>(results.getCost() + 1, INF);
       transitions.clear();
 
       for (auto & marking:markings) {
-         marking.succeeded = INF;
+         marking.succeeded = 0;
          marking.busted = INF;
       }
    }
@@ -101,7 +92,7 @@ public:
     */
    WitnessSearcher(const ProductStructure & _product, const ColorStorage & _storage)
       : product(_product), storage(_storage) {
-      Marking empty = {INF, INF};
+      Marking empty = {0u, INF};
       markings.resize(product.getStateCount(), empty);
    }
 
@@ -116,10 +107,9 @@ public:
 
       // Search paths from all the final states
       auto inits = product.getInitialStates();
-      for (const auto & init : inits) {
+      for (const auto & init : inits)
          if (storage.getColor(init))
-            DFS(init);
-      }
+            DFS(init, 0u, 0u);
    }
 
    /**
@@ -139,7 +129,7 @@ public:
                acceptable_paths.append(product.getString(trans.first)).append(">").append(product.getString(trans.second)).append(",");
             }
          }
-         acceptable_paths[acceptable_paths.length() - 1] = '}';
+         acceptable_paths.back() = '}';
       }
       return acceptable_paths;
    }
@@ -147,7 +137,7 @@ public:
    /**
     * @return  transitions for each parametrizations in the form (source, target)
     */
-   const set<pair<StateID, StateID> > & getTransitions() const {
+   const vector<pair<StateID, StateID> > & getTransitions() const {
       return transitions;
    }
 };

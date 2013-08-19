@@ -95,11 +95,11 @@ public:
    const string getString(const StateID ID) const {
       string label = "(";
 
-      for (const ActLevel lev : states[getKSID(ID)].levels)
+      for (const ActLevel lev : states[ID].levels)
          label += toString(lev) + ",";
 
       label[label.length() - 1] = ';';
-      label += getBAID(ID) + ")";
+      label += toString(getBAID(ID)) + ")";
 
       return label;
    }

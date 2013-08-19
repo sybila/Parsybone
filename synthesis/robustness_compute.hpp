@@ -112,7 +112,7 @@ public:
    /**
     * Function that computes robustness values for each parametrization.
     */
-   void compute(const ParamNum _param_no, const SynthesisResults & results, const set<pair<StateID,StateID> > & transitions) {
+   void compute(const ParamNum _param_no, const SynthesisResults & results, const vector<pair<StateID,StateID> > & transitions) {
 //      round_range = _round_range;
 //      clear();
 //      computeExits(results);
