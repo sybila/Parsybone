@@ -22,9 +22,9 @@
 class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties.
    const ColorStorage & storage; ///< Constant storage with the actuall data.
-   ParamNum param_no; ///< Number of the parametrization for which the path is being searched.
+   ParamNo param_no; ///< Number of the parametrization for which the path is being searched.
 
-   vector<pair<StateID, StateID> >  transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
+   vector<Transition>  transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
 
    vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position.
    size_t max_depth; ///< Maximal level of recursion that is possible (maximal Cost in this round).
@@ -43,10 +43,9 @@ class WitnessSearcher {
    void storeTransitions(const size_t depth, size_t & last_branch) {
       // Go from the end till the lastly reached node
       for (size_t step = last_branch; step < depth; step++) {
-         transitions.push_back(make_pair(path[step], path[step+1]));
+         transitions.push_back(Transition(path[step], path[step+1]));
          markings[path[step]].succeeded = step; // Mark found for given parametrizations
       }
-      markings[path[depth]].succeeded = depth;
       last_branch = depth;
    }
 
@@ -55,14 +54,17 @@ class WitnessSearcher {
     * @param ID   ID of the state visited
     */
    size_t DFS(const StateID ID, const size_t depth, size_t last_branch) {
+      // If this path is no use
       if (markings[ID].busted <= depth && markings[ID].succeeded <= depth)
          return last_branch;
 
+      // Store if the state is final or part of an other path.
       path[depth] = ID;
       if (product.isFinal(ID))
          storeTransitions(depth, last_branch);
       else if (markings[ID].succeeded > depth)
          storeTransitions(depth, last_branch);
+      // Continue with the DFS otherwise.
       else if (depth < max_depth){
          const vector<StateID> succs = ColoringFunc::broadcastParameters(param_no, product, ID); // Get predecessors
          for (const StateID & succ: succs) {
@@ -72,38 +74,25 @@ class WitnessSearcher {
       return last_branch;
    }
 
-   /**
-    * Clear the data objects used during the computation that may contain some data from the previous round.
-    */
-   void clearStorage(const SynthesisResults & results) {
-      max_depth = results.getCost();
-      path = vector<StateID>(results.getCost() + 1, INF);
-      transitions.clear();
-
-      for (auto & marking:markings) {
-         marking.succeeded = 0;
-         marking.busted = INF;
-      }
-   }
-
 public:
    /**
     * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
    WitnessSearcher(const ProductStructure & _product, const ColorStorage & _storage)
       : product(_product), storage(_storage) {
-      Marking empty = {0u, INF};
-      markings.resize(product.getStateCount(), empty);
+      markings.resize(product.getStateCount());
    }
 
    /**
     * Function that executes the whole searching process
     */
-   void findWitnesses(const ParamNum _param_no, const SynthesisResults & results) {
-      param_no = _param_no;
-
+   void findWitnesses(const ParamNo _param_no, const SynthesisResults & results) {
       // Preparation
-      clearStorage(results);
+      param_no = _param_no;
+      transitions.clear();
+      path = vector<StateID>(results.getCost() + 1, INF); // Currently needs one more space for the transition to a final state after the last measurement.
+      markings.assign(markings.size(), {0u, INF});
+      max_depth = results.getCost();
 
       // Search paths from all the final states
       auto inits = product.getInitialStates();
@@ -122,7 +111,7 @@ public:
       if (!transitions.empty()) { // Test for emptyness of the set of transitions
          acceptable_paths = "{";
          // Reformes based on the user request
-         for (const pair<StateID,StateID> & trans:transitions){
+         for (const Transition & trans:transitions){
             if (!user_options.use_long_witnesses) {
                acceptable_paths.append(toString(trans.first)).append(">").append(toString(trans.second)).append(",");
             } else {
@@ -137,7 +126,7 @@ public:
    /**
     * @return  transitions for each parametrizations in the form (source, target)
     */
-   const vector<pair<StateID, StateID> > & getTransitions() const {
+   const vector<Transition> & getTransitions() const {
       return transitions;
    }
 };

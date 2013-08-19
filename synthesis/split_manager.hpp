@@ -19,13 +19,13 @@
 /// All data in this class are basic type variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SplitManager {
-    ParamNum all_colors_count; ///< All the parameters.
-    ParamNum process_color_count; ///< All the parameters.
+    ParamNo all_colors_count; ///< All the parameters.
+    ParamNo process_color_count; ///< All the parameters.
     size_t last_round_bits; ///< Number of bits for the absolutelly last round of this process.
     RoundNum rounds_count; ///< Number of rounds totally.
     RoundNum round_number; ///< Number of this round (starting from 0).
-    ParamNum param_no; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
-    ParamNum round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
+    ParamNo param_no; ///< Position to start a synthesis for this round (absolute position w.r.t. all the parameters).
+    ParamNo round_end; ///< Position one behind the last parameter for this round (absolute position w.r.t. all the parameters).
 
     /**
      * This function computes index of the first parameter, size of a single round, number of rounds and other auxiliary data members used for splitting.
@@ -33,7 +33,7 @@ class SplitManager {
     void computeSubspace() {
         // Number of full rounds for all processes
         rounds_count = all_colors_count / user_options.processes_count;
-        ParamNum rest_bits = all_colors_count % user_options.processes_count;
+        ParamNo rest_bits = all_colors_count % user_options.processes_count;
 
         // If there is some leftover, add a round
         if (rest_bits >= user_options.process_number)
@@ -54,7 +54,7 @@ public:
      * @param _process_number	index of this process
      * @param _parameters_count	complete number of parameters that have to be tested by all the processes
      */
-    SplitManager(ParamNum _all_colors_count) {
+    SplitManager(ParamNo _all_colors_count) {
         all_colors_count = _all_colors_count;
         // Compute the rest
         computeSubspace();
@@ -83,21 +83,21 @@ public:
     /**
      * @return	total number of parameters for all the processes
      */
-    inline ParamNum getAllColorsCount() const {
+    inline ParamNo getAllColorsCount() const {
         return all_colors_count;
     }
 
     /**
      * @return	range with first and one before last parameter to compute this round
      */
-    inline ParamNum getParamNo() const {
+    inline ParamNo getParamNo() const {
         return param_no;
     }
 
     /**
      * @return	range with first and one before last parameter to compute for this process
      */
-    inline ParamNum getProcColorsCount() const {
+    inline ParamNo getProcColorsCount() const {
         return process_color_count;
     }
 

@@ -40,8 +40,8 @@ public:
    /**
     * @brief getPossibleCount compute the number of possible colors
     */
-   static ParamNum getPossibleCount(const Model::Parameters & params) {
-      ParamNum colors_num = 1;
+   static ParamNo getPossibleCount(const Model::Parameters & params) {
+      ParamNo colors_num = 1;
       for (auto param:params)
          colors_num *= param.targets.size();
       return colors_num;

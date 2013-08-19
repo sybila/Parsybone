@@ -10,7 +10,7 @@ namespace ColoringFunc {
     * @param step_size	how many parameters share the same value for given function
     * @param transitive_values	mask of all values from which those that have false are non-transitive
     */
-   bool passParameters(const ParamNum param_no, const size_t step_size, const vector<ActLevel> & targets, const Direction comp, const ActLevel val) {
+   bool passParameters(const ParamNo param_no, const size_t step_size, const vector<ActLevel> & targets, const Direction comp, const ActLevel val) {
       const size_t value_num = (param_no / step_size) % targets.size();
 
       switch (comp) {
@@ -21,6 +21,9 @@ namespace ColoringFunc {
       case down_dir:
          return targets[value_num] < val;
       }
+
+      // Should never be reached.
+      return false;
    }
 
    /**
@@ -29,7 +32,7 @@ namespace ColoringFunc {
     * @param parameters	parameters that will be distributed
     * @return vector of passed parameters together with their targets
     */
-   vector<StateID> broadcastParameters(const ParamNum param_no,  const ProductStructure & product, const StateID ID) {
+   vector<StateID> broadcastParameters(const ParamNo param_no, const ProductStructure & product, const StateID ID) {
       // To store parameters that passed the transition but were not yet added to the target
       set<StateID> self_loop;
       vector<StateID> param_updates;

@@ -63,8 +63,8 @@ namespace ModelTranslators {
    /**
     * @brief getSpaceSize
     */
-   ParamNum getSpaceSize(const Model & model) {
-      ParamNum space_size = 1;
+   ParamNo getSpaceSize(const Model & model) {
+      ParamNo space_size = 1;
       for (const Model::ModelSpecie & spec:model.species) {
          space_size *= spec.subcolors.size();
       }
@@ -74,13 +74,13 @@ namespace ModelTranslators {
    /**
     * @brief getSpecieVals
     */
-   const vector<ParamNum> getSpecieVals(const Model & model, ParamNum number) {
+   const vector<ParamNo> getSpecieVals(const Model & model, ParamNo number) {
       // Prepare storage vector
-      vector<ParamNum> specie_vals(model.species.size());
+      vector<ParamNo> specie_vals(model.species.size());
       auto reverse_val_it = specie_vals.rbegin();
 
       // Go through colors backwards
-      ParamNum divisor = getSpaceSize(model);
+      ParamNo divisor = getSpaceSize(model);
       for (auto specie_it = model.species.rbegin(); specie_it != model.species.rend(); specie_it++, reverse_val_it++) {
          // lower divisor value
          divisor /= specie_it->subcolors.size();
@@ -96,9 +96,9 @@ namespace ModelTranslators {
    /**
     * @brief createColorString
     */
-   const string createColorString(const Model & model, ParamNum number) {
+   const string createColorString(const Model & model, ParamNo number) {
       // compute numbers of partial parametrizations for each component
-      const vector<ParamNum> color_parts = getSpecieVals(model, number);
+      const vector<ParamNo> color_parts = getSpecieVals(model, number);
 
       string color_str = "(";
       // cycle through the species

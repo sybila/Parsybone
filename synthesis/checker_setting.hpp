@@ -10,7 +10,7 @@ public:
    StateID final_state;
    bool bounded;
    bool minimal;
-   ParamNum tested;
+   ParamNo tested;
    size_t bfs_bound;
 
    CheckerSettings(const ProductStructure & _product) : product(_product), starting_state(INF), final_state(INF), bounded(false), minimal(false), tested(0ul), bfs_bound(INF) { }
@@ -36,7 +36,7 @@ public:
       copyData(other);
    }
 
-   inline const ParamNum & getTestedNum() const {
+   inline const ParamNo & getTestedNum() const {
       return tested;
    }
 

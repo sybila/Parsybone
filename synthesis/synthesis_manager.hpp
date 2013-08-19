@@ -37,7 +37,7 @@ class SynthesisManager {
    const Model & model;
    const PropertyAutomaton & property;
 
-   ParamNum total_colors;
+   ParamNo total_colors;
    size_t global_BFS_bound;
    SynthesisResults results;
 

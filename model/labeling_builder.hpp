@@ -40,7 +40,7 @@ class LabelingBuilder {
     * @param ID	ID of the specie to compute the kinetic parameters for
     * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
     */
-   static void addRegulations(Model & model, const SpecieID ID, ParamNum & step_size) {
+   static void addRegulations(Model & model, const SpecieID ID, ParamNo & step_size) {
       // get referecnces to Specie data
       vector<Model::Parameter> & params = model.species[ID].parameters;
 
@@ -71,7 +71,7 @@ public:
 	 * For each specie recreate all its regulatory functions (all possible labels)
 	 */
    static void buildLabeling(Model & model) {
-		ParamNum step_size = 1; // Variable necessary for encoding of colors
+		ParamNo step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through all the species
       for (auto ID:range(model.species.size())) {

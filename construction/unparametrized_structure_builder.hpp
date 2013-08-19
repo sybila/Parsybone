@@ -72,7 +72,7 @@ class UnparametrizedStructureBuilder {
     * @return true if there is a possibility of transition, false otherwise
     */
    void fillFunctions(const StateID state, const StateID neighbour_index, const Levels & state_levels, SpecieID & spec_ID,
-                      ParamNum & step_size, Direction & op, ActLevel & level, size_t & fun_no) {
+                      ParamNo & step_size, Direction & op, ActLevel & level, size_t & fun_no) {
       // Get ID of the regulated specie
       spec_ID = basic_structure.getSpecieID(state, neighbour_index);
 
@@ -97,7 +97,7 @@ class UnparametrizedStructureBuilder {
       for (size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(ID); trans_num++) {
          // Data to fill
          StateID target_ID = basic_structure.getTargetID(ID, trans_num); // ID of the state the transition leads to
-         ParamNum step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
+         ParamNo step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
          SpecieID spec_ID;
          Direction op;
          ActLevel lvl;

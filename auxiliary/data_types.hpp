@@ -85,6 +85,9 @@ enum Direction {up_dir, stay_dir, down_dir};
 /// ID of a graph/automaton state.
 typedef size_t StateID; 
 
+/// A single transition between two states.
+typedef pair<StateID,StateID> Transition;
+
 /// ID of a specie.
 typedef size_t SpecieID; 
 
@@ -106,7 +109,7 @@ enum Comparison { Lower, Equal, Greater };
 // COMPUTATION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Index of the color - may be a big number.
-typedef unsigned long long ParamNum;
+typedef unsigned long long ParamNo;
 
 /// Index of the color - may be a big number as well.
 typedef unsigned long long RoundNum;
@@ -115,7 +118,7 @@ typedef unsigned long long RoundNum;
 typedef vector<StateID> Neighbours;
 
 /// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not.
-typedef pair<ParamNum, ParamNum> Range;
+typedef pair<ParamNo, ParamNo> Range;
 
 /// this value represents infinite value - used for showing that a variable is unset
 const size_t INF = ~0u;

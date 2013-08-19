@@ -21,8 +21,8 @@
 /// This construction may be optimized by including the warm-start constraint satisfaction.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizationsBuilder {
-   static ParamNum color_no; ///< Just for output, the total amount of sub-colors.
-   static ParamNum color_tested; ///< Just for output, the current amount of sub-colors tested.
+   static ParamNo color_no; ///< Just for output, the total amount of sub-colors.
+   static ParamNo color_tested; ///< Just for output, the current amount of sub-colors tested.
 
    /**
     * Test specific constrain on given color - this function checks both observability and the edge constrain.
@@ -158,7 +158,7 @@ public:
       output_streamer.output(verbose_str, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
    }
 };
-ParamNum ParametrizationsBuilder::color_tested;
-ParamNum ParametrizationsBuilder::color_no;
+ParamNo ParametrizationsBuilder::color_tested;
+ParamNo ParametrizationsBuilder::color_no;
 
 #endif // PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED

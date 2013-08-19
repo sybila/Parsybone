@@ -100,7 +100,7 @@ public:
     */
    void outputRound(const SynthesisResults & results) const {
 
-      ParamNum param_no = split_manager.getParamNo();
+      ParamNo param_no = split_manager.getParamNo();
       string line = toString(param_no) + separator + ModelTranslators::createColorString(model,param_no) + separator;
       string update = ModelTranslators::createColorString(model,param_no);
       update.back() = ',';

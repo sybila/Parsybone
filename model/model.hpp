@@ -56,7 +56,7 @@ public:
       map<StateID, Levels> requirements; ///< Levels of the source species.
       Levels targets; ///< Towards which level this context may regulate.
 
-      ParamNum step_size; ///< How many neighbour parameters have the same value for this function.
+      ParamNo step_size; ///< How many neighbour parameters have the same value for this function.
       Levels possible_values; ///< Levels towards which this function regulates based on current subcolor.
    };
    typedef vector<Parameter> Parameters;
