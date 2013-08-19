@@ -37,8 +37,24 @@ class SynthesisManager {
    const Model & model;
    const PropertyAutomaton & property;
 
+   unique_ptr<DatabaseFiller> database; ///< Class to output to a SQLite database;
+   unique_ptr<ModelChecker> model_checker; ///< Class for synthesis.
+   unique_ptr<OutputManager> output; ///< Class for output.
+   unique_ptr<SplitManager> split_manager; ///< Control of independent rounds.
+   unique_ptr<ColorStorage> storage; ///< Class that holds.
+   unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
+   unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness.
+
+   ParamNo total_colors;
+   size_t global_BFS_bound;
+   SynthesisResults results;
+
+   /**
+    * @brief createRoundSetting create common settings
+    * @return
+    */
    CheckerSettings createRoundSetting() {
-      CheckerSettings settings(product);
+      CheckerSettings settings;
       settings.bfs_bound = global_BFS_bound;
       settings.tested = split_manager->getParamNo();
       return settings;
@@ -90,17 +106,6 @@ class SynthesisManager {
    }
 
 public:
-	unique_ptr<DatabaseFiller> database; ///< Class to output to a SQLite database;
-	unique_ptr<ModelChecker> model_checker; ///< Class for synthesis.
-	unique_ptr<OutputManager> output; ///< Class for output.
-	unique_ptr<SplitManager> split_manager; ///< Control of independent rounds.
-	unique_ptr<ColorStorage> storage; ///< Class that holds.
-	unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
-	unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness.
-   ParamNo total_colors;
-   size_t global_BFS_bound;
-   SynthesisResults results;
-
    /**
     * Constructor builds all the data objects that are used within.
     */
@@ -138,14 +143,6 @@ public:
       }
    }
 
-	/**
-	 * Setup everything that needs it for computation in this round.
-	 */
-	void doPreparation() {
-		// Output round number
-		output->outputRoundNum();
-	}
-
    /**
     * @brief doAnalysis Compute additional analyses.
     */
@@ -177,7 +174,7 @@ public:
       do {
          if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
-         doPreparation();
+         output->outputRoundNum();
          colorProduct(user_options.bounded_check, true);
          if (user_options.analysis())
             doAnalysis();
@@ -199,7 +196,7 @@ public:
       do {
          if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
-         doPreparation();
+         output->outputRoundNum();
          colorProduct(user_options.bounded_check, false);
          vector<StateID> finals = storage->getFound(product.getFinalStates());
          for (const StateID & final : finals) {

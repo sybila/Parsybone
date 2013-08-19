@@ -34,7 +34,7 @@ class ModelChecker {
 
    // BFS boundaries
    size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
-   bool found;
+   bool accepted; ///< True if the property was accepted.
 
    /**
     * From the source distribute its parameters and newly colored neighbours shedule for update.
@@ -64,8 +64,8 @@ class ModelChecker {
       StateID ID = *updates.begin();
 
       // Check if this is not the last round
-      if (settings.isFinal(ID))
-         found = true;
+      if (settings.isFinal(ID, product))
+         accepted = true;
 
       transferUpdates(ID);
       updates.erase(ID);
@@ -74,7 +74,7 @@ class ModelChecker {
       if (updates.empty() && (BFS_level < settings.getBound())) {
          updates = move(next_updates);
          storage.addFrom(next_round_storage);
-         if (settings.isMinimal() && found)
+         if (settings.isMinimal() && accepted)
             return;
          BFS_level++; // Increase level
       }
@@ -87,7 +87,7 @@ class ModelChecker {
       next_updates.clear(); // Ensure emptiness of the next round
       next_round_storage.reset(); // Copy starting values
       BFS_level = 0;
-      found = false;
+      accepted = false;
    }
 
    /**
@@ -97,14 +97,14 @@ class ModelChecker {
       if (settings.getCoreState() != INF) {
          transferUpdates(settings.getCoreState());
       } else {
-         updates = settings.hashInitials();
+         updates = settings.hashInitials(product);
          for (const StateID init_ID : updates)
             storage.update(init_ID);
       }
    }
 
 public:
-   ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), settings(_product), storage(_storage) {
+   ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), storage(_storage) {
       next_round_storage = storage; // Create an identical copy of the storage.
    }
 
@@ -123,7 +123,7 @@ public:
 
       // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
       SynthesisResults results;
-      results.setResults(BFS_level, found);
+      results.setResults(BFS_level, accepted);
 
       return results;
    }

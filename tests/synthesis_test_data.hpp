@@ -14,24 +14,10 @@
 
 class SynthesisTest : public StructureTest {
 protected:
-   unique_ptr<SynthesisManager> o_t_s_man;
-   unique_ptr<SynthesisManager> o_t_c_man;
-   unique_ptr<SynthesisManager> b_k_c_man;
-   unique_ptr<SynthesisManager> b_k_t_man;
-   unique_ptr<SynthesisManager> t_man;
-   unique_ptr<SynthesisManager> c_2_s_2_o_man;
-   unique_ptr<SynthesisManager> c_2_c_man;
 
    void SetUp() override {
       StructureTest::SetUp();
 
-      o_t_s_man.reset(new SynthesisManager(o_t_cyclic, one_three, A_cyclic_prop));
-      o_t_c_man.reset(new SynthesisManager(o_t_series, one_three, o_t_series_prop));
-      b_k_c_man.reset(new SynthesisManager(b_k_2_cyclic, bool_k_2, A_cyclic_prop));
-      b_k_t_man.reset(new SynthesisManager(b_k_2_trivial, bool_k_2, trivial_prop));
-      t_man.reset(new SynthesisManager(trivial, trivial_model, trivial_prop));
-      c_2_s_2_o_man.reset(new SynthesisManager(c_2_set_two_ones, circuit_2, set_two_ones_prop));
-      c_2_c_man.reset(new SynthesisManager(c_2_cyclic, circuit_2, A_cyclic_prop));
    }
 };
 

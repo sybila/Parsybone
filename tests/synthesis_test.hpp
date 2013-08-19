@@ -12,25 +12,13 @@
 #include "synthesis_test_data.hpp"
 
 TEST_F(SynthesisTest, TestColoring) {
-
-}
-
-TEST_F(SynthesisTest, TestGeneral) {
-   user_options.compute_robustness = false;
-   user_options.compute_wintess = false;
-
-   c_2_s_2_o_man->checkGeneral();
-   EXPECT_TRUE(c_2_s_2_o_man->results.isAccepting());
-
-   b_k_c_man->checkGeneral();
-   EXPECT_TRUE(b_k_c_man->results.isAccepting());
+   ColorStorage c_2_s_2_o_stor(c_2_set_two_ones);
+   ModelChecker c_2_s_2_o_check(c_2_set_two_ones, c_2_s_2_o_stor);
+   EXPECT_TRUE(c_2_s_2_o_check.conductCheck(CheckerSettings()).isAccepting());
 }
 
 TEST_F(SynthesisTest, TestRobustness) {
-   user_options.compute_robustness = true;
-   user_options.compute_wintess = true;
-   c_2_s_2_o_man->checkFinite();
-   EXPECT_TRUE(c_2_s_2_o_man->results.isAccepting());
+
 }
 
 #endif // SYNTHESIS_TESTS_HPP
