@@ -49,7 +49,7 @@ namespace ColoringFunc {
          if (passed) {
             if (loop && KS_state == product.getKSID(target_ID) ) {
                self_loop.insert(target_ID);
-            } else  {
+            } else if (KS_state != product.getKSID(target_ID)) {
                param_updates.push_back(target_ID);
                loop = false;
             }

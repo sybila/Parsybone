@@ -63,13 +63,15 @@ class WitnessSearcher {
       markings[ID].busted = depth;
 
       path[depth] = ID;
-      assert(depth <= max_depth);
-
-      if (markings[ID].succeeded <= depth)
+      if (product.isFinal(ID))
          storeTransitions(depth);
-      else {
+      else if (markings[ID].succeeded <= depth)
+         storeTransitions(depth);
+      else if (depth > max_depth) {
+         return;
+      } else {
          depth++;
-         const vector<StateID> & succs = ColoringFunc::broadcastParameters(param_no, product, ID); // Get predecessors
+         const vector<StateID> succs = ColoringFunc::broadcastParameters(param_no, product, ID); // Get predecessors
          for (const StateID & succ: succs)
             DFS(succ); // Recursive descent with parametrizations passed from the predecessor.
          depth--;
@@ -82,7 +84,9 @@ class WitnessSearcher {
    void clearStorage(const SynthesisResults & results) {
       string_path = "";
 
-      path = vector<StateID>(results.getCost(), 0);
+      depth = 0;
+      max_depth = results.getCost();
+      path.assign(results.getCost() + 1, INF);
       transitions.clear();
 
       for (auto & marking:markings) {
@@ -97,9 +101,8 @@ public:
     */
    WitnessSearcher(const ProductStructure & _product, const ColorStorage & _storage)
       : product(_product), storage(_storage) {
-      //      Marking empty = {0, vector<size_t>(ParamsetHelper::getSetSize(), INF)};
-      //      markings.resize(product.getStateCount(), empty);
-      //      string_paths.resize(ParamsetHelper::getSetSize(), "");
+      Marking empty = {INF, INF};
+      markings.resize(product.getStateCount(), empty);
    }
 
    /**
@@ -124,28 +127,21 @@ public:
     * @return  strings with all transitions for each acceptable parametrization
     */
    const string getOutput() const {
-      //      vector<string> acceptable_paths; // Vector fo actuall data
-      //      // Cycle throught the parametrizations
-      //      for (auto param_it = transitions.begin(); param_it != transitions.end(); param_it++) {
-      //         if (!param_it->empty()) { // Test for emptyness of the set of transitions
-      //            string path = "{";
-      //            // Reformes based on the user request
-      //            for (auto trans_it = param_it->begin(); trans_it != param_it->end(); trans_it++){
-      //               if (!user_options.use_long_witnesses)
-      //                  path.append(toString(trans_it->first)).append(">").append(toString(trans_it->second)).append(",");
-      //               else
-      //                  path.append(product.getString(trans_it->first)).append(">").append(product.getString(trans_it->second)).append(",");
-      //            }
-      //            if (path.length() == 1)
-      //               path.append("}");
-      //            else
-      //               path[path.length() - 1] = '}';
-      //            // Add the string
-      //            acceptable_paths.push_back(move(path));
-      //         }
-      //      }
-      //      return acceptable_paths.front();
-      return "no_path";
+      string acceptable_paths; // Vector fo actuall data
+      // Cycle throught the parametrizations
+      if (!transitions.empty()) { // Test for emptyness of the set of transitions
+         acceptable_paths = "{";
+         // Reformes based on the user request
+         for (const pair<StateID,StateID> & trans:transitions){
+            if (!user_options.use_long_witnesses) {
+               acceptable_paths.append(toString(trans.first)).append(">").append(toString(trans.second)).append(",");
+            } else {
+               acceptable_paths.append(product.getString(trans.first)).append(">").append(product.getString(trans.second)).append(",");
+            }
+         }
+         acceptable_paths[acceptable_paths.length() - 1] = '}';
+      }
+      return acceptable_paths;
    }
 
    /**
