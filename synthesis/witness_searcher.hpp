@@ -24,7 +24,7 @@ class WitnessSearcher {
    const ColorStorage & storage; ///< Constant storage with the actuall data.
    ParamNo param_no; ///< Number of the parametrization for which the path is being searched.
 
-   vector<Transition>  transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
+   vector<StateTransition>  transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
 
    vector<StateID> path; ///< Current path of the DFS with the final vertex on 0 position.
    size_t max_depth; ///< Maximal level of recursion that is possible (maximal Cost in this round).
@@ -43,7 +43,7 @@ class WitnessSearcher {
    void storeTransitions(const size_t depth, size_t & last_branch) {
       // Go from the end till the lastly reached node
       for (size_t step = last_branch; step < depth; step++) {
-         transitions.push_back(Transition(path[step], path[step+1]));
+         transitions.push_back(StateTransition(path[step], path[step+1]));
          markings[path[step]].succeeded = step; // Mark found for given parametrizations
       }
       last_branch = depth;
@@ -111,7 +111,7 @@ public:
       if (!transitions.empty()) { // Test for emptyness of the set of transitions
          acceptable_paths = "{";
          // Reformes based on the user request
-         for (const Transition & trans:transitions){
+         for (const StateTransition & trans:transitions){
             if (!user_options.use_long_witnesses) {
                acceptable_paths.append(toString(trans.first)).append(">").append(toString(trans.second)).append(",");
             } else {
@@ -126,7 +126,7 @@ public:
    /**
     * @return  transitions for each parametrizations in the form (source, target)
     */
-   const vector<Transition> & getTransitions() const {
+   const vector<StateTransition> & getTransitions() const {
       return transitions;
    }
 };

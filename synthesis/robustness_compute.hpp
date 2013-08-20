@@ -31,10 +31,11 @@ class RobustnessCompute {
    /**
     * For each state compute how many exists are under each parametrization.
     */
-   void computeExits(const vector<Transition> & transitions) {
+   void computeExits(const vector<StateTransition> & transitions) {
       // If not acceptable, leave zero
-      for (const Transition & tran : transitions) {
-         auto succs = ColoringFunc::broadcastParameters(param_no, product, tran.first);
+      for (const StateTransition & tran : transitions) {
+         const vector<StateID> transports = ColoringFunc::broadcastParameters(param_no, product, tran.first);
+         const vector<StateID> & succs = transports.empty() ? product.getLoops(tran.first) : transports;
 
          // Consider only the steps that go towards a single state of the BA (picked the highest).
          StateID max_BA = 0;
@@ -65,7 +66,7 @@ class RobustnessCompute {
       const vector<StateID> & initials = product.getInitialStates();
 
       for (const StateID init:initials)
-         next_prob[init] = 1.0 / initials.size();
+         next_prob[init] = 1.0; // / initials.size();
    }
 
    /**

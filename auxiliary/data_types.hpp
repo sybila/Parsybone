@@ -86,7 +86,7 @@ enum Direction {up_dir, stay_dir, down_dir};
 typedef size_t StateID; 
 
 /// A single transition between two states.
-typedef pair<StateID,StateID> Transition;
+typedef pair<StateID,StateID> StateTransition;
 
 /// ID of a specie.
 typedef size_t SpecieID; 

@@ -34,36 +34,17 @@ namespace ColoringFunc {
     */
    vector<StateID> broadcastParameters(const ParamNo param_no, const ProductStructure & product, const StateID ID) {
       // To store parameters that passed the transition but were not yet added to the target
-      set<StateID> self_loop;
       vector<StateID> param_updates;
-
-      size_t KS_state = product.getKSID(ID);
-      bool loop = true; // Which of the parameters allow only to remain in this state
 
       // Cycle through all the transition
       for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
          StateID target_ID = product.getTargetID(ID, trans_num);
 
          // From an update strip all the parameters that can not pass through the transition - color intersection on the transition
-         bool passed = ColoringFunc::passParameters(param_no, product.getStepSize(ID, trans_num), product.getTargets(ID, trans_num),
-                                                    product.getOp(ID, trans_num), product.getVal(ID, trans_num));
-
-         // Test if it is a possibility for a loop, if there is nothing outcoming, add to self-loop (if it is still possible)
-         if (passed) {
-//            if (loop && KS_state == product.getKSID(target_ID) ) {
-//               self_loop.insert(target_ID);
-//            } else if (KS_state != product.getKSID(target_ID)) {
-               param_updates.push_back(target_ID);
-//               loop = false;
-//            }
-         }
+         if (ColoringFunc::passParameters(param_no, product.getStepSize(ID, trans_num), product.getTargets(ID, trans_num),
+                                          product.getOp(ID, trans_num), product.getVal(ID, trans_num)))
+            param_updates.push_back(target_ID);
       }
-      // If there is a self-loop, add it for all the BA states (its an intersection of transitional parameters for independent loops)
-//      if (loop) {
-//         for(const StateID looper:self_loop) {
-//            param_updates.push_back(looper);
-//         }
-//      }
 
       return param_updates;
    }
