@@ -57,7 +57,7 @@ public:
       Levels targets; ///< Towards which level this context may regulate.
 
       ParamNo step_size; ///< How many neighbour parameters have the same value for this function.
-      Levels possible_values; ///< Levels towards which this function regulates based on current subcolor.
+      Levels parameter_vals; ///< Levels towards which this function regulates based on current subcolor.
    };
    typedef vector<Parameter> Parameters;
 
@@ -100,9 +100,9 @@ public:
       species[ID].parameters.push_back({context, requirements, targets, 0, Levels()});
    }
 
-   inline void addKineticFunction(const size_t target_ID, const size_t param_ID, const size_t step_size, const Levels & possible_values) {
+   inline void addKineticFunction(const size_t target_ID, const size_t param_ID, const size_t step_size, const Levels & _parameter_vals) {
       species[target_ID].parameters[param_ID].step_size = step_size;
-      species[target_ID].parameters[param_ID].possible_values = possible_values;
+      species[target_ID].parameters[param_ID].parameter_vals = _parameter_vals;
    }
 
    inline const string & getName(const SpecieID ID) const {

@@ -28,33 +28,53 @@ class UnparametrizedStructureBuilder {
    Levels maxes; ///< Maximal activity levels of the species.
    Levels mins; ///< Minimal activity levels of the species.
 
-   void storeNeigbours(const StateID ID, const Levels & state_levels, UnparametrizedStructure & structure) {
+   /**
+    * @return Returns true if the transition may be ever feasible from this state.
+    */
+   bool isFeasible(const Levels & parameter_vals, const bool direction, const ActLevel level) {
+      for (const ActLevel val : parameter_vals) {
+         if (direction) {
+            if (val > level) {
+               return true;
+            }
+         } else {
+            if (val < level) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   /**
+    * @brief addTransition add a transition if feasible
+    */
+   void addTransition(const StateID ID, const StateID target, const SpecieID specie, const bool direction, const Levels & state_levels, UnparametrizedStructure & structure) {
+      // Find out which function is currently active
+      const size_t fun_no = getActiveFunction(specie, state_levels);
+      // Fill the step size
+      const size_t step_size = model.species[specie].parameters[fun_no].step_size;
+      // Reference target values
+      const Levels & parameter_vals = model.species[specie].parameters[fun_no].parameter_vals;
+
+      if (isFeasible(parameter_vals, direction, state_levels[specie]))
+         structure.addTransition(ID, target, step_size, direction, state_levels[specie], parameter_vals);
+   }
+
+   /**
+    * @brief addTransitions   add all transitions for the given specie
+    */
+   void addTransitions(const StateID ID, const Levels & state_levels, UnparametrizedStructure & structure) {
       for (size_t specie = 0; specie < model.species.size(); specie++) {
          // If this value is not the lowest one, add neighbour with lower
          if (state_levels[specie] > 0) {
-            const StateID target_ID = ID - index_jumps[specie]; // ID of the state the transition leads to
-
-            // Find out which function is currently active
-            const size_t fun_no = getActiveFunction(specie, state_levels);
-            // Fill the step size
-            const size_t step_size = model.species[specie].parameters[fun_no].step_size;
-
-            const auto & targets =  model.species[specie].parameters[fun_no].possible_values;
-
-            structure.addTransition(ID, target_ID, step_size, false, state_levels[specie], targets);
+            const StateID target_ID = ID - index_jumps[specie];
+            addTransition(ID, target_ID, specie, false, state_levels, structure);
          }
          // If this value is not the highest one, add neighbour with higher
          if (state_levels[specie] < maxes[specie]) {
-            const StateID target_ID = ID + index_jumps[specie]; // ID of the state the transition leads to
-
-            // Find out which function is currently active
-            const size_t fun_no = getActiveFunction(specie, state_levels);
-            // Fill the step size
-            const size_t step_size = model.species[specie].parameters[fun_no].step_size;
-
-            const auto & targets =  model.species[specie].parameters[fun_no].possible_values;
-
-            structure.addTransition(ID, target_ID, step_size, true, state_levels[specie], targets);
+            const StateID target_ID = ID + index_jumps[specie];
+            addTransition(ID, target_ID, specie, true, state_levels, structure);
          }
       }
    }
@@ -143,7 +163,7 @@ public:
          output_streamer.output(verbose_str, "Creating transitions for state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
          // Fill the structure with the state
          structure.addState(ID, levels);
-         storeNeigbours(ID, levels, structure);
+         addTransitions(ID, levels, structure);
          ID++;
       } while (iterate(maxes, mins, levels));
 

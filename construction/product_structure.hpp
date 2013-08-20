@@ -92,20 +92,8 @@ public:
       return states[ID].levels;
    }
 
-   inline size_t getStepSize(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num].trans_const.step_size;
-   }
-
-   inline const Levels & getTargets(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num].trans_const.targets;
-   }
-
-   inline bool getDir(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num].trans_const.req_dir;
-   }
-
-   inline ActLevel getVal(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num].trans_const.req_comp;
+   inline const TransConst & getConst(const StateID ID, const size_t transtion_num) const {
+      return states[ID].transitions[transtion_num].trans_const;
    }
 
    inline const vector<StateID> & getLoops(const StateID ID) const {
