@@ -50,10 +50,23 @@ class ProductStructure : public AutomatonInterface<ProdState> {
 
    /**
     * Add a new state, only with ID and levels.
+    * TODO: Finals should be decided based on property type.
     */
    inline void addState(const StateID KS_ID, const StateID BA_ID, const vector<StateID> & _loops) {
       // Create the state label
-      states.push_back(ProdState(getProductID(KS_ID, BA_ID), KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID), _loops));
+      const Levels& levels = structure.getStateLevels(KS_ID);
+      bool is_initial = false, is_final = false;
+      if (automaton.isInitial(BA_ID))
+         is_initial = automaton.hasTransition(BA_ID, levels);
+      if (automaton.isFinal(BA_ID))
+         is_final = true;
+      StateID ID = getProductID(KS_ID, BA_ID);
+      if (is_final)
+         final_states.push_back(ID);
+      if (is_initial)
+         initial_states.push_back(ID);
+
+      states.push_back(ProdState(ID, KS_ID, BA_ID, is_initial, is_final, levels, _loops));
    }
 
    /**

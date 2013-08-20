@@ -66,7 +66,7 @@ class RobustnessCompute {
       const vector<StateID> & initials = product.getInitialStates();
 
       for (const StateID init:initials)
-         next_prob[init] = 1.0; // / initials.size();
+         next_prob[init] = 1.0 / initials.size();
    }
 
    /**

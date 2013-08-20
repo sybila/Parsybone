@@ -37,26 +37,6 @@ class ProductBuilder {
    }
 
    /**
-    * Create set with indexes of final and initial states of the product.
-    */
-   void markStates(ProductStructure & product) const {
-      for (size_t ba_state_num = 0; ba_state_num < product.getAutomaton().getStateCount(); ba_state_num++) {
-         // Insert the state if it is an initial state
-         if (ba_state_num == 0) {
-            for (size_t ks_state_num = 0; ks_state_num < product.getStructure().getStateCount(); ks_state_num++) {
-               product.initial_states.push_back(product.getProductID(ks_state_num, ba_state_num));
-            }
-         }
-         // Insert the state if it is a final state
-         if (product.getAutomaton().isFinal(ba_state_num)) {
-            for (size_t ks_state_num = 0; ks_state_num < product.getStructure().getStateCount(); ks_state_num++)  {
-               product.final_states.push_back(product.getProductID(ks_state_num, ba_state_num));
-            }
-         }
-      }
-   }
-
-   /**
     * Create state of the product as a combination of a single BA and a single UKS state
     * @param KS_ID	source in the KS
     * @param BA_ID	source in the BA
@@ -85,7 +65,6 @@ class ProductBuilder {
             product.addTransition(ID, target, trans.trans_const);
             transition_count++;
          }
-
       }
    }
 
@@ -107,9 +86,6 @@ public:
          }
       }
       output_streamer.clear_line(verbose_str);
-
-      // Create final and intial states vectors
-      markStates( product);
 
       // output_streamer.output(verbose_str, "Product automaton has " + toString(structure.getStateCount() * automaton.getStateCount()) + " states with " + toString(transition_count) + " transitions.");
       return product;
