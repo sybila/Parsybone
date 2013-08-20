@@ -11,7 +11,6 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "PunyHeaders/common_functions.hpp"
-#include "basic_structure.hpp"
 
 struct TransConst {
    ParamNo step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.

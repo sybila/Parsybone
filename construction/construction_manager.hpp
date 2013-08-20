@@ -13,7 +13,6 @@
 #include "../model/parametrizations_builder.hpp"
 #include "../model/labeling_builder.hpp"
 #include "automaton_builder.hpp"
-#include "basic_structure_builder.hpp"
 #include "unparametrized_structure_builder.hpp"
 #include "product_builder.hpp"
 
@@ -46,14 +45,9 @@ namespace ConstructionManager {
     * Function that constructs all the data in a cascade of temporal builders.
     */
    ProductStructure construct(const Model & model, const PropertyAutomaton & property) {
-      // Create a simple Kripke structure without parametrization
-      BasicStructureBuilder basic_structure_builder(model);
-      BasicStructure basic_structure = basic_structure_builder.buildStructure();
-
       // Create the UKS
-      UnparametrizedStructureBuilder unparametrized_structure_builder(model, basic_structure);
+      UnparametrizedStructureBuilder unparametrized_structure_builder(model);
       UnparametrizedStructure unparametrized_structure = unparametrized_structure_builder.buildStructure();
-      basic_structure = BasicStructure(); // Free the memory.
 
       // Create the Buchi automaton
       AutomatonBuilder automaton_builder(model, property);
