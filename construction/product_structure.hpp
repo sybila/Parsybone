@@ -23,16 +23,16 @@ struct ProdTransitionion : public TransitionProperty {
       : TransitionProperty(_target_ID), trans_const(_trans_const) {}
 };
 
-
 /// State of the product - same as the state of UKS but put together with a BA state.
 struct ProdState : public AutomatonStateProperty<ProdTransitionion> {
    const StateID KS_ID; ///< ID of an original KS state this one is built from
    const StateID BA_ID; ///< ID of an original BA state this one is built from
    const Levels & levels; ///< species_level[i] = activation level of specie i in this state
+   const vector<StateID> loops; ///< States with the Same KS ID, but different BA that are possible targets
 
    /// Simple filler, assigns values to all the variables
-   ProdState(const StateID ID, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const Levels & _species_level)
-      : AutomatonStateProperty<ProdTransitionion>(initial, final, ID), KS_ID(_KS_ID), BA_ID(_BA_ID), levels(_species_level) {}
+   ProdState(const StateID ID, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const Levels & _species_level, const vector<StateID>& _loops)
+      : AutomatonStateProperty<ProdTransitionion>(initial, final, ID), KS_ID(_KS_ID), BA_ID(_BA_ID), levels(_species_level), loops(_loops) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,9 +51,9 @@ class ProductStructure : public AutomatonInterface<ProdState> {
    /**
     * Add a new state, only with ID and levels.
     */
-   inline void addState(const StateID KS_ID, const StateID BA_ID) {
+   inline void addState(const StateID KS_ID, const StateID BA_ID, const vector<StateID> & _loops) {
       // Create the state label
-      states.push_back(ProdState(getProductID(KS_ID, BA_ID), KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID)));
+      states.push_back(ProdState(getProductID(KS_ID, BA_ID), KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), structure.getStateLevels(KS_ID), _loops));
    }
 
    /**
@@ -106,6 +106,10 @@ public:
 
    inline ActLevel getVal(const StateID ID, const size_t transtion_num) const {
       return states[ID].transitions[transtion_num].trans_const.req_comp;
+   }
+
+   inline const vector<StateID> & getLoops(const StateID ID) const {
+      return states[ID].loops;
    }
 
    const string getString(const StateID ID) const {

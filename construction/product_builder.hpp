@@ -63,14 +63,15 @@ class ProductBuilder {
     * @param transition_count	value which counts the transition for the whole product, will be filled
     */
    void createProductState(const StateID KS_ID, const StateID BA_ID, size_t & transition_count, ProductStructure & product) const {
-      // Add this state
-      product.addState(KS_ID, BA_ID);
-      const StateID ID = product.getProductID(KS_ID, BA_ID);
-
       // Get all possible BA targets
-      auto BA_targets = getReachableBA(KS_ID, BA_ID, product);
+      vector<StateID> BA_targets = getReachableBA(KS_ID, BA_ID, product);
+      vector<StateID> loops;
+      for(const StateID BA_target : BA_targets)
+         loops.push_back(product.getProductID(KS_ID, BA_target));
+      product.addState(KS_ID, BA_ID, loops);
 
       // Add all the transitions possible
+      const StateID ID = product.getProductID(KS_ID, BA_ID);
       for (size_t KS_trans = 0; KS_trans < product.getStructure().getTransitionCount(KS_ID); KS_trans++) {
          // Get transition data
          const StateID KS_target_ID = product.getStructure().getTargetID(KS_ID, KS_trans);
@@ -84,6 +85,7 @@ class ProductBuilder {
             product.addTransition(ID, target, trans.trans_const);
             transition_count++;
          }
+
       }
    }
 

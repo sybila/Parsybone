@@ -46,7 +46,7 @@ class BasicStructureBuilder {
 				structure.addNeighbour(ID, ID - index_jumps[specie], specie, down_dir);
 
 			// Add yourself
-			structure.addNeighbour(ID, ID, specie, stay_dir);
+         // structure.addNeighbour(ID, ID, specie, stay_dir);
 
 			// If this value is not the highest one, add neighbour with higher
 			if (state_levels[specie] < maxes[specie]) 

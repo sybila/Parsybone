@@ -50,20 +50,20 @@ namespace ColoringFunc {
 
          // Test if it is a possibility for a loop, if there is nothing outcoming, add to self-loop (if it is still possible)
          if (passed) {
-            if (loop && KS_state == product.getKSID(target_ID) ) {
-               self_loop.insert(target_ID);
-            } else if (KS_state != product.getKSID(target_ID)) {
+//            if (loop && KS_state == product.getKSID(target_ID) ) {
+//               self_loop.insert(target_ID);
+//            } else if (KS_state != product.getKSID(target_ID)) {
                param_updates.push_back(target_ID);
-               loop = false;
-            }
+//               loop = false;
+//            }
          }
       }
       // If there is a self-loop, add it for all the BA states (its an intersection of transitional parameters for independent loops)
-      if (loop) {
-         for(const StateID looper:self_loop) {
-            param_updates.push_back(looper);
-         }
-      }
+//      if (loop) {
+//         for(const StateID looper:self_loop) {
+//            param_updates.push_back(looper);
+//         }
+//      }
 
       return param_updates;
    }

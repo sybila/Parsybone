@@ -43,10 +43,12 @@ class ModelChecker {
     */
    void transferUpdates(const StateID ID) {
       // Get passed colors, unique for each sucessor
-      vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getTestedNum(), product, ID);
+
+      const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getTestedNum(), product, ID);
+      const vector<StateID> & targets = transports.empty() ? product.getLoops(ID) : transports;
 
       // For all passed values make update on target
-      for (const StateID trans : transports) {
+      for (const StateID trans : targets) {
          // If something new is added to the target, schedule it for an update
          if (storage.soft_update(trans)) {
             // Determine what is necessary to update
