@@ -43,14 +43,11 @@ class BasicStructureBuilder {
 		for (size_t specie = 0; specie < species_count; specie++) {
 			// If this value is not the lowest one, add neighbour with lower
 			if (state_levels[specie] > 0) 
-				structure.addNeighbour(ID, ID - index_jumps[specie], specie, down_dir);
-
-			// Add yourself
-         // structure.addNeighbour(ID, ID, specie, stay_dir);
+            structure.addNeighbour(ID, ID - index_jumps[specie], specie, false);
 
 			// If this value is not the highest one, add neighbour with higher
 			if (state_levels[specie] < maxes[specie]) 
-				structure.addNeighbour(ID, ID + index_jumps[specie], specie, up_dir);
+            structure.addNeighbour(ID, ID + index_jumps[specie], specie, true);
 		}	
 	}
 

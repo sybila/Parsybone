@@ -10,20 +10,13 @@ namespace ColoringFunc {
     * @param step_size	how many parameters share the same value for given function
     * @param transitive_values	mask of all values from which those that have false are non-transitive
     */
-   bool passParameters(const ParamNo param_no, const size_t step_size, const vector<ActLevel> & targets, const Direction comp, const ActLevel val) {
+   bool passParameters(const ParamNo param_no, const size_t step_size, const vector<ActLevel> & targets, const bool _dir, const ActLevel val) {
       const size_t value_num = (param_no / step_size) % targets.size();
 
-      switch (comp) {
-      case up_dir:
+      if (_dir)
          return targets[value_num] > val;
-      case stay_dir:
-         return targets[value_num] == val;
-      case down_dir:
+      else
          return targets[value_num] < val;
-      }
-
-      // Should never be reached.
-      return false;
    }
 
    /**
@@ -42,7 +35,7 @@ namespace ColoringFunc {
 
          // From an update strip all the parameters that can not pass through the transition - color intersection on the transition
          if (ColoringFunc::passParameters(param_no, product.getStepSize(ID, trans_num), product.getTargets(ID, trans_num),
-                                          product.getOp(ID, trans_num), product.getVal(ID, trans_num)))
+                                          product.getDir(ID, trans_num), product.getVal(ID, trans_num)))
             param_updates.push_back(target_ID);
       }
 

@@ -15,7 +15,7 @@
 
 struct TransConst {
    ParamNo step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-   Direction req_op; ///<
+   bool req_dir; ///<
    ActLevel req_comp; ///<
    const Levels & targets; ///<
 };
@@ -24,7 +24,7 @@ struct TransConst {
 struct ParTransitionion : public TransitionProperty {
    TransConst trans_const;
 
-   ParTransitionion(const StateID target_ID, const ParamNo _step_size, const Direction _req_op, const ActLevel _req_comp, const Levels & _targets)
+   ParTransitionion(const StateID target_ID, const ParamNo _step_size, const bool _req_op, const ActLevel _req_comp, const Levels & _targets)
       : TransitionProperty(target_ID), trans_const({_step_size, _req_op, _req_comp, _targets}) {}
 };
 
@@ -59,8 +59,8 @@ class UnparametrizedStructure : public GraphInterface<ParState> {
 	 * @param ID	add data to the state with this IS
 	 * Add a new transition to the source specie, containg necessary edge labels for the CMC
 	 */
-   inline void addTransition(const StateID ID, const StateID target_ID, const ParamNo step_size,  const Direction op, const ActLevel level, const Levels & targets) {
-      states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, op, level, targets));
+   inline void addTransition(const StateID ID, const StateID target_ID, const ParamNo step_size,  const bool _dir, const ActLevel level, const Levels & targets) {
+      states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, _dir, level, targets));
 	}
 
 public:

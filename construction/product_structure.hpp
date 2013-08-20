@@ -100,8 +100,8 @@ public:
       return states[ID].transitions[transtion_num].trans_const.targets;
    }
 
-   inline Direction getOp(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num].trans_const.req_op;
+   inline bool getDir(const StateID ID, const size_t transtion_num) const {
+      return states[ID].transitions[transtion_num].trans_const.req_dir;
    }
 
    inline ActLevel getVal(const StateID ID, const size_t transtion_num) const {

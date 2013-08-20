@@ -62,32 +62,6 @@ class UnparametrizedStructureBuilder {
    }
 
    /**
-    * Fill properties of the specified transition for the CMC procedure.
-    * @param ID	ID of this state in KS
-    * @param neighbour_index	index of the neighbour state. Specie that change is used to determine wich function to use.
-    * @param state_levels	species level of the state we are currently at
-    * @param function_num	ID of the active function
-    * @param step_size	step size of the function
-    * @param transitive_values	those parameter values that does not cause transition
-    * @return true if there is a possibility of transition, false otherwise
-    */
-   void fillFunctions(const StateID state, const StateID neighbour_index, const Levels & state_levels, SpecieID & spec_ID,
-                      ParamNo & step_size, Direction & op, ActLevel & level, size_t & fun_no) {
-      // Get ID of the regulated specie
-      spec_ID = basic_structure.getSpecieID(state, neighbour_index);
-
-      // Find out which function is currently active
-      fun_no = getActiveFunction(spec_ID, state_levels);
-
-      // Fill the step size
-      step_size = model.species[spec_ID].parameters[fun_no].step_size;
-
-      // Fill data about transitivity using provided values
-      level = state_levels[spec_ID];
-      op = basic_structure.getDirection(state, neighbour_index);
-   }
-
-   /**
     * For each existing neighbour add a transition to the newly created state
     * @param ID	state from which the transitions should lead
     * @param state_levels	activation levels in this state
@@ -96,17 +70,20 @@ class UnparametrizedStructureBuilder {
       // Go through all the original transitions
       for (size_t trans_num = 0; trans_num < basic_structure.getTransitionCount(ID); trans_num++) {
          // Data to fill
-         StateID target_ID = basic_structure.getTargetID(ID, trans_num); // ID of the state the transition leads to
-         ParamNo step_size = 1; // How many bits of a parameter space bitset is needed to get from one targe value to another
-         SpecieID spec_ID;
-         Direction op;
-         ActLevel lvl;
-         size_t fun_no;
+         const StateID target_ID = basic_structure.getTargetID(ID, trans_num); // ID of the state the transition leads to
 
-         // Fill data about the transition and check if it is even feasible
-         fillFunctions(ID, trans_num, state_levels, spec_ID, step_size, op, lvl, fun_no);
+         const SpecieID spec_ID = basic_structure.getSpecieID(ID, trans_num);
+         // Find out which function is currently active
+         const size_t fun_no = getActiveFunction(spec_ID, state_levels);
+         // Fill the step size
+         const size_t step_size = model.species[spec_ID].parameters[fun_no].step_size;
+         // Fill data about transitivity using provided values
+         const ActLevel level = state_levels[spec_ID];
+
+         const bool dir = basic_structure.getDirection(ID, trans_num);
+
          // Add the transition
-         structure.addTransition(ID, target_ID, step_size, op, lvl, model.species[spec_ID].parameters[fun_no].possible_values);
+         structure.addTransition(ID, target_ID, step_size, dir, level, model.species[spec_ID].parameters[fun_no].possible_values);
       }
    }
 public:

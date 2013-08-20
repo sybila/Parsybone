@@ -16,10 +16,10 @@
 
 /// Stores an unlabelled transition to next state.
 struct BasTransition : public TransitionProperty {
-   const size_t changed_specie; ///< ID of specie that differs between this and neighbour.
-   const Direction change_direction; ///< Way the specie's value is changed.
+   const SpecieID changed_specie; ///< ID of specie that differs between this and neighbour.
+   const bool change_direction; ///< Way the specie's value is changed.
 
-   BasTransition(const StateID target_ID, const size_t _changed_specie, const Direction _change_direction)
+   BasTransition(const StateID target_ID, const size_t _changed_specie, const bool _change_direction)
       : TransitionProperty(target_ID), changed_specie(_changed_specie), change_direction(_change_direction) { } ///< Simple filler, assigns values to all the variables.
 };
 
@@ -51,8 +51,8 @@ class BasicStructure : public GraphInterface<BasState> {
 	/**
 	 * Add a new neighbour to the target state
 	 */
-	inline void addNeighbour(const StateID ID, StateID target_ID, const size_t changed_specie, const Direction change_direction) {
-		states[ID].transitions.push_back(move(BasTransition(target_ID, changed_specie, change_direction)));
+   inline void addNeighbour(const StateID ID, StateID target_ID, const size_t changed_specie, const bool _change_direction) {
+      states[ID].transitions.push_back(move(BasTransition(target_ID, changed_specie, _change_direction)));
 	}
 
 public:
@@ -78,7 +78,7 @@ public:
 	 * @param neighbour_index	index in the vector of neighbours
 	 * @return	Direction in which the specie changes
 	 */
-	inline Direction getDirection(const StateID ID, const size_t neighbour_index) const {
+   inline bool getDirection(const StateID ID, const size_t neighbour_index) const {
 		return states[ID].transitions[neighbour_index].change_direction;
 	}
 };
