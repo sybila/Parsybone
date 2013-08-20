@@ -28,8 +28,9 @@ class TimeSeriesParser {
       for (rapidxml::xml_node<> *expression = XMLHelper::getChildNode(series_node, "EXPR"); expression; ID++, expression = expression->next_sibling("EXPR") ) {
          property.addState(toString(ID), false);
 
-         // Self-loop assuring possibility of a value change
-         property.addEdge(ID, ID, "tt");
+         // Self-loop assuring possibility of a value change (not for the first node, though).
+         if (property.getStatesCount() > 1)
+            property.addEdge(ID, ID, "tt");
 
          // Labelled transition to the next measurement
          string values;
