@@ -42,25 +42,21 @@ TEST_F(StructureTest, TestCorrectAutomata) {
 }
 
 TEST_F(StructureTest, TestCorrectUnparametrizedStucture) {
-   BasicStructureBuilder o_t_b_s_builder(one_three);
-   BasicStructure o_t_b_s = o_t_b_s_builder.buildStructure();
-   UnparametrizedStructureBuilder o_t_u_s_builder(one_three, o_t_b_s);
+   UnparametrizedStructureBuilder o_t_u_s_builder(one_three);
    UnparametrizedStructure o_t_u_s = o_t_u_s_builder.buildStructure();
    ASSERT_EQ(8, o_t_u_s.getStateCount());
    EXPECT_EQ(0, o_t_u_s.getStateLevels(0).front());
    EXPECT_EQ(3, o_t_u_s.getStateLevels(7).back());
-   ASSERT_EQ(4, o_t_u_s.getTransitionCount(0)) << "Exactly four transitions should be possible from (0,0) (self-loop may be over both components).";
+   ASSERT_EQ(2, o_t_u_s.getTransitionCount(0)) << "Exactly two transitions should be possible from (0,0) .";
 
-   BasicStructureBuilder b_k_2_b_s_builder(bool_k_2);
-   BasicStructure b_k_2_b_s = b_k_2_b_s_builder.buildStructure();
-   UnparametrizedStructureBuilder b_k_2_u_s_builder(bool_k_2, b_k_2_b_s);
+   UnparametrizedStructureBuilder b_k_2_u_s_builder(bool_k_2);
    UnparametrizedStructure b_k_2_u_s = b_k_2_u_s_builder.buildStructure();
    ASSERT_EQ(4, b_k_2_u_s.getStateCount());
    EXPECT_EQ(0, b_k_2_u_s.getStateLevels(0).front());
    EXPECT_EQ(1, b_k_2_u_s.getStateLevels(3).back());
-   ASSERT_EQ(4, b_k_2_u_s.getTransitionCount(0)) << "Exactly four transitions should be possible from (0,0) (self-loop may be over both components).";
+   ASSERT_EQ(2, b_k_2_u_s.getTransitionCount(0)) << "Exactly two transitions should be possible from (0,0) ";
    EXPECT_EQ(1, b_k_2_u_s.getStepSize(0, 0));
-   EXPECT_EQ(16, b_k_2_u_s.getStepSize(0, 3));
+   EXPECT_EQ(16, b_k_2_u_s.getStepSize(0, 1));
 }
 
 TEST_F(StructureTest, TestCorrectProduct) {
