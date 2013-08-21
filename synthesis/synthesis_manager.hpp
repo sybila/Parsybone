@@ -117,7 +117,7 @@ public:
       searcher.reset(new WitnessSearcher(product, *storage));
       robustness.reset(new RobustnessCompute(product, *storage));
       database.reset(new DatabaseFiller(model));
-      output.reset(new OutputManager(property, model, *storage, *database, *split_manager, *searcher, *robustness));
+      output.reset(new OutputManager(property, model, *database));
 
       total_colors = 0ul;
       global_BFS_bound = user_options.bound_size;
@@ -158,9 +158,12 @@ public:
     * Store results that have not been stored yet and finalize the round where needed.
     */
    void doOutput() {
-      if (results.isAccepting())
-         // Output what has been synthetized (colors, witnesses)
-         output->outputRound(results);
+      if (results.isAccepting()) {
+         string robustness_val = user_options.compute_robustness ? toString(robustness->getRobustness()) : "";
+         string witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
+
+         output->outputRound(split_manager->getParamNo(), results.getCost(), robustness_val, witness);
+      }
    }
 
    /**
@@ -174,7 +177,7 @@ public:
       do {
          if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
-         output->outputRoundNum();
+         output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
          colorProduct(user_options.bounded_check, true);
          if (user_options.analysis())
             doAnalysis();
@@ -182,7 +185,7 @@ public:
          total_colors += results.isAccepting();
       } while (split_manager->increaseRound());
 
-      output->outputSummary(total_colors);
+      output->outputSummary(total_colors, split_manager->getProcColorsCount());
       // time_manager.writeClock("coloring");
    }
 
@@ -196,7 +199,7 @@ public:
       do {
          if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
-         output->outputRoundNum();
+         output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
          colorProduct(user_options.bounded_check, false);
          vector<StateID> finals = storage->getFound(product.getFinalStates());
          for (const StateID & final : finals) {
@@ -208,7 +211,7 @@ public:
          total_colors += results.isAccepting();
       } while (split_manager->increaseRound());
 
-      output->outputSummary(total_colors);
+      output->outputSummary(total_colors, split_manager->getProcColorsCount());
    }
 };
 

@@ -14,11 +14,9 @@
 /// \brief This class parses takes the time series and builds it into a Buchi automaton.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class TimeSeriesParser {
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // PARSING:
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
     * Function reads an EXPR tag and creates according state and transitions.
+    * First state has only transition under given condition. Others have loop if (!expression) and transition if (expression).
     */
    static PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node, const string & name) {
       PropertyAutomaton property(name, TimeSeries);
@@ -28,16 +26,14 @@ class TimeSeriesParser {
       for (rapidxml::xml_node<> *expression = XMLHelper::getChildNode(series_node, "EXPR"); expression; ID++, expression = expression->next_sibling("EXPR") ) {
          property.addState(toString(ID), false);
 
-         // Self-loop assuring possibility of a value change (not for the first node, though).
-         if (property.getStatesCount() > 1)
-            property.addEdge(ID, ID, "tt");
-
          // Labelled transition to the next measurement
          string values;
          XMLHelper::getAttribute(values, expression, "values");
          values.erase(remove_if(values.begin(), values.end(),
                                 [](const char c){return (c == ' ') | (c == '\t') | (c == '\n')  | (c == '\f')  | (c == '\r') | (c == '\v');
          }), values.end());
+         if (property.getStatesCount() > 1)
+            property.addEdge(ID, ID, "!" + values);
          property.addEdge(ID, ID + 1, values);
       }
 

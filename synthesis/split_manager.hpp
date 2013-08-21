@@ -111,7 +111,7 @@ public:
     /**
      * @return	number of this round
      */
-    inline RoundNo getRoundNum() const {
+    inline RoundNo getRoundNo() const {
         return round_number;
     }
 

@@ -19,16 +19,17 @@ namespace ColoringFunc {
    /**
     * @return vector of reachable targets from ID for this parametrization
     */
-   vector<StateID> broadcastParameters(const ParamNo param_no, const ProductStructure & product, const StateID ID) {
+   template<class TransitionSystem>
+   vector<StateID> broadcastParameters(const ParamNo param_no, const TransitionSystem & ts, const StateID ID) {
       // To store parameters that passed the transition but were not yet added to the target
       vector<StateID> param_updates;
 
       // Cycle through all the transition
-      for (size_t trans_num = 0; trans_num < product.getTransitionCount(ID); trans_num++) {
-         StateID target_ID = product.getTargetID(ID, trans_num);
+      for (size_t trans_num = 0; trans_num < ts.getTransitionCount(ID); trans_num++) {
+         StateID target_ID = ts.getTargetID(ID, trans_num);
 
          // From an update strip all the parameters that can not pass through the transition - color intersection on the transition
-         if (ColoringFunc::isOpen(param_no, product.getConst(ID, trans_num)))
+         if (ColoringFunc::isOpen(param_no, ts.getTransitionConst(ID, trans_num)))
             param_updates.push_back(target_ID);
       }
 

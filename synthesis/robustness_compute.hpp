@@ -26,32 +26,23 @@ class RobustnessCompute {
    vector<double> current_prob; ///< Current probability of reaching.
    vector<double> next_prob; ///< Will store the probability in the next round.
 
-   double robustness; /// Resultig probability for each parametrization.
-
    /**
     * For each state compute how many exists are under each parametrization.
     */
    void computeExits(const vector<StateTransition> & transitions) {
       // If not acceptable, leave zero
       for (const StateTransition & tran : transitions) {
-         const vector<StateID> transports = ColoringFunc::broadcastParameters(param_no, product, tran.first);
-         const vector<StateID> & succs = transports.empty() ? product.getLoops(tran.first) : transports;
+         const vector<StateID> transports = ColoringFunc::broadcastParameters(param_no, product.getStructure(), product.getKSID(tran.first));
 
          // Consider only the steps that go towards a single state of the BA (picked the highest).
-         StateID max_BA = 0;
-         for (const StateID succ:succs)
-            max_BA = max(max_BA, product.getBAID(succ));
-         for (const StateID succ:succs)
-            exits[tran.first] += static_cast<size_t>(max_BA == product.getBAID(succ));
+         exits[tran.first] += max(1u, transports.size());
       }
    }
-
 
    /**
     * Set probability of each initial state to 1.0 / number of used initial states for this parametrization.
     */
    void initiate() {
-      robustness = 0;
       exits.assign(exits.size(), 0);
       current_prob.assign(current_prob.size(), 0.);
       next_prob = current_prob;
@@ -73,8 +64,7 @@ class RobustnessCompute {
     * Compute the resulting values as a sum of probabilites of reaching any state.
     */
    void finish() {
-      for (StateID ID:product.getFinalStates())
-         robustness += next_prob[ID];
+
    }
 
 public:
@@ -118,14 +108,21 @@ public:
     * @return the current robustness
     */
    double getRobustness() const {
+      double robustness = 0.;
+      for (const StateID ID:product.getFinalStates())
+         robustness += next_prob[ID];
       return robustness;
    }
 
    /**
-    * @return robustness as a string
+    * @return robustness measure on each final satate
     */
-   const string getOutput() const {
-      return toString(robustness);
+   vector<double> getFinalMarkings() const {
+      vector<double> markings;
+      markings.reserve(product.getFinalStates().size());
+      for (const StateID ID:product.getFinalStates())
+         markings.push_back(next_prob[ID]);
+      return markings;
    }
 };
 

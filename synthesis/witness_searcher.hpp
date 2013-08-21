@@ -78,8 +78,7 @@ public:
    /**
     * Constructor ensures that data objects used within the whole computation process have appropriate size.
     */
-   WitnessSearcher(const ProductStructure & _product, const ColorStorage & _storage)
-      : product(_product), storage(_storage) {
+   WitnessSearcher(const ProductStructure & _product, const ColorStorage & _storage) : product(_product), storage(_storage) {
       markings.resize(product.getStateCount());
    }
 
@@ -102,10 +101,17 @@ public:
    }
 
    /**
+    * @return  transitions for each parametrizations in the form (source, target)
+    */
+   const vector<StateTransition> & getTransitions() const {
+      return transitions;
+   }
+
+   /**
     * Re-formes the transitions computed during the round into strings.
     * @return  strings with all transitions for each acceptable parametrization
     */
-   const string getOutput() const {
+   const static string getOutput(const ProductStructure & product, const vector<StateTransition> & transitions) {
       string acceptable_paths; // Vector fo actuall data
       // Cycle throught the parametrizations
       if (!transitions.empty()) { // Test for emptyness of the set of transitions
@@ -121,13 +127,6 @@ public:
          acceptable_paths.back() = '}';
       }
       return acceptable_paths;
-   }
-
-   /**
-    * @return  transitions for each parametrizations in the form (source, target)
-    */
-   const vector<StateTransition> & getTransitions() const {
-      return transitions;
    }
 };
 

@@ -11,13 +11,7 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "PunyHeaders/common_functions.hpp"
-
-struct TransConst {
-   ParamNo step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-   bool req_dir; ///<
-   ActLevel comp_value; ///<
-   const Levels & targets; ///<
-};
+#include "transition_system_interface.hpp"
 
 /// Storing a single transition to neighbour state together with its transition function.
 struct ParTransitionion : public TransitionProperty {
@@ -29,10 +23,10 @@ struct ParTransitionion : public TransitionProperty {
 
 /// Simple state enriched with transition functions
 struct ParState : public StateProperty<ParTransitionion> {
-   Levels species_level; ///< Species_level[i] = activation level of specie i.
+   Levels levels; ///< Species_level[i] = activation level of specie i.
 
    ParState(const StateID ID, const Levels& _species_level)
-      : StateProperty<ParTransitionion>(ID), species_level(_species_level) { } ///< Simple filler, assigns values to all the variables.
+      : StateProperty<ParTransitionion>(ID), levels(_species_level) { } ///< Simple filler, assigns values to all the variables.
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,27 +55,13 @@ class UnparametrizedStructure : public GraphInterface<ParState> {
    inline void addTransition(const StateID ID, const StateID target_ID, const ParamNo step_size,  const bool _dir, const ActLevel level, const Levels & targets) {
       states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, _dir, level, targets));
 	}
-
 public:
-   /**
-    * @return
-    */
-	inline const Levels & getStateLevels(const StateID ID) const {
-		return states[ID].species_level;
-	}
+   inline const TransConst & getTransitionConst(const StateID ID, const size_t trans_no) const {
+      return states[ID].transitions[trans_no].trans_const;
+   }
 
-   /**
-    * @return
-    */
-	inline ParamNo getStepSize(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num].trans_const.step_size;
-	}
-
-   /**
-    * @return
-    */
-   inline const ParTransitionion & getTransition(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num];
+   inline const Levels & getStateLevels(const StateID ID) const {
+      return states[ID].levels;
    }
 };
 

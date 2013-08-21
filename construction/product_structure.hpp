@@ -101,14 +101,6 @@ public:
       return states[ID].KS_ID;
    }
 
-   inline const Levels & getStateLevels(const StateID ID) const {
-      return states[ID].levels;
-   }
-
-   inline const TransConst & getConst(const StateID ID, const size_t transtion_num) const {
-      return states[ID].transitions[transtion_num].trans_const;
-   }
-
    inline const vector<StateID> & getLoops(const StateID ID) const {
       return states[ID].loops;
    }
@@ -123,6 +115,14 @@ public:
       label += toString(getBAID(ID)) + ")";
 
       return label;
+   }
+
+   inline const TransConst & getTransitionConst(const StateID ID, const size_t trans_no) const {
+      return states[ID].transitions[trans_no].trans_const;
+   }
+
+   inline const Levels & getStateLevels(const StateID ID) const {
+      return states[ID].levels;
    }
 };
 

@@ -55,14 +55,14 @@ class ProductBuilder {
       for (size_t KS_trans = 0; KS_trans < product.getStructure().getTransitionCount(KS_ID); KS_trans++) {
          // Get transition data
          const StateID KS_target_ID = product.getStructure().getTargetID(KS_ID, KS_trans);
-         const ParTransitionion & trans = product.getStructure().getTransition(KS_ID, KS_trans);
+         const TransConst & trans_const = product.getStructure().getTransitionConst(KS_ID, KS_trans);
 
          // Add transition for all allowed targets
          for (auto BA_traget_it = BA_targets.begin(); BA_traget_it != BA_targets.end(); BA_traget_it++) {
             // Compute target position
             const StateID target = product.getProductID(KS_target_ID, *BA_traget_it);
             // Store the transition
-            product.addTransition(ID, target, trans.trans_const);
+            product.addTransition(ID, target, trans_const);
             transition_count++;
          }
       }

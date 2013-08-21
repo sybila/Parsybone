@@ -22,18 +22,13 @@
 class OutputManager {
    const PropertyAutomaton & property; ///< Property automaton.
    const Model & model; ///< Reference to the model itself.
-   const ColorStorage & storage; ///< Provides current costs.
-   const SplitManager & split_manager; ///< Provides round and split information.
-   const WitnessSearcher & searcher; ///< Provides witnesses in the form of transitions.
-   const RobustnessCompute & robustness; ///< Provides Robustness value.
 
    DatabaseFiller & database; ///< Fills data to the database.
 public:
    NO_COPY(OutputManager)
 
-   OutputManager(const PropertyAutomaton & _property, const Model & _model, const ColorStorage & _storage, DatabaseFiller & _database,
-                 const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-      : property(_property), model(_model), storage(_storage), split_manager(_split_manager), searcher(_searcher), robustness(_robustness), database(_database) {	}
+   OutputManager(const PropertyAutomaton & _property, const Model & _model, DatabaseFiller & _database)
+      : property(_property), model(_model),  database(_database) {	}
 
 public:
    /**
@@ -76,46 +71,39 @@ public:
     *
     * @param total_count	number of all feasible colors
     */
-   void outputSummary(const size_t total_count) const {
+   void outputSummary(const ParamNo accepting, const ParamNo total) const {
       if (user_options.use_database)
          database.finishOutpout();
       OutputStreamer::Trait trait = (user_options.use_textfile) ? 0 : OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Total number of parametrizations: " + toString(total_count) + "/" + toString(split_manager.getProcColorsCount()) + ".", trait);
+      output_streamer.output(verbose_str, "Total number of parametrizations: " + toString(accepting) + "/" + toString(total) + ".", trait);
    }
 
    /**
     * Outputs round number - if there are no data within, then erase the line each round.
     */
-   void outputRoundNum() const {
+   void outputRoundNo(const ParamNo round_no, const ParamNo round_count) const {
       // output numbers
       OutputStreamer::Trait trait = (user_options.use_textfile) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Round: " + toString(split_manager.getRoundNum()) + "/" + toString(split_manager.getRoundCount()) + ":", trait);
+      output_streamer.output(verbose_str, "Round: " + toString(round_no) + "/" + toString(round_count) + ":", trait);
    }
 
    /**
     * Output parametrizations from this round together with additional data, if requested.
     */
-   void outputRound(const SynthesisResults & results) const {
+   void outputRound(const ParamNo param_no, const size_t & cost, const string & robustness, const string & witness) const {
+      string param_vals = ModelTranslators::createColorString(model,param_no);
+      string line = toString(param_no) + separator + param_vals  + separator;
+      string update = param_vals;
+      update.back() = ','; // must remove closing bracket, it will be added by database manager
 
-      ParamNo param_no = split_manager.getParamNo();
-      string line = toString(param_no) + separator + ModelTranslators::createColorString(model,param_no) + separator;
-      string update = ModelTranslators::createColorString(model,param_no);
-      update.back() = ',';
+      line += toString(cost);
+      update += toString(cost) + ",";
 
-      if (property.getPropType() == TimeSeries) {
-         line += toString(results.getCost());
-         update += toString(results.getCost()) + ",";
-      } line += separator;
+      line += robustness + separator;
+      update += robustness + ",";
 
-      if (user_options.compute_robustness) {
-         line += robustness.getOutput();
-         update += robustness.getOutput() + ",";
-      } line += separator;
-
-      if (user_options.compute_wintess) {
-         line += searcher.getOutput();
-         update += "\"" + searcher.getOutput() + "\",";
-      }
+      line += witness + separator;
+      update += "\"" + witness + "\",";
 
       output_streamer.output(results_str, line);
       if (user_options.use_database)

@@ -9,6 +9,8 @@
 #ifndef PARSYBONE_GRAPH_INTERFACE_INCLUDED
 #define PARSYBONE_GRAPH_INTERFACE_INCLUDED
 
+#include "PunyHeaders/common_functions.hpp"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @file This file holds abstract basis for a graph with states and transitions between the states.
 /// Graph is parametrized by state and state is parametrized by transition. Basic state and transition are also defined here.
@@ -52,11 +54,7 @@ protected:
    vector<StateT> states; ///< Vector holding states of the graph.
 
 public:
-   GraphInterface() = default;
-   GraphInterface(GraphInterface && ) = default;
-   GraphInterface& operator=(GraphInterface && ) = default;
-   GraphInterface(const GraphInterface & ) = delete;
-   GraphInterface& operator=(const GraphInterface & ) = delete;
+   NO_COPY(GraphInterface)
 
 	/**
 	 * Obtains number of states of the graph.
