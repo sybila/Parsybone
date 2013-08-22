@@ -74,7 +74,7 @@ public:
 	 * Return true if the state would be updated, false otherwise.
     * @return  true if there would be an update
 	 */
-   inline bool soft_update(const StateID & col) {
+   inline bool isFound(const StateID & col) {
       if (states[col])
 			return false;
 		else
@@ -87,23 +87,6 @@ public:
 	 */
     inline bool getColor(const StateID ID) const {
         return states[ID];
-	}
-
-	/**
-	 * @param states	indexes of states to ask for parameters
-    * @return  queue with all colorings of states
-	 */
-   const vector<StateID> getFound(const vector<StateID> & tested) const {
-		// Queue tates colored in basic coloring
-      vector<StateID> colors;
-
-		// Get the states and their colors
-      for (const StateID ID:tested)
-         if (states[ID])
-             colors.push_back(ID);
-
-		// Return final vertices with their positions
-		return colors;
 	}
 };
 

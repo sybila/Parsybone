@@ -28,9 +28,9 @@ class ModelChecker {
 
    // Coloring storage
    ColorStorage & storage; ///< Class that actually stores colors during the computation.
-   ColorStorage next_round_storage; ///< Class that stores updated colors for next round (prevents multiple transitions through one BFS round).
-   set<StateID> updates; ///< Set of states that need to spread their updates.
-   set<StateID> next_updates; ///< Updates that are sheduled forn the next round.
+   // ColorStorage next_round_storage; ///< Class that stores updated colors for next round (prevents multiple transitions through one BFS round).
+   vector<StateID> updates; ///< Set of states that need to spread their updates.
+   vector<StateID> next_updates; ///< Updates that are sheduled forn the next round.
 
    // BFS boundaries
    size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
@@ -44,16 +44,16 @@ class ModelChecker {
    void transferUpdates(const StateID ID) {
       // Get passed colors, unique for each sucessor
 
-      const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getTestedNum(), product, ID);
+      const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product, ID);
       const vector<StateID> & targets = transports.empty() ? product.getLoops(ID) : transports;
 
       // For all passed values make update on target
       for (const StateID trans : targets) {
          // If something new is added to the target, schedule it for an update
-         if (storage.soft_update(trans)) {
+         if (storage.isFound(trans)) {
             // Determine what is necessary to update
-            next_round_storage.update(trans);
-            next_updates.insert(trans);
+            storage.update(trans);
+            next_updates.push_back(trans);
          }
       }
    }
@@ -63,19 +63,18 @@ class ModelChecker {
     * Executed as an BFS - in rounds.
     */
    void doColoring() {
-      StateID ID = *updates.begin();
+      StateID ID = updates.back();
+      updates.pop_back();
 
       // Check if this is not the last round
       if (settings.isFinal(ID, product))
          results.found_depth.insert({ID, BFS_level});
 
       transferUpdates(ID);
-      updates.erase(ID);
 
       // If there this round is finished, but there are still paths to find
       if (updates.empty() && (BFS_level < settings.getBound())) {
          updates = move(next_updates);
-         storage.addFrom(next_round_storage);
          if (settings.isMinimal() && results.is_accepting)
             return;
          BFS_level++; // Increase level
@@ -87,7 +86,6 @@ class ModelChecker {
     */
    void prepareObjects() {
       next_updates.clear(); // Ensure emptiness of the next round
-      next_round_storage.reset(); // Copy starting values
       BFS_level = 0;
       results = SynthesisResults();
    }
@@ -96,18 +94,14 @@ class ModelChecker {
     * @brief initiateCheck initiate data for the check based on the settings
     */
    void initiateCheck() {
-      if (settings.getCoreState() != INF) {
-         transferUpdates(settings.getCoreState());
-      } else {
-         updates = settings.hashInitials(product);
+      updates = settings.getInitials(product);
+      if (settings.markInitials())
          for (const StateID init_ID : updates)
             storage.update(init_ID);
-      }
    }
 
 public:
    ModelChecker(const ProductStructure & _product, ColorStorage & _storage) : product(_product), storage(_storage) {
-      next_round_storage = storage; // Create an identical copy of the storage.
    }
 
    /**

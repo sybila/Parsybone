@@ -13,17 +13,18 @@
 
 class CheckerSettings {
 public:
-   StateID starting_state;
-   StateID final_state;
+   vector<StateID> initial_states;
+   vector<StateID> final_states;
    bool bounded;
    bool minimal;
-   ParamNo tested;
+   ParamNo param_no;
    size_t bfs_bound;
+   bool mark_initals;
 
-   CheckerSettings() : starting_state(INF), final_state(INF), bounded(false), minimal(false), tested(1ul), bfs_bound(INF) { }
+   CheckerSettings() : bounded(false), minimal(false), param_no(1ul), bfs_bound(INF), mark_initals(false) { }
 
-   inline const ParamNo & getTestedNum() const {
-      return tested;
+   inline const ParamNo & getParamNo() const {
+      return param_no;
    }
 
    inline bool getBounded() const {
@@ -35,32 +36,39 @@ public:
    }
 
    inline bool isInitial(const StateID ID, const ProductStructure & product) const {
-      if (starting_state != INF)
-         return (starting_state == ID);
-      else
+      if (initial_states.empty())
          return product.isInitial(ID);
+      else
+         return (find(initial_states.begin(),initial_states.end(), ID) != initial_states.end());
    }
 
    inline bool isFinal(const StateID ID, const ProductStructure & product) const {
-      if (final_state != INF)
-         return (final_state == ID);
-      else
+      if (final_states.empty())
          return product.isFinal(ID);
+      else
+         return (find(final_states.begin(),final_states.end(), ID) != final_states.end());
+   }
+
+   inline const vector<StateID> & getInitials(const ProductStructure & product) const {
+      if (initial_states.empty())
+         return product.getInitialStates();
+      else
+         return initial_states;
+   }
+
+   inline const vector<StateID> & getFinals(const ProductStructure & product) const {
+      if (final_states.empty())
+         return product.getFinalStates();
+      else
+         return final_states;
    }
 
    inline size_t getBound() const {
       return bfs_bound;
    }
 
-   inline StateID getCoreState() const {
-      return starting_state;
-   }
-
-   const set<StateID> hashInitials(const ProductStructure & product) const {
-      if (starting_state != INF)
-         return set<StateID>();
-      else
-         return set<StateID>(product.getInitialStates().begin(), product.getInitialStates().end());
+   inline bool markInitials() const {
+      return mark_initals;
    }
 };
 

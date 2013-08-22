@@ -12,6 +12,7 @@
 #include "coloring_func.hpp"
 #include "color_storage.hpp"
 #include "synthesis_results.hpp"
+#include "checker_setting.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for search of transitions belonging to shortest time series paths.
@@ -22,7 +23,7 @@
 class WitnessSearcher {
    const ProductStructure & product; ///< Product reference for state properties.
    const ColorStorage & storage; ///< Constant storage with the actuall data.
-   ParamNo param_no; ///< Number of the parametrization for which the path is being searched.
+   CheckerSettings settings; ///< Setup for the process.
 
    vector<StateTransition>  transitions; ///< Acutall storage of the transitions found - transitions are stored by parametrizations numbers in the form (source, traget).
 
@@ -60,13 +61,13 @@ class WitnessSearcher {
 
       // Store if the state is final or part of an other path.
       path[depth] = ID;
-      if (product.isFinal(ID))
+      if (settings.isFinal(ID, product))
          storeTransitions(depth, last_branch);
       else if (markings[ID].succeeded > depth)
          storeTransitions(depth, last_branch);
       // Continue with the DFS otherwise.
       else if (depth < max_depth){
-         const vector<StateID> succs = ColoringFunc::broadcastParameters(param_no, product, ID); // Get predecessors
+         const vector<StateID> succs = ColoringFunc::broadcastParameters(settings.getParamNo(), product, ID); // Get predecessors
          for (const StateID & succ: succs) {
             last_branch = min(DFS(succ, depth + 1, last_branch), depth); // Recursive descent with parametrizations passed from the predecessor.
          }
@@ -85,16 +86,16 @@ public:
    /**
     * Function that executes the whole searching process
     */
-   void findWitnesses(const ParamNo _param_no, const SynthesisResults & results) {
+   void findWitnesses(const SynthesisResults & results, const CheckerSettings & _settings) {
       // Preparation
-      param_no = _param_no;
+      settings = _settings;
       transitions.clear();
       path = vector<StateID>(results.lower_bound + 1, INF); // Currently needs one more space for the transition to a final state after the last measurement.
       markings.assign(markings.size(), {0u, INF});
       max_depth = results.lower_bound;
 
       // Search paths from all the final states
-      auto inits = product.getInitialStates();
+      auto inits = settings.getInitials(product);
       for (const auto & init : inits)
          if (storage.getColor(init))
             DFS(init, 0u, 0u);

@@ -49,59 +49,13 @@ class SynthesisManager {
    SynthesisResults results;
 
    /**
-    * @brief createRoundSetting create common settings
-    * @return
+    * @return settings fit for this round
     */
    CheckerSettings createRoundSetting() {
       CheckerSettings settings;
       settings.bfs_bound = global_BFS_bound;
-      settings.tested = split_manager->getParamNo();
+      settings.param_no = split_manager->getParamNo();
       return settings;
-   }
-
-   /**
-    * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
-    */
-   void colorProduct(const bool bounded, const bool minimal) {
-      storage->reset();
-
-      CheckerSettings settings = createRoundSetting();
-      settings.bounded = bounded;
-      settings.minimal = minimal;
-
-      // Start coloring procedure
-      results = model_checker->conductCheck(settings);
-   }
-
-   /**
-    * @brief colorAccepting
-    * @param accepting
-    */
-   void colorAccepting(const StateID accepting) {
-      storage->reset();
-
-      CheckerSettings settings = createRoundSetting();
-      settings.bounded = false;
-      settings.final_state = accepting;
-
-      // Start coloring procedure
-      results = model_checker->conductCheck(settings);
-   }
-
-   /**
-    * @brief detectCycle
-    * @param accepting
-    */
-   void detectCycle(const StateID accepting) {
-      storage->reset();
-
-      CheckerSettings settings = createRoundSetting();
-      settings.bounded = false;
-      settings.starting_state = accepting;
-      settings.final_state = accepting;
-
-      // Start coloring procedure
-      results = model_checker->conductCheck(settings);
    }
 
 public:
@@ -142,33 +96,9 @@ public:
    }
 
    /**
-    * @brief doAnalysis Compute additional analyses.
-    */
-   void doAnalysis() {
-      // Compute witnesses etc. if there is anything to computed, if so, print
-      if (results.is_accepting) {
-         searcher->findWitnesses(split_manager->getParamNo(), results);
-         robustness->compute(split_manager->getParamNo(), results, searcher->getTransitions());
-      }
-   }
-
-   /**
-    * Store results that have not been stored yet and finalize the round where needed.
-    */
-   void doOutput() {
-      if (results.is_accepting) {
-         string robustness_val = user_options.compute_robustness ? toString(robustness->getRobustness()) : "";
-         string witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
-
-         output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
-      }
-   }
-
-   /**
     * Main synthesis function that iterates through all the rounds of the synthesis.
     */
    void checkFinite() {
-      // time_manager.startClock("coloring");
       output->outputForm();
 
       // Do the computation for all the rounds
@@ -176,15 +106,30 @@ public:
          if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
          output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
-         colorProduct(user_options.bounded_check, true);
-         if (user_options.analysis())
-            doAnalysis();
-         doOutput();
+         storage->reset();
+
+         CheckerSettings settings = createRoundSetting();
+         settings.bounded = user_options.bounded_check;
+         settings.minimal = true;
+         settings.mark_initals = true;
+         results = model_checker->conductCheck(settings);
+
+         if (user_options.analysis() && results.is_accepting) {
+            searcher->findWitnesses(results, settings);
+            robustness->compute(results, searcher->getTransitions(), settings);
+         }
+
+         if (results.is_accepting) {
+            string robustness_val = user_options.compute_robustness ? toString(robustness->getRobustness()) : "";
+            string witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
+            output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
+         }
+
          total_colors += results.is_accepting;
+
       } while (split_manager->increaseRound());
 
       output->outputSummary(total_colors, split_manager->getProcColorsCount());
-      // time_manager.writeClock("coloring");
    }
 
    /**
@@ -198,14 +143,31 @@ public:
          if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound();
          output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
-         colorProduct(user_options.bounded_check, false);
-         vector<StateID> finals = storage->getFound(product.getFinalStates());
-         for (const StateID & final : finals) {
-            colorAccepting(final);
-            detectCycle(final);
+
+         CheckerSettings settings = createRoundSetting();
+         settings.bounded = user_options.bounded_check;
+         settings.minimal = false;
+         results = model_checker->conductCheck(settings);
+
+         map<StateID, size_t> finals = results.found_depth;
+         for (const pair<StateID, size_t> & final : finals) {
+            storage->reset();
+
+            CheckerSettings settings = createRoundSetting();
+            settings.bounded = false;
+            settings.initial_states = {final.first};
+            settings.final_states = {final.first};
+            settings.bfs_bound = global_BFS_bound - final.second;
+
+            // Start coloring procedure
+            results = model_checker->conductCheck(settings);
          }
 
-         doOutput();
+         if (results.is_accepting) {
+            string robustness_val = user_options.compute_robustness ? toString(robustness->getRobustness()) : "";
+            string witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
+            output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
+         }
          total_colors += results.is_accepting;
       } while (split_manager->increaseRound());
 

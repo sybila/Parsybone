@@ -10,6 +10,7 @@
 #define PARSYBONE_ROBUSTNESS_COMPUTE_INCLUDE
 
 #include "witness_searcher.hpp"
+#include "checker_setting.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class responsible for computation of robustness values for each acceptable parametrization.
@@ -19,7 +20,7 @@
 class RobustnessCompute {
    const ProductStructure & product; ///< Product reference for state properties.
    const ColorStorage & storage; ///< Constant storage with the actuall data.
-   ParamNo param_no; ///< Range of parametrizations used this round
+   CheckerSettings settings; ///< Setup for the process.
 
    /// This structure holds values used in the iterative process of robustness computation.
    vector<size_t> exits; ///< A number of transitions this state can be left through under given parametrization.
@@ -32,7 +33,7 @@ class RobustnessCompute {
    void computeExits(const vector<StateTransition> & transitions) {
       // If not acceptable, leave zero
       for (const StateTransition & tran : transitions) {
-         const vector<StateID> transports = ColoringFunc::broadcastParameters(param_no, product.getStructure(), product.getKSID(tran.first));
+         const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product.getStructure(), product.getKSID(tran.first));
 
          // Consider only the steps that go towards a single state of the BA (picked the highest).
          exits[tran.first] += max(1u, transports.size());
@@ -54,7 +55,7 @@ class RobustnessCompute {
     * @brief setInitials
     */
    void setInitials() {
-      const vector<StateID> & initials = product.getInitialStates();
+      const vector<StateID> & initials = settings.getInitials(product);
 
       for (const StateID init:initials)
          next_prob[init] = 1.0 / initials.size();
@@ -80,8 +81,8 @@ public:
    /**
     * Function that computes robustness values for each parametrization.
     */
-   void compute(const ParamNo _param_no, const SynthesisResults & results, const vector<pair<StateID,StateID> > & transitions) {
-      param_no = _param_no;
+   void compute(const SynthesisResults & results, const vector<pair<StateID,StateID> > & transitions, const CheckerSettings & _settings) {
+      settings = _settings;
       initiate();
       computeExits(transitions);
 
@@ -109,7 +110,7 @@ public:
     */
    double getRobustness() const {
       double robustness = 0.;
-      for (const StateID ID:product.getFinalStates())
+      for (const StateID ID:settings.getFinals(product))
          robustness += next_prob[ID];
       return robustness;
    }
@@ -119,8 +120,8 @@ public:
     */
    vector<double> getFinalMarkings() const {
       vector<double> markings;
-      markings.reserve(product.getFinalStates().size());
-      for (const StateID ID:product.getFinalStates())
+      markings.reserve(settings.getFinals(product).size());
+      for (const StateID ID:settings.getFinals(product))
          markings.push_back(next_prob[ID]);
       return markings;
    }
