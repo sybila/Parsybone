@@ -81,6 +81,15 @@ public:
 	virtual inline const vector<StateID> & getInitialStates() const {
 		return initial_states;
 	}
+
+   /**
+    * @brief getMyType obtain type of the automaton
+    *
+    * @return value of AutType enum
+    */
+   virtual inline AutType getMyType() const {
+      return my_type;
+   }
 };
 
 #endif // PARSYBONE_AUTOMATON_INTERFACE_INCLUDED

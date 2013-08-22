@@ -56,12 +56,19 @@ class ProductStructure : public AutomatonInterface<ProdState>, public TSInterfac
    inline void addState(const StateID KS_ID, const StateID BA_ID, const vector<StateID> & _loops) {
       // Create the state label
       const Levels& levels = structure.getStateLevels(KS_ID);
+      StateID ID = getProductID(KS_ID, BA_ID);
+
+      // Add final and initial marks based on the property and only for the states that are allowed to leave by the automaton.
+      // E.g. initials of a time series are only those in the first measurement.
       bool is_initial = false, is_final = false;
       if (automaton.isInitial(BA_ID))
          is_initial = automaton.hasTransition(BA_ID, levels);
-      if (automaton.isFinal(BA_ID))
-         is_final = true;
-      StateID ID = getProductID(KS_ID, BA_ID);
+      if (automaton.isFinal(BA_ID)) {
+         if (automaton.getMyType() == BA_finite)
+            is_final = true;
+         else
+            is_final = automaton.hasTransition(BA_ID, levels);
+      }
       if (is_final)
          final_states.push_back(ID);
       if (is_initial)

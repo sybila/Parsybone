@@ -32,7 +32,6 @@ int main(int argc, char* argv[]) {
    Model model;
    PropertyAutomaton property;
 
-
    try {
       ParsingManager::parseOptions(argc, argv);
       model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
@@ -47,9 +46,9 @@ int main(int argc, char* argv[]) {
    try {
       ProductStructure product = ConstructionManager::construct(model, property);
       SynthesisManager synthesis_manager(product, model, property);
-      if (property.getPropType() == TimeSeries)
+      if (product.getAutomaton().getMyType() == BA_finite)
          synthesis_manager.checkFinite();
-      else if (property.getPropType() == LTL)
+      else if (product.getAutomaton().getMyType() == BA_standard)
          synthesis_manager.checkGeneral();
    }
    catch (std::exception & e) {

@@ -16,8 +16,6 @@
 #include "automaton_structure.hpp"
 #include "automaton_helper.hpp"
 
-// TODO: All the possible states are stored for outgoing transitions. Change.
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///  \brief Transform graph of the automaton into a set of labeled transitions in an AutomatonStructure object.
 ///
@@ -86,10 +84,10 @@ class AutomatonBuilder {
    void setAutType(AutomatonStructure & automaton) {
       switch (property.getPropType()) {
          case LTL:
-            automaton.my_type = BA_finite;
+            automaton.my_type = BA_standard;
             break;
          case TimeSeries:
-            automaton.my_type = BA_standard;
+            automaton.my_type = BA_finite;
             break;
          default:
          throw runtime_error("Type of the verification automaton is not known.");
