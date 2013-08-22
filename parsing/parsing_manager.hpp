@@ -10,7 +10,7 @@
 #define PARSYBONE_PARSING_MANAGER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
-#include "../synthesis/SQLAdapter.hpp"
+#include <PunyHeaders/SQLAdapter.hpp>
 #include "data_parser.hpp"
 #include "argument_parser.hpp"
 
@@ -36,7 +36,7 @@ namespace ParsingManager {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);
       }
       if(user_options.use_database) {
-         sql_adapter.setDatabase(user_options.database_file);
+         sql_adapter.setMovedObjbase(user_options.database_file);
       }
    }
 

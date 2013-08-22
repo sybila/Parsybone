@@ -19,7 +19,6 @@
 #include "color_storage.hpp"
 #include "model_checker.hpp"
 #include "split_manager.hpp"
-#include "SQLAdapter.hpp"
 #include "robustness_compute.hpp"
 #include "checker_setting.hpp"
 

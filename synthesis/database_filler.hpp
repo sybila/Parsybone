@@ -3,7 +3,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
-#include "SQLAdapter.hpp"
+#include <PunyHeaders/SQLAdapter.hpp>
 
 class DatabaseFiller {
    const string COMPONENTS_TABLE;
