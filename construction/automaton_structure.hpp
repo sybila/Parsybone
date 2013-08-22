@@ -37,7 +37,19 @@ struct AutState : public AutomatonStateProperty<AutTransitionion> {
 /// AutomatonStructure data can be set only from the AutomatonStructureBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonStructure : public AutomatonInterface<AutState> {
+public:
    friend class AutomatonBuilder;
+   AutomatonStructure() = default;
+   AutomatonStructure(AutomatonStructure && ) = default;
+   AutomatonStructure(const AutomatonStructure & ) = delete;
+   AutomatonStructure& operator=(const AutomatonStructure & ) = delete;
+   AutomatonStructure& operator= (AutomatonStructure && other) {
+      states = move(other.states);
+      my_type = other.my_type;
+      initial_states = move(other.initial_states);
+      final_states = move(other.final_states);
+      return *this;
+   }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // FILLING METHODS (can be used only from AutomatonStructureBuilder)

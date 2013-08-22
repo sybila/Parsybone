@@ -25,6 +25,15 @@
 
 class UnparametrizedStructure : public TSInterface<TSStateProperty> {
 	friend class UnparametrizedStructureBuilder;
+public:
+   UnparametrizedStructure() = default;
+   UnparametrizedStructure(UnparametrizedStructure && ) = default;
+   UnparametrizedStructure(const UnparametrizedStructure & ) = delete;
+   UnparametrizedStructure& operator=(const UnparametrizedStructure & ) = delete;
+   UnparametrizedStructure& operator=(UnparametrizedStructure && other) {
+      states = move(other.states);
+      return *this;
+   }
 
    /**
 	 * Add a new state, only with ID and levels

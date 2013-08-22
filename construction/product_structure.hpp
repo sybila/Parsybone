@@ -90,6 +90,18 @@ public:
    ProductStructure(UnparametrizedStructure _structure, AutomatonStructure _automaton) : structure(move(_structure)), automaton(move(_automaton)) {
       my_type = _automaton.getMyType();
    }
+   ProductStructure(ProductStructure && ) = default;
+   ProductStructure(const ProductStructure & ) = delete;
+   ProductStructure& operator=(const ProductStructure & ) = delete;
+   ProductStructure& operator=(ProductStructure && other) {
+      structure = move(other.structure);
+      automaton = move(other.automaton);
+      states = move(other.states);
+      my_type = other.my_type;
+      initial_states = move(other.initial_states);
+      final_states = move(other.final_states);
+      return *this;
+   }
 
    const inline UnparametrizedStructure & getStructure() const {
       return structure;

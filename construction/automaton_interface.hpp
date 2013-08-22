@@ -42,6 +42,7 @@ protected:
    AutType my_type; ///< Type of this automaton (influences verification procedure).
 
 public:
+
 	/**
     * For a given state find out whether it is marked as final.
 	 *

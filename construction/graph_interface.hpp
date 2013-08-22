@@ -55,6 +55,7 @@ protected:
 
 public:
    NO_COPY(GraphInterface)
+   virtual ~GraphInterface() = default;
 
 	/**
 	 * Obtains number of states of the graph.

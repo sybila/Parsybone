@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
    time_manager.startClock("* Runtime", false);
    Model model;
    PropertyAutomaton property;
+   ProductStructure product;
 
    try {
       ParsingManager::parseOptions(argc, argv);
@@ -44,7 +45,7 @@ int main(int argc, char* argv[]) {
    }
 
    try {
-      ProductStructure product = ConstructionManager::construct(model, property);
+      product = ConstructionManager::construct(model, property);
       SynthesisManager synthesis_manager(product, model, property);
       synthesis_manager.doSynthesis();
    }
