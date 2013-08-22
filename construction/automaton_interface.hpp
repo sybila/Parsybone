@@ -35,10 +35,11 @@ struct AutomatonStateProperty : public StateProperty<Transition> {
 ///  \brief Interface for all the classes that represent a Buchi automaton. Buchi automaton is based on a GraphInterface.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename StateT>
-class AutomatonInterface : public GraphInterface<StateT> {
+class AutomatonInterface : public virtual GraphInterface<StateT> {
 protected:
    vector<StateID> initial_states; ///< Vector with indexes of initial states (in this case only the first state).
    vector<StateID> final_states; ///< Vector with indexes of final states of the BA.
+   AutType my_type; ///< Type of this automaton (influences verification procedure).
 
 public:
 	/**

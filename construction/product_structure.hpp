@@ -14,6 +14,7 @@
 #include "../auxiliary/output_streamer.hpp"
 #include "../construction/automaton_structure.hpp"
 #include "../construction/unparametrized_structure.hpp"
+#include "transition_system_interface.hpp"
 
 /// Storing a single transition to neighbour state together with its transition function.
 struct ProdTransitionion : public TransitionProperty {
@@ -43,7 +44,7 @@ struct ProdState : public AutomatonStateProperty<ProdTransitionion> {
 ///
 /// ProductStructure data can be set only from the ProductBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ProductStructure : public AutomatonInterface<ProdState> {
+class ProductStructure : public AutomatonInterface<ProdState>, public TSInterface<ProdState> {
    friend class ProductBuilder;
    UnparametrizedStructure structure;
    AutomatonStructure automaton;
@@ -115,14 +116,6 @@ public:
       label += toString(getBAID(ID)) + ")";
 
       return label;
-   }
-
-   inline const TransConst & getTransitionConst(const StateID ID, const size_t trans_no) const {
-      return states[ID].transitions[trans_no].trans_const;
-   }
-
-   inline const Levels & getStateLevels(const StateID ID) const {
-      return states[ID].levels;
    }
 };
 

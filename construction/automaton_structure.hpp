@@ -84,6 +84,9 @@ public:
       return false;
    }
 
+   /**
+    * @return true if there is an outgoing transition from this state at given levels
+    */
    bool hasTransition(const StateID ID, const Levels & levels) {
       for (const size_t trans_no : scope(states[ID].transitions))
          if (isTransitionFeasible(ID, trans_no, levels))

@@ -13,22 +13,6 @@
 #include "PunyHeaders/common_functions.hpp"
 #include "transition_system_interface.hpp"
 
-/// Storing a single transition to neighbour state together with its transition function.
-struct ParTransitionion : public TransitionProperty {
-   TransConst trans_const;
-
-   ParTransitionion(const StateID target_ID, const ParamNo _step_size, const bool _req_op, const ActLevel _req_comp, const Levels & _targets)
-      : TransitionProperty(target_ID), trans_const({_step_size, _req_op, _req_comp, _targets}) {}
-};
-
-/// Simple state enriched with transition functions
-struct ParState : public StateProperty<ParTransitionion> {
-   Levels levels; ///< Species_level[i] = activation level of specie i.
-
-   ParState(const StateID ID, const Levels& _species_level)
-      : StateProperty<ParTransitionion>(ID), levels(_species_level) { } ///< Simple filler, assigns values to all the variables.
-};
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Complete Kripke structure with only possible transitions containing encoded kinetic functions.
 ///
@@ -38,14 +22,15 @@ struct ParState : public StateProperty<ParTransitionion> {
 /// - that is the value saying how many bits of mask share the the same value for the function.
 /// UnparametrizedStructure data can be set only from the UnparametrizedStructureBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class UnparametrizedStructure : public GraphInterface<ParState> {
+
+class UnparametrizedStructure : public TSInterface<TSStateProperty> {
 	friend class UnparametrizedStructureBuilder;
 
    /**
 	 * Add a new state, only with ID and levels
 	 */
    inline void addState(const StateID ID, const Levels& species_level) {
-      states.push_back(ParState(ID, species_level));
+      GraphInterface<TSStateProperty>::states.push_back(TSStateProperty(ID, species_level));
 	}
 
 	/**
@@ -53,16 +38,8 @@ class UnparametrizedStructure : public GraphInterface<ParState> {
 	 * Add a new transition to the source specie, containg necessary edge labels for the CMC
 	 */
    inline void addTransition(const StateID ID, const StateID target_ID, const ParamNo step_size,  const bool _dir, const ActLevel level, const Levels & targets) {
-      states[ID].transitions.push_back(ParTransitionion(target_ID, step_size, _dir, level, targets));
+      GraphInterface<TSStateProperty>::states[ID].transitions.push_back(TSTransitionProperty(target_ID, step_size, _dir, level, targets));
 	}
-public:
-   inline const TransConst & getTransitionConst(const StateID ID, const size_t trans_no) const {
-      return states[ID].transitions[trans_no].trans_const;
-   }
-
-   inline const Levels & getStateLevels(const StateID ID) const {
-      return states[ID].levels;
-   }
 };
 
 #endif // PARSYBONE_UNPARAMETRIZED_STRUCTURE_INCLUDED

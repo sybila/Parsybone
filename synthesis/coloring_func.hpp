@@ -19,8 +19,8 @@ namespace ColoringFunc {
    /**
     * @return vector of reachable targets from ID for this parametrization
     */
-   template<class TransitionSystem>
-   vector<StateID> broadcastParameters(const ParamNo param_no, const TransitionSystem & ts, const StateID ID) {
+   template <class State>
+   vector<StateID> broadcastParameters(const ParamNo param_no, const TSInterface<State> & ts, const StateID ID) {
       // To store parameters that passed the transition but were not yet added to the target
       vector<StateID> param_updates;
 

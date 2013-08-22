@@ -26,7 +26,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonBuilder {
    const Model & model; ///< Model that holds the data.
-   const PropertyAutomaton & source;
+   const PropertyAutomaton & property;
 
    Levels maxes; ///< Maximal activity levels of the species.
    Levels mins; ///< Minimal activity levels of the species.
@@ -67,10 +67,10 @@ class AutomatonBuilder {
     * Creates transitions from labelled edges of BA and passes them to automaton structure.
     */
    void addTransitions(AutomatonStructure & automaton, const StateID ID) const {
-      const PropertyAutomaton::Edges & edges = source.getEdges(ID);
+      const PropertyAutomaton::Edges & edges = property.getEdges(ID);
 
       // Transform each edge into transition and pass it to the automaton
-      for (size_t edge_num = 0; edge_num < source.getEdges(ID).size(); edge_num++) {
+      for (size_t edge_num = 0; edge_num < property.getEdges(ID).size(); edge_num++) {
          // Compute allowed values from string of constrains
          Configurations allowed_values = move(getAllowed(edges[edge_num].second));
          // If the transition is possible for at least some values, add it
@@ -80,8 +80,24 @@ class AutomatonBuilder {
       }
    }
 
+   /**
+    * @brief setAutType sets type of the automaton based on the type of the property
+    */
+   void setAutType(AutomatonStructure & automaton) {
+      switch (property.getPropType()) {
+         case LTL:
+            automaton.my_type = BA_finite;
+            break;
+         case TimeSeries:
+            automaton.my_type = BA_standard;
+            break;
+         default:
+         throw runtime_error("Type of the verification automaton is not known.");
+      }
+   }
+
 public:
-   AutomatonBuilder(const Model & _model, const PropertyAutomaton & _source) : model(_model), source(_source) {
+   AutomatonBuilder(const Model & _model, const PropertyAutomaton & _property) : model(_model), property(_property) {
       computeBoundaries();
    }
 
@@ -90,14 +106,15 @@ public:
     */
    AutomatonStructure buildAutomaton() {
       AutomatonStructure automaton;
-      const size_t state_count = source.getStatesCount();
+      setAutType(automaton);
+      const size_t state_count = property.getStatesCount();
       size_t state_no = 0;
 
       // List throught all the automaton states
-      for (StateID ID = 0; ID < source.getStatesCount(); ID++) {
+      for (StateID ID = 0; ID < property.getStatesCount(); ID++) {
          output_streamer.output(verbose_str, "Building automaton state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
          // Fill auxiliary data
-         automaton.addState(ID, source.isFinal(ID));
+         automaton.addState(ID, property.isFinal(ID));
          // Add transitions for this state
          addTransitions(automaton, ID);
       }

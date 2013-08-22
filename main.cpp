@@ -31,12 +31,13 @@ int main(int argc, char* argv[]) {
    time_manager.startClock("* Runtime", false);
    Model model;
    PropertyAutomaton property;
-   ProductStructure product;
+
 
    try {
       ParsingManager::parseOptions(argc, argv);
       model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
       property = ParsingManager::parseProperty(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
+      ConstructionManager::computeModelProps(model);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
@@ -44,16 +45,7 @@ int main(int argc, char* argv[]) {
    }
 
    try {
-      // Pass the model
-      ConstructionManager::computeModelProps(model);
-      product = ConstructionManager::construct(model, property);
-   }
-   catch (std::exception & e) {
-      output_streamer.output(error_str, string("Error occured while constructing data structures: \"").append(e.what()).append("\"."));
-      return 2;
-   }
-
-   try {
+      ProductStructure product = ConstructionManager::construct(model, property);
       SynthesisManager synthesis_manager(product, model, property);
       if (property.getPropType() == TimeSeries)
          synthesis_manager.checkFinite();
@@ -62,7 +54,7 @@ int main(int argc, char* argv[]) {
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while syntetizing the parameters: \"").append(e.what()).append("\"."));
-      return 3;
+      return 2;
    }
 
    if (user_options.be_verbose) {
