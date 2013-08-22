@@ -34,7 +34,7 @@ class ModelChecker {
 
    // BFS boundaries
    size_t BFS_level; ///< Number of current BFS level during coloring, starts from 0, meaning 0 transitions.
-   bool accepted; ///< True if the property was accepted.
+   SynthesisResults results;
 
    /**
     * From the source distribute its parameters and newly colored neighbours shedule for update.
@@ -67,7 +67,7 @@ class ModelChecker {
 
       // Check if this is not the last round
       if (settings.isFinal(ID, product))
-         accepted = true;
+         results.found_depth.insert({ID, BFS_level});
 
       transferUpdates(ID);
       updates.erase(ID);
@@ -76,7 +76,7 @@ class ModelChecker {
       if (updates.empty() && (BFS_level < settings.getBound())) {
          updates = move(next_updates);
          storage.addFrom(next_round_storage);
-         if (settings.isMinimal() && accepted)
+         if (settings.isMinimal() && results.is_accepting)
             return;
          BFS_level++; // Increase level
       }
@@ -89,7 +89,7 @@ class ModelChecker {
       next_updates.clear(); // Ensure emptiness of the next round
       next_round_storage.reset(); // Copy starting values
       BFS_level = 0;
-      accepted = false;
+      results = SynthesisResults();
    }
 
    /**
@@ -123,10 +123,7 @@ public:
          doColoring();
       } while (!updates.empty());
 
-      // After the coloring, pass cost to the coloring (and computed colors = starting - not found)
-      SynthesisResults results;
-      results.setResults(BFS_level, accepted);
-
+      results.derive();
       return results;
    }
 };

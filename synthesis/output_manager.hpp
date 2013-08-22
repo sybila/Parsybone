@@ -96,7 +96,7 @@ public:
       string update = param_vals;
       update.back() = ','; // must remove closing bracket, it will be added by database manager
 
-      line += toString(cost);
+      line += toString(cost) + separator;
       update += toString(cost) + ",";
 
       line += robustness + separator;

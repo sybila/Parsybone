@@ -11,27 +11,23 @@
 
 #include "../auxiliary/data_types.hpp"
 
-class SynthesisResults {
+struct SynthesisResults {
    size_t lower_bound; ///< costs of individual parametrizations used this round
    bool is_accepting; ///< a mask for parametrizations accepting in this round
+   map<StateID, size_t> found_depth; ///< when a final state was found
 
-public:
+   SynthesisResults() {
+      lower_bound = INF;
+      is_accepting = false;
+   }
+
    /**
-    * Fills after time series check finished.
-    * @param new_costs	a cost value. If the value does not exist (state is not reachable), use INF
+    * @brief derive  information from stored final states
     */
-   void setResults(const size_t & _lower_bound, const bool _is_accepting) {
-      lower_bound = _lower_bound;
-      is_accepting = _is_accepting;
-   }
-
-
-   size_t getCost() const {
-      return lower_bound;
-   }
-
-   const bool & isAccepting() const {
-      return is_accepting;
+   void derive() {
+      is_accepting = !found_depth.empty();
+      for (const pair<StateID, size_t> & state : found_depth)
+         lower_bound = min(lower_bound, state.second);
    }
 };
 

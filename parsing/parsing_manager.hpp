@@ -36,7 +36,7 @@ namespace ParsingManager {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);
       }
       if(user_options.use_database) {
-         sql_adapter.setMovedObjbase(user_options.database_file);
+         sql_adapter.setDatabase(user_options.database_file);
       }
    }
 

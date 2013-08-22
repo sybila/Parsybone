@@ -14,7 +14,7 @@
 TEST_F(SynthesisTest, TestColoring) {
    ColorStorage c_2_s_2_o_stor(c_2_set_two_ones);
    ModelChecker c_2_s_2_o_check(c_2_set_two_ones, c_2_s_2_o_stor);
-   EXPECT_TRUE(c_2_s_2_o_check.conductCheck(CheckerSettings()).isAccepting());
+   EXPECT_TRUE(c_2_s_2_o_check.conductCheck(CheckerSettings()).is_accepting);
 }
 
 TEST_F(SynthesisTest, TestRobustness) {

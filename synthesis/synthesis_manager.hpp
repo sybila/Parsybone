@@ -120,17 +120,16 @@ public:
 
       total_colors = 0ul;
       global_BFS_bound = user_options.bound_size;
-      results.setResults(INF, false);
    }
 
    /**
     * @brief checkDepthBound see if there is not a new BFS depth bound
     */
    void checkDepthBound() {
-      const size_t cur_cost = results.getCost();
+      const size_t cur_cost = results.lower_bound;
       if (cur_cost < global_BFS_bound) {
          output_streamer.clear_line(verbose_str);
-         if (cur_cost != results.getCost() || global_BFS_bound != INF) {
+         if (cur_cost != results.lower_bound || global_BFS_bound != INF) {
             split_manager->setStartPositions();
             output->eraseData();
             output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(cur_cost));
@@ -147,7 +146,7 @@ public:
     */
    void doAnalysis() {
       // Compute witnesses etc. if there is anything to computed, if so, print
-      if (results.isAccepting()) {
+      if (results.is_accepting) {
          searcher->findWitnesses(split_manager->getParamNo(), results);
          robustness->compute(split_manager->getParamNo(), results, searcher->getTransitions());
       }
@@ -157,11 +156,11 @@ public:
     * Store results that have not been stored yet and finalize the round where needed.
     */
    void doOutput() {
-      if (results.isAccepting()) {
+      if (results.is_accepting) {
          string robustness_val = user_options.compute_robustness ? toString(robustness->getRobustness()) : "";
          string witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
 
-         output->outputRound(split_manager->getParamNo(), results.getCost(), robustness_val, witness);
+         output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
       }
    }
 
@@ -181,7 +180,7 @@ public:
          if (user_options.analysis())
             doAnalysis();
          doOutput();
-         total_colors += results.isAccepting();
+         total_colors += results.is_accepting;
       } while (split_manager->increaseRound());
 
       output->outputSummary(total_colors, split_manager->getProcColorsCount());
@@ -207,7 +206,7 @@ public:
          }
 
          doOutput();
-         total_colors += results.isAccepting();
+         total_colors += results.is_accepting;
       } while (split_manager->increaseRound());
 
       output->outputSummary(total_colors, split_manager->getProcColorsCount());
