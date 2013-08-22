@@ -46,10 +46,7 @@ int main(int argc, char* argv[]) {
    try {
       ProductStructure product = ConstructionManager::construct(model, property);
       SynthesisManager synthesis_manager(product, model, property);
-      if (product.getAutomaton().getMyType() == BA_finite)
-         synthesis_manager.checkFinite();
-      else if (product.getAutomaton().getMyType() == BA_standard)
-         synthesis_manager.checkGeneral();
+      synthesis_manager.doSynthesis();
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while syntetizing the parameters: \"").append(e.what()).append("\"."));

@@ -87,7 +87,9 @@ class ProductStructure : public AutomatonInterface<ProdState>, public TSInterfac
 
 public:
    ProductStructure() = default;
-   ProductStructure(UnparametrizedStructure _structure, AutomatonStructure _automaton) : structure(move(_structure)), automaton(move(_automaton)) {}
+   ProductStructure(UnparametrizedStructure _structure, AutomatonStructure _automaton) : structure(move(_structure)), automaton(move(_automaton)) {
+      my_type = _automaton.getMyType();
+   }
 
    const inline UnparametrizedStructure & getStructure() const {
       return structure;

@@ -85,6 +85,7 @@ class ModelChecker {
     * @brief prepareObjects   create empty space in the employed objects
     */
    void prepareObjects() {
+      storage.reset();
       next_updates.clear(); // Ensure emptiness of the next round
       BFS_level = 0;
       results = SynthesisResults();

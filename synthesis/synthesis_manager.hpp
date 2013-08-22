@@ -44,9 +44,8 @@ class SynthesisManager {
    unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
    unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness.
 
-   ParamNo total_colors;
-   size_t global_BFS_bound;
-   SynthesisResults results;
+   ParamNo valid_param_count; ///< Number of parametrizations that were considered satisfiable.
+   size_t global_BFS_bound; ///< Maximal number of steps any property can take.
 
    /**
     * @return settings fit for this round
@@ -56,6 +55,95 @@ class SynthesisManager {
       settings.bfs_bound = global_BFS_bound;
       settings.param_no = split_manager->getParamNo();
       return settings;
+   }
+
+   /**
+    * @brief checkDepthBound see if there is not a new BFS depth bound
+    */
+   void checkDepthBound(const size_t depth) {
+      if (depth < global_BFS_bound) {
+         output_streamer.clear_line(verbose_str);
+         if (global_BFS_bound != INF) {
+            split_manager->setStartPositions();
+            output->eraseData();
+            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(depth));
+            valid_param_count = 0;
+         } else { // You may not have to restart if the bound was found this round and everyone has it.
+            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(depth));
+         }
+         global_BFS_bound = depth;
+      }
+   }
+
+   void checkFinite() {
+      output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
+
+      CheckerSettings settings = createRoundSetting();
+      settings.bounded = user_options.bounded_check;
+      settings.minimal = true;
+      settings.mark_initals = true;
+      SynthesisResults results = model_checker->conductCheck(settings);
+
+      if (user_options.analysis() && results.is_accepting) {
+         searcher->findWitnesses(results, settings);
+         robustness->compute(results, searcher->getTransitions(), settings);
+      }
+
+      if (results.is_accepting) {
+         if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
+            checkDepthBound(results.lower_bound);
+         valid_param_count += 1;
+
+         string robustness_val = user_options.compute_robustness ? toString(robustness->getRobustness()) : "";
+         string witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
+         output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
+      }
+   }
+
+   void checkFull() {
+      output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
+
+      CheckerSettings settings = createRoundSetting();
+      settings.bounded = user_options.bounded_check;
+      settings.minimal = false;
+      settings.mark_initals = true;
+      SynthesisResults results = model_checker->conductCheck(settings);
+
+      map<StateID, size_t> finals = results.found_depth;
+      for (const pair<StateID, size_t> & final : finals) {
+         settings.minimal = true;
+         settings.initial_states = {final.first};
+         settings.final_states = {final.first};
+         settings.bfs_bound = global_BFS_bound == INF ? global_BFS_bound : (global_BFS_bound - final.second);
+
+         results = model_checker->conductCheck(settings);
+         if (results.is_accepting && (final.second + results.lower_bound <= global_BFS_bound )) {
+            if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
+               checkDepthBound(results.lower_bound + final.second);
+            valid_param_count += 1;
+
+            double robutness_val = 0.;
+            string witness1, witness2;
+            if (user_options.analysis()) {
+               searcher->findWitnesses(results, settings);
+               robustness->compute(results, searcher->getTransitions(), settings);
+               robutness_val = robustness->getRobustness();
+               witness1 = WitnessSearcher::getOutput(product, searcher->getTransitions());
+
+               settings.bfs_bound = final.second;
+               settings.initial_states.clear();
+               results = model_checker->conductCheck(settings);
+
+               searcher->findWitnesses(results, settings);
+               robustness->compute(results, searcher->getTransitions(), settings);
+               robutness_val += robustness->getRobustness();
+               witness2 = WitnessSearcher::getOutput(product, searcher->getTransitions());
+            }
+            string robustness_val = user_options.compute_robustness ? toString(robutness_val) : "";
+            string witness = user_options.compute_wintess ? witness1 + witness2 : "";
+            output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
+         }
+      }
    }
 
 public:
@@ -72,106 +160,30 @@ public:
       database.reset(new DatabaseFiller(model));
       output.reset(new OutputManager(property, model, *database));
 
-      total_colors = 0ul;
+      valid_param_count = 0ul;
       global_BFS_bound = user_options.bound_size;
-   }
-
-   /**
-    * @brief checkDepthBound see if there is not a new BFS depth bound
-    */
-   void checkDepthBound() {
-      const size_t cur_cost = results.lower_bound;
-      if (cur_cost < global_BFS_bound) {
-         output_streamer.clear_line(verbose_str);
-         if (cur_cost != results.lower_bound || global_BFS_bound != INF) {
-            split_manager->setStartPositions();
-            output->eraseData();
-            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(cur_cost));
-            total_colors = 0;
-         } else { // You may not have to restart if the bound was found this round and everyone has it.
-            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(cur_cost));
-         }
-         global_BFS_bound = cur_cost;
-      }
    }
 
    /**
     * Main synthesis function that iterates through all the rounds of the synthesis.
     */
-   void checkFinite() {
+   void doSynthesis() {
       output->outputForm();
-
       // Do the computation for all the rounds
       do {
-         if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
-            checkDepthBound();
-         output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
-         storage->reset();
-
-         CheckerSettings settings = createRoundSetting();
-         settings.bounded = user_options.bounded_check;
-         settings.minimal = true;
-         settings.mark_initals = true;
-         results = model_checker->conductCheck(settings);
-
-         if (user_options.analysis() && results.is_accepting) {
-            searcher->findWitnesses(results, settings);
-            robustness->compute(results, searcher->getTransitions(), settings);
+         switch (product.getMyType()) {
+         case BA_finite:
+            checkFinite();
+            break;
+         case BA_standard:
+            checkFull();
+            break;
+         default:
+            throw runtime_error("Unsupported Buchi automaton type.");
          }
-
-         if (results.is_accepting) {
-            string robustness_val = user_options.compute_robustness ? toString(robustness->getRobustness()) : "";
-            string witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
-            output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
-         }
-
-         total_colors += results.is_accepting;
-
       } while (split_manager->increaseRound());
 
-      output->outputSummary(total_colors, split_manager->getProcColorsCount());
-   }
-
-   /**
-    * @brief checkGeneral
-    */
-   void checkGeneral() {
-      output->outputForm();
-
-      // Do the computation for all the rounds
-      do {
-         if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
-            checkDepthBound();
-         output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
-
-         CheckerSettings settings = createRoundSetting();
-         settings.bounded = user_options.bounded_check;
-         settings.minimal = false;
-         results = model_checker->conductCheck(settings);
-
-         map<StateID, size_t> finals = results.found_depth;
-         for (const pair<StateID, size_t> & final : finals) {
-            storage->reset();
-
-            CheckerSettings settings = createRoundSetting();
-            settings.bounded = false;
-            settings.initial_states = {final.first};
-            settings.final_states = {final.first};
-            settings.bfs_bound = global_BFS_bound - final.second;
-
-            // Start coloring procedure
-            results = model_checker->conductCheck(settings);
-         }
-
-         if (results.is_accepting) {
-            string robustness_val = user_options.compute_robustness ? toString(robustness->getRobustness()) : "";
-            string witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
-            output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
-         }
-         total_colors += results.is_accepting;
-      } while (split_manager->increaseRound());
-
-      output->outputSummary(total_colors, split_manager->getProcColorsCount());
+      output->outputSummary(valid_param_count, split_manager->getProcColorsCount());
    }
 };
 
