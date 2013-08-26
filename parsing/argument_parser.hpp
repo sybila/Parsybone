@@ -117,7 +117,6 @@ class ArgumentParser {
          user_options.use_database = true;
          return getFileName(database, position, arguments.end());
       } else if (position->compare("--bound") == 0) {
-         user_options.bounded_check = true;
          return getBound(position, arguments.end());
       } else {
          throw invalid_argument("Unknown modifier " + *position);
@@ -158,8 +157,8 @@ class ArgumentParser {
          user_options.output_console = true;
          break;
 
-      case 'b':
-         user_options.bounded_check = true;
+      case 'm':
+         user_options.minimalize_cost = true;
          break;
 
       default:

@@ -25,10 +25,25 @@ using namespace std;
 #include "synthesis/synthesis_manager.hpp"
 
 /**
+ * @brief checkDepthBound see if there is not a new BFS depth bound
+ */
+void checkDepthBound(const size_t depth, SplitManager & split_manager, OutputManager & output, size_t & BFS_bound, ParamNo & valid_param_count) {
+   if (depth < BFS_bound && user_options.minimalize_cost) {
+      output_streamer.clear_line(verbose_str);
+      split_manager.setStartPositions();
+      output.eraseData();
+      output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(depth));
+      valid_param_count = 0;
+      BFS_bound = depth;
+   }
+}
+
+/**
  * Execution of succesive parts of the parameter synthesis.
  */
 int main(int argc, char* argv[]) {
    time_manager.startClock("* Runtime", false);
+
    Model model;
    PropertyAutomaton property;
    ProductStructure product;
@@ -37,7 +52,8 @@ int main(int argc, char* argv[]) {
       ParsingManager::parseOptions(argc, argv);
       model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
       property = ParsingManager::parseProperty(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
-   } catch (std::exception & e) {
+   }
+   catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
       return 1;
    }
@@ -45,17 +61,54 @@ int main(int argc, char* argv[]) {
    try {
       ConstructionManager::computeModelProps(model);
       product = ConstructionManager::construct(model, property);
-   } catch (std::exception & e) {
+   }
+   catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while building the data structures: \"").append(e.what()).append("\"."));
       return 2;
    }
 
    try {
+      // Data for synthesis
+      SplitManager split_manager(ModelTranslators::getSpaceSize(model));
+      DatabaseFiller database(model);
+      OutputManager output(property, model, database);
       SynthesisManager synthesis_manager(product, model, property);
-      synthesis_manager.doSynthesis();
-   } catch (std::exception & e) {
-      output_streamer.output(error_str, string("Error occured while syntetizing the parameters: \"").append(e.what()).append("\"."));
-      return 2;
+      ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
+      size_t BFS_bound = user_options.bound_size; ///< Maximal cost on the verified property.
+      output.outputForm();
+
+      // Do the computation for all the rounds
+      do {
+         output.outputRoundNo(split_manager.getRoundNo(), split_manager.getRoundCount());
+         string witness;
+         double robustness_val = 0.;
+         size_t cost = INF;
+
+         // Call synthesis procedure based on the type of the property.
+         switch (product.getMyType()) {
+         case BA_finite:
+            cost = synthesis_manager.checkFinite(witness, robustness_val, split_manager.getRoundNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
+            break;
+         case BA_standard:
+            cost = synthesis_manager.checkFull(witness, robustness_val, split_manager.getRoundNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
+            break;
+         default:
+            throw runtime_error("Unsupported Buchi automaton type.");
+         }
+
+         // Parametrization can satifsy
+         if (cost != INF) {
+            checkDepthBound(cost, split_manager, output, BFS_bound, param_count);
+            output.outputRound(split_manager.getParamNo(), cost, robustness_val, witness);
+            param_count++;
+         }
+      } while (split_manager.increaseRound());
+
+      output.outputSummary(param_count, split_manager.getProcColorsCount());
+   }
+   catch (std::exception & e) {
+      output_streamer.output(error_str, string("Error occured while syntetizing the parametrizations: \"").append(e.what()).append("\"."));
+      return 3;
    }
 
    if (user_options.be_verbose) {

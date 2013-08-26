@@ -114,21 +114,21 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
 
 TEST_F(SynthesisTest, TestBounds) {
    string witness; double robust;
-   user_options.bounded_check = true;
-   user_options.compute_robustness = true;
-   c_2_s_2_o_man->setBFSbound(4);
-   EXPECT_EQ(4, c_2_s_2_o_man->checkFinite(witness, robust));
-   c_2_s_2_o_man->setBFSbound(3);
-   EXPECT_EQ(INF, c_2_s_2_o_man->checkFinite(witness, robust)) << "Should not proceed as the bound is too low.";
+   EXPECT_EQ(4, c_2_s_2_o_man->checkFinite(witness, robust, 1, 4, false, false));
+   EXPECT_EQ(INF, c_2_s_2_o_man->checkFinite(witness, robust, 1, 3, false, false)) << "Should not proceed as the bound is too low.";
 
-   EXPECT_EQ(5, c_2_c_man->checkFull(witness, robust));
+   EXPECT_EQ(5, c_2_c_man->checkFull(witness, robust, 1, INF, true, true));
    EXPECT_TRUE(containsTrans(witness, {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)"}));
    EXPECT_DOUBLE_EQ(0.25, robust) << "Should be reduced only to 25% as the other path is 7 setps long.";
 
-   // ParamNo temp = ModelTranslators::getSpaceSize(one_three);
-
-   user_options.bounded_check = false;
-   user_options.bound_size = INF;
+   vector<size_t> sizes1;
+   vector<size_t> sizes2;
+   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
+      sizes1.push_back(b_k_c_man->checkFull(witness, robust, param_no, INF, true, true));
+      sizes2.push_back(b_k_c_man->checkFull(witness, robust, param_no, 3, true, true));
+   }
+   EXPECT_EQ(count(sizes2.begin(), sizes2.end(), INF),
+             count_if(sizes1.begin(), sizes1.end(),[](const size_t val){return val > 3;}));
 }
 
 #endif // SYNTHESIS_TESTS_HPP

@@ -15,20 +15,15 @@ class CheckerSettings {
 public:
    vector<StateID> initial_states;
    vector<StateID> final_states;
-   bool bounded;
    bool minimal;
    ParamNo param_no;
    size_t bfs_bound;
    bool mark_initals;
 
-   CheckerSettings() : bounded(false), minimal(false), param_no(1ul), bfs_bound(INF), mark_initals(false) { }
+   CheckerSettings() :  minimal(false), param_no(1ul), bfs_bound(INF), mark_initals(false) { }
 
    inline const ParamNo & getParamNo() const {
       return param_no;
-   }
-
-   inline bool getBounded() const {
-      return bounded;
    }
 
    inline bool isMinimal() const {

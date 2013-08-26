@@ -26,7 +26,7 @@ struct UserOptions {
    bool output_console;
    bool use_textfile;
    bool use_database;
-   bool bounded_check;
+   bool minimalize_cost;
    size_t bound_size;
    size_t process_number; ///< What is the ID of this process?
    size_t processes_count; ///< How many processes are included in the computation?
@@ -49,7 +49,7 @@ struct UserOptions {
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = bounded_check = be_verbose = use_long_witnesses = compute_robustness =  output_console = use_textfile = use_database = false;
+      compute_wintess = minimalize_cost = be_verbose = use_long_witnesses = compute_robustness =  output_console = use_textfile = use_database = false;
       database_file = datatext_file = "";
       bound_size = INF;
       process_number = processes_count = 1;

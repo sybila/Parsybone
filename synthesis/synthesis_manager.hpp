@@ -36,57 +36,25 @@ class SynthesisManager {
    const Model & model;
    const PropertyAutomaton & property;
 
-   unique_ptr<DatabaseFiller> database; ///< Class to output to a SQLite database;
    unique_ptr<ModelChecker> model_checker; ///< Class for synthesis.
-   unique_ptr<OutputManager> output; ///< Class for output.
-   unique_ptr<SplitManager> split_manager; ///< Control of independent rounds.
    unique_ptr<ColorStorage> storage; ///< Class that holds.
    unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
-   unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness.
-
-   ParamNo valid_param_count; ///< Number of parametrizations that were considered satisfiable.
-   size_t global_BFS_bound; ///< Maximal number of steps any property can take.
+   unique_ptr<RobustnessCompute> computer; ///< Class to compute robustness.
 
    /**
-    * @return settings fit for this round
+    * @brief analyseLasso Parametrization is know to be satisfiable, make analysis of it.
     */
-   CheckerSettings createRoundSetting() {
-      CheckerSettings settings;
-      settings.bfs_bound = global_BFS_bound;
-      settings.param_no = split_manager->getParamNo();
-      return settings;
-   }
-
-   /**
-    * @brief checkDepthBound see if there is not a new BFS depth bound
-    */
-   void checkDepthBound(const size_t depth) {
-      if (depth < global_BFS_bound) {
-         output_streamer.clear_line(verbose_str);
-         if (global_BFS_bound != INF) {
-            split_manager->setStartPositions();
-            output->eraseData();
-            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(depth));
-            valid_param_count = 0;
-         } else { // You may not have to restart if the bound was found this round and everyone has it.
-            output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(depth));
-         }
-         setBFSbound(depth);
-      }
-   }
-
-   void analyseLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans,  double & robust) {
-      CheckerSettings settings = createRoundSetting();
+   void analyseLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, double & robust, const bool robustness) {
       SynthesisResults results;
-
+      CheckerSettings settings;
       settings.final_states = {final.first};
       settings.minimal = settings.mark_initals = true;
       results = model_checker->conductCheck(settings);
       searcher->findWitnesses(results, settings);
       trans = searcher->getTransitions();
-      if (user_options.compute_robustness) {
-         robustness->compute(results, searcher->getTransitions(), settings);
-         robust = robustness->getRobustness();
+      if (robustness) {
+         computer->compute(results, searcher->getTransitions(), settings);
+         robust = computer->getRobustness();
       }
 
       settings.mark_initals = false;
@@ -95,22 +63,25 @@ class SynthesisManager {
       searcher->findWitnesses(results, settings);
       const vector<StateTransition> & trans_ref = searcher->getTransitions();
       trans.insert(trans.begin(), trans_ref.begin(), trans_ref.end());
-      if (user_options.compute_robustness) {
-         robustness->compute(results, searcher->getTransitions(), settings);
-         robust *= robustness->getRobustness();
+      if (robustness) {
+         computer->compute(results, searcher->getTransitions(), settings);
+         robust *= computer->getRobustness();
       }
    }
 
-   size_t computeLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans,  double & robust) {
-      CheckerSettings settings = createRoundSetting();
+   /**
+    * @brief computeLasso parametrization is know to reach a final state, test that state for a bounded loop.
+    */
+   size_t computeLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans,  double & robust, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+      CheckerSettings settings;
       settings.minimal = true;
       settings.initial_states = settings.final_states = {final.first};
-      settings.bfs_bound = global_BFS_bound == INF ? global_BFS_bound : (global_BFS_bound - final.second);
+      settings.bfs_bound = BFS_bound == INF ? BFS_bound : (BFS_bound - final.second);
 
       SynthesisResults results = model_checker->conductCheck(settings);
       const size_t cost = results.lower_bound == INF ? INF : results.lower_bound + final.second;
-      if (results.is_accepting && cost<= global_BFS_bound && user_options.analysis())
-         analyseLasso(final, trans, robust);
+      if (results.is_accepting && (witnesses || robustness))
+         analyseLasso(final, trans, robust, robustness);
 
       return cost;
    }
@@ -120,28 +91,28 @@ public:
     * Constructor builds all the data objects that are used within.
     */
    SynthesisManager(const ProductStructure & _product, const Model & _model, const PropertyAutomaton & _property) : product(_product), model(_model), property(_property) {
-      // Create classes that help with the synthesis
       storage.reset(new ColorStorage(product));
-      split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(model)));
       model_checker.reset(new ModelChecker(product, *storage));
       searcher.reset(new WitnessSearcher(product, *storage));
-      robustness.reset(new RobustnessCompute(product, *storage));
-      database.reset(new DatabaseFiller(model));
-      output.reset(new OutputManager(property, model, *database));
+      computer.reset(new RobustnessCompute(product, *storage));
    }
 
    /**
     * @brief checkFull conduct model check with only reachability
     * @param[in] witnesses for all the shortest cycles
     * @param[in] robustness_val  robustness of the whole computation
-    * @return  the Cost value for this parametrization
+    * @param param_no number of parametrization to test
+    * @param BFS_bound current bound on depth
+    * @param witnesses should compute witnesses
+    * @param robustness should compute robustness
+    * @return the Cost value for this parametrization
     */
-   size_t checkFull(string & witness, double & robust) {
+   size_t checkFull(string & witness_str, double & robust, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
       vector<StateTransition> trans;
 
-      CheckerSettings settings = createRoundSetting();
-      settings.bounded = user_options.bounded_check;
-      settings.minimal = false;
+      CheckerSettings settings;
+      settings.bfs_bound = BFS_bound;
+      settings.param_no = param_no;
       settings.mark_initals = true;
       SynthesisResults results = model_checker->conductCheck(settings);
 
@@ -150,7 +121,7 @@ public:
       for (const pair<StateID, size_t> & final : finals) {
          vector<StateTransition> trans_temp;
          double robust_temp;
-         size_t new_cost = computeLasso(final, trans_temp, robust_temp);
+         size_t new_cost = computeLasso(final, trans_temp, robust_temp, BFS_bound, witnesses, robustness);
          // Clear data if the new path is shorter than the others.
          if (new_cost < cost) {
             cost = new_cost;
@@ -162,9 +133,8 @@ public:
       }
 
       sort(trans.begin(), trans.end());
-      auto it = unique(trans.begin(), trans.end());
-      trans.resize(distance(trans.begin(),it));
-      witness = WitnessSearcher::getOutput(product, trans);
+      trans.erase(unique(trans.begin(), trans.end()), trans.end());
+      witness_str = WitnessSearcher::getOutput(product, trans);
 
       return cost;
    }
@@ -173,66 +143,29 @@ public:
     * @brief checkFull conduct model check with both trying to reach and with cycle detection.
     * @param[in] witness of the shortest path
     * @param[in] robustness_val robustness of the shortest paths
+    * @param param_no number of parametrization to test
+    * @param BFS_bound current bound on depth
+    * @param witnesses should compute witnesses
+    * @param robustness should compute robustness
     * @return  the Cost value for this parametrization
     */
-   size_t checkFinite(string & witness, double & robustness_val) {
-      CheckerSettings settings = createRoundSetting();
-      settings.bounded = user_options.bounded_check;
+   size_t checkFinite(string & witness_str, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+      CheckerSettings settings;
+      settings.param_no = param_no;
+      settings.bfs_bound = BFS_bound;
       settings.minimal = true;
       settings.mark_initals = true;
       SynthesisResults results = model_checker->conductCheck(settings);
 
-      if (user_options.analysis() && results.is_accepting && results.lower_bound <= global_BFS_bound) {
+      if ((witnesses || robustness) && results.is_accepting) {
          searcher->findWitnesses(results, settings);
-         if (user_options.compute_robustness)
-            robustness->compute(results, searcher->getTransitions(), settings);
-         robustness_val = user_options.compute_robustness ? robustness->getRobustness() : 0.;
-         witness = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
+         if (robustness)
+            computer->compute(results, searcher->getTransitions(), settings);
+         robustness_val = robustness ? computer->getRobustness() : 0.;
+         witness_str = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
       }
 
       return results.lower_bound;
-   }
-
-   void setBFSbound(const size_t new_bound) {
-      global_BFS_bound = new_bound;
-   }
-
-   /**
-    * Main synthesis function that iterates through all the rounds of the synthesis.
-    */
-   void doSynthesis() {
-      valid_param_count = 0ul;
-      setBFSbound(user_options.bound_size);
-      output->outputForm();
-
-      // Do the computation for all the rounds
-      do {
-         output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
-         string witness;
-         double robustness_val = 0.;
-         size_t cost = INF;
-
-         switch (product.getMyType()) {
-         case BA_finite:
-            cost = checkFinite(witness, robustness_val);
-            break;
-         case BA_standard:
-            cost = checkFull(witness, robustness_val);
-            break;
-         default:
-            throw runtime_error("Unsupported Buchi automaton type.");
-         }
-
-         if (cost != INF) {
-            if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
-               checkDepthBound(cost);
-            output->outputRound(split_manager->getParamNo(), cost, robustness_val, witness);
-            valid_param_count++;
-         }
-
-      } while (split_manager->increaseRound());
-
-      output->outputSummary(valid_param_count, split_manager->getProcColorsCount());
    }
 };
 
