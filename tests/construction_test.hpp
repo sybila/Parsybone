@@ -68,6 +68,15 @@ TEST_F(StructureTest, TestCorrectProduct) {
    EXPECT_EQ(2, b_k_2_cyclic.getKSID(7));
    EXPECT_EQ(1, b_k_2_cyclic.getBAID(7));
 
+   EXPECT_EQ(1, c_2_set_two_ones.getInitialStates().size());
+   EXPECT_TRUE(c_2_set_two_ones.isInitial(c_2_set_two_ones.getProductID(2,0))) << "Only (0,1;0) should be initial.";
+   EXPECT_EQ(4, c_2_set_two_ones.getFinalStates().size()) << "All possible TS states should have final version.";
+
+   EXPECT_EQ(4, c_2_cyclic.getInitialStates().size()) << "All possible TS states should have initial version.";
+   EXPECT_EQ(4, c_2_cyclic.getFinalStates().size()) << "All possible TS states should have final version.";
+
+
+
    ASSERT_EQ(2, trivial.getStateCount());
 }
 

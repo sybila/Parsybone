@@ -85,7 +85,7 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    SynthesisResults results ;
 
    user_options.compute_wintess = user_options.use_long_witnesses = true;
-   StateID ID = 10;
+   const StateID ID = 10; // the state to make the cycle from - it's known to be reachable with robustness of 0.25.
    double robutness_val = 0.;
    string witness;
 
@@ -111,6 +111,5 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    EXPECT_TRUE(containsTrans(witness, {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)","(1,0;0)>(1,1;1)"}));
    EXPECT_DOUBLE_EQ(0.25, robutness_val);
 }
-
 
 #endif // SYNTHESIS_TESTS_HPP
