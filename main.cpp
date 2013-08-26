@@ -51,7 +51,6 @@ int main(int argc, char* argv[]) {
    }
 
    try {
-
       SynthesisManager synthesis_manager(product, model, property);
       synthesis_manager.doSynthesis();
    } catch (std::exception & e) {

@@ -90,7 +90,7 @@ public:
    /**
     * Output parametrizations from this round together with additional data, if requested.
     */
-   void outputRound(const ParamNo param_no, const size_t & cost, const string & robustness, const string & witness) const {
+   void outputRound(const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) const {
       string param_vals = ModelTranslators::createColorString(model,param_no);
       string line = toString(param_no) + separator + param_vals  + separator;
       string update = param_vals;
@@ -99,6 +99,7 @@ public:
       line += toString(cost) + separator;
       update += toString(cost) + ",";
 
+      string robustness = robustness_val > 0. ? toString(robustness_val) : "";
       line += robustness + separator;
       update += robustness + ",";
 

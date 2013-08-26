@@ -75,8 +75,6 @@ TEST_F(StructureTest, TestCorrectProduct) {
    EXPECT_EQ(4, c_2_cyclic.getInitialStates().size()) << "All possible TS states should have initial version.";
    EXPECT_EQ(4, c_2_cyclic.getFinalStates().size()) << "All possible TS states should have final version.";
 
-
-
    ASSERT_EQ(2, trivial.getStateCount());
 }
 
