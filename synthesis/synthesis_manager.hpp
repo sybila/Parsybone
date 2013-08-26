@@ -75,9 +75,7 @@ class SynthesisManager {
       }
    }
 
-   pair<string, double> analyseLasso(const pair<StateID, size_t> & final) {
-      pair<string, double> computed = {"", 0.};
-      string wit_reach, wit_cyc;
+   void analyseLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans,  double & robust) {
       CheckerSettings settings = createRoundSetting();
       SynthesisResults results;
 
@@ -85,29 +83,25 @@ class SynthesisManager {
       settings.minimal = settings.mark_initals = true;
       results = model_checker->conductCheck(settings);
       searcher->findWitnesses(results, settings);
-      wit_reach = WitnessSearcher::getOutput(product, searcher->getTransitions());
-      wit_reach.erase(wit_reach.size() - 1, 1);
+      trans = searcher->getTransitions();
       if (user_options.compute_robustness) {
          robustness->compute(results, searcher->getTransitions(), settings);
-         computed.second = robustness->getRobustness();
+         robust = robustness->getRobustness();
       }
 
       settings.mark_initals = false;
       settings.initial_states = {final.first};
       results = model_checker->conductCheck(settings);
       searcher->findWitnesses(results, settings);
-      wit_cyc = WitnessSearcher::getOutput(product, searcher->getTransitions());
-      wit_cyc.erase(0, 1);
-      computed.first = wit_reach + wit_cyc;
+      const vector<StateTransition> & trans_ref = searcher->getTransitions();
+      trans.insert(trans.begin(), trans_ref.begin(), trans_ref.end());
       if (user_options.compute_robustness) {
          robustness->compute(results, searcher->getTransitions(), settings);
-         computed.second *= robustness->getRobustness();
+         robust *= robustness->getRobustness();
       }
-
-      return computed;
    }
 
-   size_t computeLasso(const pair<StateID, size_t> & final, pair<string, double> & computed) {
+   size_t computeLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans,  double & robust) {
       CheckerSettings settings = createRoundSetting();
       settings.minimal = true;
       settings.initial_states = settings.final_states = {final.first};
@@ -116,7 +110,7 @@ class SynthesisManager {
       SynthesisResults results = model_checker->conductCheck(settings);
       const size_t cost = results.lower_bound == INF ? INF : results.lower_bound + final.second;
       if (results.is_accepting && cost<= global_BFS_bound && user_options.analysis())
-         computed = analyseLasso(final);
+         analyseLasso(final, trans, robust);
 
       return cost;
    }
@@ -142,8 +136,9 @@ public:
     * @param[in] robustness_val  robustness of the whole computation
     * @return  the Cost value for this parametrization
     */
-   size_t checkFull(string & witnesses, double & robustness_val) {
-      pair<string, double> computed;
+   size_t checkFull(string & witness, double & robust) {
+      vector<StateTransition> trans;
+
       CheckerSettings settings = createRoundSetting();
       settings.bounded = user_options.bounded_check;
       settings.minimal = false;
@@ -153,10 +148,23 @@ public:
       size_t cost = INF;
       map<StateID, size_t> finals = results.found_depth;
       for (const pair<StateID, size_t> & final : finals) {
-         cost = min(cost, computeLasso(final, computed));
-         robustness_val += computed.second;
-         witnesses += computed.first;
+         vector<StateTransition> trans_temp;
+         double robust_temp;
+         size_t new_cost = computeLasso(final, trans_temp, robust_temp);
+         // Clear data if the new path is shorter than the others.
+         if (new_cost < cost) {
+            cost = new_cost;
+            robust = 0.;
+            witness.clear();
+         }
+         robust += robust_temp;
+         trans.insert(trans.begin(), trans_temp.begin(), trans_temp.end());
       }
+
+      auto it = unique(trans.begin(), trans.end());
+      trans.resize(distance(trans.begin(),it));
+      witness = WitnessSearcher::getOutput(product, trans);
+
       return cost;
    }
 
