@@ -112,4 +112,23 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    EXPECT_DOUBLE_EQ(0.25, robutness_val);
 }
 
+TEST_F(SynthesisTest, TestBounds) {
+   string witness; double robust;
+   user_options.bounded_check = true;
+   user_options.compute_robustness = true;
+   c_2_s_2_o_man->setBFSbound(4);
+   EXPECT_EQ(4, c_2_s_2_o_man->checkFinite(witness, robust));
+   c_2_s_2_o_man->setBFSbound(3);
+   EXPECT_EQ(INF, c_2_s_2_o_man->checkFinite(witness, robust)) << "Should not proceed as the bound is too low.";
+
+   EXPECT_EQ(5, c_2_c_man->checkFull(witness, robust));
+   EXPECT_TRUE(containsTrans(witness, {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)"}));
+   EXPECT_DOUBLE_EQ(0.25, robust) << "Should be reduced only to 25% as the other path is 7 setps long.";
+
+   // ParamNo temp = ModelTranslators::getSpaceSize(one_three);
+
+   user_options.bounded_check = false;
+   user_options.bound_size = INF;
+}
+
 #endif // SYNTHESIS_TESTS_HPP

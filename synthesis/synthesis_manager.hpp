@@ -71,7 +71,7 @@ class SynthesisManager {
          } else { // You may not have to restart if the bound was found this round and everyone has it.
             output_streamer.output(verbose_str, "New lowest bound on Cost has been found. The current Cost is: " + toString(depth));
          }
-         global_BFS_bound = depth;
+         setBFSbound(depth);
       }
    }
 
@@ -155,12 +155,13 @@ public:
          if (new_cost < cost) {
             cost = new_cost;
             robust = 0.;
-            witness.clear();
+            trans.clear();
          }
          robust += robust_temp;
          trans.insert(trans.begin(), trans_temp.begin(), trans_temp.end());
       }
 
+      sort(trans.begin(), trans.end());
       auto it = unique(trans.begin(), trans.end());
       trans.resize(distance(trans.begin(),it));
       witness = WitnessSearcher::getOutput(product, trans);
@@ -192,12 +193,16 @@ public:
       return results.lower_bound;
    }
 
+   void setBFSbound(const size_t new_bound) {
+      global_BFS_bound = new_bound;
+   }
+
    /**
     * Main synthesis function that iterates through all the rounds of the synthesis.
     */
    void doSynthesis() {
       valid_param_count = 0ul;
-      global_BFS_bound = user_options.bound_size;
+      setBFSbound(user_options.bound_size);
       output->outputForm();
 
       // Do the computation for all the rounds
