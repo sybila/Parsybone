@@ -37,19 +37,24 @@ int main(int argc, char* argv[]) {
       ParsingManager::parseOptions(argc, argv);
       model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
       property = ParsingManager::parseProperty(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
-      ConstructionManager::computeModelProps(model);
-   }
-   catch (std::exception & e) {
+   } catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
       return 1;
    }
 
    try {
+      ConstructionManager::computeModelProps(model);
       product = ConstructionManager::construct(model, property);
+   } catch (std::exception & e) {
+      output_streamer.output(error_str, string("Error occured while building the data structures: \"").append(e.what()).append("\"."));
+      return 2;
+   }
+
+   try {
+
       SynthesisManager synthesis_manager(product, model, property);
       synthesis_manager.doSynthesis();
-   }
-   catch (std::exception & e) {
+   } catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while syntetizing the parameters: \"").append(e.what()).append("\"."));
       return 2;
    }

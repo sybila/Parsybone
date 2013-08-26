@@ -17,13 +17,7 @@
 
 using namespace std;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Class holds an artificial model of the form:
-///
-///
-/// Basic model:
-/// max(A)=1, max(B)=3
-/// A <- -A:1, -B:1, +|-B:3
-/// B <- +A:1
+/// \brief Testing models and properties definitions.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ModelsTest : public ::testing::Test {
@@ -69,11 +63,10 @@ protected:
       o_t_series_prop.addState("ser0", false);
       o_t_series_prop.addState("ser1", false);
       o_t_series_prop.addState("ser2", true);
-      o_t_series_prop.addEdge(0,0,"tt");
       o_t_series_prop.addEdge(0,1,"(A=0|B=0)");
       o_t_series_prop.addEdge(1,1,"tt");
       o_t_series_prop.addEdge(1,2,"(A=1|B=3)");
-      o_t_series_prop.addEdge(2,2,"tt");
+      o_t_series_prop.addEdge(2,2,"ff");
 
       A_cyclic_prop = PropertyAutomaton("A_cycle");
       A_cyclic_prop.addState("cyc0", false);
@@ -90,11 +83,10 @@ protected:
       set_two_ones_prop.addState("ser0", false);
       set_two_ones_prop.addState("ser1", false);
       set_two_ones_prop.addState("ser2", true);
-      set_two_ones_prop.addEdge(0,0,"tt");
       set_two_ones_prop.addEdge(0,1,"(A=0&B=1)");
       set_two_ones_prop.addEdge(1,1,"tt");
       set_two_ones_prop.addEdge(1,2,"(A=1&B=1)");
-      set_two_ones_prop.addEdge(2,2,"tt");
+      set_two_ones_prop.addEdge(2,2,"ff");
    }
 
    void SetUp() override {

@@ -100,6 +100,52 @@ class SynthesisManager {
       }
    }
 
+   pair<string, double> analyseLasso(const pair<StateID, size_t> & final) {
+      pair<string, double> computed = {"", 0.};
+      string wit_reach, wit_cyc;
+      CheckerSettings settings = createRoundSetting();
+      SynthesisResults results;
+
+      settings.final_states = {final.first};
+      settings.minimal = settings.mark_initals = true;
+      results = model_checker->conductCheck(settings);
+      searcher->findWitnesses(results, settings);
+      wit_cyc = WitnessSearcher::getOutput(product, searcher->getTransitions()); wit_cyc.erase(0);
+      robustness->compute(results, searcher->getTransitions(), settings);
+      computed.second = robustness->getRobustness();
+
+      settings.mark_initals = false;
+      settings.initial_states = {final.first};
+      results = model_checker->conductCheck(settings);
+      searcher->findWitnesses(results, settings);
+      wit_reach = WitnessSearcher::getOutput(product, searcher->getTransitions()); wit_reach.erase(wit_reach.size() - 1);
+      computed.first = wit_reach + wit_cyc;
+      robustness->compute(results, searcher->getTransitions(), settings);
+      computed.second *= robustness->getRobustness();
+
+      return computed;
+   }
+
+   pair<string, double> computeLasso(const pair<StateID, size_t> & final) {
+      pair<string, double> computed = {"", 0.};
+
+      CheckerSettings settings = createRoundSetting();
+      settings.minimal = true;
+      settings.initial_states = settings.final_states = {final.first};
+      settings.bfs_bound = global_BFS_bound == INF ? global_BFS_bound : (global_BFS_bound - final.second);
+
+      SynthesisResults results = model_checker->conductCheck(settings);
+      if (results.is_accepting && (final.second + results.lower_bound <= global_BFS_bound )) {
+         if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
+            checkDepthBound(results.lower_bound + final.second);
+         valid_param_count += 1;
+         if (user_options.analysis())
+            computed = analyseLasso(final);
+      }
+
+      return computed;
+   }
+
    void checkFull() {
       output->outputRoundNo(split_manager->getRoundNo(), split_manager->getRoundCount());
 
@@ -109,41 +155,17 @@ class SynthesisManager {
       settings.mark_initals = true;
       SynthesisResults results = model_checker->conductCheck(settings);
 
+      double robustness_val = 0.;
+      string witness;
+
       map<StateID, size_t> finals = results.found_depth;
       for (const pair<StateID, size_t> & final : finals) {
-         settings.minimal = true;
-         settings.initial_states = {final.first};
-         settings.final_states = {final.first};
-         settings.bfs_bound = global_BFS_bound == INF ? global_BFS_bound : (global_BFS_bound - final.second);
-
-         results = model_checker->conductCheck(settings);
-         if (results.is_accepting && (final.second + results.lower_bound <= global_BFS_bound )) {
-            if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
-               checkDepthBound(results.lower_bound + final.second);
-            valid_param_count += 1;
-
-            double robutness_val = 0.;
-            string witness1, witness2;
-            if (user_options.analysis()) {
-               searcher->findWitnesses(results, settings);
-               robustness->compute(results, searcher->getTransitions(), settings);
-               robutness_val = robustness->getRobustness();
-               witness1 = WitnessSearcher::getOutput(product, searcher->getTransitions());
-
-               settings.bfs_bound = final.second;
-               settings.initial_states.clear();
-               results = model_checker->conductCheck(settings);
-
-               searcher->findWitnesses(results, settings);
-               robustness->compute(results, searcher->getTransitions(), settings);
-               robutness_val += robustness->getRobustness();
-               witness2 = WitnessSearcher::getOutput(product, searcher->getTransitions());
-            }
-            string robustness_val = user_options.compute_robustness ? toString(robutness_val) : "";
-            string witness = user_options.compute_wintess ? witness1 + witness2 : "";
-            output->outputRound(split_manager->getParamNo(), results.lower_bound, robustness_val, witness);
-         }
+         pair<string, double> computed = computeLasso(final);
+         robustness_val += computed.second;
+         witness += computed.first;
       }
+
+      output->outputRound(split_manager->getParamNo(), results.lower_bound, toString(robustness_val), witness);
    }
 
 public:

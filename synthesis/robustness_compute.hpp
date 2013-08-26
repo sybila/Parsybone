@@ -86,13 +86,15 @@ public:
       initiate();
       computeExits(transitions);
 
+      // Assign probabilites for the initial states
+      setInitials();
+
       // Cycle through the levels of the DFS procedure
       for (size_t round_num = 0; round_num < results.lower_bound; round_num++) {
          // Copy the data from the previous round.
          current_prob = next_prob;
          next_prob.assign(next_prob.size(), 0.);
-         // Assign probabilites for the initial states
-         setInitials();
+
          // For the parametrization cycle through transitions
          for (const auto & trans:transitions) {
             size_t divisor = exits[trans.first]; // Count succesor

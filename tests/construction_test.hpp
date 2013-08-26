@@ -17,7 +17,7 @@ TEST_F(StructureTest, TestCorrectAutomata) {
 
    ASSERT_EQ(1, o_t_series_aut.getInitialStates().size());
    EXPECT_EQ(0, o_t_series_aut.getInitialStates().front());
-   ASSERT_EQ(2, o_t_series_aut.getTransitionCount(0)) << "Two outgoing transitions for the intial state of o_t_series.";
+   ASSERT_EQ(1, o_t_series_aut.getTransitionCount(0)) << "One outgoing transition for the intial state of o_t_series.";
    ASSERT_EQ(3, o_t_series_aut.getStateCount());
    ASSERT_EQ(1, o_t_series_aut.getFinalStates().size());
    EXPECT_EQ(2, o_t_series_aut.getFinalStates().front());

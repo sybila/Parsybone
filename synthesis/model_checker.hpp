@@ -67,7 +67,7 @@ class ModelChecker {
       updates.pop_back();
 
       // Check if this is not the last round
-      if (settings.isFinal(ID, product))
+      if (settings.isFinal(ID, product) && storage.getColor(ID))
          results.found_depth.insert({ID, BFS_level});
 
       transferUpdates(ID);

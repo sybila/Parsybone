@@ -17,6 +17,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for search of transitions belonging to shortest time series paths.
 ///
+/// @attention Always finds witnesses only for the paths of minimal cost.
+///
 /// Class executes a search through the synthetized space in order to find transitions included in shortest paths for every parametrization.
 /// Procedure is supposed to be first executed and then it can provide results.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +63,7 @@ class WitnessSearcher {
 
       // Store if the state is final or part of an other path.
       path[depth] = ID;
-      if (settings.isFinal(ID, product))
+      if (settings.isFinal(ID, product) && depth != 0)
          storeTransitions(depth, last_branch);
       else if (markings[ID].succeeded > depth)
          storeTransitions(depth, last_branch);
