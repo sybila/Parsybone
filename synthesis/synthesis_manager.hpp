@@ -85,7 +85,8 @@ class SynthesisManager {
       settings.minimal = settings.mark_initals = true;
       results = model_checker->conductCheck(settings);
       searcher->findWitnesses(results, settings);
-      wit_cyc = WitnessSearcher::getOutput(product, searcher->getTransitions()); wit_cyc.erase(0);
+      wit_reach = WitnessSearcher::getOutput(product, searcher->getTransitions());
+      wit_reach.erase(wit_reach.size() - 1, 1);
       if (user_options.compute_robustness) {
          robustness->compute(results, searcher->getTransitions(), settings);
          computed.second = robustness->getRobustness();
@@ -95,7 +96,8 @@ class SynthesisManager {
       settings.initial_states = {final.first};
       results = model_checker->conductCheck(settings);
       searcher->findWitnesses(results, settings);
-      wit_reach = WitnessSearcher::getOutput(product, searcher->getTransitions()); wit_reach.erase(wit_reach.size() - 1);
+      wit_cyc = WitnessSearcher::getOutput(product, searcher->getTransitions());
+      wit_cyc.erase(0, 1);
       computed.first = wit_reach + wit_cyc;
       if (user_options.compute_robustness) {
          robustness->compute(results, searcher->getTransitions(), settings);
@@ -112,14 +114,35 @@ class SynthesisManager {
       settings.bfs_bound = global_BFS_bound == INF ? global_BFS_bound : (global_BFS_bound - final.second);
 
       SynthesisResults results = model_checker->conductCheck(settings);
-      const size_t cost = results.lower_bound + final.second;
+      const size_t cost = results.lower_bound == INF ? INF : results.lower_bound + final.second;
       if (results.is_accepting && cost<= global_BFS_bound && user_options.analysis())
          computed = analyseLasso(final);
 
       return cost;
    }
 
-   size_t checkFull(string & witness, double & robustness_val) {
+public:
+   /**
+    * Constructor builds all the data objects that are used within.
+    */
+   SynthesisManager(const ProductStructure & _product, const Model & _model, const PropertyAutomaton & _property) : product(_product), model(_model), property(_property) {
+      // Create classes that help with the synthesis
+      storage.reset(new ColorStorage(product));
+      split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(model)));
+      model_checker.reset(new ModelChecker(product, *storage));
+      searcher.reset(new WitnessSearcher(product, *storage));
+      robustness.reset(new RobustnessCompute(product, *storage));
+      database.reset(new DatabaseFiller(model));
+      output.reset(new OutputManager(property, model, *database));
+   }
+
+   /**
+    * @brief checkFull conduct model check with only reachability
+    * @param[in] witnesses for all the shortest cycles
+    * @param[in] robustness_val  robustness of the whole computation
+    * @return  the Cost value for this parametrization
+    */
+   size_t checkFull(string & witnesses, double & robustness_val) {
       pair<string, double> computed;
       CheckerSettings settings = createRoundSetting();
       settings.bounded = user_options.bounded_check;
@@ -132,11 +155,17 @@ class SynthesisManager {
       for (const pair<StateID, size_t> & final : finals) {
          cost = min(cost, computeLasso(final, computed));
          robustness_val += computed.second;
-         witness += computed.first;
+         witnesses += computed.first;
       }
       return cost;
    }
 
+   /**
+    * @brief checkFull conduct model check with both trying to reach and with cycle detection.
+    * @param[in] witness of the shortest path
+    * @param[in] robustness_val robustness of the shortest paths
+    * @return  the Cost value for this parametrization
+    */
    size_t checkFinite(string & witness, double & robustness_val) {
       CheckerSettings settings = createRoundSetting();
       settings.bounded = user_options.bounded_check;
@@ -153,21 +182,6 @@ class SynthesisManager {
       }
 
       return results.lower_bound;
-   }
-
-public:
-   /**
-    * Constructor builds all the data objects that are used within.
-    */
-   SynthesisManager(const ProductStructure & _product, const Model & _model, const PropertyAutomaton & _property) : product(_product), model(_model), property(_property) {
-      // Create classes that help with the synthesis
-      storage.reset(new ColorStorage(product));
-      split_manager.reset(new SplitManager(ModelTranslators::getSpaceSize(model)));
-      model_checker.reset(new ModelChecker(product, *storage));
-      searcher.reset(new WitnessSearcher(product, *storage));
-      robustness.reset(new RobustnessCompute(product, *storage));
-      database.reset(new DatabaseFiller(model));
-      output.reset(new OutputManager(property, model, *database));
    }
 
    /**

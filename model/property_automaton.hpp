@@ -64,10 +64,9 @@ public:
     * @return	number of the state with the specified name if there is such, otherwise INF
     */
    SpecieID findID(const string & name) const {
-      StateID ID = INF;
-      for (auto state : states)
+      for (const AutomatonState & state : states)
          if (state.name.compare(name) == 0)
-            return ID;
+            return state.ID;
 
       return INF;
    }
