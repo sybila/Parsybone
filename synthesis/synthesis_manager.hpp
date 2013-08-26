@@ -138,7 +138,6 @@ class SynthesisManager {
       if (results.is_accepting && (final.second + results.lower_bound <= global_BFS_bound )) {
          if (user_options.bound_size == INF && user_options.bounded_check) // If there is a requirement for computing with the minimal bound.
             checkDepthBound(results.lower_bound + final.second);
-         valid_param_count += 1;
          if (user_options.analysis())
             computed = analyseLasso(final);
       }
@@ -164,6 +163,9 @@ class SynthesisManager {
          robustness_val += computed.second;
          witness += computed.first;
       }
+      // Something was found to be accepting
+      if (!witness.empty())
+         valid_param_count += 1;
 
       output->outputRound(split_manager->getParamNo(), results.lower_bound, toString(robustness_val), witness);
    }

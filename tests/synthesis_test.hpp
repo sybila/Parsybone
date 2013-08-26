@@ -11,7 +11,14 @@
 
 #include "synthesis_test_data.hpp"
 
-TEST_F(SynthesisTest, SetTwoOnCircuitTest) {
+bool containsTrans(const string & witness, const vector<string> & trans ) {
+   for (const string & tran : trans)
+      if (witness.find(tran) == witness.npos)
+         return false;
+   return true;
+}
+
+TEST_F(SynthesisTest, SetTwoOnCircuitFull) {
    ColorStorage storage(c_2_set_two_ones);
    ModelChecker checker(c_2_set_two_ones, storage);
    WitnessSearcher searcher(c_2_set_two_ones, storage);
@@ -29,77 +36,80 @@ TEST_F(SynthesisTest, SetTwoOnCircuitTest) {
 
    user_options.compute_wintess = user_options.use_long_witnesses = true;
    string witness = WitnessSearcher::getOutput(c_2_set_two_ones, trans);
-   EXPECT_TRUE([&witness](){
-      for (const string & trans : {"(0,1;0)>(0,0;1)", "(0,0;1)>(1,0;1)", "(1,0;1)>(1,1;1)", "(1,1;1)>(0,1;2)}"})
-         if (witness.find(trans) == witness.npos)
-            return false;
-      return true;
-   }()) << "All required transitions are present.";
+   EXPECT_TRUE(containsTrans(witness, {"(0,1;0)>(0,0;1)", "(0,0;1)>(1,0;1)", "(1,0;1)>(1,1;1)", "(1,1;1)>(0,1;2)}"}));
 
    robustness.compute(results, trans, settings);
    EXPECT_DOUBLE_EQ(1., robustness.getRobustness()) << "There is only a single way of the circuit, thus robustness must be 1.";
 }
 
-TEST_F(SynthesisTest, CycleOnCircuitTest) {
+TEST_F(SynthesisTest, CycleOnCircuitCheck) {
+   ColorStorage storage(c_2_cyclic);
+   ModelChecker checker(c_2_cyclic, storage);
+   CheckerSettings settings;
+   SynthesisResults reaches;
+   SynthesisResults results;
+
+   settings.minimal = true;
+   settings.mark_initals = true;
+   reaches = checker.conductCheck(settings);
+   ASSERT_EQ(3, reaches.found_depth.size());
+
+   settings.mark_initals = false;
+   const int STATE_1 = 1, STATE_2 = 7, STATE_3 = 10;
+
+   ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_1));
+   settings.initial_states = settings.final_states = {STATE_1};
+   results = checker.conductCheck(settings);
+   EXPECT_EQ(4, results.lower_bound);
+   EXPECT_TRUE(results.is_accepting);
+
+   ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_2));
+   settings.initial_states = settings.final_states = {STATE_2};
+   results = checker.conductCheck(settings);
+   EXPECT_EQ(INF, results.lower_bound);
+   EXPECT_FALSE(results.is_accepting);
+
+   ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_3));
+   settings.initial_states = settings.final_states = {STATE_3};
+   results = checker.conductCheck(settings);
+   EXPECT_EQ(4, results.lower_bound);
+   EXPECT_TRUE(results.is_accepting);
+}
+
+TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    ColorStorage storage(c_2_cyclic);
    ModelChecker checker(c_2_cyclic, storage);
    WitnessSearcher searcher(c_2_cyclic, storage);
    RobustnessCompute robustness(c_2_cyclic, storage);
-
    CheckerSettings settings;
-   settings.mark_initals = true;
-   settings.minimal = false;
-
-   SynthesisResults results = checker.conductCheck(settings);
-   ASSERT_TRUE(results.is_accepting);
-
-   // Test how it would work for witnesses in finite check.
-   searcher.findWitnesses(results, settings);
-   const vector<StateTransition> & trans = searcher.getTransitions();
-   EXPECT_FALSE(trans.empty());
+   SynthesisResults results ;
 
    user_options.compute_wintess = user_options.use_long_witnesses = true;
-   string witness = WitnessSearcher::getOutput(c_2_cyclic, trans);
-   EXPECT_TRUE([&witness](){
-      for (const string & trans : {"(1,0;0)>(1,1;1)", "(1,1;0)>(0,1;1)}"})
-         if (witness.find(trans) == witness.npos)
-            return false;
-      return true;
-   }()) << "All required transitions are present.";
-
-   robustness.compute(results, trans, settings);
-   EXPECT_DOUBLE_EQ(.5, robustness.getRobustness()) << "Only half of the initial states make the step, thus robustness should be 0.5.";
-
-   map<StateID, size_t> finals = results.found_depth;
+   StateID ID = 10;
    double robutness_val = 0.;
-   witness = "";
-   for (const pair<StateID, size_t> & final : finals) {
-      settings.minimal = true;
-      settings.initial_states = {final.first};
-      settings.final_states = {final.first};
-      settings.mark_initals = false;
+   string witness;
 
-      results = checker.conductCheck(settings);
-      if (results.is_accepting) {
-         if (user_options.analysis()) {
-            searcher.findWitnesses(results, settings);
-            robustness.compute(results, searcher.getTransitions(), settings);
-            double robust_reach = robustness.getRobustness();
-            witness += WitnessSearcher::getOutput(c_2_cyclic, searcher.getTransitions());
+   settings.minimal = true;
+   settings.final_states = {ID};
+   settings.mark_initals = true;
+   results = checker.conductCheck(settings);
+   ASSERT_TRUE(results.is_accepting);
+   searcher.findWitnesses(results, settings);
+   witness += WitnessSearcher::getOutput(c_2_cyclic, searcher.getTransitions());
+   robustness.compute(results, searcher.getTransitions(), settings);
+   robutness_val = robustness.getRobustness();
 
-            settings.mark_initals = true;
-            settings.initial_states.clear();
-            results = checker.conductCheck(settings);
+   settings.initial_states = {ID};
+   settings.mark_initals = false;
+   results = checker.conductCheck(settings);
+   ASSERT_TRUE(results.is_accepting);
+   searcher.findWitnesses(results, settings);
+   witness += WitnessSearcher::getOutput(c_2_cyclic, searcher.getTransitions());
+   robustness.compute(results, searcher.getTransitions(), settings);
+   robutness_val *= robustness.getRobustness();
 
-            searcher.findWitnesses(results, settings);
-            robustness.compute(results, searcher.getTransitions(), settings);
-            robust_reach *= robustness.getRobustness();
-            robutness_val += robust_reach;
-            witness += WitnessSearcher::getOutput(c_2_cyclic, searcher.getTransitions());
-         }
-      }
-   }
-   EXPECT_GE(1., robutness_val);
+   EXPECT_TRUE(containsTrans(witness, {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)","(1,0;0)>(1,1;1)"}));
+   EXPECT_DOUBLE_EQ(0.25, robutness_val);
 }
 
 
