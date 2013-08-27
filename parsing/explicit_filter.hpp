@@ -22,11 +22,16 @@ class ExplicitFilter {
    set<ParamNo> allowed; ///< Numbers of all the parametrizations that are allowed.
    bool is_filter_active; ///< True iff there was an input mask.
 
+   /**
+    * @return a vector of column numbers in database, ordered in the same way as paremters of the model
+    */
    vector<size_t> getColumns(const Model & model, SQLAdapter & sql_adapter) {
       vector<size_t> locations;
       vector<string> names = sql_adapter.readColumnNames(PARAMETRIZATIONS_TABLE, regex(".*"));
+
       for (const SpecieID ID : scope(model.species)) {
          const Model::Parameters & params = model.getParameters(ID);
+         // Add the column number if the context was found, INF otherwise
          for (const size_t kpar_no : scope(params)) {
             auto column_it = find(names.begin(), names.end(), ModelTranslators::makeConcise(params[kpar_no], model.getName(ID)));
             if (column_it == names.end())
@@ -46,10 +51,13 @@ public:
     */
    void addAllowed(const Model & model, SQLAdapter & sql_adapter) {
       is_filter_active = true;
+
+      // Obtain columns that are being referenced
       vector<size_t> colum_match = getColumns(model, sql_adapter);
       sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
-      Levels column_data = sql_adapter.getRow<ActLevel>(colum_match);
 
+      // Create the set of parametrizations that are allowed.
+      Levels column_data = sql_adapter.getRow<ActLevel>(colum_match);
       set<ParamNo> newly_added;
       while (!column_data.empty()) {
          set<ParamNo> matching = ModelTranslators::findMatching(model, column_data);
@@ -57,11 +65,12 @@ public:
          column_data = sql_adapter.getRow<ActLevel>(colum_match);
       }
 
+      // If there were no parametrizations allowed, allow current, otherwise create an intersection of new and old ones.
       if (allowed.empty()) {
          allowed = newly_added;
       } else {
          set<ParamNo> united;
-         set_union(allowed.begin(), allowed.end(), newly_added.begin(), newly_added.end(), inserter(united, united.begin()));
+         set_intersection(allowed.begin(), allowed.end(), newly_added.begin(), newly_added.end(), inserter(united, united.begin()));
          allowed = united;
       }
 

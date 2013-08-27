@@ -30,6 +30,7 @@ using namespace std;
  */
 void checkDepthBound(const size_t depth, SplitManager & split_manager, OutputManager & output, size_t & BFS_bound, ParamNo & valid_param_count) {
    if (depth < BFS_bound && user_options.minimalize_cost) {
+      // Reset the outputs if better was found.
       output_streamer.clear_line(verbose_str);
       split_manager.setStartPositions();
       output.eraseData();
@@ -50,6 +51,7 @@ int main(int argc, char* argv[]) {
    ProductStructure product;
    ExplicitFilter filter;
 
+   // Parsing
    try {
       ParsingManager::parseOptions(argc, argv);
       model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
@@ -60,6 +62,7 @@ int main(int argc, char* argv[]) {
       return 1;
    }
 
+   // Construction of data structures
    try {
       ConstructionManager::computeModelProps(model);
       for (const string & filter_name : user_options.filter_databases) {
@@ -74,8 +77,8 @@ int main(int argc, char* argv[]) {
       return 2;
    }
 
+   // Synthesis of parametrizations
    try {
-      // Data for synthesis
       SplitManager split_manager(ModelTranslators::getSpaceSize(model));
       OutputManager output(property, model);
       SynthesisManager synthesis_manager(product, model, property);
@@ -120,8 +123,7 @@ int main(int argc, char* argv[]) {
       return 3;
    }
 
-   if (user_options.be_verbose) {
+   if (user_options.be_verbose)
       time_manager.writeClock("* Runtime");
-   }
    return 0;
 }
