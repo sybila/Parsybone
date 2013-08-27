@@ -178,8 +178,10 @@ class ArgumentParser {
 
       // Attach the stream to the file.
       ifstream file(path, ios::in);
-      if (file.fail())
+      if (file.fail()) {
+         remove(path.c_str());
          throw runtime_error("Program failed to open an intput stream file: " + path);
+      }
 
       // Store the models name.
       auto pos1 = path.find_last_of("/\\") + 1; // Remove the prefix (path), if there is any.
@@ -217,8 +219,10 @@ public:
          }
          else if (argument.find(DATABASE_SUFFIX) != argument.npos) {
             ifstream file(argument);
-            if (!file)
+            if (!file) {
+               remove(argument.c_str());
                throw invalid_argument("Filtering database " + argument + " does not exist.");
+            }
             user_options.filter_database.push_back(argument);
          }
          else {

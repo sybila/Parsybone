@@ -6,14 +6,10 @@
 #include <PunyHeaders/SQLAdapter.hpp>
 
 class DatabaseFiller {
-   const string COMPONENTS_TABLE;
-   const string REGULATIONS_TABLE;
-   const string PARAMETRIZATIONS_TABLE;
-
    const Model & model;
    SQLAdapter sql_adapter;
 
-   bool in_output;
+   bool in_output; ///< True if there is currently transaction ongoing.
 
    void prepareTable(const string & name, const string & columns) {
       // Drop old tables if any.
@@ -91,10 +87,9 @@ class DatabaseFiller {
    }
 
 public:
-   DatabaseFiller(const Model & _model, const string & datafile_name)
-       : COMPONENTS_TABLE("Components"), REGULATIONS_TABLE("Regulations"), PARAMETRIZATIONS_TABLE("Parametrizations"),
-      model(_model) {
-      sql_adapter.setDatabase(datafile_name);
+   DatabaseFiller(const Model & _model, const string & datafile_name, const bool create_database) : model(_model) {
+      if (create_database)
+          sql_adapter.setDatabase(datafile_name);
       in_output = false;
    }
 

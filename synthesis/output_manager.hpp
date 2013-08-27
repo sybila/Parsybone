@@ -23,18 +23,18 @@ class OutputManager {
    const PropertyAutomaton & property; ///< Property automaton.
    const Model & model; ///< Reference to the model itself.
 
-   DatabaseFiller & database; ///< Fills data to the database.
+   DatabaseFiller database; ///< Fills data to the database.
 public:
    NO_COPY(OutputManager)
 
-   OutputManager(const PropertyAutomaton & _property, const Model & _model, DatabaseFiller & _database)
-      : property(_property), model(_model),  database(_database) {	}
+   OutputManager(const PropertyAutomaton & _property, const Model & _model)
+      : property(_property), model(_model), database(model, user_options.database_file, user_options.use_database) {	}
 
 public:
    /**
     * @brief eraseData
     */
-   void eraseData() const {
+   void eraseData() {
       if (user_options.use_textfile) {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);
       }
@@ -48,7 +48,7 @@ public:
    /**
     * @brief outputForm
     */
-   void outputForm() const {
+   void outputForm() {
       if (user_options.use_database)
          database.creteTables();
       string format_desc = "#:(";
@@ -71,7 +71,7 @@ public:
     *
     * @param total_count	number of all feasible colors
     */
-   void outputSummary(const ParamNo accepting, const ParamNo total) const {
+   void outputSummary(const ParamNo accepting, const ParamNo total) {
       if (user_options.use_database)
          database.finishOutpout();
       OutputStreamer::Trait trait = (user_options.use_textfile) ? 0 : OutputStreamer::rewrite_ln;
@@ -90,8 +90,8 @@ public:
    /**
     * Output parametrizations from this round together with additional data, if requested.
     */
-   void outputRound(const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) const {
-      string param_vals = ModelTranslators::createColorString(model,param_no);
+   void outputRound(const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) {
+      string param_vals = ModelTranslators::createParamString(model,param_no);
       string line = toString(param_no) + separator + param_vals  + separator;
       string update = param_vals;
       update.back() = ','; // must remove closing bracket, it will be added by database manager

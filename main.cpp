@@ -70,8 +70,7 @@ int main(int argc, char* argv[]) {
    try {
       // Data for synthesis
       SplitManager split_manager(ModelTranslators::getSpaceSize(model));
-      DatabaseFiller database(model, user_options.database_file);
-      OutputManager output(property, model, database);
+      OutputManager output(property, model);
       SynthesisManager synthesis_manager(product, model, property);
       ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
       size_t BFS_bound = user_options.bound_size; ///< Maximal cost on the verified property.

@@ -104,7 +104,7 @@ namespace ModelTranslators {
    /**
     * @brief createColorString
     */
-   const string createColorString(const Model & model, ParamNo number) {
+   const string createParamString(const Model & model, ParamNo number) {
       // compute numbers of partial parametrizations for each component
       const vector<ParamNo> color_parts = getSpecieVals(model, number);
 

@@ -21,7 +21,9 @@ class ExplicitFilter {
    set<ParamNo> allowed; ///< Numbers of all the parametrizations that are allowed.
    bool is_filter_active; ///< True iff there was an input mask.
 
-
+   map<size_t, size_t> getColumns(const SQLAdapter & sql_adapter) {
+      string names = sql_adapter.readColumnNames(PARAMETRIZATIONS_TABLE);
+   }
 
 public:
    ExplicitFilter() : is_filter_active(false) {}
