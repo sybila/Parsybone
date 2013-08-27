@@ -3,6 +3,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
+#include "../model/model_translators.hpp"
 #include <PunyHeaders/SQLAdapter.hpp>
 
 class DatabaseFiller {
@@ -52,25 +53,11 @@ class DatabaseFiller {
       sql_adapter.safeExec(update);
    }
 
-   string getContexts(bool verbose = false) const {
+   string getContexts() const {
       string contexts = "";
-      if(verbose) {
-         for(SpecieID target_ID:range(model.species.size())) {
-            for(auto param:model.getParameters(target_ID)) {
-               string context = "K_" + model.getName(target_ID) + "_" + param.context + " INTEGER,";
-               contexts += move(context);
-            }
-         }
-      } else {
-         for(SpecieID target_ID:range(model.species.size())) {
-            for(auto param:model.getParameters(target_ID)) {
-               string context = "K_" + model.getName(target_ID) + "_";
-               for (auto values:param.requirements)
-                  context += toString(values.second.front());
-               contexts += move(context) + " INTEGER, ";
-            }
-         }
-      }
+      for(SpecieID target_ID:range(model.species.size()))
+         for(auto param:model.getParameters(target_ID))
+            contexts += ModelTranslators::makeConcise(param, model.getName(target_ID)) + " INTEGER, ";
       return contexts;
    }
 
@@ -89,7 +76,7 @@ class DatabaseFiller {
 public:
    DatabaseFiller(const Model & _model, const string & datafile_name, const bool create_database) : model(_model) {
       if (create_database)
-          sql_adapter.setDatabase(datafile_name);
+         sql_adapter.setDatabase(datafile_name);
       in_output = false;
    }
 

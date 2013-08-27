@@ -223,7 +223,7 @@ public:
                remove(argument.c_str());
                throw invalid_argument("Filtering database " + argument + " does not exist.");
             }
-            user_options.filter_database.push_back(argument);
+            user_options.filter_databases.push_back(argument);
          }
          else {
             throw runtime_error("Wrong argument on the input stream: " +  argument);

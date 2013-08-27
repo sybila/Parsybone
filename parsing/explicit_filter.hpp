@@ -15,21 +15,44 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../auxiliary/data_types.hpp"
+#include "../model/model_translators.hpp"
 #include <PunyHeaders/SQLAdapter.hpp>
 
 class ExplicitFilter {
    set<ParamNo> allowed; ///< Numbers of all the parametrizations that are allowed.
    bool is_filter_active; ///< True iff there was an input mask.
 
-   map<size_t, size_t> getColumns(const SQLAdapter & sql_adapter) {
-      string names = sql_adapter.readColumnNames(PARAMETRIZATIONS_TABLE);
+   vector<size_t> getColumns(const Model & model, SQLAdapter & sql_adapter) {
+      vector<size_t> locations;
+      vector<string> names = sql_adapter.readColumnNames(PARAMETRIZATIONS_TABLE, regex(".*"));
+      for (const SpecieID ID : scope(model.species)) {
+         const Model::Parameters & params = model.getParameters(ID);
+         for (const size_t kpar_no : scope(params)) {
+            auto column_it = find(names.begin(), names.end(), ModelTranslators::makeConcise(params[kpar_no], model.getName(ID)));
+            if (column_it == names.end())
+               locations.push_back(INF);
+            else
+               locations.push_back(distance(names.begin(), column_it));
+         }
+      }
+      return locations;
    }
 
 public:
    ExplicitFilter() : is_filter_active(false) {}
 
-   void addAllowed(const Model & model, const SQLAdapter & sql_adapter) {
-
+   /**
+    * @brief addAllowed add parametrizations that are allowed by given database
+    */
+   void addAllowed(const Model & model, SQLAdapter & sql_adapter) {
+      vector<size_t> colum_match = getColumns(model, sql_adapter);
+      sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
+      Levels column_data = sql_adapter.getRow<ActLevel>(colum_match);
+      while (!column_data.empty()) {
+         set<ParamNo> matching = ModelTranslators::findMatching(model, column_data);
+         allowed.insert(matching.begin(), matching.end());
+         column_data = sql_adapter.getRow<ActLevel>(colum_match);
+      }
    }
 
    /**

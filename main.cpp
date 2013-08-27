@@ -20,6 +20,7 @@ using namespace std;
 #include "parsing/argument_parser.hpp"
 #include "parsing/data_parser.hpp"
 #include "parsing/parsing_manager.hpp"
+#include "parsing/explicit_filter.hpp"
 #include "construction/construction_manager.hpp"
 #include "construction/product_builder.hpp"
 #include "synthesis/synthesis_manager.hpp"
@@ -47,6 +48,7 @@ int main(int argc, char* argv[]) {
    Model model;
    PropertyAutomaton property;
    ProductStructure product;
+   ExplicitFilter filter;
 
    try {
       ParsingManager::parseOptions(argc, argv);
@@ -60,6 +62,11 @@ int main(int argc, char* argv[]) {
 
    try {
       ConstructionManager::computeModelProps(model);
+      for (const string & filter_name : user_options.filter_databases) {
+         SQLAdapter adapter;
+         adapter.setDatabase(filter_name);
+         filter.addAllowed(model, adapter);
+      }
       product = ConstructionManager::construct(model, property);
    }
    catch (std::exception & e) {
@@ -79,6 +86,9 @@ int main(int argc, char* argv[]) {
       // Do the computation for all the rounds
       do {
          output.outputRoundNo(split_manager.getRoundNo(), split_manager.getRoundCount());
+         if (!filter.isAllowed(split_manager.getParamNo()))
+            continue;
+
          string witness;
          double robustness_val = 0.;
          size_t cost = INF;

@@ -123,6 +123,46 @@ namespace ModelTranslators {
 
       return color_str;
    }
+
+   /**
+    * @return representation of the parametrization used by the database
+    */
+   const string makeConcise(const Model::Parameter & param, const string target_name) {
+      string context = "K_" + target_name + "_";
+      for (auto values:param.requirements)
+         context += toString(values.second.front());
+      return context;
+   }
+
+   set<ParamNo> findMatching(const Model & model, const Levels & requirements) {
+      set<ParamNo> matching;
+      size_t begin = 0;
+      for (const SpecieID ID : scope(model.species)) {
+         vector<ParamNo> submatch;
+         for (const size_t subolor_no : scope(model.species[ID].subcolors)) {
+            bool valid = true;
+            for (const size_t value_no: scope(model.species[ID].subcolors[subolor_no])) {
+               if (requirements[value_no + begin] != static_cast<ActLevel>(INF) && requirements[value_no + begin] != model.species[ID].subcolors[subolor_no][value_no]) {
+                  valid = false;
+                  break;
+               }
+            }
+            if (valid) {
+               submatch.push_back(subolor_no * model.getStepSize(ID));
+            }
+         }
+         if (submatch.empty())
+            return set<ParamNo>();
+         set<ParamNo> old = matching.empty() ? set<ParamNo>({0}) : move(matching);
+         for (const ParamNo o_match : old) {
+            for (const ParamNo m_match : submatch) {
+               matching.insert(o_match + m_match);
+            }
+         }
+         begin += model.species[ID].parameters.size();
+      }
+      return matching;
+   }
 }
 
 #endif // MODEL_TRANSLATORS_HPP

@@ -105,6 +105,12 @@ public:
       species[target_ID].parameters[param_ID].parameter_vals = _parameter_vals;
    }
 
+   inline ParamNo getStepSize(const SpecieID ID) const {
+      if (species[ID].parameters.empty())
+         throw runtime_error("Trying to obtain step size before parametrizations were built");
+      return species[ID].parameters.front().step_size;
+   }
+
    inline const string & getName(const SpecieID ID) const {
       return species[ID].name;
    }
