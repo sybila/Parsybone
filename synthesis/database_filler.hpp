@@ -11,6 +11,7 @@ class DatabaseFiller {
    const string PARAMETRIZATIONS_TABLE;
 
    const Model & model;
+   SQLAdapter sql_adapter;
 
    bool in_output;
 
@@ -90,9 +91,10 @@ class DatabaseFiller {
    }
 
 public:
-   DatabaseFiller(const Model & _model)
+   DatabaseFiller(const Model & _model, const string & datafile_name)
        : COMPONENTS_TABLE("Components"), REGULATIONS_TABLE("Regulations"), PARAMETRIZATIONS_TABLE("Parametrizations"),
       model(_model) {
+      sql_adapter.setDatabase(datafile_name);
       in_output = false;
    }
 

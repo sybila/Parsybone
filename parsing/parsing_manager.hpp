@@ -23,9 +23,8 @@ namespace ParsingManager {
     */
    void parseOptions(int argc, char* argv[]) {
       vector<string> arguments;
-      for (int argn = 0; argn < argc; argn++) {
+      for (const size_t argn : range(argc))
          arguments.push_back(argv[argn]);
-      }
 
       // Parse arguments
       ArgumentParser parser;
@@ -34,9 +33,6 @@ namespace ParsingManager {
 
       if (user_options.use_textfile) {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);
-      }
-      if(user_options.use_database) {
-         sql_adapter.setDatabase(user_options.database_file);
       }
    }
 

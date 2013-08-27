@@ -199,7 +199,7 @@ public:
       int skip = 1;
 
       // Cycle through arguments (skip the first - name of the program).
-      for (auto argument:arguments) {
+      for (const string & argument:arguments) {
          if (skip-- > 0)
             continue;
          // There can be multiple switches after "-" so go through them in the loop.
@@ -212,8 +212,14 @@ public:
             skip = parseModifier(argument, arguments);
          }
          // If it is a model file.
-         else if (argument.find(MODEL_SUFFIX) != string::npos) {
+         else if (argument.find(MODEL_SUFFIX) != argument.npos) {
             referenceModel(argument);
+         }
+         else if (argument.find(DATABASE_SUFFIX) != argument.npos) {
+            ifstream file(argument);
+            if (!file)
+               throw invalid_argument("Filtering database " + argument + " does not exist.");
+            user_options.filter_database.push_back(argument);
          }
          else {
             throw runtime_error("Wrong argument on the input stream: " +  argument);

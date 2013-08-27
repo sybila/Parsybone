@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
    try {
       // Data for synthesis
       SplitManager split_manager(ModelTranslators::getSpaceSize(model));
-      DatabaseFiller database(model);
+      DatabaseFiller database(model, user_options.database_file);
       OutputManager output(property, model, database);
       SynthesisManager synthesis_manager(product, model, property);
       ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
             throw runtime_error("Unsupported Buchi automaton type.");
          }
 
-         // Parametrization can satifsy
+         // Parametrization was considered satisfying.
          if (cost != INF) {
             checkDepthBound(cost, split_manager, output, BFS_bound, param_count);
             output.outputRound(split_manager.getParamNo(), cost, robustness_val, witness);

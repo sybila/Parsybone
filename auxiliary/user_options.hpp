@@ -34,6 +34,7 @@ struct UserOptions {
    string model_name; ///< What is the name of the model?
    string database_file;
    string datatext_file;
+   vector<string> filter_database;
 
    /**
     * @brief addDefaultFiles    Create default file names where there are none explicitly specified.
@@ -43,13 +44,15 @@ struct UserOptions {
          database_file = model_path + model_name + DATABASE_SUFFIX;
       if (datatext_file.empty())
          datatext_file = model_path + model_name + OUTPUT_SUFFIX;
+      if (find(filter_database.begin(), filter_database.end(), database_file) != filter_database.end())
+         throw invalid_argument(database_file + " is reserved for an output database and cannot be used as a filter.");
    }
 
    /**
     * Constructor, sets up default values.
     */
    UserOptions() {
-      compute_wintess = minimalize_cost = be_verbose = use_long_witnesses = compute_robustness =  output_console = use_textfile = use_database = false;
+      compute_wintess = minimalize_cost = be_verbose = use_long_witnesses = compute_robustness = output_console = use_textfile = use_database = false;
       database_file = datatext_file = "";
       bound_size = INF;
       process_number = processes_count = 1;
