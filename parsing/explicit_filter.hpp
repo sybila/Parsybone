@@ -45,13 +45,28 @@ public:
     * @brief addAllowed add parametrizations that are allowed by given database
     */
    void addAllowed(const Model & model, SQLAdapter & sql_adapter) {
+      is_filter_active = true;
       vector<size_t> colum_match = getColumns(model, sql_adapter);
       sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
       Levels column_data = sql_adapter.getRow<ActLevel>(colum_match);
+
+      set<ParamNo> newly_added;
       while (!column_data.empty()) {
          set<ParamNo> matching = ModelTranslators::findMatching(model, column_data);
-         allowed.insert(matching.begin(), matching.end());
+         newly_added.insert(matching.begin(), matching.end());
          column_data = sql_adapter.getRow<ActLevel>(colum_match);
+      }
+
+      if (allowed.empty()) {
+         allowed = newly_added;
+      } else {
+         set<ParamNo> united;
+         set_union(allowed.begin(), allowed.end(), newly_added.begin(), newly_added.end(), inserter(united, united.begin()));
+         allowed = united;
+      }
+
+      if (allowed.empty()) {
+         throw runtime_error("Filtering by a database removed all parametrizations. Nothing to check.");
       }
    }
 
