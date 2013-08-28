@@ -28,15 +28,11 @@ private:
 public:
    /**
     * @brief parse   Reads explicit parameter specification from the model file.
-    * @param model_node
-    * @return
     */
-   static void parse(const rapidxml::xml_node<> * const model_node, Model & model) {
-      auto structure_node = XMLHelper::getChildNode(model_node, "STRUCTURE");
-
+   static void parse(const rapidxml::xml_node<> * const network_node, Model & model) {
       // For each specie find explicit descriptions
-      auto specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
+      auto specie = XMLHelper::getChildNode(network_node, "COMPONENT");
+      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("COMPONENT") ) {
          // Create all contexts with all the possible values.
          auto k_pars = parseParameters("PARAM", "context", specie);
          auto l_pars = parseParameters("LOGIC", "expression", specie);

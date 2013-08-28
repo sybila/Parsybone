@@ -14,12 +14,9 @@
 #include "data_parser.hpp"
 #include "argument_parser.hpp"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief STEP 1 - Class that manages all of the parsing done by the application. Includes parsing of arguments and parsing of models.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace ParsingManager {
    /**
-    * Main parsing function.
+    * @brief parseOptions parse user arguments
     */
    void parseOptions(int argc, char* argv[]) {
       vector<string> arguments;
@@ -36,16 +33,22 @@ namespace ParsingManager {
       }
    }
 
+   /**
+    * @brief parseModel parse model from a model file
+    */
    Model parseModel(const string filename) {
       DataParser data_parser;
       ifstream file(filename, ios::in);
       return data_parser.parseNetwork(file);
    }
 
+   /**
+    * @brief parseProperty parser a property from a property file
+    */
    PropertyAutomaton parseProperty(const string filename) {
       DataParser data_parser;
       ifstream file(filename, ios::in);
-      return data_parser.parseProperty(file);
+      return data_parser.parseProperty(user_options.property_name, file);
    }
 }
 

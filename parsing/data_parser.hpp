@@ -26,26 +26,6 @@ class DataParser {
    rapidxml::xml_document<>  model_xml; ///< Main parsing node
    unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PARSING:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   const rapidxml::xml_node<> * initiateParsing() const {
-      // Temporaries
-      rapidxml::xml_node<> *current_node = nullptr;
-
-		// Step into first MODEL (main) tag
-		current_node = model_xml.first_node();
-      if (current_node == nullptr)
-         throw runtime_error("Parser did not find any nodes in the model file.");
-		if (strcmp(current_node->name(), "MODEL") != 0)
-         throw runtime_error("Parsed found out that input does not start with the tag <MODEL> but with the <" + string(current_node->name()) + "> instead");
-
-		return current_node;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTION METHODS:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Creates RapidXML document from the input stream.
 	 */
@@ -75,12 +55,16 @@ public:
 	 */
    Model parseNetwork(ifstream & input_stream) {
       createDocument(input_stream);
-		auto model_node = initiateParsing();
+      rapidxml::xml_node<> *network_node = model_xml.first_node();
+      if (network_node == 0)
+         throw runtime_error("Parser did not find any nodes in the network file.");
+      if (strcmp(network_node->name(), "NETWORK") != 0)
+         throw runtime_error("Parsed found out that input does not start with the tag <NETWORK>but with the <" + string(network_node->name()) + "> instead");
 
       Model model;
-      NetworkParser::parseNetwork(model_node, model);
-      NetworkParser::parseConstraints(model_node, model);
-      ParameterParser::parse(model_node, model);
+      NetworkParser::parseNetwork(network_node, model);
+      NetworkParser::parseConstraints(network_node, model);
+      ParameterParser::parse(network_node, model);
 
       input_stream.clear();
       input_stream.seekg(0, ios::beg);
@@ -91,25 +75,22 @@ public:
     * @brief parseProperties create a property automaton
     * @param input_stream
     */
-   PropertyAutomaton parseProperty(ifstream & input_stream) {
+   PropertyAutomaton parseProperty(const string & property_name, ifstream & input_stream) {
+      PropertyAutomaton automaton;
+
       createDocument(input_stream);
-      auto model_node = initiateParsing();
+      rapidxml::xml_node<> *property_node = model_xml.first_node();
+      if (property_node == 0)
+         throw runtime_error("Parser did not find any nodes in the property file.");
 
-      PropertyAutomaton property;
+      if (strcmp(property_node->name(), "AUTOMATON") == 0)
+         automaton = BuchiParser::parse(property_node, property_name);
+      else if (strcmp(property_node->name(), "SERIES") == 0)
+         automaton = TimeSeriesParser::parse(property_node, property_name);
+      else
+         throw runtime_error("No property found in the property file.");
 
-      for (rapidxml::xml_node<> * automaton = XMLHelper::getChildNode(model_node, "AUTOMATON", false); automaton; automaton = automaton->next_sibling("AUTOMATON") ) {
-         property = BuchiParser::parse(automaton, "automaton");
-      }
-      for (rapidxml::xml_node<> * series = XMLHelper::getChildNode(model_node, "SERIES", false); series; series = series->next_sibling("SERIES") ) {
-         property = TimeSeriesParser::parse(series, "series");
-      }
-
-      if (property.getAutomatonName().empty())
-         throw runtime_error("No property found");
-
-      input_stream.clear();
-      input_stream.seekg(0, ios::beg);
-      return property;
+      return automaton;
    }
 };
 

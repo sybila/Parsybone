@@ -31,7 +31,9 @@ struct UserOptions {
    size_t process_number; ///< What is the ID of this process?
    size_t processes_count; ///< How many processes are included in the computation?
    string model_path;
+   string property_path;
    string model_name; ///< What is the name of the model?
+   string property_name; ///< Name of the property employed.
    string database_file;
    string datatext_file;
    vector<string> filter_databases;
@@ -41,9 +43,9 @@ struct UserOptions {
     */
    void addDefaultFiles() {
       if (database_file.empty())
-         database_file = model_path + model_name + DATABASE_SUFFIX;
+         database_file = model_path + model_name + "_" + property_name + DATABASE_SUFFIX;
       if (datatext_file.empty())
-         datatext_file = model_path + model_name + OUTPUT_SUFFIX;
+         datatext_file = model_path + model_name + "_" + property_name + OUTPUT_SUFFIX;
       if (find(filter_databases.begin(), filter_databases.end(), database_file) != filter_databases.end())
          throw invalid_argument(database_file + " is reserved for an output database and cannot be used as a filter.");
    }

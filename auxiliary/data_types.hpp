@@ -71,10 +71,10 @@ namespace Label {
    const string Free = "Free";
 }
 
-const string MODEL_SUFFIX = ".dbm";
+const string MODEL_SUFFIX = ".pmf";
+const string PROPERTY_SUFFIX = ".ppf";
 const string DATABASE_SUFFIX = ".sqlite";
 const string OUTPUT_SUFFIX = ".out";
-const string MASK_SUFFIX = ".pbm";
 
 const string COMPONENTS_TABLE = "Components";
 const string REGULATIONS_TABLE = "Regulations";

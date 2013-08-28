@@ -169,25 +169,30 @@ class ArgumentParser {
 
    /**
      * @brief referenceModel save the model name
-     * @param path  path to model
+     * @param model set to true iff the source file is the model file
      */
-   void referenceModel(const string & path) {
+   void referenceSource(const string & source, bool model) {
+      // References are given by what sort of source we have - model / property
+      string & name = model ? user_options.model_name : user_options.property_name;
+      string & path = model ? user_options.model_path : user_options.property_path;
+      const string & SUFFIX = model ? MODEL_SUFFIX : PROPERTY_SUFFIX;
+
       // If the model is alredy parsed.
-      if (!user_options.model_name.empty())
+      if (!name.empty())
          throw invalid_argument("Model file (file with a .dbm suffix) occurs multiple times on the input, only a single occurence is allowed");
 
       // Attach the stream to the file.
-      ifstream file(path, ios::in);
+      ifstream file(source, ios::in);
       if (file.fail()) {
          remove(path.c_str());
-         throw runtime_error("Program failed to open an intput stream file: " + path);
+         throw runtime_error("Program failed to open an intput stream file: " + source);
       }
 
       // Store the models name.
-      auto pos1 = path.find_last_of("/\\") + 1; // Remove the prefix (path), if there is any.
-      auto pos2 = path.find(MODEL_SUFFIX) - pos1; // Remove the suffix.
-      user_options.model_path = path.substr(0, pos1);
-      user_options.model_name = path.substr(pos1, pos2);
+      auto pos1 = source.find_last_of("/\\") + 1; // Remove the prefix (path), if there is any.
+      auto pos2 = source.find(SUFFIX) - pos1; // Remove the suffix.
+      path = source.substr(0, pos1);
+      name = source.substr(pos1, pos2);
    }
 
 public:
@@ -215,7 +220,11 @@ public:
          }
          // If it is a model file.
          else if (argument.find(MODEL_SUFFIX) != argument.npos) {
-            referenceModel(argument);
+            referenceSource(argument, true);
+         }
+         // If it is a property file.
+         else if (argument.find(PROPERTY_SUFFIX) != argument.npos) {
+            referenceSource(argument, false);
          }
          else if (argument.find(DATABASE_SUFFIX) != argument.npos) {
             ifstream file(argument);
@@ -230,9 +239,11 @@ public:
          }
       }
 
-      // Throw an exception if no model file was found.
+      // Throw an exception if no model or property file was found.
       if (user_options.model_name.empty())
-         throw (invalid_argument("Model file (file with a .dbm suffix) is missing"));
+         throw (invalid_argument("Model file (file with a " + MODEL_SUFFIX + " suffix) is missing"));
+      if (user_options.property_name.empty())
+         throw (invalid_argument("Model file (file with a " + PROPERTY_SUFFIX + " suffix) is missing"));
    }
 };
 

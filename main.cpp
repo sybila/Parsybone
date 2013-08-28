@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
    try {
       ParsingManager::parseOptions(argc, argv);
       model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
-      property = ParsingManager::parseProperty(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
+      property = ParsingManager::parseProperty(user_options.property_path + user_options.property_name + PROPERTY_SUFFIX);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
