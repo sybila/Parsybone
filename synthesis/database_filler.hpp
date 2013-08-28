@@ -64,10 +64,8 @@ class DatabaseFiller {
    void fillParametrizations() {
       string columns = "(" + getContexts();
       columns += "Cost INTEGER,";
-      if (user_options.compute_robustness)
-         columns += "Robustness REAL,";
-      if (user_options.compute_wintess)
-         columns += "Witness_path TEXT,";
+      columns += "Robustness REAL,";
+      columns += "Witness_path TEXT,";
       columns += "Selection TEXT )";
 
       prepareTable(PARAMETRIZATIONS_TABLE, columns);

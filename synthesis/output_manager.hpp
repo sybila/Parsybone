@@ -99,7 +99,7 @@ public:
       line += toString(cost) + separator;
       update += toString(cost) + ",";
 
-      string robustness = robustness_val > 0. ? toString(robustness_val) : "";
+      string robustness = robustness_val > 0. ? toString(robustness_val) : "\"\"";
       line += robustness + separator;
       update += robustness + ",";
 
