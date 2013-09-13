@@ -45,10 +45,12 @@ Building:
 	PunyHeaders must be in the include path. 
 	
 Execution:
-	parsybone model.pmf property.ppf [-cdfmrvwW] [--bound N] [--data database_file] [--file text_file] [--dist I N]
+	parsybone model.pmf property.ppf [-cdfmrvwW] [--bound N] [--data database_file] [--file text_file] [--dist I N] [database1.sqlite, ...]
 
-	model.dbm	name of the file that will be parsed and used, must have .dbm suffix
-	model is used as the name of the model further in the program
+	model.pmf	name of the file that will be parsed and used, must have a .pmf suffix
+		model is used as the name of the model (and thus impicit output) further in the program
+	property.ppf	name of the property file that will be parset and used with the model, must have a .ppf suffix
+	database1.sqlite,...	a list of database files that are used for filtering the parametrizations. If provided only those parametrizations that are present in all the databases are considered for the computation.	
 	
 	-c	display computation results on console
 	-d	output computation results to an sqlite database
@@ -63,3 +65,4 @@ Execution:
 	
 	--bound	constraints the depth of a depth-first search 
 	--dist	used for distributed computation with two integers, denoting the I-th process out of N. Total - each of those tests only 1/N of the parametrization space.
+	

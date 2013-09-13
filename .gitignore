@@ -14,3 +14,5 @@ ParsyboneTest/*
 *.dvi
 *autosave*
 count.sh
+*bib
+*gz
