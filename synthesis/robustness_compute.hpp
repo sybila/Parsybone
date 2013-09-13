@@ -36,7 +36,7 @@ class RobustnessCompute {
          const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product.getStructure(), product.getKSID(tran.first));
 
          // Consider only the steps that go towards a single state of the BA (picked the highest).
-         exits[tran.first] += max(1u, transports.size());
+         exits[tran.first] += max(static_cast<size_t>(1), transports.size());
       }
    }
 
