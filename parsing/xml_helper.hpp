@@ -71,7 +71,7 @@ namespace XMLHelper {
 				requested_data = lexical_cast<returnType, char*>(temp_attr->value());
 			} catch (bad_lexical_cast e) {
 				output_streamer.output(error_str, "Error while parsing an attribute " + toString(attribute_name) + ": " + e.what() + ".");
-				throw runtime_error("lexical_cast<" + demangle(typeid(returnType)) + ", char*>(" + string(temp_attr->value()) + ") failed");
+            throw runtime_error("lexical_cast<" + string(typeid(returnType).name()) + ", char*>(" + string(temp_attr->value()) + ") failed");
 			}
 		}
 		return true;

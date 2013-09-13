@@ -107,7 +107,7 @@ public:
     * @param robustness should compute robustness
     * @return the Cost value for this parametrization
     */
-   size_t checkFull(string & witness_str, double & robust, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+   size_t checkFull(string & witness_str, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
       vector<StateTransition> trans;
 
       CheckerSettings settings;
@@ -120,15 +120,15 @@ public:
       map<StateID, size_t> finals = results.found_depth;
       for (const pair<StateID, size_t> & final : finals) {
          vector<StateTransition> trans_temp;
-         double robust_temp;
+         double robust_temp = 0.;
          size_t new_cost = computeLasso(final, trans_temp, robust_temp, BFS_bound, witnesses, robustness);
          // Clear data if the new path is shorter than the others.
          if (new_cost < cost) {
             cost = new_cost;
-            robust = 0.;
+            robustness_val = 0.;
             trans.clear();
          }
-         robust += robust_temp;
+         robustness_val += robust_temp;
          trans.insert(trans.begin(), trans_temp.begin(), trans_temp.end());
       }
 

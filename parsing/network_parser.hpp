@@ -61,7 +61,7 @@ class NetworkParser {
    }
 
    /**
-    * Starting from the COMPONENT node, the function parses all the REGUL tags and reads the data from them.
+    * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
     * If not provided, attributes are defaulted - threshold to 1, label to Label::free
     */
    static void parseRegulations(const rapidxml::xml_node<> * const specie_node, SpecieID t_ID, Model & model) {
@@ -81,7 +81,7 @@ class NetworkParser {
    }
 
    /**
-    * Starting from the STRUCTURE node, the function parses all the COMPONENT tags and reads the data from them.
+    * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
     * If not provided, attributes are defaulted -
     * name is equal to ordinal number starting from 0,
     * max to 1,
@@ -94,9 +94,9 @@ class NetworkParser {
       // Specie data
       string name; size_t max; size_t basal = 0; Levels targets;
 
-      // Step into first COMPONENT tag, end when the current node does not have next sibling (all COMPONENTS tags were parsed)
-      rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "COMPONENT");
-      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("COMPONENT"), specie_name++) {
+      // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
+      rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
+      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE"), specie_name++) {
          // Get a name of the specie.
          if (!XMLHelper::getAttribute(name, specie, "name", false))
             name = toString(specie_name);
@@ -134,12 +134,12 @@ class NetworkParser {
    }
 
    /**
-    * Starting from the STRUCTURE node, the function parses all the COMPONENT tags and reads the data from them.
+    * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
     */
    static void secondParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
-      // Step into first COMPONENT tag, end when the current node does not have next sibling (all COMPONENTS tags were parsed)
-      rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "COMPONENT");
-      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("COMPONENT") ) {
+      // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
+      rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
+      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
          // Get all the regulations of the specie and store them to the model.
          parseRegulations(specie, ID, model);
       }

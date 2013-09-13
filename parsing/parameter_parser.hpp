@@ -31,8 +31,8 @@ public:
     */
    static void parse(const rapidxml::xml_node<> * const network_node, Model & model) {
       // For each specie find explicit descriptions
-      auto specie = XMLHelper::getChildNode(network_node, "COMPONENT");
-      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("COMPONENT") ) {
+      auto specie = XMLHelper::getChildNode(network_node, "SPECIE");
+      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
          // Create all contexts with all the possible values.
          auto k_pars = parseParameters("PARAM", "context", specie);
          auto l_pars = parseParameters("LOGIC", "expression", specie);

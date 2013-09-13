@@ -179,7 +179,7 @@ class ArgumentParser {
 
       // If the model is alredy parsed.
       if (!name.empty())
-         throw invalid_argument("Model file (file with a .dbm suffix) occurs multiple times on the input, only a single occurence is allowed");
+         throw invalid_argument("Model file (file with a " + MODEL_SUFFIX + " suffix) occurs multiple times on the input, only a single occurence is allowed");
 
       // Attach the stream to the file.
       ifstream file(source, ios::in);
