@@ -134,7 +134,7 @@ public:
 
       sort(trans.begin(), trans.end());
       trans.erase(unique(trans.begin(), trans.end()), trans.end());
-      witness_str = WitnessSearcher::getOutput(product, trans);
+      witness_str = witnesses ? WitnessSearcher::getOutput(product, trans) : "";
 
       return cost;
    }
@@ -162,7 +162,7 @@ public:
          if (robustness)
             computer->compute(results, searcher->getTransitions(), settings);
          robustness_val = robustness ? computer->getRobustness() : 0.;
-         witness_str = user_options.compute_wintess ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
+         witness_str = witnesses ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
       }
 
       return results.lower_bound;
