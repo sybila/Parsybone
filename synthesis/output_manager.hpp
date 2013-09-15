@@ -84,7 +84,7 @@ public:
    void outputRoundNo(const ParamNo round_no, const ParamNo round_count) const {
       // output numbers
       OutputStreamer::Trait trait = (user_options.use_textfile) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Round: " + toString(round_no) + "/" + toString(round_count) + ":", trait);
+      output_streamer.output(verbose_str, "Round: " + toString(round_no) + "/" + toString(round_count), trait);
    }
 
    /**
@@ -106,7 +106,10 @@ public:
       line += witness + separator;
       update += "\"" + witness + "\",";
 
-      output_streamer.output(results_str, line);
+      size_t traits = 0;
+      if (user_options.output_console && user_options.be_verbose)
+         traits |= output_streamer.rewrite_ln;
+      output_streamer.output(results_str, line, traits);
       if (user_options.use_database)
          database.addParametrization(update);
    }

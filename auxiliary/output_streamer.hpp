@@ -132,12 +132,17 @@ public:
          if (user_options.be_verbose) {
             if (testTrait(rewrite_ln, trait_mask))
                *verbose_stream << '\r';
-            if (!testTrait(no_out, trait_mask))
-               *verbose_stream << "* ";
+            if (!testTrait(no_out, trait_mask)) {
+               if (testTrait(rewrite_ln, trait_mask))
+                  *verbose_stream << "# ";
+               else
+                  *verbose_stream << "* ";
+            }
          }
          break;
       case results_str:
-         // This is the only stream that is not enhanced.
+         if (testTrait(rewrite_ln, trait_mask))
+            *verbose_stream << '\r';
          break;
       }
       // Continue with output, then return this object
