@@ -142,7 +142,7 @@ public:
          break;
       case results_str:
          if (testTrait(rewrite_ln, trait_mask))
-            *verbose_stream << '\r';
+            *result_stream << '\r';
          break;
       }
       // Continue with output, then return this object
