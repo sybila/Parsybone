@@ -116,6 +116,7 @@ int main(int argc, char* argv[]) {
          }
       } while (split_manager.increaseRound());
 
+      output_streamer.clear_line(verbose_str);
       output.outputSummary(param_count, split_manager.getProcColorsCount());
    }
    catch (std::exception & e) {

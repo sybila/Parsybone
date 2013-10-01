@@ -74,8 +74,7 @@ public:
    void outputSummary(const ParamNo accepting, const ParamNo total) {
       if (user_options.use_database)
          database.finishOutpout();
-      OutputStreamer::Trait trait = (user_options.use_textfile) ? 0 : OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Total number of parametrizations: " + toString(accepting) + "/" + toString(total) + ".", trait);
+      output_streamer.output(verbose_str, "Total number of parametrizations: " + toString(accepting) + "/" + toString(total) + ".");
    }
 
    /**
@@ -84,7 +83,7 @@ public:
    void outputRoundNo(const ParamNo round_no, const ParamNo round_count) const {
       // output numbers
       OutputStreamer::Trait trait = (user_options.use_textfile) ? 0 : OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Round: " + toString(round_no) + "/" + toString(round_count), trait);
+      output_streamer.output(verbose_str, "Round: " + toString(round_no) + "/" + toString(round_count) + ".", trait);
    }
 
    /**

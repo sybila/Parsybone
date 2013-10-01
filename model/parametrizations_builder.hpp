@@ -112,7 +112,6 @@ class ParametrizationsBuilder {
             continue;
          model.species[ID].subcolors.push_back(subcolor);
       } while (iterate(top_color, bottom_color, subcolor));
-      output_streamer.clear_line(verbose_str);
 
       if (model.species[ID].subcolors.empty())
          throw runtime_error(string("No valid parametrization found for the specie ").append(toString(ID)));
@@ -155,6 +154,7 @@ public:
       for (SpecieID ID = 0; ID < model.species.size(); ID++)
          createKinetics(model, ID);
 
+      output_streamer.clear_line(verbose_str);
       output_streamer.output(verbose_str, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
    }
 };
