@@ -69,8 +69,10 @@ class WitnessSearcher {
          storeTransitions(depth, last_branch);
       // Continue with the DFS otherwise.
       else if (depth < max_depth){
-         const vector<StateID> succs = ColoringFunc::broadcastParameters(settings.getParamNo(), product, ID); // Get predecessors
-         for (const StateID & succ: succs) {
+         const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product, ID);
+         const vector<StateID> & sucessors = transports.empty() ? product.getLoops(ID) : transports;
+
+         for (const StateID & succ: sucessors) {
             last_branch = min(DFS(succ, depth + 1, last_branch), depth); // Recursive descent with parametrizations passed from the predecessor.
          }
       }
