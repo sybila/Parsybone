@@ -44,11 +44,12 @@ class SynthesisManager {
    /**
     * @brief analyseLasso Parametrization is know to be satisfiable, make analysis of it.
     */
-   void analyseLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, double & robust, const bool robustness) {
+   void analyseLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, const ParamNo param_no, double & robust, const bool robustness) {
       SynthesisResults results;
       CheckerSettings settings;
       settings.final_states = {final.first};
       settings.minimal = settings.mark_initals = true;
+      settings.param_no = param_no;
       results = model_checker->conductCheck(settings);
       searcher->findWitnesses(results, settings);
       trans = searcher->getTransitions();
@@ -72,16 +73,17 @@ class SynthesisManager {
    /**
     * @brief computeLasso parametrization is know to reach a final state, test that state for a bounded loop.
     */
-   size_t computeLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans,  double & robust, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+   size_t computeLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, const ParamNo param_no,  double & robust, const size_t BFS_bound, const bool witnesses, const bool robustness) {
       CheckerSettings settings;
       settings.minimal = true;
+      settings.param_no = param_no;
       settings.initial_states = settings.final_states = {final.first};
       settings.bfs_bound = BFS_bound == INF ? BFS_bound : (BFS_bound - final.second);
 
       SynthesisResults results = model_checker->conductCheck(settings);
       const size_t cost = results.lower_bound == INF ? INF : results.lower_bound + final.second;
       if (results.is_accepting && (witnesses || robustness))
-         analyseLasso(final, trans, robust, robustness);
+         analyseLasso(final, trans, param_no, robust, robustness);
 
       return cost;
    }
@@ -121,7 +123,7 @@ public:
       for (const pair<StateID, size_t> & final : finals) {
          vector<StateTransition> trans_temp;
          double robust_temp = 0.;
-         size_t new_cost = computeLasso(final, trans_temp, robust_temp, BFS_bound, witnesses, robustness);
+         size_t new_cost = computeLasso(final, trans_temp, param_no, robust_temp, BFS_bound, witnesses, robustness);
          // Clear data if the new path is shorter than the others.
          if (new_cost < cost) {
             cost = new_cost;
