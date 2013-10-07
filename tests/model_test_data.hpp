@@ -30,6 +30,7 @@ protected:
    PropertyAutomaton o_t_series_prop;
    PropertyAutomaton A_cyclic_prop;
    PropertyAutomaton set_two_ones_prop;
+   PropertyAutomaton arbitrary_peak_prop;
 
    void setUpModels() {
       trivial_model.addSpecie("A", 1, {0,1});
@@ -87,6 +88,18 @@ protected:
       set_two_ones_prop.addEdge(1,1,"tt");
       set_two_ones_prop.addEdge(1,2,"(A=1&B=1)");
       set_two_ones_prop.addEdge(2,2,"ff");
+
+      arbitrary_peak_prop = PropertyAutomaton("arbitrary_peak");
+      arbitrary_peak_prop.addState("low1",false);
+      arbitrary_peak_prop.addState("high",false);
+      arbitrary_peak_prop.addState("low2",false);
+      arbitrary_peak_prop.addState("final",true);
+      arbitrary_peak_prop.addEdge(0,1,"((A=0&B=1)|(A=1&B=0))");
+      arbitrary_peak_prop.addEdge(1,1,"tt");
+      arbitrary_peak_prop.addEdge(1,2,"(A=1&B=1)");
+      arbitrary_peak_prop.addEdge(2,2,"tt");
+      arbitrary_peak_prop.addEdge(2,3,"((A=0&B=1)|(A=1&B=0))");
+      arbitrary_peak_prop.addEdge(3,3,"tt");
    }
 
    void SetUp() override {

@@ -15,7 +15,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class responsible for computation of robustness values for each acceptable parametrization.
 ///
-/// @attention Now broken due to the fact that initials do not match initial measurement.
+/// @attention The robustness actually counts one state after the last measurement in the time series.
+/// This is however in order since the penultimate state can undergo all the transitions and therefore the robustness just gets split in between the final states.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class RobustnessCompute {
    const ProductStructure & product; ///< Product reference for state properties.
@@ -35,7 +36,7 @@ class RobustnessCompute {
       for (const StateTransition & tran : transitions) {
          const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product.getStructure(), product.getKSID(tran.first));
 
-         // Consider only the steps that go towards a single state of the BA (picked the highest).
+         // If there are no transports, we have a loop - even if multiple loops are possible, consider only one.
          exits[tran.first] += max(static_cast<size_t>(1), transports.size());
       }
    }
@@ -59,13 +60,6 @@ class RobustnessCompute {
 
       for (const StateID init:initials)
          next_prob[init] = 1.0 / initials.size();
-   }
-
-   /**
-    * Compute the resulting values as a sum of probabilites of reaching any state.
-    */
-   void finish() {
-
    }
 
 public:
@@ -103,8 +97,6 @@ public:
                next_prob[trans.second] += current_prob[trans.first] / divisor ;
          }
       }
-
-      finish();
    }
 
    /**

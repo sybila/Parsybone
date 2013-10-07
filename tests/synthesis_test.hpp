@@ -63,6 +63,7 @@ TEST_F(SynthesisTest, CycleOnCircuitCheck) {
    EXPECT_EQ(4, results.lower_bound);
    EXPECT_TRUE(results.is_accepting);
 
+   // Due to synchronicity, it's not possible to cycle from 7 (does not lie on the main circuit).
    ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_2));
    settings.initial_states = settings.final_states = {STATE_2};
    results = checker.conductCheck(settings);
@@ -108,8 +109,34 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    robustness.compute(results, searcher.getTransitions(), settings);
    robutness_val *= robustness.getRobustness();
 
-   EXPECT_TRUE(containsTrans(witness, {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)","(1,0;0)>(1,1;1)"}));
+   EXPECT_TRUE(containsTrans(witness, {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)"}));
    EXPECT_DOUBLE_EQ(0.25, robutness_val);
+}
+
+TEST_F(SynthesisTest, TestPeakOnCircuit) {
+   // Change to the K_2
+   string witness; double robust;
+   vector<string> witnesses;
+   vector<double> robustnesses;
+   bool full_found = false; // There exists a full branch path
+   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
+      size_t cost = b_k_2_a_p_man->checkFull(witness, robust, param_no, INF, true, true);
+      if (cost == 4) {
+         witnesses.push_back(witness);
+         robustnesses.push_back(robust);
+      }
+      full_found |= containsTrans(witness, {"(1,0;0)>(1,1;1)","(0,1;0)>(1,1;1)","(1,1;1)>(1,0;2)","(1,1;1)>(0,1;2)"});
+   }
+   EXPECT_TRUE(full_found);
+   EXPECT_EQ(witnesses.size(),robustnesses.size());
+   // None of the witnesses is empty.
+   for(const string & wit:witnesses) {
+      EXPECT_FALSE(wit.empty());
+   }
+   // All the robustnesses are in the probability range.
+   for(const double rob:robustnesses) {
+      EXPECT_PRED1([](const double val){return (val >= 0. && val <= 1.);}, rob);
+   }
 }
 
 TEST_F(SynthesisTest, TestBounds) {
@@ -130,5 +157,7 @@ TEST_F(SynthesisTest, TestBounds) {
    EXPECT_EQ(count(sizes2.begin(), sizes2.end(), INF),
              count_if(sizes1.begin(), sizes1.end(),[](const size_t val){return val > 3;}));
 }
+
+
 
 #endif // SYNTHESIS_TESTS_HPP

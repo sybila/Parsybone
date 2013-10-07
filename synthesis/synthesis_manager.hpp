@@ -47,6 +47,7 @@ class SynthesisManager {
    void analyseLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, const ParamNo param_no, double & robust, const bool robustness) {
       SynthesisResults results;
       CheckerSettings settings;
+      // First find the coloring from the initial states to the given final.
       settings.final_states = {final.first};
       settings.minimal = settings.mark_initals = true;
       settings.param_no = param_no;
@@ -58,6 +59,7 @@ class SynthesisManager {
          robust = computer->getRobustness();
       }
 
+      // Second find a cycle on the final state.
       settings.mark_initals = false;
       settings.initial_states = {final.first};
       results = model_checker->conductCheck(settings);

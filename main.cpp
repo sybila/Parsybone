@@ -79,7 +79,8 @@ int main(int argc, char* argv[]) {
 
    // Synthesis of parametrizations
    try {
-      SplitManager split_manager(ModelTranslators::getSpaceSize(model));
+      SplitManager split_manager(user_options.processes_count, user_options.process_number, ModelTranslators::getSpaceSize(model));
+      split_manager.computeSubspace();
       OutputManager output(property, model);
       SynthesisManager synthesis_manager(product, model, property);
       ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.

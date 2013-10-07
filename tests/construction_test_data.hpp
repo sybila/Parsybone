@@ -20,6 +20,7 @@ protected:
    ProductStructure b_k_2_trivial;
    ProductStructure c_2_set_two_ones;
    ProductStructure c_2_cyclic;
+   ProductStructure b_k_2_a_peak;
    ProductStructure trivial;
 
    void SetUp() override {
@@ -37,6 +38,7 @@ protected:
       trivial = ConstructionManager::construct(trivial_model, trivial_prop);
       c_2_set_two_ones = ConstructionManager::construct(circuit_2, set_two_ones_prop);
       c_2_cyclic = ConstructionManager::construct(circuit_2, A_cyclic_prop);
+      b_k_2_a_peak = ConstructionManager::construct(bool_k_2, arbitrary_peak_prop);
    }
 };
 

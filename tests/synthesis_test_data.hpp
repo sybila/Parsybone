@@ -21,6 +21,7 @@ protected:
    unique_ptr<SynthesisManager> t_man;
    unique_ptr<SynthesisManager> c_2_s_2_o_man;
    unique_ptr<SynthesisManager> c_2_c_man;
+   unique_ptr<SynthesisManager> b_k_2_a_p_man;
 
    void SetUp() override {
       StructureTest::SetUp();
@@ -32,6 +33,7 @@ protected:
       t_man.reset(new SynthesisManager(trivial, trivial_model, trivial_prop));
       c_2_s_2_o_man.reset(new SynthesisManager(c_2_set_two_ones, circuit_2, set_two_ones_prop));
       c_2_c_man.reset(new SynthesisManager(c_2_cyclic, circuit_2, A_cyclic_prop));
+      b_k_2_a_p_man.reset(new SynthesisManager(b_k_2_a_peak, bool_k_2, arbitrary_peak_prop));
    }
 };
 
