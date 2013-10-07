@@ -51,15 +51,23 @@ int main(int argc, char* argv[]) {
    ProductStructure product;
    ExplicitFilter filter;
 
-   // Parsing
+   // Arguments
    try {
+      user_options.readHelp();
       ParsingManager::parseOptions(argc, argv);
+   }
+   catch (std::exception & e) {
+      output_streamer.output(error_str, "Error occured while parsing arguments: \"" + string(e.what()) + "\".\n Call parsybone --help for help.");
+      return 1;
+   }
+
+   try {
       model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
       property = ParsingManager::parseProperty(user_options.property_path + user_options.property_name + PROPERTY_SUFFIX);
    }
    catch (std::exception & e) {
-      output_streamer.output(error_str, string("Error occured while parsing input: \"").append(e.what()).append("\"."));
-      return 1;
+      output_streamer.output(error_str, string("Error occured while parsing data: \"" + string(e.what()) + "\".\n Consult the modeling manual for details."));
+      return 2;
    }
 
    // Construction of data structures
@@ -73,8 +81,8 @@ int main(int argc, char* argv[]) {
       product = ConstructionManager::construct(model, property);
    }
    catch (std::exception & e) {
-      output_streamer.output(error_str, string("Error occured while building the data structures: \"").append(e.what()).append("\"."));
-      return 2;
+      output_streamer.output(error_str, string("Error occured while building the data structures: \"" + string(e.what())  + "\". \n Contact support for details."));
+      return 3;
    }
 
    // Synthesis of parametrizations
@@ -121,8 +129,8 @@ int main(int argc, char* argv[]) {
       output.outputSummary(param_count, split_manager.getProcColorsCount());
    }
    catch (std::exception & e) {
-      output_streamer.output(error_str, string("Error occured while syntetizing the parametrizations: \"").append(e.what()).append("\"."));
-      return 3;
+      output_streamer.output(error_str, string("Error occured while syntetizing the parametrizations: \"" + string(e.what())  + "\".\n Contact support for details."));
+      return 4;
    }
 
    if (user_options.be_verbose)

@@ -108,7 +108,11 @@ class ArgumentParser {
       auto position = getArgumentPosition(modifier, arguments);
 
       // Apply the modifier.
-      if (position->compare("--dist") == 0) {
+      if (position->compare("--help") == 0) {
+         cout << user_options.help_content;
+         exit(0);
+      }
+      else if (position->compare("--dist") == 0) {
          return getDistribution(position, arguments.end());
       } else if (position->compare("--text") == 0) {
          user_options.use_textfile = true;

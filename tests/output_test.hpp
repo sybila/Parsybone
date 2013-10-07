@@ -18,7 +18,8 @@ TEST_F(StructureTest, DatabaseTest) {
    OutputManager output(trivial_prop, trivial_model);
 
    EXPECT_NO_THROW(output.outputForm());
-   EXPECT_NO_THROW(output.outputRound(0, 3, 0.5, "{(1>3)}"));
+   EXPECT_NO_THROW(output.outputRound(0, 3, 0.5, "{(0>0)}"));
+   output.outputRound(1, 5, 0.0, "{(1>3)}");
  }
 
 #endif // OUTPUT_TEST_HPP
