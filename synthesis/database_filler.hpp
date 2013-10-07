@@ -61,11 +61,11 @@ class DatabaseFiller {
       return contexts;
    }
 
-   void fillParametrizations() {
+   void fillParametrizations(const string & prop_name) {
       string columns = "(" + getContexts();
       columns += "Cost INTEGER,";
-      columns += "Robustness REAL,";
-      columns += "Witness_path TEXT,";
+      columns += "Robust_" + prop_name + " REAL,";
+      columns += "Witness_" + prop_name + " TEXT,";
       columns += "Selection TEXT )";
 
       prepareTable(PARAMETRIZATIONS_TABLE, columns);
@@ -78,11 +78,11 @@ public:
       in_output = false;
    }
 
-   void creteTables() {
+   void creteTables(const string & prop_name) {
       sql_adapter.safeExec("BEGIN TRANSACTION;");
       fillComponents();
       fillRegulations();
-      fillParametrizations();
+      fillParametrizations(prop_name);
       sql_adapter.safeExec("END;");
    }
 

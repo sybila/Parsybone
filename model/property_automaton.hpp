@@ -71,11 +71,11 @@ public:
       return INF;
    }
 
-   const string & getName(StateID ID) {
+   const string & getName(StateID ID) const {
       return states[ID].name;
    }
 
-   const string & getAutomatonName() {
+   const string & getAutomatonName() const {
       return automaton_name;
    }
 

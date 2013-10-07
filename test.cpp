@@ -16,6 +16,7 @@ using namespace std;
 #include "tests/model_test.hpp"
 #include "tests/construction_test.hpp"
 #include "tests/synthesis_test.hpp"
+#include "tests/output_test.hpp"
 
 int main(int argc, char* argv[]) {
     ::testing::InitGoogleTest( &argc, argv );

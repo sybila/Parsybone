@@ -50,7 +50,7 @@ public:
     */
    void outputForm() {
       if (user_options.use_database)
-         database.creteTables();
+         database.creteTables(property.getAutomatonName());
       string format_desc = "#:(";
 
       for(SpecieID ID:range(model.species.size())) {
