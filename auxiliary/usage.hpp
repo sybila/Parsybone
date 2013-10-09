@@ -48,7 +48,7 @@ const Version getVersion() {
 
 const string getUsage() {
    return
-         "parsybone model.pmf property.ppf [-cdfmrvwW] [--bound N] [--data database_file] [--file text_file] [--dist I N] [database1.sqlite,...] [--help] [--ver]\n"
+         "parsybone model.pmf property.ppf [database1.sqlite,...] [-cdfmrvwW] [--bound N] [--data database_file] [--file text_file] [--dist I N] [--help] [--ver]\n"
          "\n"
          "model.pmf            name of the file that will be parsed and used, must have a .pmf suffix; model is used as the name of the model (and thus impicit output) further in the program\n"
          "property.ppf         name of the property file that will be parset and used with the model, must have a .ppf suffix\n"

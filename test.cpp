@@ -11,6 +11,7 @@
 
 using namespace std;
 
+#include "tests/parsing_test.hpp"
 #include "tests/core_level_tests.hpp"
 #include "tests/formulae_parser_test.hpp"
 #include "tests/model_test.hpp"
