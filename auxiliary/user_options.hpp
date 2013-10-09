@@ -37,7 +37,6 @@ struct UserOptions {
    string database_file;
    string datatext_file;
    vector<string> filter_databases;
-   string help_content;
 
    /**
     * @brief addDefaultFiles    Create default file names where there are none explicitly specified.
@@ -64,18 +63,6 @@ struct UserOptions {
 
    inline bool analysis() const {
       return (compute_robustness | compute_wintess);
-   }
-
-   void readHelp() {
-      fstream help("../README", ios::in);
-      bool found_execution = false;
-      string line;
-      while(getline(help,line)) {
-         if (found_execution)
-            help_content += line + "\n";
-         if (regex_match(line, regex(".*Execution:.*")))
-             found_execution = true;
-      }
    }
 
 } user_options; ///< Single program-shared user options object.

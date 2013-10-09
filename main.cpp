@@ -53,11 +53,10 @@ int main(int argc, char* argv[]) {
 
    // Arguments
    try {
-      user_options.readHelp();
       ParsingManager::parseOptions(argc, argv);
    }
    catch (std::exception & e) {
-      output_streamer.output(error_str, "Error occured while parsing arguments: \"" + string(e.what()) + "\".\n Call parsybone --help for help.");
+      output_streamer.output(error_str, "Error occured while parsing arguments: \"" + string(e.what()) + "\".\n Call \"parsybone --help\" for usage.");
       return 1;
    }
 

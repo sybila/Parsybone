@@ -11,6 +11,7 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../auxiliary/user_options.hpp"
+#include "../auxiliary/usage.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief A class responsible for reading the arguments on the input.
@@ -109,10 +110,12 @@ class ArgumentParser {
 
       // Apply the modifier.
       if (position->compare("--help") == 0) {
-         cout << user_options.help_content;
+         cout << getUsage();
          exit(0);
-      }
-      else if (position->compare("--dist") == 0) {
+      } else if (position->compare("--ver") == 0) {
+         cout << "Parsybone version: " << getVersion() << endl;
+         exit(0);
+      } else if (position->compare("--dist") == 0) {
          return getDistribution(position, arguments.end());
       } else if (position->compare("--text") == 0) {
          user_options.use_textfile = true;
