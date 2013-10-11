@@ -13,9 +13,10 @@
 
 class ParsingTest : public ::testing::Test {
 protected:
-   const string example_model_pmf = "../example_model.pmf";
-   string example_series_ppf = "../example_series.ppf";
-   string example_automaton_ppf = "../example_automaton.ppf";
+   const string source_path = "../";
+   const string example_model = "example_model";
+   const string example_series = "example_series";
+   const string example_automaton = "example_automaton";
 
    void SetUp() override {
 

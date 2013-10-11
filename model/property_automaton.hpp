@@ -26,12 +26,11 @@ private:
       Edges edges; ///< Edges in Buchi Automaton (Target ID, edge label).
    };
 
-   string automaton_name; ///< Name of the property.
    PropType prop_type; ///< What property does this automaton hold.
    vector<AutomatonState> states; ///< vector of all states of the controlling Buchi automaton
 
 public:
-   PropertyAutomaton(const string & _automaton_name = "default_aut", const PropType _prop_type = LTL) : automaton_name(_automaton_name), prop_type(_prop_type){ }
+   PropertyAutomaton(const PropType _prop_type = LTL) : prop_type(_prop_type){ }
 
    /**
     * Add a new state to the automaton. If the name is empty, then "ID of the automaton" + "letter" is used.
@@ -40,7 +39,7 @@ public:
     */
    inline size_t addState(string name, bool final) {
       if (name.empty())
-         name = automaton_name + toString(states.size());
+         name = toString(states.size());
       states.push_back({name, states.size(), final, Edges()});
       return states.size() - 1;
    }
@@ -73,10 +72,6 @@ public:
 
    const string & getName(StateID ID) const {
       return states[ID].name;
-   }
-
-   const string & getAutomatonName() const {
-      return automaton_name;
    }
 
    inline bool isFinal(const size_t ID) const {

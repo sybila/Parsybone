@@ -21,6 +21,7 @@ class OutputStreamer {
    ostream * result_stream; ///< Stream to output results of coloring.
    ostream * console_stream; ///< This one always goes to console.
    string result_filename;
+   UserOptions user_options;
 
    /// True if these streams are assigned a file.
    bool error_file, verbose_file, result_file;
@@ -71,6 +72,10 @@ public:
          delete result_stream;
       if (verbose_file)
          delete verbose_stream;
+   }
+
+   void setOptions(const UserOptions & _user_options) {
+      user_options = _user_options;
    }
 
    /**

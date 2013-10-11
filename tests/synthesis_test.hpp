@@ -34,8 +34,7 @@ TEST_F(SynthesisTest, SetTwoOnCircuitFull) {
    const vector<StateTransition> & trans = searcher.getTransitions();
    EXPECT_FALSE(trans.empty());
 
-   user_options.compute_wintess = user_options.use_long_witnesses = true;
-   string witness = WitnessSearcher::getOutput(c_2_set_two_ones, trans);
+   string witness = WitnessSearcher::getOutput(true, c_2_set_two_ones, trans);
    EXPECT_TRUE(containsTrans(witness, {"(0,1;0)>(0,0;1)", "(0,0;1)>(1,0;1)", "(1,0;1)>(1,1;1)", "(1,1;1)>(0,1;2)}"}));
 
    robustness.compute(results, trans, settings);
@@ -85,7 +84,6 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    CheckerSettings settings;
    SynthesisResults results ;
 
-   user_options.compute_wintess = user_options.use_long_witnesses = true;
    const StateID ID = 10; // the state to make the cycle from - it's known to be reachable with robustness of 0.25.
    double robutness_val = 0.;
    string witness;
@@ -96,7 +94,7 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    results = checker.conductCheck(settings);
    ASSERT_TRUE(results.is_accepting);
    searcher.findWitnesses(results, settings);
-   witness += WitnessSearcher::getOutput(c_2_cyclic, searcher.getTransitions());
+   witness += WitnessSearcher::getOutput(true, c_2_cyclic, searcher.getTransitions());
    robustness.compute(results, searcher.getTransitions(), settings);
    robutness_val = robustness.getRobustness();
 
@@ -105,7 +103,7 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    results = checker.conductCheck(settings);
    ASSERT_TRUE(results.is_accepting);
    searcher.findWitnesses(results, settings);
-   witness += WitnessSearcher::getOutput(c_2_cyclic, searcher.getTransitions());
+   witness += WitnessSearcher::getOutput(true, c_2_cyclic, searcher.getTransitions());
    robustness.compute(results, searcher.getTransitions(), settings);
    robutness_val *= robustness.getRobustness();
 
@@ -115,17 +113,18 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
 
 TEST_F(SynthesisTest, TestPeakOnCircuit) {
    // Change to the K_2
-   string witness; double robust;
+   vector<StateTransition> witness; double robust;
    vector<string> witnesses;
    vector<double> robustnesses;
    bool full_found = false; // There exists a full branch path
    for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
       size_t cost = b_k_2_a_p_man->checkFull(witness, robust, param_no, INF, true, true);
       if (cost == 4) {
-         witnesses.push_back(witness);
+         witnesses.push_back(WitnessSearcher::getOutput(true, b_k_2_a_peak, witness));
+         witness.clear();
          robustnesses.push_back(robust);
+         full_found |= containsTrans(witnesses.back(), {"(1,0;0)>(1,1;1)","(0,1;0)>(1,1;1)","(1,1;1)>(1,0;2)","(1,1;1)>(0,1;2)"});
       }
-      full_found |= containsTrans(witness, {"(1,0;0)>(1,1;1)","(0,1;0)>(1,1;1)","(1,1;1)>(1,0;2)","(1,1;1)>(0,1;2)"});
    }
    EXPECT_TRUE(full_found);
    EXPECT_EQ(witnesses.size(),robustnesses.size());
@@ -140,12 +139,14 @@ TEST_F(SynthesisTest, TestPeakOnCircuit) {
 }
 
 TEST_F(SynthesisTest, TestBounds) {
-   string witness; double robust;
+   vector<StateTransition> witness; double robust;
    EXPECT_EQ(4, c_2_s_2_o_man->checkFinite(witness, robust, 1, 4, false, false));
+   witness.clear();
    EXPECT_EQ(INF, c_2_s_2_o_man->checkFinite(witness, robust, 1, 3, false, false)) << "Should not proceed as the bound is too low.";
 
+   witness.clear();
    EXPECT_EQ(5, c_2_c_man->checkFull(witness, robust, 1, INF, true, true));
-   EXPECT_TRUE(containsTrans(witness, {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)"}));
+   EXPECT_TRUE(containsTrans(WitnessSearcher::getOutput(true, c_2_cyclic, witness), {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)"}));
    EXPECT_DOUBLE_EQ(0.25, robust) << "Should be reduced only to 25% as the other path is 7 setps long.";
 
    vector<size_t> sizes1;

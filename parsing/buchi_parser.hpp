@@ -73,8 +73,8 @@ public:
 	/**
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.
 	 */
-   static PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node, string name) {
-      PropertyAutomaton automaton(name, LTL);
+   static PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node) {
+      PropertyAutomaton automaton(LTL);
 
 		// Parse states
       firstParse(automaton_node, automaton);

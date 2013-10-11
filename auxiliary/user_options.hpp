@@ -65,6 +65,6 @@ struct UserOptions {
       return (compute_robustness | compute_wintess);
    }
 
-} user_options; ///< Single program-shared user options object.
+}; ///< Single program-shared user options object.
 
 #endif // PARSYBONE_USER_OPTIONS_INCLUDED

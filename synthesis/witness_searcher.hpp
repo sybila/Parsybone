@@ -116,14 +116,14 @@ public:
     * Re-formes the transitions computed during the round into strings.
     * @return  strings with all transitions for each acceptable parametrization
     */
-   const static string getOutput(const ProductStructure & product, const vector<StateTransition> & transitions) {
+   const static string getOutput(const bool use_long_witnesses, const ProductStructure & product, const vector<StateTransition> & transitions) {
       string acceptable_paths; // Vector fo actuall data
       // Cycle throught the parametrizations
       if (!transitions.empty()) { // Test for emptyness of the set of transitions
          acceptable_paths = "{";
          // Reformes based on the user request
          for (const StateTransition & trans:transitions){
-            if (!user_options.use_long_witnesses) {
+            if (!use_long_witnesses) {
                acceptable_paths.append(toString(trans.first)).append(">").append(toString(trans.second)).append(",");
             } else {
                acceptable_paths.append(product.getString(trans.first)).append(">").append(product.getString(trans.second)).append(",");

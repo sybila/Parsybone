@@ -18,8 +18,8 @@ class TimeSeriesParser {
     * Function reads an EXPR tag and creates according state and transitions.
     * First state has only transition under given condition. Others have loop if (!expression) and transition if (expression).
     */
-   static PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node, const string & name) {
-      PropertyAutomaton property(name, TimeSeries);
+   static PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node) {
+      PropertyAutomaton property(TimeSeries);
 
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
@@ -29,9 +29,7 @@ class TimeSeriesParser {
          // Labelled transition to the next measurement
          string values;
          XMLHelper::getAttribute(values, expression, "values");
-         values.erase(remove_if(values.begin(), values.end(),
-                                [](const char c){return (c == ' ') | (c == '\t') | (c == '\n')  | (c == '\f')  | (c == '\r') | (c == '\v');
-         }), values.end());
+         values.erase(remove_if(values.begin(), values.end(), static_cast<int(*)(int)>(isspace)), values.end());
          if (property.getStatesCount() > 1)
             property.addEdge(ID, ID, "!" + values);
          property.addEdge(ID, ID + 1, values);
@@ -47,9 +45,9 @@ public:
    /**
      * Main parsing function. It expects a pointer to inside of a MODEL node.
      */
-   static PropertyAutomaton parse(const rapidxml::xml_node<> * const series_node, const string & name) {
+   static PropertyAutomaton parse(const rapidxml::xml_node<> * const series_node) {
       // Parse Buchi Automaton
-      return parseExpressions(series_node, name);
+      return parseExpressions(series_node);
    }
 };
 

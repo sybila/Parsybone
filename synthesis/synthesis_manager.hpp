@@ -111,9 +111,7 @@ public:
     * @param robustness should compute robustness
     * @return the Cost value for this parametrization
     */
-   size_t checkFull(string & witness_str, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
-      vector<StateTransition> trans;
-
+   size_t checkFull(vector<StateTransition> & trans, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
       CheckerSettings settings;
       settings.bfs_bound = BFS_bound;
       settings.param_no = param_no;
@@ -138,7 +136,6 @@ public:
 
       sort(trans.begin(), trans.end());
       trans.erase(unique(trans.begin(), trans.end()), trans.end());
-      witness_str = witnesses ? WitnessSearcher::getOutput(product, trans) : "";
 
       return cost;
    }
@@ -153,7 +150,7 @@ public:
     * @param robustness should compute robustness
     * @return  the Cost value for this parametrization
     */
-   size_t checkFinite(string & witness_str, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+   size_t checkFinite(vector<StateTransition> & trans, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
       CheckerSettings settings;
       settings.param_no = param_no;
       settings.bfs_bound = BFS_bound;
@@ -166,7 +163,8 @@ public:
          if (robustness)
             computer->compute(results, searcher->getTransitions(), settings);
          robustness_val = robustness ? computer->getRobustness() : 0.;
-         witness_str = witnesses ? WitnessSearcher::getOutput(product, searcher->getTransitions()) : "";
+         if (witnesses)
+            trans = searcher->getTransitions();
       }
 
       return results.lower_bound;

@@ -18,37 +18,41 @@ namespace ParsingManager {
    /**
     * @brief parseOptions parse user arguments
     */
-   void parseOptions(int argc, char* argv[]) {
+   UserOptions parseOptions(const int argc, const char* argv[]) {
+      UserOptions user_options;
+
       vector<string> arguments;
       for (const size_t argn : range(argc))
          arguments.push_back(argv[argn]);
 
       // Parse arguments
       ArgumentParser parser;
-      parser.parseArguments(arguments);
+      user_options = parser.parseArguments(arguments);
       user_options.addDefaultFiles();
 
       if (user_options.use_textfile) {
          output_streamer.createStreamFile(results_str, user_options.datatext_file);
       }
+
+      return user_options;
    }
 
    /**
     * @brief parseModel parse model from a model file
     */
-   Model parseModel(const string filename) {
+   Model parseModel(const string & path, const string & name) {
       DataParser data_parser;
-      ifstream file(filename, ios::in);
+      ifstream file(path + name + MODEL_SUFFIX, ios::in);
       return data_parser.parseNetwork(file);
    }
 
    /**
     * @brief parseProperty parser a property from a property file
     */
-   PropertyAutomaton parseProperty(const string filename) {
+   PropertyAutomaton parseProperty(const string & path, const string & name) {
       DataParser data_parser;
-      ifstream file(filename, ios::in);
-      return data_parser.parseProperty(user_options.property_name, file);
+      ifstream file(path + name + PROPERTY_SUFFIX, ios::in);
+      return data_parser.parseProperty(file);
    }
 }
 

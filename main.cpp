@@ -28,8 +28,8 @@ using namespace std;
 /**
  * @brief checkDepthBound see if there is not a new BFS depth bound
  */
-void checkDepthBound(const size_t depth, SplitManager & split_manager, OutputManager & output, size_t & BFS_bound, ParamNo & valid_param_count) {
-   if (depth < BFS_bound && user_options.minimalize_cost) {
+void checkDepthBound(const bool minimalize_cost, const size_t depth, SplitManager & split_manager, OutputManager & output, size_t & BFS_bound, ParamNo & valid_param_count) {
+   if (depth < BFS_bound && minimalize_cost) {
       // Reset the outputs if better was found.
       output_streamer.clear_line(verbose_str);
       split_manager.setStartPositions();
@@ -46,6 +46,7 @@ void checkDepthBound(const size_t depth, SplitManager & split_manager, OutputMan
 int main(int argc, char* argv[]) {
    time_manager.startClock("* Runtime", false);
 
+   UserOptions user_options;
    Model model;
    PropertyAutomaton property;
    ProductStructure product;
@@ -53,7 +54,8 @@ int main(int argc, char* argv[]) {
 
    // Arguments
    try {
-      ParsingManager::parseOptions(argc, argv);
+      user_options = ParsingManager::parseOptions(argc, argv);
+      output_streamer.setOptions(user_options);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, "Error occured while parsing arguments: \"" + string(e.what()) + "\".\n Call \"parsybone --help\" for usage.");
@@ -61,8 +63,8 @@ int main(int argc, char* argv[]) {
    }
 
    try {
-      model = ParsingManager::parseModel(user_options.model_path + user_options.model_name + MODEL_SUFFIX);
-      property = ParsingManager::parseProperty(user_options.property_path + user_options.property_name + PROPERTY_SUFFIX);
+      model = ParsingManager::parseModel(user_options.model_path, user_options.model_name);
+      property = ParsingManager::parseProperty(user_options.property_path, user_options.property_name);
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, string("Error occured while parsing data: \"" + string(e.what()) + "\".\n Consult the modeling manual for details."));
@@ -88,7 +90,7 @@ int main(int argc, char* argv[]) {
    try {
       SplitManager split_manager(user_options.processes_count, user_options.process_number, ModelTranslators::getSpaceSize(model));
       split_manager.computeSubspace();
-      OutputManager output(property, model);
+      OutputManager output(user_options, property, model);
       SynthesisManager synthesis_manager(product, model, property);
       ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
       size_t BFS_bound = user_options.bound_size; ///< Maximal cost on the verified property.
@@ -100,17 +102,17 @@ int main(int argc, char* argv[]) {
          if (!filter.isAllowed(split_manager.getParamNo()))
             continue;
 
-         string witness;
+         vector<StateTransition> witness_trans;
          double robustness_val = 0.;
          size_t cost = INF;
 
          // Call synthesis procedure based on the type of the property.
          switch (product.getMyType()) {
          case BA_finite:
-            cost = synthesis_manager.checkFinite(witness, robustness_val, split_manager.getParamNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
+            cost = synthesis_manager.checkFinite(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
             break;
          case BA_standard:
-            cost = synthesis_manager.checkFull(witness, robustness_val, split_manager.getParamNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
+            cost = synthesis_manager.checkFull(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
             break;
          default:
             throw runtime_error("Unsupported Buchi automaton type.");
@@ -118,8 +120,9 @@ int main(int argc, char* argv[]) {
 
          // Parametrization was considered satisfying.
          if (cost != INF) {
-            checkDepthBound(cost, split_manager, output, BFS_bound, param_count);
-            output.outputRound(split_manager.getParamNo(), cost, robustness_val, witness);
+            checkDepthBound(user_options.minimalize_cost, cost, split_manager, output, BFS_bound, param_count);
+            string witness_path = WitnessSearcher::getOutput(user_options.use_long_witnesses, product, witness_trans);
+            output.outputRound(split_manager.getParamNo(), cost, robustness_val, witness_path);
             param_count++;
          }
       } while (split_manager.increaseRound());

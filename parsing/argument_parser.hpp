@@ -25,7 +25,7 @@ class ArgumentParser {
    /**
     * Obtain parameters for synthesis distribution.
     */
-   int getDistribution(vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
+   int getDistribution(UserOptions & user_options, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
       // Get numbers
       try {
          if (++position == end)
@@ -48,7 +48,7 @@ class ArgumentParser {
    /**
     * Obtain parameters for bounded computation.
     */
-   int getBound(vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
+   int getBound(UserOptions & user_options, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
       try {
          if (++position == end)
             throw invalid_argument("Bound values is missing");
@@ -67,7 +67,7 @@ class ArgumentParser {
     * @param end
     * @return how many arguments you have used
     */
-   int getFileName(const Filetype & filetype, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
+   int getFileName(UserOptions & user_options, const Filetype & filetype, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
       if (++position == end) {
          throw invalid_argument("Filename missing after the modifier " + *(--position));
          return 0;
@@ -105,7 +105,7 @@ class ArgumentParser {
    /**
     * Get the full-text modifiers.
     */
-   int parseModifier(const string & modifier, const vector<string> & arguments) {
+   int parseModifier(UserOptions & user_options, const string & modifier, const vector<string> & arguments) {
       auto position = getArgumentPosition(modifier, arguments);
 
       // Apply the modifier.
@@ -116,15 +116,15 @@ class ArgumentParser {
          cout << "Parsybone version: " << getVersion() << endl;
          exit(0);
       } else if (position->compare("--dist") == 0) {
-         return getDistribution(position, arguments.end());
+         return getDistribution(user_options, position, arguments.end());
       } else if (position->compare("--text") == 0) {
          user_options.use_textfile = true;
-         return getFileName(datatext, position, arguments.end());
+         return getFileName(user_options, datatext, position, arguments.end());
       } else if (position->compare("--data") == 0) {
          user_options.use_database = true;
-         return getFileName(database, position, arguments.end());
+         return getFileName(user_options, database, position, arguments.end());
       } else if (position->compare("--bound") == 0) {
-         return getBound(position, arguments.end());
+         return getBound(user_options, position, arguments.end());
       } else {
          throw invalid_argument("Unknown modifier " + *position);
       }
@@ -135,7 +135,7 @@ class ArgumentParser {
     *
     * @param argument	iterator pointer to the string to read
     */
-   void parseSwitch(const char s){
+   void parseSwitch(UserOptions & user_options, const char s){
       switch (s) {
       case 'W':
          user_options.use_long_witnesses = true;
@@ -178,7 +178,7 @@ class ArgumentParser {
      * @brief referenceModel save the model name
      * @param model set to true iff the source file is the model file
      */
-   void referenceSource(const string & source, bool model) {
+   void referenceSource(UserOptions & user_options, const string & source, bool model) {
       // References are given by what sort of source we have - model / property
       string & name = model ? user_options.model_name : user_options.property_name;
       string & path = model ? user_options.model_path : user_options.property_path;
@@ -209,7 +209,8 @@ public:
     * @param argc value passed from main function
     * @param argv	value passed from main function
     */
-   void parseArguments (const vector<string> & arguments) {
+   UserOptions parseArguments (const vector<string> & arguments) {
+      UserOptions user_options;
       int skip = 1;
 
       // Cycle through arguments (skip the first - name of the program).
@@ -219,19 +220,19 @@ public:
          // There can be multiple switches after "-" so go through them in the loop.
          else if (argument[0] == '-' && argument[1] != '-') {
             for (char s:argument.substr(1)) {
-               parseSwitch(s);
+               parseSwitch(user_options, s);
             }
          }
          else if (argument[0] == '-' && argument[1] == '-') {
-            skip = parseModifier(argument, arguments);
+            skip = parseModifier(user_options, argument, arguments);
          }
          // If it is a model file.
          else if (argument.find(MODEL_SUFFIX) != argument.npos) {
-            referenceSource(argument, true);
+            referenceSource(user_options, argument, true);
          }
          // If it is a property file.
          else if (argument.find(PROPERTY_SUFFIX) != argument.npos) {
-            referenceSource(argument, false);
+            referenceSource(user_options, argument, false);
          }
          else if (argument.find(DATABASE_SUFFIX) != argument.npos) {
             ifstream file(argument);
@@ -251,6 +252,8 @@ public:
          throw (invalid_argument("Model file (file with a " + MODEL_SUFFIX + " suffix) is missing"));
       if (user_options.property_name.empty())
          throw (invalid_argument("Model file (file with a " + PROPERTY_SUFFIX + " suffix) is missing"));
+
+      return user_options;
    }
 };
 

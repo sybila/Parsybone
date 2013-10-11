@@ -75,7 +75,7 @@ public:
     * @brief parseProperties create a property automaton
     * @param input_stream
     */
-   PropertyAutomaton parseProperty(const string & property_name, ifstream & input_stream) {
+   PropertyAutomaton parseProperty(ifstream & input_stream) {
       PropertyAutomaton automaton;
 
       createDocument(input_stream);
@@ -84,9 +84,9 @@ public:
          throw runtime_error("Parser did not find any nodes in the property file.");
 
       if (strcmp(property_node->name(), "AUTOMATON") == 0)
-         automaton = BuchiParser::parse(property_node, property_name);
+         automaton = BuchiParser::parse(property_node);
       else if (strcmp(property_node->name(), "SERIES") == 0)
-         automaton = TimeSeriesParser::parse(property_node, property_name);
+         automaton = TimeSeriesParser::parse(property_node);
       else
          throw runtime_error("No property found in the property file.");
 

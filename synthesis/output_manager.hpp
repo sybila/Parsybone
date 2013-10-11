@@ -20,6 +20,7 @@
 /// \brief Class that outputs formatted resulting data.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OutputManager {
+   const UserOptions & user_options; ///< User can influence the format of the output.
    const PropertyAutomaton & property; ///< Property automaton.
    const Model & model; ///< Reference to the model itself.
 
@@ -27,8 +28,8 @@ class OutputManager {
 public:
    NO_COPY(OutputManager)
 
-   OutputManager(const PropertyAutomaton & _property, const Model & _model)
-      : property(_property), model(_model), database(model, user_options.database_file, user_options.use_database) {	}
+   OutputManager(const UserOptions & _user_options, const PropertyAutomaton & _property, const Model & _model)
+      : user_options(_user_options), property(_property), model(_model), database(model, user_options.database_file, user_options.use_database) {	}
 
 public:
    /**
@@ -50,7 +51,7 @@ public:
     */
    void outputForm() {
       if (user_options.use_database)
-         database.creteTables(property.getAutomatonName());
+         database.creteTables(user_options.property_name);
       string format_desc = "#:(";
 
       for(SpecieID ID:range(model.species.size())) {

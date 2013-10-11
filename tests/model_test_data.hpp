@@ -59,7 +59,7 @@ protected:
       trivial_prop.addState("triv0", true);
       trivial_prop.addEdge(0,0,"tt");
 
-      o_t_series_prop = PropertyAutomaton("o_t_series", TimeSeries);
+      o_t_series_prop = PropertyAutomaton(TimeSeries);
       o_t_series_prop.addState("ser0", false);
       o_t_series_prop.addState("ser1", false);
       o_t_series_prop.addState("ser2", true);
@@ -68,7 +68,7 @@ protected:
       o_t_series_prop.addEdge(1,2,"(A=1|B=3)");
       o_t_series_prop.addEdge(2,2,"ff");
 
-      A_cyclic_prop = PropertyAutomaton("A_cycle");
+      A_cyclic_prop = PropertyAutomaton(LTL);
       A_cyclic_prop.addState("cyc0", false);
       A_cyclic_prop.addState("cyc1", true);
       A_cyclic_prop.addState("cyc2", false);
@@ -79,7 +79,7 @@ protected:
       A_cyclic_prop.addEdge(2,1,"A=0");
       A_cyclic_prop.addEdge(2,2,"A=1");
 
-      set_two_ones_prop = PropertyAutomaton("set_two_ones", TimeSeries);
+      set_two_ones_prop = PropertyAutomaton(TimeSeries);
       set_two_ones_prop.addState("ser0", false);
       set_two_ones_prop.addState("ser1", false);
       set_two_ones_prop.addState("ser2", true);
@@ -88,7 +88,7 @@ protected:
       set_two_ones_prop.addEdge(1,2,"(A=1&B=1)");
       set_two_ones_prop.addEdge(2,2,"ff");
 
-      arbitrary_peak_prop = PropertyAutomaton("arbitrary_peak");
+      arbitrary_peak_prop = PropertyAutomaton();
       arbitrary_peak_prop.addState("low1",false);
       arbitrary_peak_prop.addState("high",false);
       arbitrary_peak_prop.addState("low2",false);
