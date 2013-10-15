@@ -2,7 +2,7 @@
 #For sucessful compilation GCC v4.6 or higher is required
 
 #If your boost libraries are not in your include path, specify the path here
-BOOST_PATH = ../../../../../../../TOOLS/boost_1_52_0
+BOOST_PATH = .
 
 GCC = gcc
 GPP = g++
@@ -14,7 +14,7 @@ sqlite.o:
 	$(GCC) -o $@ -c sqlite3/sqlite3.c
 	
 parsybone: sqlite.o main.cpp
-	$(GPP) $(OPT) -o $@ $^ -std=c++11 -I $(BOOST_PATH) -I sqlite3/
+	$(GPP) $(OPT) -o $@ $^ -std=c++11 -I $(BOOST_PATH) -I sqlite3/ -I .
 	
 clean:
 	rm -f sqlite.o parsybone
