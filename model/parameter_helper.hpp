@@ -21,7 +21,7 @@ class ParameterHelper {
       Levels targets = model.getBasalTargets(t_ID);
 
       // If there is the loop restriction
-      if (model.restrictions.bounded_loops && autoreg != INF) {
+      if (model.restrictions.bound_loop && autoreg != INF) {
          size_t self_thrs = thrs_comb[autoreg];
          Levels thresholds = (all_thrs.find(t_ID))->second;
          size_t bottom_border = 0u < self_thrs ? thresholds[self_thrs - 1] : 0u;
@@ -40,20 +40,31 @@ class ParameterHelper {
          targets = new_targets;
       }
 
-      // Replace the extremal values, if necessary.
+      // Replace the extremal values
+      // This property can be forced only for models with single threshold and exact edges
       if (model.restrictions.force_extremes) {
-         if (static_cast<size_t>(count(thrs_comb.begin(), thrs_comb.end(), 0)) == thrs_comb.size())
-            targets = {0};
-         else {
-            bool maximal = true;
-            size_t regulator = 0;
-            for (auto & t_set:all_thrs) {
-               if (thrs_comb[regulator++] != t_set.second.size())
-                  maximal = false;
+         const auto & sources = ModelTranslators::getRegulatorsIDs(model, t_ID);
+         bool all_act = true, all_inh = true;
+         for (const SpecieID source_no : scope(sources)) {
+            const Levels & thrs = (all_thrs.find(sources[source_no]))->second;
+            if (thrs_comb[source_no] != 0) {
+               // Confirm that the regulator has the corresponding sign - find the regulator by the threshold (note that there is no 0 threshold, meaning change of the index)
+               const Model::Regulation & regul = ModelTranslators::findRegulation(model, t_ID, sources[source_no], thrs[thrs_comb[source_no] - 1]);
+               all_act &= regul.satisf.activ & !regul.satisf.inhib ;
+               all_inh &= regul.satisf.inhib & !regul.satisf.activ ;
+            } else {
+               // Confirm that all regulators have the opposing sign
+               for (const ActLevel thr: thrs) {
+                  const Model::Regulation & regul = ModelTranslators::findRegulation(model, t_ID, sources[source_no], thr);
+                  all_act &= !regul.satisf.activ & regul.satisf.inhib ;
+                  all_inh &= !regul.satisf.inhib & regul.satisf.activ ;
+               }
             }
-            if (maximal)
-               targets = {model.getMax(t_ID)};
          }
+         if (all_inh)
+            targets = {0};
+         if (all_act)
+            targets = {model.getMax(t_ID)};
       }
 
       return targets;
@@ -90,30 +101,27 @@ class ParameterHelper {
          requirements.insert(make_pair(source_ID, activity_levels));
       }
 
-      model.addParameter(t_ID, move(context.substr(0, context.length() - 1)), move(requirements), move(getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID)));
+      model.addParameter(t_ID, move(context.substr(0, context.length() - 1)), move(requirements),
+                         move(getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID)));
    }
+
+//   /**
+//    * @brief checkConsistency see if the model is internaly consistent, now only checks "force_extremes"
+//    */
+//   static void checkConsistency(const Model & model) {
+//      if (model.restrictions.force_extremes) {
+//         for (const SpecieID ID : scope(model.species)) {
+//            if (model.getRegulations(ID).size() != ModelTranslators::getRegulatorsIDs(model, ID).size())
+//               throw runtime_error("force_extremes constraint cannot be used for multi-threshold model");
+//            for (const Model::Regulation & regul : model.getRegulations(ID)) {
+//               if ((regul.satisf.activ & regul.satisf.inhib) || regul.satisf.none)
+//                  throw runtime_error("force_extremes constraint cannot be used for models with ambiguous edges");
+//            }
+//         }
+//      }
+//   }
 
 public:
-   /**
-    * @brief formCanonicContext   Transforms the regulation specification into a canonic form (\forall r \in regulator [r:threshold,...]).
-    * @param context any valid context form as a string
-    * @return canonic context form
-    */
-   static string formCanonicContext(const Model & model, const string & context, const SpecieID t_ID) {
-      string new_context; // new canonic form
-      const auto names = ModelTranslators::getRegulatorsNames(model, t_ID);
-
-      // For each of the regulator of the specie.
-      for (const auto & name:names) {
-         auto pos = context.find(name);
-         ActLevel threshold = RegulationHelper::getThreshold(model, context, t_ID, name, pos);
-         new_context += name + ":" + toString(threshold) + ",";
-      }
-
-      // Remove the last comma and return
-      return new_context.substr(0, new_context.length() - 1);
-   }
-
    /**
     * @brief createParameters Creates a description of kinetic parameters.
     */

@@ -104,6 +104,26 @@ As can be seen, the second method makes the model quite shorter and should be us
 		\item Attributes: none.
 	\end{mitem}
 \end{mitem}
+
+
+\begin{mitem}
+	\item \texttt{CONSTRAINT}
+	\begin{mitem}
+		\item Occurrence: multiple, optional.
+		\item Type: solo.
+		\item Parent: NETWORK.
+		\item Description: specifies additional static constraint on the parametrization space.
+		\item Attributes: none.
+		\begin{menum}
+			\item \textit{type} 
+			\begin{mitem}
+				\item Occurrence: mandatory.
+				\item Value: force\_extremes/bound\_loop.
+				\item Description: a nature of the constraint, for details see Section~\ref{StaticConstraints}.
+			\end{mitem}
+		\end{menum}
+	\end{mitem}
+\end{mitem}
 	
 \begin{mitem}
 	\item \texttt{SPECIE}
@@ -304,20 +324,34 @@ As can be seen, the second method makes the model quite shorter and should be us
 There are two basic labels:
 \begin{itemize}
 \item [+]	Meaning that the there must be a regulation whose parameter value increases if we add this regulator.
-\item [-]	Has an opposite meaning.
+\item [-]	Has the opposite meaning.
 \end{itemize}
 One can compose these labels using a logical formula over $+$ and $-$ or use one of the following predefined descriptions:
 \begin{itemize}
 \item Activating: $+$
 \item ActivatingOnly: $(+ \wedge \neg -)$
 \item Inhibiting: $-$
-\item InhibitingOnly $(- \wedge \neg +)$
-\item NotActivating $\neg +$;
-\item NotInhibiting $\neg -$
+\item InhibitingOnly: $(- \wedge \neg +)$
+\item NotActivating: $\neg +$
+\item NotInhibiting: $\neg -$
 \item Observable: $(+ \vee -)$
 \item NotObservable: $(\neg + \wedge \neg -)$
 \item Free: $true$
 
+\end{itemize}
+
+\subsection{Static constraints}
+\label{StaticConstraints}
+Constraints that globally restrict the parametrization space based on certain assumptions.
+\subsubsection{bound\_loop}
+This constraint serves purely to optimization of multi-valued models and should be always used, unless there is a reason not to.
+
+In multi-valued models, a scenario where multiple different parameters spawn the same structure may occur, simply because the values lay outside the activity levels for the respective context. This constraint leaves only a single representative of this behavior.
+
+\subsubsection{force\_extremes}
+This constraint simply assigns an exact target value in two cases:
+\begin{itemize}
+\item[0] in the case that 
 \end{itemize}
 
 \subsection{Formula construction}
@@ -325,12 +359,12 @@ One can compose these labels using a logical formula over $+$ and $-$ or use one
 A formula is constructed using the following set of recursive rules:
 \begin{enumerate}
 \item $tt$ and $ff$ are formulas representing true or false respectively,
-\item any variable is a formula,
+\item any atomic proposition is a formula,
 \item for every formula $A$ is $\neg A$ a formula,
-\item for formulas $A,B$ are $(A|B)$ and $(A\&B)$ formulas representing logical disjunction or conjunction respectively,
+\item for formulas $A,B$ are $(A|B)$ and $(A\&B)$ formulas representing logical disjunction and conjunction respectively,
 \item nothing else is a formula.
 \end{enumerate}
-Note that in the model $\neg$ is denoted using \texttt{!} and $\&$ is denoted using \texttt{\&amp;}.
+Note that in the model $\neg$ is denoted using \texttt{!} and for compliance with XML, $\&$ is denoted using \texttt{\&amp;}.
 
 \subsection{Atomic propositions}
 \label{AtomicPropositions}
@@ -340,7 +374,7 @@ An atomic proposition is a string of the form: $specie*value$, where:
 \item $*$ denotes comparison operator from the set $\{<,>,=\}$,
 \item $value$ denotes a positive integer with which the value of the specie is compared.
 \end{itemize}
-Note that in the model $<$ is denoted using \texttt{\&lt;} and $>$ is denoted using \texttt{\&gt;}.
+Note that in the model, for compliance with XML, $<$ is denoted using \texttt{\&lt;} and $>$ is denoted using \texttt{\&gt;}.
 
 \bibliographystyle{abbrv}
 \bibliography{Manual}

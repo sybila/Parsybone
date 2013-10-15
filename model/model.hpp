@@ -25,11 +25,11 @@ public:
 
    /// Structure that holds additional static constraints inherent to the Thomas framework.
    struct Restrictions {
-      bool bounded_loops; ///< True if autoregilations are not created for values below the bound. (conserves all TSs).
+      bool bound_loop; ///< True if autoregilations are not created for values below the bound. (conserves all TSs).
       bool force_extremes; ///< True if for extemal contexts the parameter values are forced to be extremal.
 
       Restrictions() {
-         bounded_loops = force_extremes = false;
+         bound_loop = force_extremes = false;
       }
    };
 

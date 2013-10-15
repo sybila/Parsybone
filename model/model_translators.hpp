@@ -176,6 +176,82 @@ namespace ModelTranslators {
       }
       return matching;
    }
-}
 
+   /**
+    * @brief getThreshold  For a given regulator, find out what it's threshold in the given context is.
+    * @return  threshold value in the given context
+    */
+   ActLevel getThreshold(const Model & model, const string & context, const SpecieID t_ID, const string & name, const size_t pos) {
+      // Regulator not present.
+      if (pos == context.npos)
+         return 0;
+      const size_t COLON_POS = pos + name.length(); // Where colon is supposed to be.
+
+      // Regulator level not specified.
+      if (context[COLON_POS] != ':') {
+         // Control if the context is unambiguous.
+         auto thresholds = getThresholds(model, t_ID);
+         if (thresholds.find(findID(model,name))->second.size() > 1)
+            throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a regulator " + name + " that has multiple regulations.");
+         // If valid, add the threshold 1.
+         return thresholds.find(findID(model, name))->second[0];
+      }
+
+      // There is not a threshold given after double colon.
+      if (context[COLON_POS] == ':' && (COLON_POS == (context.npos - 1) || !isdigit(context[COLON_POS+1])))
+         throw runtime_error ("No threshold given after colon in the context \"" + context + "\" of the regulator " + name);
+
+      // Add a threshold if uniquely specified.
+      string to_return;
+      size_t number = 1;
+      // Copy all the numbers
+      while(isdigit(context[COLON_POS + number])) {
+         to_return.push_back(context[COLON_POS + number]);
+         number++;
+      }
+      return (boost::lexical_cast<size_t>(to_return));
+   }
+
+   /**
+    * @brief formCanonicContext   Transforms the regulation specification into a canonic form (\forall r \in regulator [r:threshold,...]).
+    * @param context any valid context form as a string
+    * @return canonic context form
+    */
+   static string formCanonicContext(const Model & model, const string & context, const SpecieID t_ID) {
+      string new_context; // new canonic form
+      const auto names = getRegulatorsNames(model, t_ID);
+
+      // For each of the regulator of the specie.
+      for (const auto & name:names) {
+         auto pos = context.find(name);
+         ActLevel threshold = getThreshold(model, context, t_ID, name, pos);
+         new_context += name + ":" + toString(threshold) + ",";
+      }
+
+      // Remove the last comma and return
+      return new_context.substr(0, new_context.length() - 1);
+   }
+
+   /**
+    * @return  the parameter that has the given context
+    */
+   const Model::Parameter & matchContext(const Model & model, const string & context, const SpecieID t_ID) {
+      const string canonic = formCanonicContext(model, context, t_ID);
+      for (const Model::Parameter & param : model.getParameters(t_ID))
+         if (param.context.compare(canonic) == 0)
+            return param;
+      throw runtime_error("Failed to match the context " + context + " for the specie " + toString(t_ID));
+   }
+
+   /**
+    * @return regulation with given parameters
+    */
+   const Model::Regulation & findRegulation(const Model & model, const SpecieID t_ID, const SpecieID s_ID, const ActLevel threshold) {
+      const auto & reguls = model.getRegulations(t_ID);
+      for (const Model::Regulation & regul : reguls)
+         if (regul.source == s_ID && regul.threshold == threshold)
+            return regul;
+      throw runtime_error("Failed to match the regulation " + toString(s_ID) + " -" + toString(threshold)+ "-> " + toString(t_ID));
+   }
+}
 #endif // MODEL_TRANSLATORS_HPP

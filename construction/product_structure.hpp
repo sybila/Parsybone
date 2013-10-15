@@ -6,8 +6,6 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
-// TODO: Include the source structures and just refer to their content.
-
 #ifndef PARSYBONE_PRODUCT_INCLUDED
 #define PARSYBONE_PRODUCT_INCLUDED
 
@@ -51,7 +49,6 @@ class ProductStructure : public AutomatonInterface<ProdState>, public TSInterfac
 
    /**
     * Add a new state, only with ID and levels.
-    * TODO: Finals should be decided based on property type.
     */
    inline void addState(const StateID KS_ID, const StateID BA_ID, const vector<StateID> & _loops) {
       // Create the state label

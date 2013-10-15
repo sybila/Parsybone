@@ -54,41 +54,6 @@ class RegulationHelper {
 
 public:
    /**
-    * @brief getThreshold  For a given regulator, find out what it's threshold in the given context is.
-    * @return  threshold value in the given context
-    */
-   static ActLevel getThreshold(const Model & model, const string & context, const SpecieID t_ID, const string & name, const size_t pos) {
-      // Regulator not present.
-      if (pos == context.npos)
-         return 0;
-      const size_t COLON_POS = pos + name.length(); // Where colon is supposed to be.
-
-      // Regulator level not specified.
-      if (context[COLON_POS] != ':') {
-         // Control if the context is unambiguous.
-         auto thresholds = ModelTranslators::getThresholds(model, t_ID);
-         if (thresholds.find(ModelTranslators::findID(model,name))->second.size() > 1)
-            throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a regulator " + name + " that has multiple regulations.");
-         // If valid, add the threshold 1.
-         return thresholds.find(ModelTranslators::findID(model, name))->second[0];
-      }
-
-      // There is not a threshold given after double colon.
-      if (context[COLON_POS] == ':' && (COLON_POS == (context.npos - 1) || !isdigit(context[COLON_POS+1])))
-         throw runtime_error ("No threshold given after colon in the context \"" + context + "\" of the regulator " + name);
-
-      // Add a threshold if uniquely specified.
-      string to_return;
-      size_t number = 1;
-      // Copy all the numbers
-      while(isdigit(context[COLON_POS + number])) {
-         to_return.push_back(context[COLON_POS + number]);
-         number++;
-      }
-      return (boost::lexical_cast<size_t>(to_return));
-   }
-
-   /**
     * @brief fillActivationLevels For each regulation fill the levels of its source in which it is active.
     */
    static void fillActivationLevels(Model & model) {

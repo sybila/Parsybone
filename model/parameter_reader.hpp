@@ -10,6 +10,7 @@
 #define PARAMETER_READER_HPP
 
 #include "parameter_helper.hpp"
+#include "model_translators.hpp"
 
 class ParameterReader {
    /**
@@ -87,7 +88,7 @@ class ParameterReader {
       // List through all the PARAM nodes.
       for (const auto & param : model.species[t_ID].params_specs.k_pars) {
          // Obtain context specified.
-         string can_context = ParameterHelper::formCanonicContext(model, param.first, t_ID);
+         string can_context = ModelTranslators::formCanonicContext(model, param.first, t_ID);
 
          // Get the levels.
          Levels targets = interpretLevels(model, param.second, t_ID);
@@ -98,7 +99,7 @@ class ParameterReader {
    }
 
 public:
-   /** TODO: replace in the parameters directly.
+   /**
     * @brief computeParams Constraints parameter values based on explicit specifications given by the user.
     * @attention  this will not apply edge constraints.
     *

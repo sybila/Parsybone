@@ -164,7 +164,7 @@ public:
            string const_type;
            XMLHelper::getAttribute(const_type, constraint, "type");
            if (const_type.compare("bound_loop")) {
-               model.restrictions.bounded_loops = true;
+               model.restrictions.bound_loop = true;
            } else if (const_type.compare("force_extremes")) {
                model.restrictions.force_extremes = true;
            } else {
