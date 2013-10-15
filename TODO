@@ -1,0 +1,9 @@
+Hack simple range for true edges.
+
+Parametrizations must be parseable from a database.
+
+Range-based representations must be included.
+
+Control of automata transitions must be edge-based.
+
+Implement existence of inital and final states.

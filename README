@@ -1,47 +1,47 @@
-Parsybone (Parameter Synthesizer for Boolean Networks) Release v1.000, 7.10.2012
-Copyright (C) 2012 - Adam Streck
+Parsybone (Parameter Synthesizer for Boolean Networks)
+Copyright (C) 2012-2013 - Adam Streck
+
+For the latest release version, see https://github.com/sybila/Parsybone/tree/release .
+
+Discrete Biomathematics, Freie Universitat, Berlin ( http://www.mi.fu-berlin.de/en/math/groups/dibimath )
 Systems Biology Laboratory of Masaryk University, Brno ( http://sybila.fi.muni.cz )
-open-source 2012, GNU GPL v3, uses:
-	Boost Libraries ( http://www.boost.org/ )
+
+open-source 2012-2013, licensed as GNU GPL v3
+the repository includes 3rd party code of:
 	RapidXML ( see http://rapidxml.sourceforge.net/ )
+	sqlite3 (see http://www.sqlite.org/ , not present in the master branch )
+3rd party code is subject to individual licences, for details see the license file in the respective repository.
 
-This is a Release v1.000 of the Parsybone tool. For the newest version check either development tree ( https://github.com/sybila/Parsybone ) or web pages ( http://sybila.fi.muni.cz/tools )
-
-Contents of the archive:
+Contents of the repository:
+	main.cpp: source file of the program, 
+	test.cpp source for the testing suite
 	auxiliary, construction, parsing, synthesis: header files of the program
-	main.cpp: source file of the program
-	manual_v_1_0_0_0.pdf: user manual for the program
-	example_model.dbm: simple example model for usage with the tool, referenced in the manual
+	tests: header files of the testing suite
+
+	ParsyboneMain, ParsyboneTesting: QTCreator projects
+
+	example_model.pmf: simple example model for usage with the tool
+	example_series.ppf: sample time series corresponding to the example model
+	example_automaton.ppf: sample automaton corresponding to the example model
+
+	Manual: folder containing source for the manual
 	reference_v_1_0_0_0.pdf: source code description in the pdf file form
 	reference_v_1_0_0_0_HTML: source code description in the form of HTML we pages.
+	
+	MiscCode: additional sources that are not directly related to Parsybone
 
 Requirements:
-	GCC v4.5.0 or Microsoft Visual C++ Compiler 10.0
-	Boost libraries v1.4.4
+	GCC v4.7.0 or newer on Linux and Mac, MinGW 4.7.0 or newer on the Windows platform
+	Boost headers version 1.47 or newer. (http://www.boost.org/)
+	Sqlite3 library (http://www.sqlite.org/)
+	PunyHeaders headers (https://github.com/xstreck1/PunyHeaders)
+
+	Google test library for the test project
 	
 Building:
-	Apart from the boost libraries there are no additional dependencies. Using the g++ one should currently specify usage of C++11 (-std=c++0x parameter).
-
+	Boost headers must be in the include path. It's not necessary to build boost!
+	PunyHeaders must be in the include path. 
+	
 Execution:
-	Parsybone model_file.dbm [-rsvwW] [-d process_ID number_of_processes] [-f results_file] [-m input_mask_file] [-M output_mask_file]
-
-	model_file.dbm	name of the file that will be parsed and used, must have .dbm suffix
-	
-	-r	display robustness of a color
-	-s	show statistics
-	-v	use verbose output
-	-w	show witnesses in with numbers of states
-	-W 	show witnesses in with actual values of states
-	
-	-d #num1 #num2	Used for distributed computation - process will compute only part of the parameter space as given in the second number, first number determines which part it is
-	-f #filename	Name of the file that will store the results.
-	-m #filename	Name of the file that holds bitmask for used colors
-	-M #filename	Name of the file to output bitmask from this computation
-
-Output:
-	Data from the "verbose" stream are printed on lines starting with * 
-	Data from the "statistics" stream are printed on lines starting with #
-	Data from the "error" stream are printed on lines starting with !
-	
-	Results are printed without prefix in the form:
-	acceptable_parametrization_number:actual_parametrization_values:[cost]:[robustness_value]:[{time_series_walks_transitions}]
+    Call --help for execution arguments.
+	Call --ver for curret version details.

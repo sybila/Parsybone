@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_PRODUCT_INCLUDED
@@ -11,132 +11,130 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../construction/automaton_structure.hpp"
-#include "../construction/parametrized_structure.hpp"
+#include "../construction/unparametrized_structure.hpp"
+#include "transition_system_interface.hpp"
 
-/// Storing a single transition to a neighbour state together with its transition function.
-struct ProdTransitiontion : public TransitionProperty {
-   std::size_t step_size; ///< How many bits of a parameter space bitset is needed to get from one targe value to another.
-	std::vector<bool> transitive_values; ///< Which values from the original set does not allow a trasition and therefore removes bits from the mask.
+/// Storing a single transition to neighbour state together with its transition function.
+struct ProdTransitionion : public TransitionProperty {
+   const TransConst & trans_const;
 
-	ProdTransitiontion(const StateID target_ID, const std::size_t _step_size, const std::vector<bool>& _transitive_values)
-      : TransitionProperty(target_ID), step_size(_step_size), transitive_values(_transitive_values) {} ///< Simple filler, assigns values to all the variables.
+   ProdTransitionion(const StateID _target_ID, const TransConst & _trans_const)
+      : TransitionProperty(_target_ID), trans_const(_trans_const) {}
 };
 
-/// State of the product - same as the state of parametrized structure but put together with a BA state.
-struct ProdState : public AutomatonStateProperty<ProdTransitiontion> {
-	StateID KS_ID; ///< ID of an original KS state this one is built from
-	StateID BA_ID; ///< ID of an original BA state this one is built from
-	Levels species_level; ///< species_level[i] = activation level of specie i in this state
+/// State of the product - same as the state of UKS but put together with a BA state.
+struct ProdState : public AutomatonStateProperty<ProdTransitionion> {
+   const StateID KS_ID; ///< ID of an original KS state this one is built from
+   const StateID BA_ID; ///< ID of an original BA state this one is built from
+   const Levels & levels; ///< species_level[i] = activation level of specie i in this state
+   const vector<StateID> loops; ///< States with the Same KS ID, but different BA that are possible targets
 
-	/// Simple filler, assigns values to all the variables
-	ProdState(const StateID ID, const std::string && label, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const  Levels & _species_level)
-		: AutomatonStateProperty<ProdTransitiontion>(initial, final, ID, std::move(label)), KS_ID(_KS_ID), BA_ID(_BA_ID), species_level(_species_level) {}
+   /// Simple filler, assigns values to all the variables
+   ProdState(const StateID ID, const StateID _KS_ID, const StateID _BA_ID, const bool initial, const bool final, const Levels & _species_level, const vector<StateID>& _loops)
+      : AutomatonStateProperty<ProdTransitionion>(initial, final, ID), KS_ID(_KS_ID), BA_ID(_BA_ID), levels(_species_level), loops(_loops) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Holds a product structure - the one that is used in coloring procedure.
 ///
-/// This is the final step of construction - a structure that is acutally used during the computation. For simplicity, it copies data from its predecessors (BA and PKS).
+/// This is the final step of construction - a structure that is acutally used during the computation. For simplicity, it copies data from its predecessors (BA and UKS).
 /// @attention States of product are indexed as (BA_state_count * KS_state_ID + BA_state_ID) - e.g. if 3-state BA state ((1,0)x(1)) would be at position 3*1 + 1 = 4.
 ///
 /// ProductStructure data can be set only from the ProductBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ProductStructure : public AutomatonInterface<ProdState> {
-	friend class ProductBuilder;
-	
-	// References to data predecessing data structures
-   const ParametrizedStructure & structure; ///< Stores info about KS states, used in the getString function.
-   const AutomatonStructure & automaton; ///< Stores info about BA states, used in the getString function.
+class ProductStructure : public AutomatonInterface<ProdState>, public TSInterface<ProdState> {
+   friend class ProductBuilder;
+   UnparametrizedStructure structure;
+   AutomatonStructure automaton;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FILLING METHODS (can be used only from ProductBuilder)
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
+   /**
     * Add a new state, only with ID and levels.
-	 */
-	inline void addState(const StateID KS_ID, const StateID BA_ID, const bool initial, const bool final, const Levels & species_level) {
-		// Create the state label
-		std::string label = structure.getString(KS_ID);
-      label[label.length() - 1] = ';';
-		label += automaton.getString(BA_ID).substr(1);
+    */
+   inline void addState(const StateID KS_ID, const StateID BA_ID, const vector<StateID> & _loops) {
+      // Create the state label
+      const Levels& levels = structure.getStateLevels(KS_ID);
+      StateID ID = getProductID(KS_ID, BA_ID);
 
-		states.push_back(ProdState(getProductID(KS_ID, BA_ID), std::move(label), KS_ID, BA_ID, initial, final, species_level));
-	}
+      // Add final and initial marks based on the property and only for the states that are allowed to leave by the automaton.
+      // E.g. initials of a time series are only those in the first measurement.
+      bool is_initial = false, is_final = false;
+      if (automaton.isInitial(BA_ID))
+         is_initial = automaton.hasTransition(BA_ID, levels);
+      if (automaton.isFinal(BA_ID)) {
+         if (automaton.getMyType() == BA_finite)
+            is_final = true;
+         else
+            is_final = automaton.hasTransition(BA_ID, levels);
+      }
+      if (is_final)
+         final_states.push_back(ID);
+      if (is_initial)
+         initial_states.push_back(ID);
 
-	/**
+      states.push_back(ProdState(ID, KS_ID, BA_ID, is_initial, is_final, levels, _loops));
+   }
+
+   /**
     * Add a new transition with all its values.
-    *
-	 * @param ID	add data to the state with this IS
-	 */
-	inline void addTransition(const StateID ID, const StateID target_ID, const std::size_t step_size, const std::vector<bool> & transitive_values) {
-		states[ID].transitions.push_back(ProdTransitiontion(target_ID, step_size, transitive_values));
-	}
-	
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTION METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   ProductStructure(const ProductStructure & other); ///< Forbidden copy constructor.
-   ProductStructure& operator=(const ProductStructure & other); ///< Forbidden assignment operator.
+    * @param ID	add data to the state with this IS
+    */
+   inline void addTransition(const StateID ID, const StateID target_ID, const TransConst & constraints) {
+      states[ID].transitions.push_back(ProdTransitionion(target_ID, constraints));
+   }
 
 public:
-	ProductStructure(const ParametrizedStructure & _structure, const AutomatonStructure & _automaton)
-      : structure(_structure), automaton(_automaton) {} ///< Default constructor, only passes the data.
+   ProductStructure() = default;
+   ProductStructure(UnparametrizedStructure _structure, AutomatonStructure _automaton) : structure(move(_structure)), automaton(move(_automaton)) {
+      my_type = _automaton.getMyType();
+   }
+   ProductStructure(ProductStructure && ) = default;
+   ProductStructure(const ProductStructure & ) = delete;
+   ProductStructure& operator=(const ProductStructure & ) = delete;
+   ProductStructure& operator=(ProductStructure && other) {
+      structure = move(other.structure);
+      automaton = move(other.automaton);
+      states = move(other.states);
+      my_type = other.my_type;
+      initial_states = move(other.initial_states);
+      final_states = move(other.final_states);
+      return *this;
+   }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// REFORMING GETTERS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @return index of this combination of states in the product
-	 */
-	inline StateID getProductID(const StateID KS_ID, const StateID BA_ID) const {
-		return (KS_ID * automaton.getStateCount() + BA_ID);
-	}
+   const inline UnparametrizedStructure & getStructure() const {
+      return structure;
+   }
 
-	/**
-	 * @return index of BA state form the product
-	 */
-	inline StateID getBAID(const StateID ID) const {
-		return states[ID].BA_ID;
-	}
+   const inline AutomatonStructure & getAutomaton() const {
+      return automaton;
+   }
 
-	/**
-	 * @return index of BA state form the product
-	 */
-	inline StateID getKSID(const StateID ID) const {
-		return states[ID].KS_ID;
-	}
+   inline StateID getProductID(const StateID KS_ID, const StateID BA_ID) const {
+      return (KS_ID * automaton.getStateCount() + BA_ID);
+   }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DATA GETTERS 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @param ID	ID of the state to get the data from
-	 *
-	 * @return	species level 
-	 */
-	inline const Levels & getStateLevels(const StateID ID) const {
-		return states[ID].species_level;
-	}
+   inline StateID getBAID(const StateID ID) const {
+      return states[ID].BA_ID;
+   }
 
-	/**
-	 * @param ID	ID of the state to get the data from
-	 * @param transition_num index of the transition to get the data from
-	 *
-	 * @return	number of neighbour parameters that share the same value of the function
-	 */
-	inline std::size_t getStepSize(const StateID ID, const std::size_t transtion_num) const {
-		return states[ID].transitions[transtion_num].step_size;
-	}
+   inline StateID getKSID(const StateID ID) const {
+      return states[ID].KS_ID;
+   }
 
-	/**
-	 * @param ID	ID of the state to get the data from
-	 * @param transition_num index of the transition to get the data from
-	 *
-	 * @return	target values that are includete in non-transitive parameters that have to be removed
-	 */
-	inline const std::vector<bool> & getTransitive(const StateID ID, const std::size_t transtion_num) const {
-		return states[ID].transitions[transtion_num].transitive_values;
-	}
+   inline const vector<StateID> & getLoops(const StateID ID) const {
+      return states[ID].loops;
+   }
+
+   const string getString(const StateID ID) const {
+      string label = "(";
+
+      for (const ActLevel lev : states[ID].levels)
+         label += toString(lev) + ",";
+
+      label[label.length() - 1] = ';';
+      label += toString(getBAID(ID)) + ")";
+
+      return label;
+   }
 };
 
 #endif // PARSYBONE_PRODUCT_INCLUDED

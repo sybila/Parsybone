@@ -1,32 +1,33 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_AUTOMATON_STRUCTURE_INCLUDED
 #define PARSYBONE_AUTOMATON_STRUCTURE_INCLUDED
 
-#include "../auxiliary/common_functions.hpp"
+#include "PunyHeaders/common_functions.hpp"
+
 #include "../auxiliary/output_streamer.hpp"
 #include "automaton_interface.hpp"
 
 /// Single labelled transition from one state to another.
 struct AutTransitionion : public TransitionProperty {
-   AllowedValues allowed_values; ///< Allowed values of species for this transition.
+   Configurations allowed_values; ///< Allowed values of species for this transition.
 
-   AutTransitionion(const StateID target_ID, AllowedValues && _allowed_values)
-      : TransitionProperty(target_ID), allowed_values(std::move(_allowed_values)) {}  ///< Simple filler, assigns values to all the variables.
+   AutTransitionion(const StateID target_ID, Configurations _allowed_values)
+      : TransitionProperty(target_ID), allowed_values(_allowed_values) {}  ///< Simple filler, assigns values to all the variables.
 };
 
 /// Storing a single state of the Buchi automaton. This state is extended with a value saying wheter the states is final.
 struct AutState : public AutomatonStateProperty<AutTransitionion> {
 
-	/// Fills data and checks if the state has value  -> is initial
-   AutState(const StateID ID, const bool final, std::string && label)
-      : AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID, std::move(label)) { }
+   /// Fills data and checks if the state has value  -> is initial
+   AutState(const StateID ID, const bool final)
+      : AutomatonStateProperty<AutTransitionion>((ID == 0), final, ID) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,55 +37,55 @@ struct AutState : public AutomatonStateProperty<AutTransitionion> {
 /// AutomatonStructure data can be set only from the AutomatonStructureBuilder object.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonStructure : public AutomatonInterface<AutState> {
-	friend class AutomatonBuilder;
-		
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FILLING METHODS (can be used only from AutomatonStructureBuilder)
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Add a new transition - having a source, target and permitted values for each specie
-	 */
-   inline void addTransition(const StateID source_state, const StateID target_state, AllowedValues && allowed_values) {
-		states[source_state].transitions.push_back(std::move(AutTransitionion(target_state, std::move(allowed_values))));
-	}
-
-	/**
-	 * @param final	if true than state with index equal to the one of this vector is final
-	 */
-	inline void addState(const StateID ID, const bool final) {
-		std::string label("(");
-		label.append(toString(ID)).append(")");
-			states.push_back(std::move(AutState(ID, final, std::move(label))));
-		if (ID == 0) 
-			initial_states.push_back(ID);
-		if (final)
-			final_states.push_back(ID);
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OTHER METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	AutomatonStructure(const AutomatonStructure & other); ///< Forbidden copy constructor.
-	AutomatonStructure& operator=(const AutomatonStructure & other); ///< Forbidden assignment operator.
-
 public:
-   AutomatonStructure() {} ///< Default empty constructor.
+   friend class AutomatonBuilder;
+   AutomatonStructure() = default;
+   AutomatonStructure(AutomatonStructure && ) = default;
+   AutomatonStructure(const AutomatonStructure & ) = delete;
+   AutomatonStructure& operator=(const AutomatonStructure & ) = delete;
+   AutomatonStructure& operator= (AutomatonStructure && other) {
+      states = move(other.states);
+      my_type = other.my_type;
+      initial_states = move(other.initial_states);
+      final_states = move(other.final_states);
+      return *this;
+   }
 
-	/**
-    * Checks if a transition of the BA is possible in the current state of a KS.
-    *
-	 * @param ID	source state of the transition
-	 * @param transition_num	ordinal number of the transition
-	 * @param levels	current levels of species i.e. the state of the KS
-	 *
-	 * @return	true if the transition is feasible
-	 */
-	bool isTransitionFeasible(const StateID ID, const std::size_t transition_num, const Levels & levels) const {
-		const AutTransitionion & transition = states[ID].transitions[transition_num];
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // FILLING METHODS (can be used only from AutomatonStructureBuilder)
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   /**
+     * Add a new transition - having a source, target and permitted values for each specie
+     */
+   inline void addTransition(const StateID source_state, const StateID target_state, Configurations & allowed_values) {
+      states[source_state].transitions.push_back(AutTransitionion(target_state, allowed_values));
+   }
 
-      for (std::size_t clause_num = 0; clause_num < transition.allowed_values.size(); clause_num++) {
+   /**
+     * @param final	if true than state with index equal to the one of this vector is final
+     */
+   inline void addState(const StateID ID, const bool final) {
+      states.push_back({ID, final});
+      if (ID == 0)
+         initial_states.push_back(ID);
+      if (final)
+         final_states.push_back(ID);
+   }
+public:
+
+   /**
+     * Checks if a transition of the BA is possible in the current state of a KS.
+     * @param ID	source state of the transition
+     * @param transition_num	ordinal number of the transition
+     * @param levels	current levels of species i.e. the state of the KS
+     * @return	true if the transition is feasible
+     */
+   bool isTransitionFeasible(const StateID ID, const size_t trans_no, const Levels & levels) const {
+      const AutTransitionion & transition = states[ID].transitions[trans_no];
+
+      for (size_t clause_num = 0; clause_num < transition.allowed_values.size(); clause_num++) {
          // Cycle through the sates
-         for (std::size_t specie_num = 0; specie_num < transition.allowed_values[clause_num].size(); specie_num++) {
+         for (size_t specie_num = 0; specie_num < transition.allowed_values[clause_num].size(); specie_num++) {
             // If you do not find current specie level between allowed, return false
             if (transition.allowed_values[clause_num][specie_num] != levels[specie_num])
                break;
@@ -93,7 +94,18 @@ public:
          }
       }
       return false;
-	}
+   }
+
+   /**
+    * @return true if there is an outgoing transition from this state at given levels
+    */
+   bool hasTransition(const StateID ID, const Levels & levels) {
+      for (const size_t trans_no : scope(states[ID].transitions))
+         if (isTransitionFeasible(ID, trans_no, levels))
+            return true;
+
+      return false;
+   }
 };
 
 #endif // PARSYBONE_AUTOMATON_STRUCTURE_INCLUDED

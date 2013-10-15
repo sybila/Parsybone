@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_AUTOMATON_INTERFACE_INCLUDED
@@ -21,26 +21,28 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename Transition>
 struct AutomatonStateProperty : public StateProperty<Transition> {
-   bool initial; ///< True if the state is initial.
-   bool final; ///< True if this state is final.
+   const bool initial; ///< True if the state is initial.
+   const bool final; ///< True if this state is final.
 
    /**
     * Adds information if the state is final or initial, passes the rest.
     */
-   AutomatonStateProperty<Transition>(const bool _initial, const bool _final, const StateID ID, const std::string && label)
-      : StateProperty<Transition>(ID, std::move(label)), initial(_initial), final(_final) { }
+   AutomatonStateProperty<Transition>(const bool _initial, const bool _final, const StateID ID)
+      : StateProperty<Transition>(ID), initial(_initial), final(_final) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///  \brief Interface for all the classes that represent a Buchi automaton. Buchi automaton is based on a GraphInterface.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename StateT>
-class AutomatonInterface : public GraphInterface<StateT> {
+class AutomatonInterface : public virtual GraphInterface<StateT> {
 protected:
-   std::vector<StateID> initial_states; ///< Vector with indexes of initial states (in this case only the first state).
-   std::vector<StateID> final_states; ///< Vector with indexes of final states of the BA.
+   vector<StateID> initial_states; ///< Vector with indexes of initial states (in this case only the first state).
+   vector<StateID> final_states; ///< Vector with indexes of final states of the BA.
+   AutType my_type; ///< Type of this automaton (influences verification procedure).
 
 public:
+
 	/**
     * For a given state find out whether it is marked as final.
 	 *
@@ -68,7 +70,7 @@ public:
 	 *
 	 * @return vector of final states' IDs
 	 */
-	virtual inline const std::vector<StateID> & getFinalStates() const {
+	virtual inline const vector<StateID> & getFinalStates() const {
 		return final_states;
 	}
 
@@ -77,9 +79,18 @@ public:
 	 *
 	 * @return vector of initial states' IDs
 	 */
-	virtual inline const std::vector<StateID> & getInitialStates() const {
+	virtual inline const vector<StateID> & getInitialStates() const {
 		return initial_states;
 	}
+
+   /**
+    * @brief getMyType obtain type of the automaton
+    *
+    * @return value of AutType enum
+    */
+   virtual inline AutType getMyType() const {
+      return my_type;
+   }
 };
 
 #endif // PARSYBONE_AUTOMATON_INTERFACE_INCLUDED

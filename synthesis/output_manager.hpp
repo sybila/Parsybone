@@ -1,131 +1,118 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_OUTPUT_MANAGER_INCLUDED
 #define PARSYBONE_OUTPUT_MANAGER_INCLUDED
 
-#include "../auxiliary/user_options.hpp"
-#include "../construction/product_structure.hpp"
-#include "color_storage.hpp"
-#include "coloring_analyzer.hpp"
+#include "synthesis_manager.hpp"
+#include "split_manager.hpp"
 #include "witness_searcher.hpp"
 #include "robustness_compute.hpp"
-#include "split_manager.hpp"
+#include "database_filler.hpp"
+#include "../model/model_translators.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class that outputs formatted resulting data.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OutputManager {
-   const ColorStorage & storage; ///< Provides current costs.
-   const ColoringAnalyzer & analyzer; ///< Provides parametrizations' numbers and exact values.
-   const SplitManager & split_manager; ///< Provides round and split information.
-   const WitnessSearcher & searcher; ///< Provides witnesses in the form of transitions.
-   const RobustnessCompute & robustness; ///< Provides Robustness value.
+   const UserOptions & user_options; ///< User can influence the format of the output.
+   const PropertyAutomaton & property; ///< Property automaton.
+   const Model & model; ///< Reference to the model itself.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	OutputManager(const OutputManager & other); ///< Forbidden copy constructor.
-	OutputManager& operator=(const OutputManager & other); ///< Forbidden assignment operator.
+   DatabaseFiller database; ///< Fills data to the database.
+public:
+   NO_COPY(OutputManager)
+
+   OutputManager(const UserOptions & _user_options, const PropertyAutomaton & _property, const Model & _model)
+      : user_options(_user_options), property(_property), model(_model), database(model, user_options.database_file, user_options.use_database) {	}
 
 public:
-	/**
-	 * Simple constructor that only passes the references.
-	 */
-   OutputManager(const ColorStorage & _storage, const ColoringAnalyzer & _analyzer, const SplitManager & _split_manager, WitnessSearcher & _searcher, RobustnessCompute & _robustness)
-      : storage(_storage), analyzer(_analyzer), split_manager(_split_manager), searcher(_searcher), robustness(_robustness) { }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OUTPUT METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-public:
-	/**
-    * Output summary after the computation.
-	 *
-	 * @param total_count	number of all feasible colors
-	 */
-	void outputSummary(const std::size_t total_count) {
-		output_streamer.output(stats_str, "Total number of colors: ", OutputStreamer::no_newl).output(total_count, OutputStreamer::no_newl)
-                     .output("/", OutputStreamer::no_newl).output(split_manager.getProcColorsCount(), OutputStreamer::no_newl).output(".");
-	}
-
-	/**
-    * Outputs round number - if there are no data within, then erase the line each round.
-	 */ 
-	void outputRoundNum() {
-      // erase the last line
-      output_streamer.output(verbose_str, "Round: ", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-
-      // output numbers
-      output_streamer.output(split_manager.getRoundNum(), OutputStreamer::no_newl).output("/", OutputStreamer::no_newl)
-                     .output(split_manager.getRoundCount(), OutputStreamer::no_newl).output(":", OutputStreamer::no_newl);
-
-      // add a new line if the result is not streamed to a file and there is any
-      if (!output_streamer.isResultInFile())
-         output_streamer.output("");
-
-		output_streamer.flush();
-	}
-
    /**
-    * Recreate vector of cost values into a vector of strings.
+    * @brief eraseData
     */
-   const std::vector<std::string> getCosts(const std::vector<std::size_t> cost_vals) const {
-      std::vector<std::string> costs;
-      forEach(cost_vals, [&](const std::size_t cost){
-         if (cost != ~static_cast<std::size_t>(0))
-            costs.push_back(toString(cost));
-      });
-      return costs;
+   void eraseData() {
+      if (user_options.use_textfile) {
+         output_streamer.createStreamFile(results_str, user_options.datatext_file);
+      }
+      if (user_options.use_database) {
+         database.finishOutpout();
+         database.dropTables();
+      }
+      outputForm();
    }
 
-	/**
-    * Display colors synthetized during current round.
-	 */
-	void outputRound() const {
-		// Get referencese
-      auto costs = std::move(getCosts(storage.getCost())); auto cost_it = costs.begin();
-		auto params = std::move(analyzer.getOutput()); auto param_it = params.begin();
-		auto witnesses = std::move(searcher.getOutput()); auto witness_it = witnesses.begin();
-		auto robusts = robustness.getOutput(); auto robust_it = robusts.begin();
-\
-		// Control the actual size of vectors - they must be the same, if the vectors are employed
-		if (user_options.timeSeries() && (params.size() != costs.size())) {
-			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", costs:" + toString(costs.size());
-			throw std::invalid_argument(sizes_err);
-		} else if (user_options.witnesses() && (params.size() != witnesses.size())) {
-			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", witnesses:" + toString(witnesses.size());
-			throw std::invalid_argument(sizes_err);
-		} else if (user_options.robustness() && (params.size() != robusts.size())) {
-			std::string sizes_err = "Sizes of resulting vectors are different. Parametrizations: " + toString(params.size()) + ", robustnesses:" + toString(robusts.size());
-			throw std::invalid_argument(sizes_err);
-		}
+   /**
+    * @brief outputForm
+    */
+   void outputForm() {
+      if (user_options.use_database)
+         database.creteTables(user_options.property_name);
+      string format_desc = "#:(";
 
-		// Cycle through parametrizations, display requested data
-		while (param_it != params.end()) {
-         output_streamer.output(results_str, *(param_it++), OutputStreamer::no_newl);
-			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+      for(SpecieID ID:range(model.species.size())) {
+         for(auto param:model.getParameters(ID)) {
+            format_desc += model.getName(ID) + "{" + param.context + "},";
+         }
+      }
+      format_desc.back() = ')';
+      format_desc += ":Cost:Robustness:WitnessPath";
+      output_streamer.output(results_str, format_desc);
 
-         if (user_options.timeSeries())
-            output_streamer.output(results_str, *(cost_it++), OutputStreamer::no_newl);
-         output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+      if (user_options.use_database)
+         database.startOutput();
+   }
 
-         if (user_options.robustness())
-            output_streamer.output(results_str, *(robust_it++), OutputStreamer::no_newl);
+   /**
+    * Output summary after the computation.
+    *
+    * @param total_count	number of all feasible colors
+    */
+   void outputSummary(const ParamNo accepting, const ParamNo total) {
+      if (user_options.use_database)
+         database.finishOutpout();
+      output_streamer.output(verbose_str, "Total number of parametrizations: " + toString(accepting) + "/" + toString(total) + ".");
+   }
 
-			output_streamer.output(results_str, separator, OutputStreamer::no_newl);
+   /**
+    * Outputs round number - if there are no data within, then erase the line each round.
+    */
+   void outputRoundNo(const ParamNo round_no, const ParamNo round_count) const {
+      // output numbers
+      OutputStreamer::Trait trait = OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
+      output_streamer.output(verbose_str, "Round: " + toString(round_no) + "/" + toString(round_count) + ".", trait);
+   }
 
-         if (user_options.witnesses())
-            output_streamer.output(results_str, *(witness_it++), OutputStreamer::no_newl);
+   /**
+    * Output parametrizations from this round together with additional data, if requested.
+    */
+   void outputRound(const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) {
+      string param_vals = ModelTranslators::createParamString(model,param_no);
+      string line = toString(param_no) + separator + param_vals  + separator;
+      string update = param_vals;
+      update.back() = ','; // must remove closing bracket, it will be added by database manager
 
-			output_streamer.output(results_str, "");
-		}
-	}
+      line += toString(cost) + separator;
+      update += toString(cost) + ",";
+
+      string robustness = robustness_val > 0. ? toString(robustness_val) : "\"\"";
+      line += robustness + separator;
+      update += robustness + ",";
+
+      line += witness + separator;
+      update += "\"" + witness + "\",";
+
+      size_t traits = 0;
+      if (user_options.output_console && user_options.be_verbose)
+         output_streamer.clear_line(verbose_str);
+      output_streamer.output(results_str, line, traits);
+      if (user_options.use_database)
+         database.addParametrization(update);
+   }
 };
 
 #endif // PARSYBONE_OUTPUT_MANAGER_INCLUDED

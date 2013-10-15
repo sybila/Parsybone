@@ -1,17 +1,13 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_DATA_TYPES_INCLUDED
 #define PARSYBONE_DATA_TYPES_INCLUDED
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// @file This file holds specifications of data types (typedefs and 3rd party classes) used by multiple classes throughout the computation.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
 #include <climits>
@@ -22,6 +18,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <regex>
 #include <set>
 #include <string>
 #include <stdexcept>
@@ -31,63 +28,85 @@
 #include <boost/algorithm/string.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// INPUT/OUTPUT RELATED DATA
+/// @file This file holds specifications of data types (typedefs and 3rd party classes) used by multiple classes throughout the computation.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const float program_version = 1.0;
+using namespace std;
+using boost::lexical_cast;
+using boost::bad_lexical_cast;
+using boost::is_any_of;
+using boost::split;
+using boost::trim;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// INPUT/OUTPUT RELATED TYPES
+// INPUT/OUTPUT
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// What stream to use in output functions.
-enum StreamType {error_str, results_str, stats_str, verbose_str};
+enum StreamType {error_str, results_str, verbose_str};
 
 /// Symbol that separates values of a single parametrizations on output.
-const std::string separator = ":";
+const string separator = ":";
+
+/// Definition of naming abbreviations for edge labels:
+namespace Label {
+   const string Activating = "Activating";
+   const string ActivatingOnly = "ActivatingOnly";
+   const string Inhibiting = "Inhibiting";
+   const string InhibitingOnly = "InhibitingOnly";
+   const string NotActivating = "NotActivating";
+   const string NotInhibiting = "NotInhibiting";
+   const string Observable = "Observable";
+   const string NotObservable = "NotObservable";
+   const string Free = "Free";
+}
+
+const string MODEL_SUFFIX = ".pmf";
+const string PROPERTY_SUFFIX = ".ppf";
+const string DATABASE_SUFFIX = ".sqlite";
+const string OUTPUT_SUFFIX = ".out";
+
+const string COMPONENTS_TABLE = "Components";
+const string REGULATIONS_TABLE = "Regulations";
+const string PARAMETRIZATIONS_TABLE = "Parametrizations";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DATA RELATED TYPES
+// MODEL
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// If a regulation is missing, what kind of value it should get?
-enum UnspecifiedParameters {error_reg, basal_reg, param_reg};
-
-/// To store the way a specie value has changed.
-enum Direction {up_dir, stay_dir, down_dir};
-
 /// ID of a graph/automaton state.
-typedef std::size_t StateID; 
+typedef size_t StateID; 
+
+/// A single transition between two states.
+typedef pair<StateID,StateID> StateTransition;
 
 /// ID of a specie.
-typedef std::size_t SpecieID; 
+typedef size_t SpecieID; 
+
+/// Activity level of a specie.
+typedef unsigned short ActLevel;
 
 /// Vector of activation levels of species used for labelling of states of KS.
-typedef std::vector<std::size_t> Levels;
+typedef vector<ActLevel> Levels;
 
 /// Transitional values in a state of BA.
-typedef std::vector<Levels > AllowedValues;
+typedef vector<Levels> Configurations;
 
-/// Label of a regulation.
-enum EdgeConstrain {pos_cons, neg_cons, none_cons};
+/// What properties may be examined.
+enum PropType { LTL, TimeSeries };
 
+enum AutType {BA_finite, BA_weak, BA_standard};
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COMPUTATION RELATED TYPES
+// COMPUTATION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Mask of parameters - each bit represents single combination of target values for each function.
-typedef unsigned int Paramset;
-
 /// Index of the color - may be a big number.
-typedef long long ColorNum;
+typedef unsigned long long ParamNo;
 
 /// Index of the color - may be a big number as well.
-typedef unsigned long long RoundNum;
+typedef unsigned long long RoundNo;
 
 /// IDs of predecessors of a state.
-typedef std::vector<StateID> Neighbours;
+typedef vector<StateID> Neighbours;
 
-/// State number and its coloring.
-typedef std::pair<StateID, Paramset> Coloring;
-
-/// Storing range of values that will be used in the form [first, last) i.e. first index is used, last is not.
-typedef std::pair<ColorNum, ColorNum> Range;
+/// this value represents infinite value - used for showing that a variable is unset
+const size_t INF = ~0u;
 
 #endif // PARSYBONE_DATA_TYPES_INCLUDED

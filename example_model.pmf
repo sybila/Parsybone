@@ -1,0 +1,19 @@
+<NETWORK>
+	<CONSTRAINT type="bound_loop" />
+	<SPECIE>
+		<REGUL source="B" threshold="1" />
+		<REGUL source="A" />            
+		<PARAM context="" value="0" />
+		<PARAM context="B" value="1" />
+		<PARAM context="A" value="0" />
+		<PARAM context="A,B" value="0"/>   
+	</SPECIE>
+	<SPECIE>
+		<REGUL source="A" />
+		<REGUL source="B" label="+" />            
+		<PARAM context="" value="0,1" />
+		<PARAM context="B" value="1" />
+		<PARAM context="A" value="0" />
+		<PARAM context="A,B" />            
+	</SPECIE>
+</NETWORK>

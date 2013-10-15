@@ -1,7 +1,6 @@
 Documentation/*
 ParsyboneMain/*
 ParsyboneTest/*
-*synctex*
 *~
 *.o
 *.out
@@ -14,3 +13,6 @@ ParsyboneTest/*
 *.toc
 *.dvi
 *autosave*
+count.sh
+*bib
+*gz

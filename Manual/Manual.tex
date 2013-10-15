@@ -1,0 +1,386 @@
+\documentclass[12pt]{article}
+\title{Model building for Parsybone \\ Version 2.0}
+\author{Adam Streck \\
+		Discrete Biomathematics, FU Berlin}
+\usepackage{alltt}
+\usepackage{a4wide}
+\usepackage{pgf}
+\usepackage{tikz}
+
+%Environments used for description of DBM
+\newenvironment{menum}{
+\begin{enumerate}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+  \setlength{\parsep}{0pt}
+}{\end{enumerate}}
+\newenvironment{mitem}{
+\begin{itemize}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+  \setlength{\parsep}{0pt}
+}{\end{itemize}}
+
+\begin{document}
+\maketitle
+
+\section{Modeling}
+\label{sec:modeling}
+ Models are described using an internal modeling language, based on the XML syntax~\cite{XML}, called \emph{PMF} (Parsybone model file). The model is provided within a single PMF file that holds specification of the regulatory network. 
+ 
+For description of desired properties of the dynamical system a second file type, also based on the XML, is used. Predictably the name of the format is PPF (Parsybone property file).
+
+Both the files must abide by the general XML rules and be provided as runtime arguments with their suffixes corresponding to their data type, i.e. with the \emph{.pmf} and \emph{.ppf} suffixes.
+
+\subsection{Model example}
+Every model must be enclosed within a pair \texttt{NETWORK} tag. A detailed description of the modeling language is provided later in this section, here we present, as an example, a model file for the network depicted in the \emph{introductory pdf}. 
+
+This example model has a quite non-uniform syntax, which has been chosen on purpose to present different possibilities of model description.
+\begin{alltt}
+<NETWORK>
+    <SPECIE undef="basal" name="cA">
+        <REGUL source="B" threshold ="1" label="Observable" />
+        <REGUL source="cA" />            
+    </SPECIE>
+    <SPECIE>
+        <REGUL source="cA" />
+        <REGUL source="B" label="+" />            
+        <PARAM context="" value="?" />
+        <PARAM context="B" value="1" />
+        <PARAM context="cA,B" value="0,1" />          
+    </SPECIE>
+</NETWORK>
+\end{alltt}
+As can be seen, the model is a structure with two species, both being affected by two regulations. For the component $B$, the possible parametrizations space is reduced by requirements that the regulation from $cA$ must be observable and that the effect of its self-regulation must be positive, if any. Also, the logical parameter of self-regulation of the component $B$ must always be 1. As a result, the parametrization space is reduced to four possibilities.
+
+\subsection{Model property}
+The main purpose of the tool is picking parametrizations that satisfy some property. The description of this property can be given in one of two possible ways - either as B\"uchi automaton or as a time series. A time series is merely a B\"uchi automaton specialization, but as will be explained later the Parsybone is optimized for its usage and provides additional features if the time series is employed. To demonstrate the difference between the two, we present a single property described using each formalism. 
+
+This property assures that the model depicted in the complementary \emph{introductory pdf} is able to reproduce a time series composed of the following three measurements:
+\begin{enumerate}
+\item $cA=0 \wedge (B=0 \vee B=1)$
+\item $cA \Leftrightarrow B$
+\item $cA=1 \wedge B=0$
+\end{enumerate}
+Only two out of four parametrizations allow for reproduction of this time series. To obtain them, we can describe the time series either using the B\"uchi automaton:
+\begin{alltt}
+<AUTOMATON>
+    <STATE final="0">
+        <EDGE target="0" label="tt" />
+        <EDGE target="1" label="cA=0" /> 
+    </STATE>
+    <STATE>
+        <EDGE target="1" label="tt" />
+        <EDGE target="last" label="((cA=0 &amp; B=0) | (cA=1 &amp; B=1))" /> 
+    </STATE>
+    <STATE name="last">
+        <EDGE target="last" label="tt" />
+        <EDGE target="3" label="(cA=1 &amp; B=0)" /> 
+    </STATE>
+    <STATE final="1">
+        <EDGE target="3" label="tt" />
+    </STATE>
+</AUTOMATON>
+\end{alltt}
+Or using the time series directly:
+\begin{alltt}
+<SERIES>
+    <EXPR values="cA=0" />
+    <EXPR values="((cA=0 &amp; B=0) | (cA=1 &amp; B=1))" />		
+    <EXPR values="(cA=1 &amp; B=0)" />
+</SERIES>
+\end{alltt}
+As can be seen, the second method makes the model quite shorter and should be used for description of time series.
+
+
+\subsection{Regulatory network description}
+\begin{mitem}
+	\item \texttt{NETWORK}
+	\begin{mitem}
+		\item Occurrence: single, mandatory.
+		\item Type: pair.
+		\item Parent: none, is a root node.
+		\item Description: encloses the definition of a regulatory network.
+		\item Attributes: none.
+	\end{mitem}
+\end{mitem}
+
+
+\begin{mitem}
+	\item \texttt{CONSTRAINT}
+	\begin{mitem}
+		\item Occurrence: multiple, optional.
+		\item Type: solo.
+		\item Parent: NETWORK.
+		\item Description: specifies additional static constraint on the parametrization space.
+		\item Attributes: none.
+		\begin{menum}
+			\item \textit{type} 
+			\begin{mitem}
+				\item Occurrence: mandatory.
+				\item Value: force\_extremes/bound\_loop.
+				\item Description: a nature of the constraint, for details see Section~\ref{StaticConstraints}.
+			\end{mitem}
+		\end{menum}
+	\end{mitem}
+\end{mitem}
+	
+\begin{mitem}
+	\item \texttt{SPECIE}
+	\begin{mitem}
+		\item Occurrence: multiple, mandatory.
+		\item Type: pair.
+		\item Parent: NETWORK.
+		\item Description: defines a single specie.
+		\item Attributes:	
+		\begin{menum}
+			\item \textit{name} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: string containing letters and numbers.
+				\item Default: Capital letter, starting from {\verb A }.
+				\item Description: name of the specie under which it will be further addressed.
+			\end{mitem}
+			\item \textit{undef} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: basal/param/error.
+				\item Default: param.
+				\item Description: tells the system how it should handle values of regulatory contexts that are not specified. Basal means using a basal value, param means using all possible values and error causes error in case there are unspecified parameters.
+			\end{mitem}
+			\item \textit{max} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: natural number.
+				\item Default: 1.
+				\item Description: maximal activation level this specie can occur in.
+			\end{mitem}
+			\item \textit{basal} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: positive integer.
+				\item Default: 0.
+				\item Description: basal activation level of this specie - the value towards which the specie tends if not specified otherwise.
+			\end{mitem}
+		\end{menum}
+	\end{mitem}
+\end{mitem}
+
+\begin{mitem}
+	\item \texttt{REGUL}
+	\begin{mitem}
+		\item Occurrence: multiple, mandatory.
+		\item Type: solo.
+		\item Parent: SPECIE.
+		\item Description: defines a single incoming regulation of the parent specie.
+		\item Attributes:	
+		\begin{menum}
+			\item \textit{source} 
+			\begin{mitem}
+				\item Occurrence: mandatory.
+				\item Value: name or the ordinal number of a specie.
+				\item Description: name of the specie that regulates this one.
+			\end{mitem}
+			\item \textit{threshold} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: natural number.
+				\item Default: 1.
+				\item Description: lowest activation level of the source specie that activates the regulation.
+			\end{mitem}
+			\item \textit{label} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: a string, see Sec.~\ref{EdgeLabel}.
+				\item Default: Free.
+				\item Description: describes nature of the regulation.
+			\end{mitem}
+		\end{menum}
+	\end{mitem}
+\end{mitem}
+		
+\begin{mitem}
+	\item \texttt{PARAM}
+	\begin{mitem}
+		\item Occurrence: multiple.
+		\item Type: solo.
+		\item Parent: SPECIE.
+		\item Description: defines a single kinetic parameter.
+		\item Attributes:	
+		\begin{menum}
+			\item \textit{context} 
+			\begin{mitem}
+				\item Occurrence: mandatory.
+				\item Value: comma separated list of active regulations, given by a name or an ordinal number of a regulator.
+				\item Description: defines the exact regulatory context in which this kinetic parameter is applied.
+			\end{mitem}
+			\item \textit{value} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: positive integer or ?.
+				\item Default: ?.
+				\item Description: specifies target value of the specie in this regulatory context, which must be one of possible activation levels of the specie. Character ? means that an exact number is unknown and a parametrization for each value between 0 and the maximal activation level of the specie is created.
+			\end{mitem}
+		\end{menum}
+	\end{mitem}
+\end{mitem}
+	
+\subsection{B\"uchi automaton description}		
+\begin{mitem}
+	\item \texttt{AUTOMATON}
+	\begin{mitem}
+		\item Occurrence: single, present if and only if there is no sibling SERIES tag.
+		\item Type: pair.
+		\item Parent: none, is a root node.
+		\item Description: encloses the decription of a B\"uchi automaton.
+		\item Attributes: none.
+	\end{mitem}
+\end{mitem}		
+
+\begin{mitem}
+	\item \texttt{STATE}
+	\begin{mitem}
+		\item Occurrence: multiple, mandatory.
+		\item Type: solo.
+		\item Parent: AUTOMATON.
+		\item Description: defines a single state of the automaton. The first state in the description is also considered to be the initial state of the automaton.
+		\item Attributes: none.
+	\end{mitem}
+		\begin{menum}
+			\item \textit{name} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: string containing letters and numbers.
+				\item Default: ordinal number of the tag, counting from zero.
+				\item Description: name of the specie under which it will be further addressed. System also uses its ordinal number (so the first state can be addressed using the name \emph{0}).
+			\end{mitem}
+			\item \textit{final} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: Boolean.
+				\item Default: 0.
+				\item Description: specifies if the state is final (1) or not (0).
+			\end{mitem}
+		\end{menum}
+\end{mitem}		
+
+\begin{mitem}
+	\item \texttt{EDGE}
+	\begin{mitem}
+		\item Occurrence: multiple, mandatory.
+		\item Type: solo.
+		\item Parent: STATE.
+		\item Description: defines an edge leading from the parent state.
+		\item Attributes: 
+		\begin{menum}
+			\item \textit{target} 
+			\begin{mitem}
+				\item Occurrence: mandatory.
+				\item Value: name or the ordinal number of the target state.
+			\end{mitem}
+			\item \textit{label} 
+			\begin{mitem}
+				\item Occurrence: mandatory.
+				\item Value: logical formula (see Section~\ref{FormulaConstruction}), variables are atomic propositions (see Section~\ref{AtomicPropositions}).
+				\item Description: conditions that must be met for the edge to be transitive.
+			\end{mitem}
+		\end{menum}
+	\end{mitem}			
+\end{mitem}		
+
+\subsection{Time series description}
+\begin{mitem}
+	\item \texttt{SERIES}
+	\begin{mitem}
+		\item Occurrence: single,  present if and only if there is no sibling AUTOMATON tag.
+		\item Type: pair.
+		\item Parent: MODEL.
+		\item Description: encloses definition of a time series.
+		\item Attributes: none.
+	\end{mitem}
+\end{mitem}				
+	
+\begin{mitem}
+	\item \texttt{EXPR}
+	\begin{mitem}
+		\item Occurrence: multiple, mandatory.
+		\item Type: solo.
+		\item Parent: SERIES.
+		\item Description: a single measurement in the time series.
+		\item Attributes:	
+		\begin{menum}
+			\item \textit{values} 
+			\begin{mitem}
+				\item Occurrence: mandatory.
+				\item Value: logical formula (see Section~\ref{FormulaConstruction}), variables of the formula must be atomic propositions (see Section~\ref{AtomicPropositions}).
+				\item Description: conditions that must be met for the measurement to be reproduced.
+			\end{mitem}
+		\end{menum}
+	\end{mitem}
+\end{mitem}	
+
+\subsection{Edge label}
+\label{EdgeLabel}
+There are two basic labels:
+\begin{itemize}
+\item [+]	Meaning that the there must be a regulation whose parameter value increases if we add this regulator.
+\item [-]	Has the opposite meaning.
+\end{itemize}
+One can compose these labels using a logical formula over $+$ and $-$ or use one of the following predefined descriptions:
+\begin{itemize}
+\item Activating: $+$
+\item ActivatingOnly: $(+ \wedge \neg -)$
+\item Inhibiting: $-$
+\item InhibitingOnly: $(- \wedge \neg +)$
+\item NotActivating: $\neg +$
+\item NotInhibiting: $\neg -$
+\item Observable: $(+ \vee -)$
+\item NotObservable: $(\neg + \wedge \neg -)$
+\item Free: $true$
+
+\end{itemize}
+
+\subsection{Static constraints}
+\label{StaticConstraints}
+Constraints that globally restrict the parametrization space based on certain assumptions.
+\subsubsection{bound\_loop}
+This constraint serves purely to optimization of multi-valued models and should be always used, unless there is a reason not to.
+
+In multi-valued models, a scenario where multiple different parameters spawn the same structure may occur, simply because the values lay outside the activity levels for the respective context. This constraint leaves only a single representative of this behavior.
+
+\subsubsection{force\_extremes}
+This constraint simply assigns an exact target value in two cases:
+\begin{itemize}
+\item $0$ is assigned for the case when all positive regulators are absent and all negative are present.
+ \item $max$ is assigned for the case when all negative regulators are absent and all positive are present.
+\end{itemize}
+For this property, an unambiguous edge constraint must be assigned - Observable, NotObservable and Free edge constraints will cause the force\_extremes switch to have not effect for the regulated component.
+
+\subsection{Formula construction}
+\label{FormulaConstruction}
+A formula is constructed using the following set of recursive rules:
+\begin{enumerate}
+\item $tt$ and $ff$ are formulas representing true or false respectively,
+\item any atomic proposition is a formula,
+\item for every formula $A$ is $\neg A$ a formula,
+\item for formulas $A,B$ are $(A|B)$ and $(A\&B)$ formulas representing logical disjunction and conjunction respectively,
+\item nothing else is a formula.
+\end{enumerate}
+Note that in the model $\neg$ is denoted using \texttt{!} and for compliance with XML, $\&$ is denoted using \texttt{\&amp;}.
+
+\subsection{Atomic propositions}
+\label{AtomicPropositions}
+An atomic proposition is a string of the form: $specie*value$, where:
+\begin{itemize}
+\item $specie$ denotes the name or ordinal number of a specie,
+\item $*$ denotes comparison operator from the set $\{<,>,=\}$,
+\item $value$ denotes a positive integer with which the value of the specie is compared.
+\end{itemize}
+Note that in the model, for compliance with XML, $<$ is denoted using \texttt{\&lt;} and $>$ is denoted using \texttt{\&gt;}.
+
+\bibliographystyle{abbrv}
+\bibliography{Manual}
+
+\end{document}
+
+% LocalWords:  Parsybone CLI LTL DBM GPLv GitHub MinGW GCC ver undef parametrizations REGUL observ PARAM EXPR param filename bistability reachability

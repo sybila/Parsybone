@@ -1,66 +1,59 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_PARSING_MANAGER_INCLUDED
 #define PARSYBONE_PARSING_MANAGER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
-#include "model_parser.hpp"
+#include <PunyHeaders/SQLAdapter.hpp>
+#include "data_parser.hpp"
+#include "argument_parser.hpp"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief STEP 1 - Class that manages all of the parsing done by the application. Includes parsing of arguments and parsing of models.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ParsingManager {
-   std::vector<std::string> arguments; ///< Vector containing individual arguments from the input.
-   Model & model; ///< Model object that will contain all the parsed information from the *.dbm file.
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTRUCTION METHODS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ParsingManager(const ParsingManager & other); ///< Forbidden copy constructor.
-	ParsingManager& operator=(const ParsingManager & other); ///< Forbidden assignment operator.
-
-public:
+namespace ParsingManager {
    /**
-    * Constructor copies arguments from the argv and passes the model object that will store parsed information.
-    *
-    * @param argc passed argc from main()
-    * @param argv passed argv from main()
-    * @param _model  model storing the reference data
+    * @brief parseOptions parse user arguments
     */
-   ParsingManager(int argc, char* argv[], Model & _model) : model(_model) {
-      for (int argn = 0; argn < argc; argn++) {
+   UserOptions parseOptions(const int argc, const char* argv[]) {
+      UserOptions user_options;
+
+      vector<string> arguments;
+      for (const size_t argn : range(argc))
          arguments.push_back(argv[argn]);
+
+      // Parse arguments
+      ArgumentParser parser;
+      user_options = parser.parseArguments(arguments);
+      user_options.addDefaultFiles();
+
+      if (user_options.use_textfile) {
+         output_streamer.createStreamFile(results_str, user_options.datatext_file);
       }
+
+      return user_options;
    }
 
    /**
-    * Main parsing function.
+    * @brief parseModel parse model from a model file
     */
-   void parse() {
-      std::ifstream input_stream; // Object that will reference input file
+   Model parseModel(const string & path, const string & name) {
+      DataParser data_parser;
+      ifstream file(path + name + MODEL_SUFFIX, ios::in);
+      return data_parser.parseNetwork(file);
+   }
 
-      output_streamer.output(verbose_str, "Arguments parsing started.", OutputStreamer::important);
-
-		// Parse arguments
-		ArgumentParser parser;
-		parser.parseArguments(arguments, input_stream);
-
-		// Parse mask if necessary
-      if (user_options.inputMask())
-			coloring_parser.parseMask();
-
-		output_streamer.output(verbose_str, "Model parsing started.", OutputStreamer::important);
-
-		// Parse model itself
-		ModelParser model_parser(model, &input_stream);
-		model_parser.parseInput();
-	}
-};
+   /**
+    * @brief parseProperty parser a property from a property file
+    */
+   PropertyAutomaton parseProperty(const string & path, const string & name) {
+      DataParser data_parser;
+      ifstream file(path + name + PROPERTY_SUFFIX, ios::in);
+      return data_parser.parseProperty(file);
+   }
+}
 
 #endif // PARSYBONE_PARSING_MANAGER_INCLUDED

@@ -1,0 +1,6 @@
+<SERIES>
+	<EXPR values="A = 0" />
+	<EXPR values="((A=0 &amp; B =0) | (A &gt; 0 &amp; B=1))" />        
+	<EXPR values="(A=1 &amp; B=0)" />
+</SERIES>
+

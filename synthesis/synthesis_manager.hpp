@@ -1,23 +1,26 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 #define PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 
-#include "../auxiliary/time_manager.hpp"
-#include "coloring_analyzer.hpp"
+#include "PunyHeaders/time_manager.hpp"
+
+#include "../model/model.hpp"
+#include "../model/property_automaton.hpp"
+
 #include "witness_searcher.hpp"
 #include "output_manager.hpp"
 #include "color_storage.hpp"
 #include "model_checker.hpp"
-#include "paramset_helper.hpp"
 #include "split_manager.hpp"
 #include "robustness_compute.hpp"
+#include "checker_setting.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief STEP 3 - Control class for the computation.
@@ -29,156 +32,143 @@
 ///   -# conclusion: stores additional data and outputs
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynthesisManager {
-	const ConstructionHolder & holder; ///< Holder of all the reference data.
+   const ProductStructure & product; ///< Holder of all the reference data.
+   const Model & model;
+   const PropertyAutomaton & property;
 
-	std::unique_ptr<ColoringAnalyzer> analyzer; ///< Class for analysis
-	std::unique_ptr<ModelChecker> model_checker; ///< Class for synthesis
-	std::unique_ptr<OutputManager> output; ///< Class for output
-	std::unique_ptr<SplitManager> split_manager; ///< Control of independent rounds
-	std::unique_ptr<ColorStorage> storage; ///< Class that holds
-	std::unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses
-	std::unique_ptr<RobustnessCompute> robustness; ///< Class to compute robustness
+   unique_ptr<ModelChecker> model_checker; ///< Class for synthesis.
+   unique_ptr<ColorStorage> storage; ///< Class that holds.
+   unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
+   unique_ptr<RobustnessCompute> computer; ///< Class to compute robustness.
 
-	/// Overall statistics
-	std::size_t total_colors;
+   /**
+    * @brief analyseLasso Parametrization is know to be satisfiable, make analysis of it.
+    */
+   void analyseLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, const ParamNo param_no, double & robust, const bool robustness) {
+      SynthesisResults results;
+      CheckerSettings settings;
+      // First find the coloring from the initial states to the given final.
+      settings.final_states = {final.first};
+      settings.minimal = settings.mark_initals = true;
+      settings.param_no = param_no;
+      results = model_checker->conductCheck(settings);
+      searcher->findWitnesses(results, settings);
+      trans = searcher->getTransitions();
+      if (robustness) {
+         computer->compute(results, searcher->getTransitions(), settings);
+         robust = computer->getRobustness();
+      }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SYNTHESIS CONTROL
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-    * Setup everything that needs it for computation in this round.
-	 */
-	void doPreparation() {
-		// Assure emptyness
-		storage.get()->reset();
-		// Output round number
-		output->outputRoundNum();
-		// Pass information about round (necessary for setup)
-		analyzer->strartNewRound(split_manager->getRoundRange());
-	}
+      // Second find a cycle on the final state.
+      settings.mark_initals = false;
+      settings.initial_states = {final.first};
+      results = model_checker->conductCheck(settings);
+      searcher->findWitnesses(results, settings);
+      const vector<StateTransition> & trans_ref = searcher->getTransitions();
+      trans.insert(trans.begin(), trans_ref.begin(), trans_ref.end());
+      if (robustness) {
+         computer->compute(results, searcher->getTransitions(), settings);
+         robust *= computer->getRobustness();
+      }
+   }
 
-	/**
-    * Store results that have not been stored yet and finalize the round where needed.
-	 */
-	void doConclusion() {
-		total_colors += paramset_helper.count(analyzer->getMask());
-		// Compute witnesses etc. if there is anything to computed, if so, print
-		if (analyzer->getMask()) {
-			if (user_options.analysis()) {
-				searcher->findWitnesses();
-				robustness->compute();
-			}
-			// Output what has been synthetized (colors, witnesses)
-			output->outputRound();
-		}
+   /**
+    * @brief computeLasso parametrization is know to reach a final state, test that state for a bounded loop.
+    */
+   size_t computeLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, const ParamNo param_no,  double & robust, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+      CheckerSettings settings;
+      settings.minimal = true;
+      settings.param_no = param_no;
+      settings.initial_states = settings.final_states = {final.first};
+      settings.bfs_bound = BFS_bound == INF ? BFS_bound : (BFS_bound - final.second);
 
-      // Output mask if requested
-      if (user_options.outputMask())
-         coloring_parser.outputComputed(analyzer->getMask());
-	}
+      SynthesisResults results = model_checker->conductCheck(settings);
+      const size_t cost = results.lower_bound == INF ? INF : results.lower_bound + final.second;
+      if (results.is_accepting && (witnesses || robustness))
+         analyseLasso(final, trans, param_no, robust, robustness);
 
-	/**
-	 * Entry point of the parameter synthesis. 
-	 * In the first part, all states are colored with parameters that are transitive from some initial state. At the end, all final states are stored together with their color.
-	 * In the second part, for all final states the strucutre is reset and colores are distributed from the state. After coloring the resulting color of the state is stored.
-	 */
-	void doComputation() {
-		// Basic (initial) coloring
-		colorProduct();
-
-		// Store colored final vertices
-		std::vector<Coloring> final_states = std::move(storage.get()->getColor(holder.getProduct().getFinalStates()));
-		// Get the actuall results by cycle detection for each final vertex
-		for (auto final_it = final_states.begin(); final_it != final_states.end(); final_it++) {
-			// For general property, there must be new coloring for each final state!
-         if (!paramset_helper.none(final_it->second) && !user_options.timeSeries())
-            detectCycle(*final_it);
-
-			// Store results from this final state
-			analyzer->storeResults(Coloring(final_it->first, storage.get()->getColor(final_it->first)));
-		}
-	}
-
-	/**
-    * Do initial coloring of states - start from initial states and distribute all the transitional parameters.
-	 */
-    void colorProduct() {
-		// Get initial coloring
-		Paramset starting;
-      if(user_options.inputMask())
-         starting = coloring_parser.getColors()[static_cast<unsigned int>(split_manager->getRoundNum()) - 1];
-		else
-			starting = split_manager->createStartingParameters();
-
-		if (paramset_helper.none(starting))
-			return;
-
-		// Set all the initial states to initial color
-		for (auto init_it = holder.getProduct().getInitialStates().begin(); init_it != holder.getProduct().getInitialStates().end(); init_it++)
-			storage.get()->update(*init_it, starting);
-
-		// Schedule all initial states for updates
-		std::set<StateID> updates(holder.getProduct().getInitialStates().begin(), holder.getProduct().getInitialStates().end());
-
-		// Start coloring procedure
-		model_checker->startColoring(starting, updates, split_manager->getRoundRange());
-	}
-
-	/**
-	 * For each final state that has at least one parameter assigned, start cycle detection.
-	 *
-	 * @param init_coloring	reference to the final state that starts the coloring search with its parameters
-	 */
-	void detectCycle(const Coloring & init_coloring) {
-		// Assure emptyness
-		storage.get()->reset();
-
-		// Sechedule nothing for updates (will be done during transfer in the next step)
-		model_checker->startColoring(init_coloring.first, init_coloring.second, split_manager->getRoundRange());
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CREATION
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   SynthesisManager(const SynthesisManager & other); ///< Forbidden copy constructor.
-   SynthesisManager& operator=(const SynthesisManager & other); ///< Forbidden assignment operator.
+      return cost;
+   }
 
 public:
-	/**
+   /**
     * Constructor builds all the data objects that are used within.
-	 */
-	SynthesisManager(const ConstructionHolder & _holder) : holder(_holder) {
-		// Create classes that help with the synthesis
-		analyzer.reset(new ColoringAnalyzer(holder));
-      storage.reset(new ColorStorage(holder));
-		split_manager.reset(new SplitManager(holder.getParametrizations().getSpaceSize()));
-		model_checker.reset(new ModelChecker(holder, *storage.get()));
-		searcher.reset(new WitnessSearcher(holder, *storage.get()));
-		robustness.reset(new RobustnessCompute(holder, *storage, *searcher));
-      output.reset(new OutputManager(*storage, *analyzer, *split_manager, *searcher, *robustness));
+    */
+   SynthesisManager(const ProductStructure & _product, const Model & _model, const PropertyAutomaton & _property) : product(_product), model(_model), property(_property) {
+      storage.reset(new ColorStorage(product));
+      model_checker.reset(new ModelChecker(product, *storage));
+      searcher.reset(new WitnessSearcher(product, *storage));
+      computer.reset(new RobustnessCompute(product, *storage));
+   }
 
-		total_colors = 0;
-	}
+   /**
+    * @brief checkFull conduct model check with only reachability
+    * @param[in] witnesses for all the shortest cycles
+    * @param[in] robustness_val  robustness of the whole computation
+    * @param param_no number of parametrization to test
+    * @param BFS_bound current bound on depth
+    * @param witnesses should compute witnesses
+    * @param robustness should compute robustness
+    * @return the Cost value for this parametrization
+    */
+   size_t checkFull(vector<StateTransition> & trans, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+      CheckerSettings settings;
+      settings.bfs_bound = BFS_bound;
+      settings.param_no = param_no;
+      settings.mark_initals = true;
+      SynthesisResults results = model_checker->conductCheck(settings);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SYNTHESIS ENTRY FUNCTION
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-    * Main synthesis function that iterates through all the rounds of the synthesis.
-	 */
-	void doSynthesis() {
-		time_manager.startClock("coloring");
+      size_t cost = INF;
+      map<StateID, size_t> finals = results.found_depth;
+      for (const pair<StateID, size_t> & final : finals) {
+         vector<StateTransition> trans_temp;
+         double robust_temp = 0.;
+         size_t new_cost = computeLasso(final, trans_temp, param_no, robust_temp, BFS_bound, witnesses, robustness);
+         // Clear data if the new path is shorter than the others.
+         if (new_cost < cost) {
+            cost = new_cost;
+            robustness_val = 0.;
+            trans.clear();
+         }
+         robustness_val += robust_temp;
+         trans.insert(trans.begin(), trans_temp.begin(), trans_temp.end());
+      }
 
-		// Do the computation for all the rounds
-      do {
-			doPreparation();
-			doComputation();
-			doConclusion();
-      } while (split_manager->increaseRound());
+      sort(trans.begin(), trans.end());
+      trans.erase(unique(trans.begin(), trans.end()), trans.end());
 
-		time_manager.ouputClock("coloring");
-		output->outputSummary(total_colors);
-	}
+      return cost;
+   }
+
+   /**
+    * @brief checkFull conduct model check with both trying to reach and with cycle detection.
+    * @param[in] witness of the shortest path
+    * @param[in] robustness_val robustness of the shortest paths
+    * @param param_no number of parametrization to test
+    * @param BFS_bound current bound on depth
+    * @param witnesses should compute witnesses
+    * @param robustness should compute robustness
+    * @return  the Cost value for this parametrization
+    */
+   size_t checkFinite(vector<StateTransition> & trans, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+      CheckerSettings settings;
+      settings.param_no = param_no;
+      settings.bfs_bound = BFS_bound;
+      settings.minimal = true;
+      settings.mark_initals = true;
+      SynthesisResults results = model_checker->conductCheck(settings);
+
+      if ((witnesses || robustness) && results.is_accepting) {
+         searcher->findWitnesses(results, settings);
+         if (robustness)
+            computer->compute(results, searcher->getTransitions(), settings);
+         robustness_val = robustness ? computer->getRobustness() : 0.;
+         if (witnesses)
+            trans = searcher->getTransitions();
+      }
+
+      return results.lower_bound;
+   }
 };
 
 #endif // PARSYBONE_SYNTHESIS_MANAGER_INCLUDED

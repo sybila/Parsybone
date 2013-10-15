@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2012 - Adam Streck
- * This file is part of ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool
- * ParSyBoNe is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
+ * Copyright (C) 2012-2013 - Adam Streck
+ * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
+ * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
  * ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
- * This software has been created as a part of a research conducted in the Systems Biology Laboratory of Masaryk University Brno. See http://sybila.fi.muni.cz/ .
+ * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
 #ifndef PARSYBONE_ARGUMENT_PARSER_INCLUDED
@@ -11,7 +11,7 @@
 
 #include "../auxiliary/output_streamer.hpp"
 #include "../auxiliary/user_options.hpp"
-#include "coloring_parser.hpp"
+#include "../auxiliary/usage.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief A class responsible for reading the arguments on the input.
@@ -20,154 +20,241 @@
 /// All values that are not used for direct setup are stored within a UserOptions class.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ArgumentParser {
-	/**
-    * Obtain parameters for synthesis distribution.
-	 *
-    * @param procn   ID of this process (counting from 1)
-    * @param procc   total number of processes in computation
-	 */
-   void getDistribution(std::string procn, std::string procc) {
-		// Get numbers
-		try {
-			user_options.process_number = boost::lexical_cast<std::size_t, std::string>(procn);
-         user_options.processes_count = boost::lexical_cast<std::size_t, std::string>(procc);
-		} catch (boost::bad_lexical_cast & e) {
-         std::invalid_argument(std::string("Wrong parameters for the switch -d:").append(procn).append(" ").append(procc).append(". Should be -d proc_number proc_count."));
-         throw(std::runtime_error(std::string("Parameter parsing failed").append(e.what())));
-		}
-		// Assert that process ID is in the range
-		if (user_options.process_number > user_options.processes_count)
-         throw(std::runtime_error("Terminal failure - ID of the process is bigger than number of processes"));
-	}
-
-	/**
-	 * Some of the switches must be followed by additional argument (i.e. filename).
-	 * Such a switch must be last in the string of switches, or is not valid. This function controls it.
-	 *
-    * @return  true if the position is valid, false otherwise
-	 */
-   bool testLast(const std::size_t position, const std::size_t size) {
-		if (position + 1 != size) {
-			throw(std::runtime_error(std::string("There are forbidden characters after some switch")));
-		}
-		return true;
-	}
+   enum Filetype {database, datatext};
 
    /**
-    * Some of the switches must be followed by additional argument (i.e. filename).
-    * Such a switch must be followed by parametrizing arguments. This function controls that.
-    *
-    * @return  true if the arguments are present, false otherwise
+    * Obtain parameters for synthesis distribution.
     */
-   bool testFollowers(std::vector<std::string>::const_iterator argument, const std::vector<std::string>::const_iterator & last_pos, const std::size_t followers_count = 1) {
-      for(std::size_t foll_num = 0; foll_num < followers_count; foll_num++, argument++) {
-         if (argument == last_pos) {
-            throw(std::runtime_error(std::string("There are missing parametrizing arguments after some switch")));
-            return false;
-         }
+   int getDistribution(UserOptions & user_options, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
+      // Get numbers
+      try {
+         if (++position == end)
+            throw invalid_argument("The number of processes and the total count of processes are missing");
+         user_options.process_number = lexical_cast<size_t>(*position);
+         if (++position == end)
+            throw invalid_argument("The number of processes or the total count of processes is missing");
+         user_options.processes_count = lexical_cast<size_t>(*position);
+      } catch (bad_lexical_cast & e) {
+         throw invalid_argument("Error while parsing the modifier --dist" + toString(e.what()));
       }
-      return true;
+
+      // Assert that process ID is in the range
+      if (user_options.process_number > user_options.processes_count)
+         throw runtime_error("Error while parsing the modifier --dist - ID of the process is bigger than number of processes");
+
+      return 2;
    }
 
-	/**
+   /**
+    * Obtain parameters for bounded computation.
+    */
+   int getBound(UserOptions & user_options, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
+      try {
+         if (++position == end)
+            throw invalid_argument("Bound values is missing");
+         user_options.bound_size = lexical_cast<size_t>(*position);
+      } catch (bad_lexical_cast & e) {
+         throw invalid_argument("Error while parsing the modifier --bound" + toString(e.what()));
+      }
+
+      return 1;
+   }
+
+   /**
+    * @brief getFileName   stores path to a file based on its type in user options
+    * @param filetype
+    * @param position
+    * @param end
+    * @return how many arguments you have used
+    */
+   int getFileName(UserOptions & user_options, const Filetype & filetype, vector<string>::const_iterator position, const vector<string>::const_iterator & end) {
+      if (++position == end) {
+         throw invalid_argument("Filename missing after the modifier " + *(--position));
+         return 0;
+      }
+
+      switch (filetype) {
+      case database:
+         user_options.database_file = *position;
+         user_options.use_database = true;
+         break;
+      case datatext:
+         user_options.datatext_file = *position;
+         user_options.use_textfile = true;
+         break;
+      }
+
+      return 1;
+   }
+
+   /**
+    * Get the position of the specified argument.
+    */
+   const vector<string>::const_iterator getArgumentPosition(const string & argument, const vector<string> & arguments) {
+      // Get the position of the current modifier.
+      auto position = arguments.begin();
+      for(auto arg:arguments) {
+         if (argument.compare(arg) != 0)
+            position++;
+         else
+            return position;
+      }
+      throw runtime_error("Argument not found in arguments (internal error).");
+   }
+
+   /**
+    * Get the full-text modifiers.
+    */
+   int parseModifier(UserOptions & user_options, const string & modifier, const vector<string> & arguments) {
+      auto position = getArgumentPosition(modifier, arguments);
+
+      // Apply the modifier.
+      if (position->compare("--help") == 0) {
+         cout << getUsage();
+         exit(0);
+      } else if (position->compare("--ver") == 0) {
+         cout << "Parsybone version: " << getVersion() << endl;
+         exit(0);
+      } else if (position->compare("--dist") == 0) {
+         return getDistribution(user_options, position, arguments.end());
+      } else if (position->compare("--text") == 0) {
+         user_options.use_textfile = true;
+         return getFileName(user_options, datatext, position, arguments.end());
+      } else if (position->compare("--data") == 0) {
+         user_options.use_database = true;
+         return getFileName(user_options, database, position, arguments.end());
+      } else if (position->compare("--bound") == 0) {
+         return getBound(user_options, position, arguments.end());
+      } else {
+         throw invalid_argument("Unknown modifier " + *position);
+      }
+   }
+
+   /**
     * Function that parses switches in the string that starts with a "-" symbol.
-	 *
-	 * @param argument	iterator pointer to the string to read
-	 */
-   void parseSwitches(std::vector<std::string>::const_iterator & argument, const std::vector<std::string>::const_iterator & last_pos){
-		for (std::size_t switch_num = 1; switch_num < argument->size(); switch_num++) {
-			switch ((*argument)[switch_num]) {
+    *
+    * @param argument	iterator pointer to the string to read
+    */
+   void parseSwitch(UserOptions & user_options, const char s){
+      switch (s) {
+      case 'W':
+         user_options.use_long_witnesses = true;
 
-			case 'W':
-				user_options.use_long_witnesses = true;
+      case 'w':
+         user_options.compute_wintess = true;
+         break;
 
-			case 'w':
-				user_options.compute_wintess = true;
-				break;
+      case 'r':
+         user_options.compute_robustness = true;
+         break;
 
-			case 'r':
-				user_options.compute_robustness = true;
-            break;
+      case 'v':
+         user_options.be_verbose = true;
+         break;
 
-			case 's':
-				user_options.display_stats = true;
-				break;
+      case 'f':
+         user_options.use_textfile = true;
+         break;
 
-			case 'v':
-				user_options.be_verbose = true;
-				break;
+      case 'd':
+         user_options.use_database = true;
+         break;
 
-            // Open file to read a color mask
-			case 'm':
-            testLast(switch_num, argument->size()); testFollowers(argument + 1, last_pos);
-				coloring_parser.openFile(*(++argument));
-            user_options.use_in_mask = true;
-				return;
+      case 'c':
+         user_options.output_console = true;
+         break;
 
-            // Open file to fill a color mask
-			case 'M':
-            testLast(switch_num, argument->size()); testFollowers(argument + 1, last_pos);
-            coloring_parser.createOutput(*(++argument));
-            user_options.use_out_mask = true;
-				return;
+      case 'm':
+         user_options.minimalize_cost = true;
+         break;
 
-			// Get data for distributed computation
-			case 'd':
-            testLast(switch_num, argument->size()); testFollowers(argument + 1, last_pos, 2);
-				getDistribution(*(argument+1), *(argument+2)); argument += 2;
-				return;
+      default:
+         throw invalid_argument("Unknown switch -" + toString(s));
+         break;
+      }
+   }
 
-			// Redirecting results output to a file by a parameter
-			case 'f':
-            testLast(switch_num, argument->size()); testFollowers(argument + 1, last_pos);
-				output_streamer.createStreamFile(results_str, *(++argument));
-				return;
+   /**
+     * @brief referenceModel save the model name
+     * @param model set to true iff the source file is the model file
+     */
+   void referenceSource(UserOptions & user_options, const string & source, bool model) {
+      // References are given by what sort of source we have - model / property
+      string & name = model ? user_options.model_name : user_options.property_name;
+      string & path = model ? user_options.model_path : user_options.property_path;
+      const string & SUFFIX = model ? MODEL_SUFFIX : PROPERTY_SUFFIX;
 
-			// If the switch is not known.
-			default:
-				throw (std::invalid_argument(std::string("Wrong argument: -").append(*argument).c_str()));
-				return;
-			}
-		}
-	}
+      // If the model is alredy parsed.
+      if (!name.empty())
+         throw invalid_argument("Model file (file with a " + MODEL_SUFFIX + " suffix) occurs multiple times on the input, only a single occurence is allowed");
+
+      // Attach the stream to the file.
+      ifstream file(source, ios::in);
+      if (file.fail()) {
+         remove(path.c_str());
+         throw runtime_error("Program failed to open an intput stream file: " + source);
+      }
+
+      // Store the models name.
+      auto pos1 = source.find_last_of("/\\") + 1; // Remove the prefix (path), if there is any.
+      auto pos2 = source.find(SUFFIX) - pos1; // Remove the suffix.
+      path = source.substr(0, pos1);
+      name = source.substr(pos1, pos2);
+   }
 
 public:
-	/**
+   /**
     * Take all the arguments on the input and store information from them.
-	 *
-    * @param argc passed from main function
-	 * @param argv	passed from main function
-    * @param intput_stream pointer to a file that will be used as an input stream
-	 */
-	void parseArguments (const std::vector<std::string> & arguments, std::ifstream & input_stream) {
-      // True after name of the model file is read
-		bool file_parsed = false;
+    *
+    * @param argc value passed from main function
+    * @param argv	value passed from main function
+    */
+   UserOptions parseArguments (const vector<string> & arguments) {
+      UserOptions user_options;
+      int skip = 1;
 
-      // Cycle through arguments (skip the first - name of the program)
-      for (auto argument = arguments.begin() + 1; argument != arguments.end(); argument++) {
-			// There can be multiple switches after "-" so go through them in the loop
-			if ((*argument)[0] == '-') {
-            parseSwitches(argument, arguments.end());
-			}
-			// If it is a model file
-			else if (argument->find(".dbm") != std::string::npos){
-				// If the model is alredy parsed
-				if (file_parsed)
-               throw (std::invalid_argument("Model file (file with a .dbm suffix) occurs multiple times on the input, only a single occurence is allowed"));
-				// Attach the stream to the file
-				input_stream.open(*argument, std::ios::in);
-				if (input_stream.fail())
-					throw std::runtime_error(std::string("Program failed to open an intput stream file: ").append(*argument));
-				file_parsed = true;
-         } else {
-            throw std::runtime_error(std::string("Wrong argument on the input stream: ").append(*argument));
+      // Cycle through arguments (skip the first - name of the program).
+      for (const string & argument:arguments) {
+         if (skip-- > 0)
+            continue;
+         // There can be multiple switches after "-" so go through them in the loop.
+         else if (argument[0] == '-' && argument[1] != '-') {
+            for (char s:argument.substr(1)) {
+               parseSwitch(user_options, s);
+            }
          }
-		}	
+         else if (argument[0] == '-' && argument[1] == '-') {
+            skip = parseModifier(user_options, argument, arguments);
+         }
+         // If it is a model file.
+         else if (argument.find(MODEL_SUFFIX) != argument.npos) {
+            referenceSource(user_options, argument, true);
+         }
+         // If it is a property file.
+         else if (argument.find(PROPERTY_SUFFIX) != argument.npos) {
+            referenceSource(user_options, argument, false);
+         }
+         else if (argument.find(DATABASE_SUFFIX) != argument.npos) {
+            ifstream file(argument);
+            if (!file) {
+               remove(argument.c_str());
+               throw invalid_argument("Filtering database " + argument + " does not exist.");
+            }
+            user_options.filter_databases.push_back(argument);
+         }
+         else {
+            throw runtime_error("Wrong argument on the input stream: " +  argument);
+         }
+      }
 
-      // Throw an exception if no model file was found
-		if (!file_parsed)
-         throw (std::invalid_argument("Model file (file with a .dbm suffix) is missing"));
-	}
+      // Throw an exception if no model or property file was found.
+      if (user_options.model_name.empty())
+         throw (invalid_argument("Model file (file with a " + MODEL_SUFFIX + " suffix) is missing"));
+      if (user_options.property_name.empty())
+         throw (invalid_argument("Model file (file with a " + PROPERTY_SUFFIX + " suffix) is missing"));
+
+      return user_options;
+   }
 };
 
 #endif // PARSYBONE_ARGUMENT_PARSER_INCLUDED
