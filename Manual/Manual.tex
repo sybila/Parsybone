@@ -351,8 +351,10 @@ In multi-valued models, a scenario where multiple different parameters spawn the
 \subsubsection{force\_extremes}
 This constraint simply assigns an exact target value in two cases:
 \begin{itemize}
-\item[0] in the case that 
+\item $0$ is assigned for the case when all positive regulators are absent and all negative are present.
+ \item $max$ is assigned for the case when all negative regulators are absent and all positive are present.
 \end{itemize}
+For this property, an unambiguous edge constraint must be assigned - Observable, NotObservable and Free edge constraints will cause the force\_extremes switch to have not effect for the regulated component.
 
 \subsection{Formula construction}
 \label{FormulaConstruction}

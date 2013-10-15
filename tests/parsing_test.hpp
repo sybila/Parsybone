@@ -22,10 +22,10 @@ TEST_F(ParsingTest, ParseArguments) {
    string model = (source_path + example_model + MODEL_SUFFIX);
    string property = (source_path + example_automaton + PROPERTY_SUFFIX);
    const char * argv [] = {"program_name",
-                     model.c_str(),
-                     property.c_str(),
-                     "-W",
-                     "-v"};
+                           model.c_str(),
+                           property.c_str(),
+                           "-W",
+                           "-v"};
    EXPECT_NO_THROW(user_options = ParsingManager::parseOptions(sizeof(argv)/sizeof(char*), argv));
    EXPECT_TRUE(user_options.compute_wintess);
    EXPECT_FALSE(user_options.compute_robustness);

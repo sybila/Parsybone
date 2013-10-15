@@ -49,7 +49,7 @@ TEST_F(ModelsTest, ParametrizationControl) {
 /// This test controls functionality of loop bounding constraint.
 TEST_F(ModelsTest, ParametrizationExtremal) {
    circuit_2.addSpecie("C", 1, range<ActLevel>(2u));
-   circuit_2.addRegulation(2, 0, 1, "+");
+   circuit_2.addRegulation(2, 0, 1, "!-");
    circuit_2.restrictions.force_extremes = true;
    ConstructionManager::computeModelProps(circuit_2);
 

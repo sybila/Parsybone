@@ -163,9 +163,9 @@ public:
        for (auto constraint = XMLHelper::getChildNode(network_node, "CONSTRAINT", false); constraint; constraint = constraint->next_sibling("CONSTRAINT") ) {
            string const_type;
            XMLHelper::getAttribute(const_type, constraint, "type");
-           if (const_type.compare("bound_loop")) {
+           if (const_type.compare("bound_loop")  == 0) {
                model.restrictions.bound_loop = true;
-           } else if (const_type.compare("force_extremes")) {
+           } else if (const_type.compare("force_extremes") == 0) {
                model.restrictions.force_extremes = true;
            } else {
                throw runtime_error("Constraint \"" + const_type + "\" is not a valid constraint.");

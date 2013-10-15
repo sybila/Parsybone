@@ -43,7 +43,7 @@ void checkDepthBound(const bool minimalize_cost, const size_t depth, SplitManage
 /**
  * Execution of succesive parts of the parameter synthesis.
  */
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
    time_manager.startClock("* Runtime", false);
 
    UserOptions user_options;
