@@ -18,6 +18,14 @@ bool containsTrans(const string & witness, const vector<string> & trans ) {
    return true;
 }
 
+TEST_F(SynthesisTest, AnalysisOnTrivial) {
+   vector<StateTransition> witness; double robust;
+   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
+      b_k_t_man->checkFinite(witness, robust, 1, INF, true, true);
+      EXPECT_EQ(1., robust);
+   }
+}
+
 TEST_F(SynthesisTest, SetTwoOnCircuitFull) {
    ColorStorage storage(c_2_set_two_ones);
    ModelChecker checker(c_2_set_two_ones, storage);

@@ -34,10 +34,14 @@ class RobustnessCompute {
    void computeExits(const vector<StateTransition> & transitions) {
       // If not acceptable, leave zero
       for (const StateTransition & tran : transitions) {
+         // This one we've already counted
+         if (exits[tran.first] != 0)
+            continue;
+
          const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product.getStructure(), product.getKSID(tran.first));
 
          // If there are no transports, we have a loop - even if multiple loops are possible, consider only one.
-         exits[tran.first] += max(static_cast<size_t>(1), transports.size());
+         exits[tran.first] = max(static_cast<size_t>(1), transports.size());
       }
    }
 
