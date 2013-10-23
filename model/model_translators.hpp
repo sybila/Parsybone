@@ -73,9 +73,9 @@ namespace ModelTranslators {
     */
    ParamNo getSpaceSize(const Model & model) {
       ParamNo space_size = 1;
-      for (const Model::ModelSpecie & spec:model.species) {
+      for (const Model::ModelSpecie & spec:model.species)
          space_size *= spec.subcolors.size();
-      }
+
       return space_size;
    }
 

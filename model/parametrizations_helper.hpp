@@ -42,8 +42,11 @@ public:
     */
    static ParamNo getPossibleCount(const Model::Parameters & params) {
       ParamNo colors_num = 1;
-      for (auto param:params)
+      for (auto param:params) {
+         if (numeric_limits<ParamNo>::max() / param.targets.size() < colors_num)
+            throw overflow_error("Possible number of parametrizations exceeds 2^64. Constrain the parametrization space manually.");
          colors_num *= param.targets.size();
+      }
       return colors_num;
    }
 

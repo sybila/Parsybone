@@ -147,8 +147,13 @@ public:
    static void buildParametrizations(Model & model) {
       color_tested = 0;
       color_no = 0;
-      for (SpecieID ID = 0; ID < model.species.size(); ID++)
+      for (SpecieID ID = 0; ID < model.species.size(); ID++) {
+         ParamNo control = color_no;
          color_no += ParametrizationsHelper::getPossibleCount(model.getParameters(ID));
+
+         if (control > color_no)
+            throw overflow_error("Possible number of parametrizations exceeds 2^64. Constrain the parametrization space manually.");
+      }
 
       // Cycle through species
       for (SpecieID ID = 0; ID < model.species.size(); ID++)
