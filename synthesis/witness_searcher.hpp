@@ -61,11 +61,11 @@ class WitnessSearcher {
       if (markings[ID].busted <= depth && markings[ID].succeeded <= depth)
          return last_branch;
 
-      // Store if the state is final or part of an other path.
+      // Store if the state is final or part of another path.
       path[depth] = ID;
       if (settings.isFinal(ID, product) && depth != 0)
          storeTransitions(depth, last_branch);
-      else if (markings[ID].succeeded > depth)
+      else if (markings[ID].succeeded >= depth && markings[ID].succeeded > 0)
          storeTransitions(depth, last_branch);
       // Continue with the DFS otherwise.
       else if (depth < max_depth){

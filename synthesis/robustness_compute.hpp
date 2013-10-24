@@ -38,10 +38,11 @@ class RobustnessCompute {
          if (exits[tran.first] != 0)
             continue;
 
-         const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product.getStructure(), product.getKSID(tran.first));
+         const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product, tran.first);
+         const vector<StateID> & targets = transports.empty() ? product.getLoops(tran.first) : transports;
 
          // If there are no transports, we have a loop - even if multiple loops are possible, consider only one.
-         exits[tran.first] = max(static_cast<size_t>(1), transports.size());
+         exits[tran.first] = targets.size();
       }
    }
 
