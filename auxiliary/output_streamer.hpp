@@ -208,7 +208,7 @@ private:
          stream << " --";
       // End of the line if not requested otherwise
       if (testTrait(rewrite_ln, trait_mask) && !testTrait(no_out, trait_mask))
-         stream << string(max(static_cast<size_t>(0), PAD_LENGTH - string(stream_data).size()), ' ');
+         stream << " ";
       if (!testTrait(no_newl, trait_mask))
          stream << endl;
    }
