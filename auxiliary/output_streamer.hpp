@@ -28,8 +28,6 @@ class OutputStreamer {
 
    static StreamType last_stream_type;	///< Used to ease usage of output - last stream is stored and used if no new is specified.
 
-   const size_t PAD_LENGTH = 70; ///< How long should a padded line be.
-
 public:
    typedef const unsigned int Trait;
    static Trait no_newl    = 1; ///< After last line no newline symbol will be output.
@@ -208,7 +206,7 @@ private:
          stream << " --";
       // End of the line if not requested otherwise
       if (testTrait(rewrite_ln, trait_mask) && !testTrait(no_out, trait_mask))
-         stream << " ";
+         stream << "   ";
       if (!testTrait(no_newl, trait_mask))
          stream << endl;
    }
