@@ -58,10 +58,12 @@ class WitnessSearcher {
     */
    size_t DFS(const StateID ID, const size_t depth, size_t last_branch) {
       // If this path is no use
-      if (markings[ID].busted <= depth && markings[ID].succeeded <= depth)
+      if (markings[ID].busted <= depth && markings[ID].succeeded < depth)
          return last_branch;
 
       // Store if the state is final or part of another path.
+      if (depth != 0 || !settings.isFinal(ID, product))
+         markings[ID].busted = depth;
       path[depth] = ID;
       if (settings.isFinal(ID, product) && depth != 0)
          storeTransitions(depth, last_branch);

@@ -43,7 +43,7 @@ struct Version {
 };
 
 const Version getVersion() {
-   return {2, 0, Version::rc, 0};
+   return {2, 0, Version::rc, 1};
 }
 
 const string getUsage() {
