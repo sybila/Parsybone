@@ -53,7 +53,7 @@ class ParameterHelper {
                all_act &= regul.satisf.activ & !regul.satisf.inhib ;
                all_inh &= regul.satisf.inhib & !regul.satisf.activ ;
             } else {
-               // Confirm that all regulators have the opposing sign
+               // Confirm that the absent regulator has the opposing sign is all its threshilds.
                for (const ActLevel thr: thrs) {
                   const Model::Regulation & regul = ModelTranslators::findRegulation(model, t_ID, sources[source_no], thr);
                   all_act &= !regul.satisf.activ & regul.satisf.inhib ;

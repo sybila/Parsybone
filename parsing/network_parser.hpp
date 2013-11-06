@@ -14,6 +14,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"
 #include "../model/model_translators.hpp"
+#include "parsing_commons.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for parsing of the regulatory network.
@@ -101,8 +102,8 @@ class NetworkParser {
          if (!XMLHelper::getAttribute(name, specie, "name", false))
             name = toString(specie_name);
          // Throw an error if the name is not correct.
-         else if (name.length() < 2 || !isalpha(static_cast<int>(name[0])))
-            throw invalid_argument("Name of the specie \"" + name + "\" is incorrect. Specie name can start only with a letter and must be at least 2 symbols in lenght.");
+         else if (!ParsingCommons::isValidSpecName(name))
+            ParsingCommons::specNameExc(name);
 
          // Get a max value and conver to integer.
          if (!XMLHelper::getAttribute(max, specie, "max", false))
