@@ -73,7 +73,7 @@ class AutomatonBuilder {
          Configurations allowed_values = move(getAllowed(edges[edge_num].second));
          // If the transition is possible for at least some values, add it
          if (!allowed_values.empty()) {
-            automaton.addTransition(ID, edges[edge_num].first, allowed_values);
+            automaton.states[ID].transitions.push_back({edges[edge_num].first, allowed_values, false, false});
          }
       }
    }

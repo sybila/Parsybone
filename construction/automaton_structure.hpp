@@ -17,9 +17,11 @@
 /// Single labelled transition from one state to another.
 struct AutTransitionion : public TransitionProperty {
    Configurations allowed_values; ///< Allowed values of species for this transition.
+   bool require_stable; ///< True if the state must be stable.
+   bool require_transient; ///< True if the state must be transient.
 
-   AutTransitionion(const StateID target_ID, Configurations _allowed_values)
-      : TransitionProperty(target_ID), allowed_values(_allowed_values) {}  ///< Simple filler, assigns values to all the variables.
+   AutTransitionion(const StateID target_ID, const Configurations _allowed_values, const bool _require_stable, const bool _require_transient)
+      : TransitionProperty(target_ID), allowed_values(_allowed_values), require_stable(_require_stable), require_transient(_require_transient) {}
 };
 
 /// Storing a single state of the Buchi automaton. This state is extended with a value saying wheter the states is final.
@@ -54,13 +56,6 @@ public:
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // FILLING METHODS (can be used only from AutomatonStructureBuilder)
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   /**
-     * Add a new transition - having a source, target and permitted values for each specie
-     */
-   inline void addTransition(const StateID source_state, const StateID target_state, Configurations & allowed_values) {
-      states[source_state].transitions.push_back(AutTransitionion(target_state, allowed_values));
-   }
-
    /**
      * @param final	if true than state with index equal to the one of this vector is final
      */
@@ -99,12 +94,26 @@ public:
    /**
     * @return true if there is an outgoing transition from this state at given levels
     */
-   bool hasTransition(const StateID ID, const Levels & levels) {
+   bool hasTransition(const StateID ID, const Levels & levels) const {
       for (const size_t trans_no : scope(states[ID].transitions))
          if (isTransitionFeasible(ID, trans_no, levels))
             return true;
 
       return false;
+   }
+
+   /**
+    * @return
+    */
+   bool isStableRequired(const StateID ID, const size_t trans_no) const {
+      return states[ID].transitions[trans_no].require_stable;
+   }
+
+   /**
+    * @return
+    */
+   bool isTransientRequired(const StateID ID, const size_t trans_no) const {
+      return states[ID].transitions[trans_no].require_transient;
    }
 };
 
