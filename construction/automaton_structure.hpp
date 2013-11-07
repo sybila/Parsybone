@@ -17,11 +17,11 @@
 /// Single labelled transition from one state to another.
 struct AutTransitionion : public TransitionProperty {
    Configurations allowed_values; ///< Allowed values of species for this transition.
-   bool require_stable; ///< True if the state must be stable.
    bool require_transient; ///< True if the state must be transient.
+   bool require_stable; ///< True if the state must be stable.
 
-   AutTransitionion(const StateID target_ID, const Configurations _allowed_values, const bool _require_stable, const bool _require_transient)
-      : TransitionProperty(target_ID), allowed_values(_allowed_values), require_stable(_require_stable), require_transient(_require_transient) {}
+   AutTransitionion(const StateID target_ID, const Configurations _allowed_values, const bool _require_transient, const bool _require_stable)
+      : TransitionProperty(target_ID), allowed_values(_allowed_values), require_transient(_require_transient), require_stable(_require_stable) {}
 };
 
 /// Storing a single state of the Buchi automaton. This state is extended with a value saying wheter the states is final.
@@ -57,24 +57,29 @@ public:
    // FILLING METHODS (can be used only from AutomatonStructureBuilder)
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    /**
-     * @param final	if true than state with index equal to the one of this vector is final
-     */
-   inline void addState(const StateID ID, const bool final) {
+    * @param final	if true than state with index equal to the one of this vector is final
+    */
+   void addState(const StateID ID, const bool final) {
       states.push_back({ID, final});
       if (ID == 0)
          initial_states.push_back(ID);
       if (final)
          final_states.push_back(ID);
    }
+
+   void addTransition(const StateID ID, AutTransitionion transition) {
+      states[ID].transitions.push_back(move(transition));
+   }
+
 public:
 
    /**
-     * Checks if a transition of the BA is possible in the current state of a KS.
-     * @param ID	source state of the transition
-     * @param transition_num	ordinal number of the transition
-     * @param levels	current levels of species i.e. the state of the KS
-     * @return	true if the transition is feasible
-     */
+    * Checks if a transition of the BA is possible in the current state of a KS.
+    * @param ID	source state of the transition
+    * @param transition_num	ordinal number of the transition
+    * @param levels	current levels of species i.e. the state of the KS
+    * @return	true if the transition is feasible
+    */
    bool isTransitionFeasible(const StateID ID, const size_t trans_no, const Levels & levels) const {
       const AutTransitionion & transition = states[ID].transitions[trans_no];
 

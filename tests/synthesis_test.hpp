@@ -167,6 +167,23 @@ TEST_F(SynthesisTest, TestBounds) {
              count_if(sizes1.begin(), sizes1.end(),[](const size_t val){return val > 3;}));
 }
 
+TEST_F(SynthesisTest, TestStable) {
+   vector<StateTransition> witness; double robust;
+   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
+      b_k_2_s_man->checkFinite(witness, robust, param_no, INF, true, true);
+
+      // First transition must be transient, second stable.
+      bool correct = true;
+      for (StateTransition & trans : witness)
+         if (b_k_2_stable.getBAID(trans.first) == 0)
+            correct &= (b_k_2_stable.getKSID(trans.first) != (b_k_2_stable.getKSID(trans.second)));
+         else if (b_k_2_stable.getBAID(trans.first) == 1)
+            correct &= (b_k_2_stable.getKSID(trans.first) == (b_k_2_stable.getKSID(trans.second)));
+
+      EXPECT_TRUE(correct);
+   }
+}
+
 
 
 #endif // SYNTHESIS_TESTS_HPP

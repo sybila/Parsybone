@@ -14,7 +14,13 @@
 
 class PropertyAutomaton {
 public:
-   typedef pair<StateID, string> Edge; ///< Edge in Buchi Automaton (Target ID, edge label).
+   /// Edge in Buchi Automaton
+   struct Edge {
+      StateID target_ID;
+      string label;
+      bool require_transient;
+      bool require_stable;
+   };
    typedef vector<Edge> Edges; ///< Set of outgoing edges.
 
 private:
@@ -54,8 +60,8 @@ public:
    /**
     * Add a new edge - edge is specified by the target state and label.
     */
-   inline void addEdge(StateID source_ID, StateID target_ID, const string & edge_label) {
-      states[source_ID].edges.push_back(Edge(target_ID, edge_label));
+   inline void addEdge(StateID source_ID, StateID target_ID, const string & edge_label, bool require_transient = false, bool require_stable = false) {
+      states[source_ID].edges.push_back({target_ID, edge_label, require_transient, require_stable});
    }
 
    /**

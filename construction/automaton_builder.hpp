@@ -68,12 +68,12 @@ class AutomatonBuilder {
       const PropertyAutomaton::Edges & edges = property.getEdges(ID);
 
       // Transform each edge into transition and pass it to the automaton
-      for (size_t edge_num = 0; edge_num < property.getEdges(ID).size(); edge_num++) {
+      for (size_t edge_num = 0; edge_num < edges.size(); edge_num++) {
          // Compute allowed values from string of constrains
-         Configurations allowed_values = move(getAllowed(edges[edge_num].second));
+         Configurations allowed_values = move(getAllowed(edges[edge_num].label));
          // If the transition is possible for at least some values, add it
          if (!allowed_values.empty()) {
-            automaton.states[ID].transitions.push_back({edges[edge_num].first, allowed_values, false, false});
+            automaton.addTransition(ID, {edges[edge_num].target_ID, allowed_values, edges[edge_num].require_transient, edges[edge_num].require_stable});
          }
       }
    }
