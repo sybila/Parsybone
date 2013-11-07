@@ -23,7 +23,7 @@ class TimeSeriesParser {
 
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
-      for (rapidxml::xml_node<> *expression = XMLHelper::getChildNode(series_node, "EXPR"); expression; ID++, expression = expression->next_sibling("EXPR") ) {
+      for (auto expression : XMLHelper::NodesRange(series_node, "EXPR")) {
          property.addState(toString(ID), false);
 
          // Labelled transition to the next measurement
@@ -33,6 +33,7 @@ class TimeSeriesParser {
          if (property.getStatesCount() > 1)
             property.addEdge(ID, ID, "!" + values);
          property.addEdge(ID, ID + 1, values);
+         ID++;
       }
 
       // Add a final state that marks succesful time series walk
@@ -41,6 +42,11 @@ class TimeSeriesParser {
 
       return property;
    }
+
+   static PropertyAutomaton parseStable(const rapidxml::xml_node<> * const series_node) {
+
+   }
+
 public:
    /**
      * Main parsing function. It expects a pointer to inside of a MODEL node.
