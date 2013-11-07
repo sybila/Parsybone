@@ -18,7 +18,7 @@ class BuchiParser {
       string label_string; string traget_str; size_t target_ID;
 
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
-		for (rapidxml::xml_node<> * edge = XMLHelper::getChildNode(state_node, "EDGE"); edge; edge = edge->next_sibling("EDGE")) {
+      for (auto edge : XMLHelper::NodesRange(state_node, "EDGE", true)) {
 			// Get the mask string.
 			XMLHelper::getAttribute(label_string, edge, "label");
 			// Get max value and conver to integer.
@@ -41,8 +41,8 @@ class BuchiParser {
 		bool final; string name;
 
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
-		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
-		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
+      SpecieID ID = 0;
+      for (auto state : XMLHelper::NodesRange(automaton_node, "STATE", true)) {
 			// Find out whether the state is final
 			if(!XMLHelper::getAttribute(final, state, "final", false))
 				final = false;
@@ -53,6 +53,7 @@ class BuchiParser {
 
 			// Create a new state
          automaton.addState(name, final);
+         ID++;
 		}
 	}
 
@@ -62,11 +63,10 @@ class BuchiParser {
 	 */
    static void secondParse(const rapidxml::xml_node<> * const automaton_node, PropertyAutomaton & automaton)  {
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
-		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
-		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
-         // Get all the edges of the state and store them to the model.
-         parseEdges(state, ID, automaton);
-		}
+      SpecieID ID = 0;
+      // Get all the edges of the state and store them to the model.
+      for (auto state : XMLHelper::NodesRange(automaton_node, "STATE", true))
+         parseEdges(state, ID++, automaton);
 	}
 
 public:

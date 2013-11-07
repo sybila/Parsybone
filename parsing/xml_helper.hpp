@@ -109,17 +109,15 @@ namespace XMLHelper {
 
 
    class NodesRange {
-      const char * tag;
-      rapidxml::xml_node<> * first;
+      NodeIter begin_node;
 
    public:
-      NodesRange(const rapidxml::xml_node<> * parent, const char * tag) {
-         first = XMLHelper::getChildNode(parent, tag);
-         this->tag = tag;
+      NodesRange(const rapidxml::xml_node<> * first, const char * tag, const bool nonemtpy) {
+         begin_node = {XMLHelper::getChildNode(first, tag, nonemtpy), tag};
       }
 
       NodeIter begin() const {
-         return NodeIter(first, tag);
+         return begin_node;
       }
 
       NodeIter end() const {

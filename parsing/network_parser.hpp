@@ -70,7 +70,7 @@ class NetworkParser {
       string label;
 
       // Cycle through REGUL TAGS
-      for (rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL", false); regulation; regulation = regulation->next_sibling("REGUL") ) {
+      for (auto regulation : XMLHelper::NodesRange(specie_node, "REGUL", true)) {
          auto s_ID = getSourceID(regulation, t_ID, model);
          auto threshold = getThreshold(regulation, t_ID, s_ID, model);
          if (!XMLHelper::getAttribute(label, regulation, "label", false))
@@ -161,7 +161,7 @@ public:
     * @brief parseConstraints   Parses the constraints given by the user.
     */
    static void parseConstraints(const rapidxml::xml_node<> * const network_node, Model & model) {
-       for (auto constraint = XMLHelper::getChildNode(network_node, "CONSTRAINT", false); constraint; constraint = constraint->next_sibling("CONSTRAINT") ) {
+       for (auto constraint : XMLHelper::NodesRange(network_node, "CONSTRAINT", false)) {
            string const_type;
            XMLHelper::getAttribute(const_type, constraint, "type");
            if (const_type.compare("bound_loop")  == 0) {

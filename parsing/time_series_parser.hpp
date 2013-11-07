@@ -23,7 +23,7 @@ class TimeSeriesParser {
 
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
-      for (auto expression : XMLHelper::NodesRange(series_node, "EXPR")) {
+      for (auto expression : XMLHelper::NodesRange(series_node, "EXPR", true)) {
          property.addState(toString(ID), false);
 
          // Labelled transition to the next measurement

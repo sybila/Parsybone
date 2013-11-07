@@ -13,7 +13,7 @@ private:
       vector<Model::ParamSpec> parameters;
 
       // List through all the PARAM nodes.
-      for (rapidxml::xml_node<> * parameter = XMLHelper::getChildNode(specie_node, tag.c_str(), false); parameter; parameter = parameter->next_sibling(tag.c_str()) ) {
+      for (auto parameter : XMLHelper::NodesRange(specie_node, tag.c_str(), false)) {
          // Obtain context specified.
          string context;
          XMLHelper::getAttribute(context, parameter, desc.c_str());
