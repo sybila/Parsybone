@@ -91,7 +91,7 @@ int main(int argc, const char* argv[]) {
       SplitManager split_manager(user_options.processes_count, user_options.process_number, ModelTranslators::getSpaceSize(model));
       split_manager.computeSubspace();
       OutputManager output(user_options, property, model);
-      SynthesisManager synthesis_manager(product, model, property);
+      SynthesisManager synthesis_manager(product);
       ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
       size_t BFS_bound = user_options.bound_size; ///< Maximal cost on the verified property.
       output.outputForm();

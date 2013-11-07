@@ -32,7 +32,6 @@
 ///   -# conclusion: stores additional data and outputs
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynthesisManager {
-   const ProductStructure & product; ///< Holder of all the reference data.
    unique_ptr<ModelChecker> model_checker; ///< Class for synthesis.
    unique_ptr<ColorStorage> storage; ///< Class that holds.
    unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
@@ -88,10 +87,12 @@ class SynthesisManager {
    }
 
 public:
+   SynthesisManager() {}
+
    /**
     * Constructor builds all the data objects that are used within.
     */
-   SynthesisManager(const ProductStructure & _product, const Model & _model, const PropertyAutomaton & _property) : product(_product) {
+   SynthesisManager(const ProductStructure & product)  {
       storage.reset(new ColorStorage(product));
       model_checker.reset(new ModelChecker(product, *storage));
       searcher.reset(new WitnessSearcher(product, *storage));
