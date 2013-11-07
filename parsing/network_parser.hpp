@@ -96,11 +96,10 @@ class NetworkParser {
       string name; size_t max; size_t basal = 0; Levels targets;
 
       // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
-      rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE"), specie_name++) {
+      for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) {
          // Get a name of the specie.
          if (!XMLHelper::getAttribute(name, specie, "name", false))
-            name = toString(specie_name);
+            name = toString(specie_name++);
          // Throw an error if the name is not correct.
          else if (!ParsingCommons::isValidSpecName(name))
             ParsingCommons::specNameExc(name);
@@ -113,7 +112,7 @@ class NetworkParser {
          if(XMLHelper::getAttribute(basal, specie, "basal", false)) {
             targets.push_back(basal);
             if (basal > max)
-               throw invalid_argument("basal value is greater than maximal value for specie " + toString(ID));
+               throw invalid_argument("basal value is greater than maximal value for specie " + name);
          } else {
             targets = range<ActLevel>(max + 1);
          }
@@ -139,10 +138,10 @@ class NetworkParser {
     */
    static void secondParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
       // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
-      rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
+      SpecieID ID = 0;
+      for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) {
          // Get all the regulations of the specie and store them to the model.
-         parseRegulations(specie, ID, model);
+         parseRegulations(specie, ID++, model);
       }
    }
 

@@ -43,5 +43,9 @@ TEST_F(ParsingTest, ParseExamples) {
    EXPECT_NO_THROW(example_s = ParsingManager::parseProperty(source_path,example_series));
 }
 
+TEST_F(ParsingTest, ParseStable) {
+
+}
+
 
 #endif // PARSING_TEST_HPP

@@ -58,57 +58,57 @@ protected:
 
    void setUpAutomata() {
       trivial_prop.addState("triv0", true);
-      trivial_prop.addEdge(0,0,"tt");
+      trivial_prop.addEdge(0,0,{"tt"});
 
       o_t_series_prop = PropertyAutomaton(TimeSeries);
       o_t_series_prop.addState("ser0", false);
       o_t_series_prop.addState("ser1", false);
       o_t_series_prop.addState("ser2", true);
-      o_t_series_prop.addEdge(0,1,"(A=0|B=0)");
-      o_t_series_prop.addEdge(1,1,"tt");
-      o_t_series_prop.addEdge(1,2,"(A=1|B=3)");
-      o_t_series_prop.addEdge(2,2,"ff");
+      o_t_series_prop.addEdge(0,1,{"(A=0|B=0)"});
+      o_t_series_prop.addEdge(1,1,{"tt"});
+      o_t_series_prop.addEdge(1,2,{"(A=1|B=3)"});
+      o_t_series_prop.addEdge(2,2,{"ff"});
 
       A_cyclic_prop = PropertyAutomaton(LTL);
       A_cyclic_prop.addState("cyc0", false);
       A_cyclic_prop.addState("cyc1", true);
       A_cyclic_prop.addState("cyc2", false);
-      A_cyclic_prop.addEdge(0,0,"A=0");
-      A_cyclic_prop.addEdge(0,1,"A=1");
-      A_cyclic_prop.addEdge(1,0,"A=0");
-      A_cyclic_prop.addEdge(1,2,"A=1");
-      A_cyclic_prop.addEdge(2,1,"A=0");
-      A_cyclic_prop.addEdge(2,2,"A=1");
+      A_cyclic_prop.addEdge(0,0,{"A=0"});
+      A_cyclic_prop.addEdge(0,1,{"A=1"});
+      A_cyclic_prop.addEdge(1,0,{"A=0"});
+      A_cyclic_prop.addEdge(1,2,{"A=1"});
+      A_cyclic_prop.addEdge(2,1,{"A=0"});
+      A_cyclic_prop.addEdge(2,2,{"A=1"});
 
       set_two_ones_prop = PropertyAutomaton(TimeSeries);
       set_two_ones_prop.addState("ser0", false);
       set_two_ones_prop.addState("ser1", false);
       set_two_ones_prop.addState("ser2", true);
-      set_two_ones_prop.addEdge(0,1,"(A=0&B=1)");
-      set_two_ones_prop.addEdge(1,1,"tt");
-      set_two_ones_prop.addEdge(1,2,"(A=1&B=1)");
-      set_two_ones_prop.addEdge(2,2,"ff");
+      set_two_ones_prop.addEdge(0,1,{"(A=0&B=1)"});
+      set_two_ones_prop.addEdge(1,1,{"tt"});
+      set_two_ones_prop.addEdge(1,2,{"(A=1&B=1)"});
+      set_two_ones_prop.addEdge(2,2,{"ff"});
 
       arbitrary_peak_prop = PropertyAutomaton();
       arbitrary_peak_prop.addState("low1",false);
       arbitrary_peak_prop.addState("high",false);
       arbitrary_peak_prop.addState("low2",false);
       arbitrary_peak_prop.addState("final",true);
-      arbitrary_peak_prop.addEdge(0,1,"((A=0&B=1)|(A=1&B=0))");
-      arbitrary_peak_prop.addEdge(1,1,"tt");
-      arbitrary_peak_prop.addEdge(1,2,"(A=1&B=1)");
-      arbitrary_peak_prop.addEdge(2,2,"tt");
-      arbitrary_peak_prop.addEdge(2,3,"((A=0&B=1)|(A=1&B=0))");
-      arbitrary_peak_prop.addEdge(3,3,"tt");
+      arbitrary_peak_prop.addEdge(0,1,{"((A=0&B=1)|(A=1&B=0))"});
+      arbitrary_peak_prop.addEdge(1,1,{"tt"});
+      arbitrary_peak_prop.addEdge(1,2,{"(A=1&B=1)"});
+      arbitrary_peak_prop.addEdge(2,2,{"tt"});
+      arbitrary_peak_prop.addEdge(2,3,{"((A=0&B=1)|(A=1&B=0))"});
+      arbitrary_peak_prop.addEdge(3,3,{"tt"});
 
       stable_prop = PropertyAutomaton(TimeSeries);
       stable_prop.addState("init",false);
       stable_prop.addState("stable",false);
       stable_prop.addState("final",true);
-      stable_prop.addEdge(0,0,"tt");
-      stable_prop.addEdge(0,1,"(A=0&B=0)",true,false);
-      stable_prop.addEdge(1,2,"tt",false, true);
-      stable_prop.addEdge(2,2,"ff");
+      stable_prop.addEdge(0,0,{"tt"});
+      stable_prop.addEdge(0,1,{"(A=0&B=0)",true,false});
+      stable_prop.addEdge(1,2,{"tt",false, true});
+      stable_prop.addEdge(2,2,{"ff"});
    }
 
    void SetUp() override {

@@ -7,6 +7,7 @@
 #include "xml_helper.hpp"
 #include "../model/property_automaton.hpp"
 #include "../model/model.hpp"
+#include "property_parsing.hpp"
 
 #include <algorithm>
 
@@ -26,25 +27,22 @@ class TimeSeriesParser {
       for (auto expression : XMLHelper::NodesRange(series_node, "EXPR", true)) {
          property.addState(toString(ID), false);
 
-         // Labelled transition to the next measurement
-         string values;
-         XMLHelper::getAttribute(values, expression, "values");
-         values.erase(remove_if(values.begin(), values.end(), static_cast<int(*)(int)>(isspace)), values.end());
-         if (property.getStatesCount() > 1)
-            property.addEdge(ID, ID, "!" + values);
-         property.addEdge(ID, ID + 1, values);
+         PropertyAutomaton::Constraints cons = PropertyParsing::readConstraints(expression);
+
+         // Initial state lack the self-loop (optimization)
+
+         property.addEdge(ID, ID + 1, cons);
+         if (ID != 0) {
+            cons.values = "!" + cons.values;
+            property.addEdge(ID, ID, cons);
+         }
          ID++;
       }
 
       // Add a final state that marks succesful time series walk
       property.addState(toString(ID), true);
-      property.addEdge(ID, ID, "ff");
 
       return property;
-   }
-
-   static PropertyAutomaton parseStable(const rapidxml::xml_node<> * const series_node) {
-
    }
 
 public:

@@ -70,10 +70,10 @@ class AutomatonBuilder {
       // Transform each edge into transition and pass it to the automaton
       for (size_t edge_num = 0; edge_num < edges.size(); edge_num++) {
          // Compute allowed values from string of constrains
-         Configurations allowed_values = move(getAllowed(edges[edge_num].label));
+         Configurations allowed_values = move(getAllowed(edges[edge_num].cons.values));
          // If the transition is possible for at least some values, add it
          if (!allowed_values.empty()) {
-            automaton.addTransition(ID, {edges[edge_num].target_ID, allowed_values, edges[edge_num].require_transient, edges[edge_num].require_stable});
+            automaton.addTransition(ID, {edges[edge_num].target_ID, allowed_values, edges[edge_num].cons.transient, edges[edge_num].cons.stable});
          }
       }
    }

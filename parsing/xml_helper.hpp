@@ -31,15 +31,11 @@ namespace XMLHelper {
     * @return	pointer to the descendant if sucessful
     */
    static rapidxml::xml_node<> * getChildNode(const rapidxml::xml_node<> * const current_node, const char* node_name, const bool mandatory = true) {
-      rapidxml::xml_node<> * return_node = nullptr;
+      rapidxml::xml_node<> * return_node = 0;
       // try to get the node
       return_node = current_node->first_node(node_name);
-      if (return_node == nullptr) {
-         if (mandatory)
+      if (return_node == 0 && mandatory)
             throw runtime_error("parser did not found the mandatory " + toString(node_name) + " node");
-         else
-            return nullptr;
-      }
       return return_node;
    }
 
@@ -55,11 +51,11 @@ namespace XMLHelper {
     */
    template <class returnType>
    static bool getAttribute(returnType & requested_data, const rapidxml::xml_node<> * const current_node, const char* attribute_name, const bool mandatory = true) {
-      rapidxml::xml_attribute<> *temp_attr = nullptr;
+      rapidxml::xml_attribute<> *temp_attr = 0;
       // Try to get the attribute
       temp_attr = current_node->first_attribute(attribute_name);
       // Check if the attribute has been required
-      if (temp_attr == nullptr) {
+      if (temp_attr == 0) {
          if (mandatory)
             throw runtime_error("parser did not found the mandatory attribute " + toString(attribute_name));
          else

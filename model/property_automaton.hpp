@@ -14,14 +14,24 @@
 
 class PropertyAutomaton {
 public:
+   struct Constraints {
+      string values;
+      bool transient;
+      bool stable;
+
+      Constraints(const string & values_, const bool transient_, const bool stable_) : values(values_), transient(transient_), stable(stable_) {}
+      Constraints(const string & values_) : Constraints(values_, false, false) {}
+      Constraints() : Constraints("") {}
+   };
+
    /// Edge in Buchi Automaton
    struct Edge {
       StateID target_ID;
-      string label;
-      bool require_transient;
-      bool require_stable;
+      Constraints cons;
    };
    typedef vector<Edge> Edges; ///< Set of outgoing edges.
+
+   pair<size_t,size_t> accepting_range; ///< The minimal and the maximal number of accepting states in the model checking
 
 private:
    struct AutomatonState {
@@ -60,8 +70,8 @@ public:
    /**
     * Add a new edge - edge is specified by the target state and label.
     */
-   inline void addEdge(StateID source_ID, StateID target_ID, const string & edge_label, bool require_transient = false, bool require_stable = false) {
-      states[source_ID].edges.push_back({target_ID, edge_label, require_transient, require_stable});
+   inline void addEdge(const StateID source_ID, StateID target_ID, const Constraints cons) {
+      states[source_ID].edges.push_back({target_ID, cons});
    }
 
    /**
