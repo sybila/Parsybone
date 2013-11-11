@@ -166,7 +166,7 @@ public:
             trans = searcher->getTransitions();
       }
 
-      return results.getLowerBound();
+      return results.isAccepting(min_acc, max_acc) ? results.getLowerBound() : INF;
    }
 };
 
