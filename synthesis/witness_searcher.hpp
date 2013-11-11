@@ -96,15 +96,18 @@ public:
       // Preparation
       settings = _settings;
       transitions.clear();
-      path = vector<StateID>(results.getLowerBound() + 1, INF); // Currently needs one more space for the transition to a final state after the last measurement.
+      path = vector<StateID>(results.getUpperBound() + 1, INF); // Currently needs one more space for the transition to a final state after the last measurement.
       markings.assign(markings.size(), {0u, INF});
-      max_depth = results.getLowerBound();
 
       // Search paths from all the final states
-      auto inits = settings.getInitials(product);
-      for (const auto & init : inits)
-         if (storage.getColor(init))
-            DFS(init, 0u, 0u);
+      for (const pair<size_t, size_t> depth : results.depths) {
+         max_depth = depth.first;
+         auto inits = settings.getInitials(product);
+         settings.final_states = results.getFinalsAtDepth(max_depth);
+         for (const auto & init : inits)
+            if (storage.getColor(init))
+               DFS(init, 0u, 0u);
+      }
    }
 
    /**

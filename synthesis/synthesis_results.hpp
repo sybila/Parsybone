@@ -12,25 +12,24 @@
 #include "../auxiliary/data_types.hpp"
 
 struct SynthesisResults {
-   bool is_accepting; ///< a mask for parametrizations accepting in this round
    map<StateID, size_t> found_depth; ///< when a final state was found
-   size_t min_acc;
-   size_t max_acc;
    map<size_t, size_t> depths;
 
-   SynthesisResults() : SynthesisResults(1, INF) { }
 
-   SynthesisResults(const size_t min_acc, const size_t max_acc) {
-      this->min_acc = min_acc;
-      this->max_acc = max_acc;
-      is_accepting = false;
+   inline bool isAccepting() {
+      return isAccepting(1, INF);
+   }
+
+
+   inline bool isAccepting(const size_t min_acc, const size_t max_acc) {
+      return (min_acc <= found_depth.size()) && (max_acc >= found_depth.size());
    }
 
    /**
     * @brief derive  information from stored final states
     */
    void derive() {
-      is_accepting = (min_acc <= found_depth.size()) && (max_acc >= found_depth.size());
+
 
       for (const pair<StateID, size_t> & state : found_depth) {
          auto it = depths.find(state.second);
@@ -42,11 +41,37 @@ struct SynthesisResults {
       }
    }
 
+   /**
+    * @brief getLowerBound obtain the lowest cost in between all the values
+    */
+   size_t getUpperBound() const {
+      if (depths.empty())
+         return INF;
+      else
+         return (depths.rbegin())->first;
+   }
+
+   /**
+    * @brief getUpperBound obtain the lowest cost in between all the values
+    */
    size_t getLowerBound() const {
       if (depths.empty())
          return INF;
       else
          return depths.begin()->first;
+   }
+
+   /**
+    * @return final states that are reached exactly within the given depth
+    */
+   vector<StateID> getFinalsAtDepth(const size_t depth) const {
+      vector<StateID> states;
+
+      for (const pair<StateID, size_t> & state : found_depth)
+         if (state.second == depth)
+            states.push_back(state.first);
+
+      return states;
    }
 };
 

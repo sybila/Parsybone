@@ -31,6 +31,7 @@ protected:
    PropertyAutomaton set_two_ones_prop;
    PropertyAutomaton arbitrary_peak_prop;
    PropertyAutomaton stable_prop;
+   PropertyAutomaton bistable_prop;
 
    void setUpModels() {
       trivial_model.addSpecie("A", 1, {0,1});
@@ -109,6 +110,15 @@ protected:
       stable_prop.addEdge(0,1,{"(A=0&B=0)",true,false});
       stable_prop.addEdge(1,2,{"tt",false, true});
       stable_prop.addEdge(2,2,{"ff"});
+
+      bistable_prop = PropertyAutomaton(TimeSeries, 2, INF);
+      bistable_prop.addState("init",false);
+      bistable_prop.addState("stable",false);
+      bistable_prop.addState("final",true);
+      bistable_prop.addEdge(0,0,{"tt"});
+      bistable_prop.addEdge(0,1,{"(A=0&B=0)",true,false});
+      bistable_prop.addEdge(1,2,{"tt",false, true});
+      bistable_prop.addEdge(2,2,{"ff"});
    }
 
    void SetUp() override {

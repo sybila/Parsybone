@@ -48,7 +48,9 @@ private:
    size_t max_acc; ///< Maximal number --||--
 
 public:
-   PropertyAutomaton(const PropType _prop_type = LTL) : prop_type(_prop_type){ }
+   PropertyAutomaton(const PropType prop_type, const size_t min_acc, const size_t max_acc) : prop_type(prop_type), min_acc(min_acc), max_acc(max_acc) { }
+   PropertyAutomaton(const PropType prop_type) : PropertyAutomaton(prop_type, 1, INF) { }
+   PropertyAutomaton() : PropertyAutomaton(LTL) { }
 
    /**
     * Add a new state to the automaton. If the name is empty, then "ID of the automaton" + "letter" is used.
@@ -60,11 +62,6 @@ public:
          name = toString(states.size());
       states.push_back({name, states.size(), final, Edges()});
       return states.size() - 1;
-   }
-
-   inline void setBounds(const size_t min_acc, const size_t max_acc) {
-      this->min_acc = min_acc;
-      this->max_acc = max_acc;
    }
 
    /**

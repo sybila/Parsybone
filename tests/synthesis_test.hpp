@@ -37,7 +37,7 @@ TEST_F(SynthesisTest, SetTwoOnCircuitFull) {
    settings.minimal = true;
 
    SynthesisResults results = checker.conductCheck(settings);
-   ASSERT_TRUE(results.is_accepting);
+   ASSERT_TRUE(results.isAccepting());
    searcher.findWitnesses(results, settings);
    const vector<StateTransition> & trans = searcher.getTransitions();
    EXPECT_FALSE(trans.empty());
@@ -68,20 +68,20 @@ TEST_F(SynthesisTest, CycleOnCircuitCheck) {
    settings.initial_states = settings.final_states = {STATE_1};
    results = checker.conductCheck(settings);
    EXPECT_EQ(4, results.getLowerBound());
-   EXPECT_TRUE(results.is_accepting);
+   EXPECT_TRUE(results.isAccepting());
 
    // Due to synchronicity, it's not possible to cycle from 7 (does not lie on the main circuit).
    ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_2));
    settings.initial_states = settings.final_states = {STATE_2};
    results = checker.conductCheck(settings);
    EXPECT_EQ(INF, results.getLowerBound());
-   EXPECT_FALSE(results.is_accepting);
+   EXPECT_FALSE(results.isAccepting());
 
    ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_3));
    settings.initial_states = settings.final_states = {STATE_3};
    results = checker.conductCheck(settings);
    EXPECT_EQ(4, results.getLowerBound());
-   EXPECT_TRUE(results.is_accepting);
+   EXPECT_TRUE(results.isAccepting());
 }
 
 TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
@@ -100,7 +100,7 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    settings.final_states = {ID};
    settings.mark_initals = true;
    results = checker.conductCheck(settings);
-   ASSERT_TRUE(results.is_accepting);
+   ASSERT_TRUE(results.isAccepting());
    searcher.findWitnesses(results, settings);
    witness += WitnessSearcher::getOutput(true, c_2_cyclic, searcher.getTransitions());
    robustness.compute(results, searcher.getTransitions(), settings);
@@ -109,7 +109,7 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    settings.initial_states = {ID};
    settings.mark_initals = false;
    results = checker.conductCheck(settings);
-   ASSERT_TRUE(results.is_accepting);
+   ASSERT_TRUE(results.isAccepting());
    searcher.findWitnesses(results, settings);
    witness += WitnessSearcher::getOutput(true, c_2_cyclic, searcher.getTransitions());
    robustness.compute(results, searcher.getTransitions(), settings);
@@ -181,6 +181,18 @@ TEST_F(SynthesisTest, TestStable) {
             correct &= (b_k_2_stable.getKSID(trans.first) == (b_k_2_stable.getKSID(trans.second)));
 
       EXPECT_TRUE(correct);
+   }
+}
+
+
+TEST_F(SynthesisTest, TestBistable) {
+   vector<StateTransition> witness; double robust;
+   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
+      EXPECT_EQ(2u, bistable_prop.getMinAcc());
+      EXPECT_EQ(INF, bistable_prop.getMaxAcc());
+      b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true, bistable_prop.getMinAcc(), bistable_prop.getMaxAcc());
+      if (!witness.empty())
+         EXPECT_TRUE(containsTrans(WitnessSearcher::getOutput(true, c_2_cyclic, witness), {"(0,1;1)>(0,1;2)","(1,0;1)>(1,0;2)"}));
    }
 }
 

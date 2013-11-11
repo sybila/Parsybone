@@ -80,7 +80,7 @@ class SynthesisManager {
 
       SynthesisResults results = model_checker->conductCheck(settings);
       const size_t cost = results.getLowerBound() == INF ? INF : results.getLowerBound() + final.second;
-      if (results.is_accepting && (witnesses || robustness))
+      if (results.isAccepting() && (witnesses || robustness))
          analyseLasso(final, trans, param_no, robust, robustness);
 
       return cost;
@@ -157,7 +157,7 @@ public:
       settings.mark_initals = true;
       SynthesisResults results = model_checker->conductCheck(settings);
 
-      if ((witnesses || robustness) && results.is_accepting) {
+      if ((witnesses || robustness) && results.isAccepting(min_acc, max_acc)) {
          searcher->findWitnesses(results, settings);
          if (robustness)
             computer->compute(results, searcher->getTransitions(), settings);
