@@ -109,10 +109,12 @@ int main(int argc, const char* argv[]) {
          // Call synthesis procedure based on the type of the property.
          switch (product.getMyType()) {
          case BA_finite:
-            cost = synthesis_manager.checkFinite(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
+            cost = synthesis_manager.checkFinite(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound,
+                                                 user_options.compute_wintess, user_options.compute_robustness, property.getMinAcc(), property.getMaxAcc());
             break;
          case BA_standard:
-            cost = synthesis_manager.checkFull(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
+            cost = synthesis_manager.checkFull(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound,
+                                               user_options.compute_wintess, user_options.compute_robustness);
             break;
          default:
             throw runtime_error("Unsupported Buchi automaton type.");
