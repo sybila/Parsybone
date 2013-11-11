@@ -44,6 +44,8 @@ private:
 
    PropType prop_type; ///< What property does this automaton hold.
    vector<AutomatonState> states; ///< vector of all states of the controlling Buchi automaton
+   size_t min_acc; ///< Minimal number of accepting states required for acceptation (LTL counting)
+   size_t max_acc; ///< Maximal number --||--
 
 public:
    PropertyAutomaton(const PropType _prop_type = LTL) : prop_type(_prop_type){ }
@@ -58,6 +60,11 @@ public:
          name = toString(states.size());
       states.push_back({name, states.size(), final, Edges()});
       return states.size() - 1;
+   }
+
+   inline void setBounds(const size_t min_acc, const size_t max_acc) {
+      this->min_acc = min_acc;
+      this->max_acc = max_acc;
    }
 
    /**
@@ -100,6 +107,22 @@ public:
 
    inline PropType getPropType() const {
       return prop_type;
+   }
+
+   inline size_t getMinAcc() const {
+      return min_acc;
+   }
+
+   inline size_t getMaxAcc() const {
+      return max_acc;
+   }
+
+   inline bool isCountingUsed() const {
+      return (min_acc != 1) || (max_acc != INF);
+   }
+
+   static bool isCountingUsed(const size_t min_acc, const size_t max_acc) {
+      return (min_acc != 1) || (max_acc != INF);
    }
 };
 

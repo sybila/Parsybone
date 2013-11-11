@@ -96,9 +96,9 @@ public:
       // Preparation
       settings = _settings;
       transitions.clear();
-      path = vector<StateID>(results.lower_bound + 1, INF); // Currently needs one more space for the transition to a final state after the last measurement.
+      path = vector<StateID>(results.getLowerBound() + 1, INF); // Currently needs one more space for the transition to a final state after the last measurement.
       markings.assign(markings.size(), {0u, INF});
-      max_depth = results.lower_bound;
+      max_depth = results.getLowerBound();
 
       // Search paths from all the final states
       auto inits = settings.getInitials(product);

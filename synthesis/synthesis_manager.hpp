@@ -79,7 +79,7 @@ class SynthesisManager {
       settings.bfs_bound = BFS_bound == INF ? BFS_bound : (BFS_bound - final.second);
 
       SynthesisResults results = model_checker->conductCheck(settings);
-      const size_t cost = results.lower_bound == INF ? INF : results.lower_bound + final.second;
+      const size_t cost = results.getLowerBound() == INF ? INF : results.getLowerBound() + final.second;
       if (results.is_accepting && (witnesses || robustness))
          analyseLasso(final, trans, param_no, robust, robustness);
 
@@ -148,7 +148,8 @@ public:
     * @param robustness should compute robustness
     * @return  the Cost value for this parametrization
     */
-   size_t checkFinite(vector<StateTransition> & trans, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+   size_t checkFinite(vector<StateTransition> & trans, double & robustness_val, const ParamNo param_no,
+                      const size_t BFS_bound, const bool witnesses, const bool robustness, const size_t min_acc, const size_t max_acc) {
       CheckerSettings settings;
       settings.param_no = param_no;
       settings.bfs_bound = BFS_bound;
@@ -165,7 +166,7 @@ public:
             trans = searcher->getTransitions();
       }
 
-      return results.lower_bound;
+      return results.getLowerBound();
    }
 };
 

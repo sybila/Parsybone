@@ -21,7 +21,7 @@ bool containsTrans(const string & witness, const vector<string> & trans ) {
 TEST_F(SynthesisTest, AnalysisOnTrivial) {
    vector<StateTransition> witness; double robust;
    for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-      b_k_t_man.checkFinite(witness, robust, 1, INF, true, true);
+      b_k_t_man.checkFinite(witness, robust, 1, INF, true, true, 1, INF);
       EXPECT_EQ(1., robust);
    }
 }
@@ -67,20 +67,20 @@ TEST_F(SynthesisTest, CycleOnCircuitCheck) {
    ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_1));
    settings.initial_states = settings.final_states = {STATE_1};
    results = checker.conductCheck(settings);
-   EXPECT_EQ(4, results.lower_bound);
+   EXPECT_EQ(4, results.getLowerBound());
    EXPECT_TRUE(results.is_accepting);
 
    // Due to synchronicity, it's not possible to cycle from 7 (does not lie on the main circuit).
    ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_2));
    settings.initial_states = settings.final_states = {STATE_2};
    results = checker.conductCheck(settings);
-   EXPECT_EQ(INF, results.lower_bound);
+   EXPECT_EQ(INF, results.getLowerBound());
    EXPECT_FALSE(results.is_accepting);
 
    ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_3));
    settings.initial_states = settings.final_states = {STATE_3};
    results = checker.conductCheck(settings);
-   EXPECT_EQ(4, results.lower_bound);
+   EXPECT_EQ(4, results.getLowerBound());
    EXPECT_TRUE(results.is_accepting);
 }
 
@@ -148,9 +148,9 @@ TEST_F(SynthesisTest, TestPeakOnCircuit) {
 
 TEST_F(SynthesisTest, TestBounds) {
    vector<StateTransition> witness; double robust;
-   EXPECT_EQ(4, c_2_s_2_o_man.checkFinite(witness, robust, 1, 4, false, false));
+   EXPECT_EQ(4, c_2_s_2_o_man.checkFinite(witness, robust, 1, 4, false, false, 1, INF));
    witness.clear();
-   EXPECT_EQ(INF, c_2_s_2_o_man.checkFinite(witness, robust, 1, 3, false, false)) << "Should not proceed as the bound is too low.";
+   EXPECT_EQ(INF, c_2_s_2_o_man.checkFinite(witness, robust, 1, 3, false, false, 1, INF)) << "Should not proceed as the bound is too low.";
 
    witness.clear();
    EXPECT_EQ(5, c_2_c_man.checkFull(witness, robust, 1, INF, true, true));
@@ -170,7 +170,7 @@ TEST_F(SynthesisTest, TestBounds) {
 TEST_F(SynthesisTest, TestStable) {
    vector<StateTransition> witness; double robust;
    for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-      b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true);
+      b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true, 1, INF);
 
       // First transition must be transient, second stable.
       bool correct = true;

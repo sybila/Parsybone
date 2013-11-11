@@ -12,12 +12,17 @@
 #include "../auxiliary/data_types.hpp"
 
 struct SynthesisResults {
-   size_t lower_bound; ///< costs of individual parametrizations used this round
    bool is_accepting; ///< a mask for parametrizations accepting in this round
    map<StateID, size_t> found_depth; ///< when a final state was found
+   size_t min_acc;
+   size_t max_acc;
+   map<size_t, size_t> depths;
 
-   SynthesisResults() {
-      lower_bound = INF;
+   SynthesisResults() : SynthesisResults(1, INF) { }
+
+   SynthesisResults(const size_t min_acc, const size_t max_acc) {
+      this->min_acc = min_acc;
+      this->max_acc = max_acc;
       is_accepting = false;
    }
 
@@ -25,9 +30,23 @@ struct SynthesisResults {
     * @brief derive  information from stored final states
     */
    void derive() {
-      is_accepting = !found_depth.empty();
-      for (const pair<StateID, size_t> & state : found_depth)
-         lower_bound = min(lower_bound, state.second);
+      is_accepting = (min_acc <= found_depth.size()) && (max_acc >= found_depth.size());
+
+      for (const pair<StateID, size_t> & state : found_depth) {
+         auto it = depths.find(state.second);
+         if (it != depths.end()) {
+            it->second++;
+         } else {
+            depths.insert(make_pair(state.second, 1u));
+         }
+      }
+   }
+
+   size_t getLowerBound() const {
+      if (depths.empty())
+         return INF;
+      else
+         return depths.begin()->first;
    }
 };
 

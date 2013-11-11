@@ -21,6 +21,10 @@ class TimeSeriesParser {
     */
    static PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node) {
       PropertyAutomaton property(TimeSeries);
+      size_t val;
+      size_t min_acc = XMLHelper::getAttribute(val, series_node, "min_acc", false) ? val : 1;
+      size_t max_acc = XMLHelper::getAttribute(val, series_node, "max_acc", false) ? val : INF;
+      property.setBounds(min_acc, max_acc);
 
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;

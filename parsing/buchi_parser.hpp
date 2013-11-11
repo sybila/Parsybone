@@ -76,6 +76,7 @@ public:
 	 */
    static PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node) {
       PropertyAutomaton automaton(LTL);
+      automaton.setBounds(1, INF);
 
 		// Parse states
       firstParse(automaton_node, automaton);
