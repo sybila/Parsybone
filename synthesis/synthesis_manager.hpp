@@ -45,7 +45,7 @@ class SynthesisManager {
       CheckerSettings settings;
       // First find the coloring from the initial states to the given final.
       settings.final_states = {final.first};
-      settings.minimal = settings.mark_initals = true;
+      settings.minimize_cost = settings.mark_initals = true;
       settings.param_no = param_no;
       results = model_checker->conductCheck(settings);
       searcher->findWitnesses(results, settings);
@@ -73,7 +73,7 @@ class SynthesisManager {
     */
    size_t computeLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, const ParamNo param_no,  double & robust, const size_t BFS_bound, const bool witnesses, const bool robustness) {
       CheckerSettings settings;
-      settings.minimal = true;
+      settings.minimize_cost = true;
       settings.param_no = param_no;
       settings.initial_states = settings.final_states = {final.first};
       settings.bfs_bound = BFS_bound == INF ? BFS_bound : (BFS_bound - final.second);
@@ -153,7 +153,7 @@ public:
       CheckerSettings settings;
       settings.param_no = param_no;
       settings.bfs_bound = BFS_bound;
-      settings.minimal = true;
+      settings.minimize_cost = true;
       settings.mark_initals = true;
       SynthesisResults results = model_checker->conductCheck(settings);
 

@@ -34,7 +34,7 @@ TEST_F(SynthesisTest, SetTwoOnCircuitFull) {
 
    CheckerSettings settings;
    settings.mark_initals = true;
-   settings.minimal = true;
+   settings.minimize_cost = true;
 
    SynthesisResults results = checker.conductCheck(settings);
    ASSERT_TRUE(results.isAccepting());
@@ -56,7 +56,7 @@ TEST_F(SynthesisTest, CycleOnCircuitCheck) {
    SynthesisResults reaches;
    SynthesisResults results;
 
-   settings.minimal = true;
+   settings.minimize_cost = true;
    settings.mark_initals = true;
    reaches = checker.conductCheck(settings);
    ASSERT_EQ(3, reaches.found_depth.size());
@@ -96,7 +96,7 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    double robutness_val = 0.;
    string witness;
 
-   settings.minimal = true;
+   settings.minimize_cost = true;
    settings.final_states = {ID};
    settings.mark_initals = true;
    results = checker.conductCheck(settings);
