@@ -11,6 +11,14 @@
 
 #include "construction_test_data.hpp"
 
+TEST_F(StructureTest, TestMultiedge) {
+   Model multiedge;
+   multiedge.addSpecie("A", 2, {0,1,2});
+   multiedge.addRegulation(0, 0, 1, "-");
+   multiedge.addRegulation(0, 0, 2, "!-");
+   EXPECT_NO_THROW(ConstructionManager::computeModelProps(multiedge));
+}
+
 TEST_F(StructureTest, TestCorrectAutomata) {
    AutomatonBuilder o_t_series_builder(one_three, o_t_series_prop);
    AutomatonStructure o_t_series_aut = o_t_series_builder.buildAutomaton();
