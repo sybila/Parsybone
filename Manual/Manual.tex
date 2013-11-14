@@ -278,11 +278,25 @@ As can be seen, the second method makes the model quite shorter and should be us
 				\item Occurrence: mandatory.
 				\item Value: name or the ordinal number of the target state.
 			\end{mitem}
-			\item \textit{label} 
+			\item \textit{values} 
 			\begin{mitem}
 				\item Occurrence: mandatory.
 				\item Value: logical formula (see Section~\ref{FormulaConstruction}), variables are atomic propositions (see Section~\ref{AtomicPropositions}).
 				\item Description: conditions that must be met for the edge to be transitive.
+			\end{mitem}
+			\item \textit{stable} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: Boolean.
+				\item Default: 0.
+				\item Description: If set to (1), the transition satisfying the edge must be a loop.
+			\end{mitem}
+			\item \textit{transient} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: Boolean.
+				\item Default: 0.
+				\item Description: If set to (1), the transition satisfying the edge must be between different states.
 			\end{mitem}
 		\end{menum}
 	\end{mitem}			
@@ -314,6 +328,20 @@ As can be seen, the second method makes the model quite shorter and should be us
 				\item Occurrence: mandatory.
 				\item Value: logical formula (see Section~\ref{FormulaConstruction}), variables of the formula must be atomic propositions (see Section~\ref{AtomicPropositions}).
 				\item Description: conditions that must be met for the measurement to be reproduced.
+			\end{mitem}
+						\item \textit{stable} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: Boolean.
+				\item Default: 0.
+				\item Description: If set to (1), the transition satisfying the edge must be a loop.
+			\end{mitem}
+			\item \textit{transient} 
+			\begin{mitem}
+				\item Occurrence: optional.
+				\item Value: Boolean.
+				\item Default: 0.
+				\item Description: If set to (1), the transition satisfying the edge must be between different states.
 			\end{mitem}
 		\end{menum}
 	\end{mitem}

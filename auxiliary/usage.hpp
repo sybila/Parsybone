@@ -43,7 +43,7 @@ struct Version {
 };
 
 const Version getVersion() {
-   return {2, 0, Version::rc, 1};
+   return {2, 1, Version::beta, 0};
 }
 
 const string getUsage() {
@@ -60,6 +60,7 @@ const string getUsage() {
          "-f output computation results to a text file\n"
          "   by default the file is model.out, can be changed using the --file switch\n"
          "-m minimize the Cost - only parametrizations whose paths have globaly minimal cost will be output\n"
+         "-n negate the property - only the parametrizations that do not satisfy the property will be output\n"
          "-r compute robustness of a time series\n"
          "-v verbose (output progress to console)\n"
          "-w compute witnesses and store them in encoded form\n"
