@@ -40,23 +40,17 @@ class ParametrizationsBuilder {
       const auto & parameters = model.getParameters(target_ID);
       const StateID source_ID = regul.source;
       ActLevel threshold = parameters[param_num].requirements.find(source_ID)->second.front();
-      if (threshold == 0)
+      if (threshold != regul.threshold)
          return;
-      else
-         threshold--;
 
-      size_t compare_num = 0;
-      while(compare_num < parameters.size()) {
+      for(size_t compare_num = 0; compare_num < parameters.size(); compare_num++) {
          auto compare = parameters[compare_num];
-         if (ParametrizationsHelper::isSubordinate(model, parameters[param_num], compare, target_ID, source_ID))
-            break;
-         else
-            compare_num++;
+         if (ParametrizationsHelper::isSubordinate(model, parameters[param_num], compare, target_ID, source_ID)) {
+            // Assign regulation aspects
+            activating |= subparam[param_num] > subparam[compare_num];
+            inhibiting |= subparam[param_num] < subparam[compare_num];
+         }
       }
-
-      // Assign regulation aspects
-      activating |= subparam[param_num] > subparam[compare_num];
-      inhibiting |= subparam[param_num] < subparam[compare_num];
    }
 
    /**
@@ -114,14 +108,14 @@ class ParametrizationsBuilder {
       } while (iterate(top_color, bottom_color, subcolor));
 
       if (model.species[ID].subcolors.empty())
-         throw runtime_error(string("No valid parametrization found for the specie ").append(toString(ID)));
+         throw runtime_error(string("No valid parametrization found for the specie ").append(to_string(ID)));
    }
 
    /**
     * @brief outputProgress
     */
    static inline void outputProgress() {
-      output_streamer.output(verbose_str, "Testing edge constraints on partiall parametrizations: " + toString(++color_tested) + "/" + toString(color_no) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+      output_streamer.output(verbose_str, "Testing edge constraints on partiall parametrizations: " + to_string(++color_tested) + "/" + to_string(color_no) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
    }
 
    /**

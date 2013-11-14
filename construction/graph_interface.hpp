@@ -91,7 +91,7 @@ public:
 	 */
 
    const string getString(const StateID ID) const {
-      return toString(ID);
+      return to_string(ID);
 	}
 };
 

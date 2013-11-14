@@ -68,12 +68,12 @@ class AutomatonBuilder {
       const PropertyAutomaton::Edges & edges = property.getEdges(ID);
 
       // Transform each edge into transition and pass it to the automaton
-      for (size_t edge_num = 0; edge_num < property.getEdges(ID).size(); edge_num++) {
+      for (size_t edge_num = 0; edge_num < edges.size(); edge_num++) {
          // Compute allowed values from string of constrains
-         Configurations allowed_values = move(getAllowed(edges[edge_num].second));
+         Configurations allowed_values = move(getAllowed(edges[edge_num].cons.values));
          // If the transition is possible for at least some values, add it
          if (!allowed_values.empty()) {
-            automaton.addTransition(ID, edges[edge_num].first, allowed_values);
+            automaton.addTransition(ID, {edges[edge_num].target_ID, allowed_values, edges[edge_num].cons.transient, edges[edge_num].cons.stable});
          }
       }
    }
@@ -110,7 +110,7 @@ public:
 
       // List throught all the automaton states
       for (StateID ID = 0; ID < property.getStatesCount(); ID++) {
-         output_streamer.output(verbose_str, "Building automaton state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+         output_streamer.output(verbose_str, "Building automaton state: " + to_string(++state_no) + "/" + to_string(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
          // Fill auxiliary data
          automaton.addState(ID, property.isFinal(ID));
          // Add transitions for this state

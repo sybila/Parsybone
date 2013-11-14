@@ -24,14 +24,16 @@ class ProductBuilder {
     * @param BA_ID	source BA state
     * @return	vector of all the reachable BA states from give product state
     */
-   vector<StateID> getReachableBA(const StateID KS_ID, const StateID BA_ID, const ProductStructure & product) const {
+   vector<StateID> getReachableBA(const StateID KS_ID, const StateID BA_ID, const ProductStructure & product, const bool allow_stable, const bool allow_transient) const {
       // Vector to store them
       vector<StateID> reachable;
       // Cycle through all the transitions
-      for (size_t trans_num = 0; trans_num < product.getAutomaton().getTransitionCount(BA_ID); trans_num++) {
+      for (size_t trans_no = 0; trans_no < product.getAutomaton().getTransitionCount(BA_ID); trans_no++) {
          // Check the transitibility
-         if (product.getAutomaton().isTransitionFeasible(BA_ID, trans_num, product.getStructure().getStateLevels(KS_ID)))
-            reachable.push_back(product.getAutomaton().getTargetID(BA_ID, trans_num));
+         if (product.getAutomaton().isTransitionFeasible(BA_ID, trans_no, product.getStructure().getStateLevels(KS_ID))
+             && (!product.getAutomaton().isStableRequired(BA_ID, trans_no) || allow_stable)
+             && (!product.getAutomaton().isTransientRequired(BA_ID, trans_no) || allow_transient))
+            reachable.push_back(product.getAutomaton().getTargetID(BA_ID, trans_no));
       }
       return reachable;
    }
@@ -42,11 +44,12 @@ class ProductBuilder {
     * @param BA_ID	source in the BA
     * @param transition_count	value which counts the transition for the whole product, will be filled
     */
-   void createProductState(const StateID KS_ID, const StateID BA_ID, size_t & transition_count, ProductStructure & product) const {
+   void createProductState(const StateID KS_ID, const StateID BA_ID, ProductStructure & product) const {
       // Get all possible BA targets
-      vector<StateID> BA_targets = getReachableBA(KS_ID, BA_ID, product);
+      vector<StateID> BA_loops = getReachableBA(KS_ID, BA_ID, product, true, false);
+      vector<StateID> BA_trans = getReachableBA(KS_ID, BA_ID, product, false, true);
       vector<StateID> loops;
-      for(const StateID BA_target : BA_targets)
+      for(const StateID BA_target : BA_loops)
          loops.push_back(product.getProductID(KS_ID, BA_target));
       product.addState(KS_ID, BA_ID, loops);
 
@@ -58,12 +61,11 @@ class ProductBuilder {
          const TransConst & trans_const = product.getStructure().getTransitionConst(KS_ID, KS_trans);
 
          // Add transition for all allowed targets
-         for (auto BA_traget_it = BA_targets.begin(); BA_traget_it != BA_targets.end(); BA_traget_it++) {
+         for (const StateID BA_traget : BA_trans) {
             // Compute target position
-            const StateID target = product.getProductID(KS_target_ID, *BA_traget_it);
+            const StateID target = product.getProductID(KS_target_ID, BA_traget);
             // Store the transition
             product.addTransition(ID, target, trans_const);
-            transition_count++;
          }
       }
    }
@@ -74,15 +76,14 @@ public:
     */
    ProductStructure buildProduct(UnparametrizedStructure  _structure, AutomatonStructure  _automaton) const {
       ProductStructure product(move(_structure), move(_automaton));
-      size_t transition_count = 0;
       const size_t state_count = product.getStructure().getStateCount() * product.getAutomaton().getStateCount();
       size_t state_no = 0;
 
       // Creates states and their transitions
       for (size_t KS_ID = 0; KS_ID < product.getStructure().getStateCount(); KS_ID++) {
          for (size_t BA_ID = 0; BA_ID < product.getAutomaton().getStateCount(); BA_ID++) {
-            output_streamer.output(verbose_str, "Building product state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-            createProductState(KS_ID, BA_ID, transition_count, product);
+            output_streamer.output(verbose_str, "Building product state: " + to_string(++state_no) + "/" + to_string(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+            createProductState(KS_ID, BA_ID,  product);
          }
       }
       output_streamer.clear_line(verbose_str);

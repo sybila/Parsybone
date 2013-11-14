@@ -12,6 +12,7 @@
  */
 
 using namespace std;
+#include <string>
 
 #include "PunyHeaders/time_manager.hpp"
 
@@ -34,7 +35,7 @@ void checkDepthBound(const bool minimalize_cost, const size_t depth, SplitManage
       output_streamer.clear_line(verbose_str);
       split_manager.setStartPositions();
       output.eraseData();
-      output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(depth));
+      output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + to_string(depth));
       valid_param_count = 0;
       BFS_bound = depth;
    }
@@ -56,6 +57,8 @@ int main(int argc, const char* argv[]) {
    try {
       user_options = ParsingManager::parseOptions(argc, argv);
       output_streamer.setOptions(user_options);
+      if (user_options.produce_negative & (user_options.analysis() | user_options.minimalize_cost | (user_options.bound_size != INF)))
+         throw runtime_error("The switch -n can not be used together with -m, -W, -w, -r, --bound as it produces only parametrizations that do not allow accepting by the automaton.");
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, "Error occured while parsing arguments: \"" + string(e.what()) + "\".\n Call \"parsybone --help\" for usage.");
@@ -91,7 +94,7 @@ int main(int argc, const char* argv[]) {
       SplitManager split_manager(user_options.processes_count, user_options.process_number, ModelTranslators::getSpaceSize(model));
       split_manager.computeSubspace();
       OutputManager output(user_options, property, model);
-      SynthesisManager synthesis_manager(product, model, property);
+      SynthesisManager synthesis_manager(product);
       ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
       size_t BFS_bound = user_options.bound_size; ///< Maximal cost on the verified property.
       output.outputForm();
@@ -109,17 +112,19 @@ int main(int argc, const char* argv[]) {
          // Call synthesis procedure based on the type of the property.
          switch (product.getMyType()) {
          case BA_finite:
-            cost = synthesis_manager.checkFinite(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
+            cost = synthesis_manager.checkFinite(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound,
+                                                 user_options.compute_wintess, user_options.compute_robustness, property.getMinAcc(), property.getMaxAcc());
             break;
          case BA_standard:
-            cost = synthesis_manager.checkFull(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound, user_options.compute_wintess, user_options.compute_robustness);
+            cost = synthesis_manager.checkFull(witness_trans, robustness_val, split_manager.getParamNo(), BFS_bound,
+                                               user_options.compute_wintess, user_options.compute_robustness);
             break;
          default:
             throw runtime_error("Unsupported Buchi automaton type.");
          }
 
          // Parametrization was considered satisfying.
-         if (cost != INF) {
+         if ((cost != INF) ^ (user_options.produce_negative)) {
             checkDepthBound(user_options.minimalize_cost, cost, split_manager, output, BFS_bound, param_count);
             string witness_path = WitnessSearcher::getOutput(user_options.use_long_witnesses, product, witness_trans);
             output.outputRound(split_manager.getParamNo(), cost, robustness_val, witness_path);

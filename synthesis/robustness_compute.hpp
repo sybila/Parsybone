@@ -88,7 +88,7 @@ public:
       setInitials();
 
       // Cycle through the levels of the DFS procedure
-      for (size_t round_num = 0; round_num < results.lower_bound; round_num++) {
+      for (size_t round_num = 0; round_num < results.getUpperBound(); round_num++) {
          // Copy the data from the previous round.
          current_prob = next_prob;
          next_prob.assign(next_prob.size(), 0.);

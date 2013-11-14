@@ -15,19 +15,20 @@ class CheckerSettings {
 public:
    vector<StateID> initial_states;
    vector<StateID> final_states;
-   bool minimal;
+   bool minimize_cost;
    ParamNo param_no;
    size_t bfs_bound;
    bool mark_initals;
+   size_t minimal_count;
 
-   CheckerSettings() :  minimal(false), param_no(1ul), bfs_bound(INF), mark_initals(false) { }
+   CheckerSettings() :  minimize_cost(false), param_no(INF), bfs_bound(INF), mark_initals(false), minimal_count(1) { }
 
    inline const ParamNo & getParamNo() const {
       return param_no;
    }
 
-   inline bool isMinimal() const {
-      return minimal;
+   inline bool mimizeCost() const {
+      return minimize_cost;
    }
 
    inline bool isInitial(const StateID ID, const ProductStructure & product) const {
@@ -64,6 +65,10 @@ public:
 
    inline bool markInitials() const {
       return mark_initals;
+   }
+
+   inline size_t getMinCount() const {
+      return minimal_count;
    }
 };
 

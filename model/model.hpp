@@ -92,7 +92,7 @@ public:
    }
 
    inline void addRegulation(SpecieID source_ID, SpecieID target_ID, ActLevel threshold, string label) {
-      string name = species[source_ID].name + ":" + toString(threshold);
+      string name = species[source_ID].name + ":" + to_string(threshold);
       species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label, Satisfaction()});
    }
 

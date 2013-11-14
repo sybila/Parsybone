@@ -32,10 +32,6 @@
 ///   -# conclusion: stores additional data and outputs
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynthesisManager {
-   const ProductStructure & product; ///< Holder of all the reference data.
-   const Model & model;
-   const PropertyAutomaton & property;
-
    unique_ptr<ModelChecker> model_checker; ///< Class for synthesis.
    unique_ptr<ColorStorage> storage; ///< Class that holds.
    unique_ptr<WitnessSearcher> searcher; ///< Class to build wintesses.
@@ -49,7 +45,7 @@ class SynthesisManager {
       CheckerSettings settings;
       // First find the coloring from the initial states to the given final.
       settings.final_states = {final.first};
-      settings.minimal = settings.mark_initals = true;
+      settings.minimize_cost = settings.mark_initals = true;
       settings.param_no = param_no;
       results = model_checker->conductCheck(settings);
       searcher->findWitnesses(results, settings);
@@ -77,24 +73,26 @@ class SynthesisManager {
     */
    size_t computeLasso(const pair<StateID, size_t> & final, vector<StateTransition> & trans, const ParamNo param_no,  double & robust, const size_t BFS_bound, const bool witnesses, const bool robustness) {
       CheckerSettings settings;
-      settings.minimal = true;
+      settings.minimize_cost = true;
       settings.param_no = param_no;
       settings.initial_states = settings.final_states = {final.first};
       settings.bfs_bound = BFS_bound == INF ? BFS_bound : (BFS_bound - final.second);
 
       SynthesisResults results = model_checker->conductCheck(settings);
-      const size_t cost = results.lower_bound == INF ? INF : results.lower_bound + final.second;
-      if (results.is_accepting && (witnesses || robustness))
+      const size_t cost = results.getLowerBound() == INF ? INF : results.getLowerBound() + final.second;
+      if (results.isAccepting() && (witnesses || robustness))
          analyseLasso(final, trans, param_no, robust, robustness);
 
       return cost;
    }
 
 public:
+   SynthesisManager() {}
+
    /**
     * Constructor builds all the data objects that are used within.
     */
-   SynthesisManager(const ProductStructure & _product, const Model & _model, const PropertyAutomaton & _property) : product(_product), model(_model), property(_property) {
+   SynthesisManager(const ProductStructure & product)  {
       storage.reset(new ColorStorage(product));
       model_checker.reset(new ModelChecker(product, *storage));
       searcher.reset(new WitnessSearcher(product, *storage));
@@ -150,15 +148,16 @@ public:
     * @param robustness should compute robustness
     * @return  the Cost value for this parametrization
     */
-   size_t checkFinite(vector<StateTransition> & trans, double & robustness_val, const ParamNo param_no, const size_t BFS_bound, const bool witnesses, const bool robustness) {
+   size_t checkFinite(vector<StateTransition> & trans, double & robustness_val, const ParamNo param_no,
+                      const size_t BFS_bound, const bool witnesses, const bool robustness, const size_t min_acc, const size_t max_acc) {
       CheckerSettings settings;
       settings.param_no = param_no;
       settings.bfs_bound = BFS_bound;
-      settings.minimal = true;
+      settings.minimize_cost = true;
       settings.mark_initals = true;
       SynthesisResults results = model_checker->conductCheck(settings);
 
-      if ((witnesses || robustness) && results.is_accepting) {
+      if ((witnesses || robustness) && results.isAccepting(min_acc, max_acc)) {
          searcher->findWitnesses(results, settings);
          if (robustness)
             computer->compute(results, searcher->getTransitions(), settings);
@@ -167,7 +166,7 @@ public:
             trans = searcher->getTransitions();
       }
 
-      return results.lower_bound;
+      return results.isAccepting(min_acc, max_acc) ? results.getLowerBound() : INF;
    }
 };
 

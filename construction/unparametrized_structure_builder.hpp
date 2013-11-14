@@ -160,7 +160,7 @@ public:
       StateID ID = 0;
       Levels levels(model.species.size(), 0);
       do {
-         output_streamer.output(verbose_str, "Creating transitions for state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+         output_streamer.output(verbose_str, "Creating transitions for state: " + to_string(++state_no) + "/" + to_string(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
          // Fill the structure with the state
          structure.addState(ID, levels);
          addTransitions(ID, levels, structure);

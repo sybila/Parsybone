@@ -71,10 +71,15 @@ class WitnessSearcher {
          storeTransitions(depth, last_branch);
       // Continue with the DFS otherwise.
       else if (depth < max_depth){
-         const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product, ID);
-         const vector<StateID> & sucessors = transports.empty() ? product.getLoops(ID) : transports;
+         vector<StateID> transports;
 
-         for (const StateID & succ: sucessors) {
+         if (ColoringFunc::broadcastParameters(settings.getParamNo(), product.getStructure(), product.getKSID(ID)).empty())
+            transports = product.getLoops(ID) ;
+         else
+            transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product, ID);
+
+
+         for (const StateID & succ: transports) {
             last_branch = min(DFS(succ, depth + 1, last_branch), depth); // Recursive descent with parametrizations passed from the predecessor.
          }
       }
@@ -96,15 +101,18 @@ public:
       // Preparation
       settings = _settings;
       transitions.clear();
-      path = vector<StateID>(results.lower_bound + 1, INF); // Currently needs one more space for the transition to a final state after the last measurement.
+      path = vector<StateID>(results.getUpperBound() + 1, INF); // Currently needs one more space for the transition to a final state after the last measurement.
       markings.assign(markings.size(), {0u, INF});
-      max_depth = results.lower_bound;
 
       // Search paths from all the final states
-      auto inits = settings.getInitials(product);
-      for (const auto & init : inits)
-         if (storage.getColor(init))
-            DFS(init, 0u, 0u);
+      for (const pair<size_t, size_t> depth : results.depths) {
+         max_depth = depth.first;
+         auto inits = settings.getInitials(product);
+         settings.final_states = results.getFinalsAtDepth(max_depth);
+         for (const auto & init : inits)
+            if (storage.getColor(init))
+               DFS(init, 0u, 0u);
+      }
    }
 
    /**
@@ -126,7 +134,7 @@ public:
          // Reformes based on the user request
          for (const StateTransition & trans:transitions){
             if (!use_long_witnesses) {
-               acceptable_paths.append(toString(trans.first)).append(">").append(toString(trans.second)).append(",");
+               acceptable_paths.append(to_string(trans.first)).append(">").append(to_string(trans.second)).append(",");
             } else {
                acceptable_paths.append(product.getString(trans.first)).append(">").append(product.getString(trans.second)).append(",");
             }

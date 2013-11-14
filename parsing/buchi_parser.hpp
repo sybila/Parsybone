@@ -5,6 +5,7 @@
 #include "xml_helper.hpp"
 #include "../model/model.hpp"
 #include "../model/property_automaton.hpp"
+#include "property_parsing.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief This object is responsible for parsing and translation of data related to the tested property.
@@ -15,20 +16,20 @@ class BuchiParser {
 	 */
    static void parseEdges(const rapidxml::xml_node<> * const state_node, StateID source_ID, PropertyAutomaton & automaton) {
 		// Regulation data
-      string label_string; string traget_str; size_t target_ID;
+      string traget_str; size_t target_ID;
 
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
-		for (rapidxml::xml_node<> * edge = XMLHelper::getChildNode(state_node, "EDGE"); edge; edge = edge->next_sibling("EDGE")) {
-			// Get the mask string.
-			XMLHelper::getAttribute(label_string, edge, "label");
+      for (auto edge : XMLHelper::NodesRange(state_node, "EDGE", true)) {
 			// Get max value and conver to integer.
          XMLHelper::getAttribute(traget_str, edge, "target");
          target_ID = automaton.findID(traget_str);
          if (target_ID >= automaton.getStatesCount())
-            throw invalid_argument(string("Incorrect value as a target of the state ").append(toString(source_ID)));
+            throw invalid_argument(string("Incorrect value as a target of the state ").append(to_string(source_ID)));
+
+         PropertyAutomaton::Constraints cons = PropertyParsing::readConstraints(edge);
 
 			// Add a new regulation to the specified target
-         automaton.addEdge(source_ID, target_ID, label_string);
+         automaton.addEdge(source_ID, target_ID, cons);
 		}
 	}
 
@@ -41,18 +42,19 @@ class BuchiParser {
 		bool final; string name;
 
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
-		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
-		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
+      SpecieID ID = 0;
+      for (auto state : XMLHelper::NodesRange(automaton_node, "STATE", true)) {
 			// Find out whether the state is final
 			if(!XMLHelper::getAttribute(final, state, "final", false))
 				final = false;
 
 			// Get a name of the state, or use its ID as a string
 			if(!XMLHelper::getAttribute(name, state, "name", false))
-				name = toString(ID);
+				name = to_string(ID);
 
 			// Create a new state
          automaton.addState(name, final);
+         ID++;
 		}
 	}
 
@@ -62,11 +64,10 @@ class BuchiParser {
 	 */
    static void secondParse(const rapidxml::xml_node<> * const automaton_node, PropertyAutomaton & automaton)  {
 		// Step into first STATE tag, end when the current node does not have next sibling (all STATE tags were parsed)
-		rapidxml::xml_node<> *state = XMLHelper::getChildNode(automaton_node, "STATE");
-		for (SpecieID ID = 0; state; ID++, state = state->next_sibling("STATE") ) {
-         // Get all the edges of the state and store them to the model.
-         parseEdges(state, ID, automaton);
-		}
+      SpecieID ID = 0;
+      // Get all the edges of the state and store them to the model.
+      for (auto state : XMLHelper::NodesRange(automaton_node, "STATE", true))
+         parseEdges(state, ID++, automaton);
 	}
 
 public:
@@ -74,7 +75,7 @@ public:
 	 * Main parsing function. It expects a pointer to inside of a MODEL node.
 	 */
    static PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node) {
-      PropertyAutomaton automaton(LTL);
+      PropertyAutomaton automaton(LTL, 1, INF);
 
 		// Parse states
       firstParse(automaton_node, automaton);

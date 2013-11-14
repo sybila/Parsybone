@@ -14,6 +14,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"
 #include "../model/model_translators.hpp"
+#include "parsing_commons.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class for parsing of the regulatory network.
@@ -33,7 +34,7 @@ class NetworkParser {
       XMLHelper::getAttribute(source, regulation, "source");
       source_ID = ModelTranslators::findID(model, source);
       if (source_ID >= model.species.size())
-         throw invalid_argument("ID of a regulation of the specie " + toString(model.getName(t_ID)) + " is incorrect");
+         throw invalid_argument("ID of a regulation of the specie " + model.getName(t_ID) + " is incorrect");
 
       return source_ID;
    }
@@ -48,13 +49,13 @@ class NetworkParser {
       if(!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
          threshold = 1;
       else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
-         throw invalid_argument("the threshold' value " + toString(threshold) + " is not within the range of the regulator " + toString(model.getName(source_ID)));
+         throw invalid_argument("the threshold' value " + to_string(threshold) + " is not within the range of the regulator " + model.getName(source_ID));
 
       // Test uniqueness of this combination (source, threshold)
       auto regulations = model.getRegulations(t_ID);
       for(const auto & regul:regulations) {
          if (threshold == regul.threshold && source_ID == regul.source)
-            throw invalid_argument("multiple definition of a regulation of a specie " + toString(model.getName(source_ID)));
+            throw invalid_argument("multiple definition of a regulation of a specie " + model.getName(source_ID));
       }
 
       return threshold;
@@ -69,7 +70,7 @@ class NetworkParser {
       string label;
 
       // Cycle through REGUL TAGS
-      for (rapidxml::xml_node<>* regulation = XMLHelper::getChildNode(specie_node, "REGUL", false); regulation; regulation = regulation->next_sibling("REGUL") ) {
+      for (auto regulation : XMLHelper::NodesRange(specie_node, "REGUL", true)) {
          auto s_ID = getSourceID(regulation, t_ID, model);
          auto threshold = getThreshold(regulation, t_ID, s_ID, model);
          if (!XMLHelper::getAttribute(label, regulation, "label", false))
@@ -95,14 +96,13 @@ class NetworkParser {
       string name; size_t max; size_t basal = 0; Levels targets;
 
       // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
-      rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE"), specie_name++) {
+      for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) {
          // Get a name of the specie.
          if (!XMLHelper::getAttribute(name, specie, "name", false))
-            name = toString(specie_name);
+            name = string(1, specie_name);
          // Throw an error if the name is not correct.
-         else if (name.length() < 2 || !isalpha(static_cast<int>(name[0])))
-            throw invalid_argument("Name of the specie \"" + name + "\" is incorrect. Specie name can start only with a letter and must be at least 2 symbols in lenght.");
+         else if (!ParsingCommons::isValidSpecName(name))
+            ParsingCommons::specNameExc(name);
 
          // Get a max value and conver to integer.
          if (!XMLHelper::getAttribute(max, specie, "max", false))
@@ -112,7 +112,7 @@ class NetworkParser {
          if(XMLHelper::getAttribute(basal, specie, "basal", false)) {
             targets.push_back(basal);
             if (basal > max)
-               throw invalid_argument("basal value is greater than maximal value for specie " + toString(ID));
+               throw invalid_argument("basal value is greater than maximal value for specie " + name);
          } else {
             targets = range<ActLevel>(max + 1);
          }
@@ -130,6 +130,7 @@ class NetworkParser {
 
          // Create a new specie
          model.addSpecie(name, max, targets, input, output);
+         specie_name++;
       }
    }
 
@@ -138,10 +139,10 @@ class NetworkParser {
     */
    static void secondParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
       // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
-      rapidxml::xml_node<> *specie = XMLHelper::getChildNode(structure_node, "SPECIE");
-      for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
+      SpecieID ID = 0;
+      for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) {
          // Get all the regulations of the specie and store them to the model.
-         parseRegulations(specie, ID, model);
+         parseRegulations(specie, ID++, model);
       }
    }
 
@@ -160,7 +161,7 @@ public:
     * @brief parseConstraints   Parses the constraints given by the user.
     */
    static void parseConstraints(const rapidxml::xml_node<> * const network_node, Model & model) {
-       for (auto constraint = XMLHelper::getChildNode(network_node, "CONSTRAINT", false); constraint; constraint = constraint->next_sibling("CONSTRAINT") ) {
+       for (auto constraint : XMLHelper::NodesRange(network_node, "CONSTRAINT", false)) {
            string const_type;
            XMLHelper::getAttribute(const_type, constraint, "type");
            if (const_type.compare("bound_loop")  == 0) {

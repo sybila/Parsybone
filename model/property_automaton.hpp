@@ -14,8 +14,24 @@
 
 class PropertyAutomaton {
 public:
-   typedef pair<StateID, string> Edge; ///< Edge in Buchi Automaton (Target ID, edge label).
+   struct Constraints {
+      string values;
+      bool transient;
+      bool stable;
+
+      Constraints(const string & values_, const bool transient_, const bool stable_) : values(values_), transient(transient_), stable(stable_) {}
+      Constraints(const string & values_) : Constraints(values_, false, false) {}
+      Constraints() : Constraints("") {}
+   };
+
+   /// Edge in Buchi Automaton
+   struct Edge {
+      StateID target_ID;
+      Constraints cons;
+   };
    typedef vector<Edge> Edges; ///< Set of outgoing edges.
+
+   pair<size_t,size_t> accepting_range; ///< The minimal and the maximal number of accepting states in the model checking
 
 private:
    struct AutomatonState {
@@ -28,9 +44,13 @@ private:
 
    PropType prop_type; ///< What property does this automaton hold.
    vector<AutomatonState> states; ///< vector of all states of the controlling Buchi automaton
+   size_t min_acc; ///< Minimal number of accepting states required for acceptation (LTL counting)
+   size_t max_acc; ///< Maximal number --||--
 
 public:
-   PropertyAutomaton(const PropType _prop_type = LTL) : prop_type(_prop_type){ }
+   PropertyAutomaton(const PropType prop_type, const size_t min_acc, const size_t max_acc) : prop_type(prop_type), min_acc(min_acc), max_acc(max_acc) { }
+   PropertyAutomaton(const PropType prop_type) : PropertyAutomaton(prop_type, 1, INF) { }
+   PropertyAutomaton() : PropertyAutomaton(LTL) { }
 
    /**
     * Add a new state to the automaton. If the name is empty, then "ID of the automaton" + "letter" is used.
@@ -39,7 +59,7 @@ public:
     */
    inline size_t addState(string name, bool final) {
       if (name.empty())
-         name = toString(states.size());
+         name = to_string(states.size());
       states.push_back({name, states.size(), final, Edges()});
       return states.size() - 1;
    }
@@ -54,8 +74,8 @@ public:
    /**
     * Add a new edge - edge is specified by the target state and label.
     */
-   inline void addEdge(StateID source_ID, StateID target_ID, const string & edge_label) {
-      states[source_ID].edges.push_back(Edge(target_ID, edge_label));
+   inline void addEdge(const StateID source_ID, StateID target_ID, const Constraints cons) {
+      states[source_ID].edges.push_back({target_ID, cons});
    }
 
    /**
@@ -84,6 +104,22 @@ public:
 
    inline PropType getPropType() const {
       return prop_type;
+   }
+
+   inline size_t getMinAcc() const {
+      return min_acc;
+   }
+
+   inline size_t getMaxAcc() const {
+      return max_acc;
+   }
+
+   inline bool isCountingUsed() const {
+      return (min_acc != 1) || (max_acc != INF);
+   }
+
+   static bool isCountingUsed(const size_t min_acc, const size_t max_acc) {
+      return (min_acc != 1) || (max_acc != INF);
    }
 };
 

@@ -49,7 +49,7 @@ namespace AutomatonHelper {
       // Go through the label
       for (const size_t pos : scope(label)) {
          char ch = label[pos];
-         if (!(isspace(ch) || isalpha(ch) || isdigit(ch) || ch == '<' || ch == '>' || ch == '=' || ch == '!' || ch == '|' || ch == '&' || ch == '(' || ch == ')'))
+         if (!(isspace(ch) || isalnum(ch) || ch == '_' || ch == '<' || ch == '>' || ch == '=' || ch == '!' || ch == '|' || ch == '&' || ch == '(' || ch == ')'))
             throw runtime_error(string("String: ").append(label).append(" contains invalid character: ").append(&ch).c_str());
 
          // If the atom is not a logic symbol, add it to current atom, otherwise store the atom, if any

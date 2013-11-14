@@ -7,6 +7,7 @@
 #include "xml_helper.hpp"
 #include "../model/property_automaton.hpp"
 #include "../model/model.hpp"
+#include "property_parsing.hpp"
 
 #include <algorithm>
 
@@ -19,28 +20,36 @@ class TimeSeriesParser {
     * First state has only transition under given condition. Others have loop if (!expression) and transition if (expression).
     */
    static PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node) {
-      PropertyAutomaton property(TimeSeries);
+      size_t val;
+      size_t min_acc = XMLHelper::getAttribute(val, series_node, "min_acc", false) ? val : 1;
+      size_t max_acc = XMLHelper::getAttribute(val, series_node, "max_acc", false) ? val : INF;
+
+      PropertyAutomaton property(TimeSeries, min_acc, max_acc);
+
 
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
-      for (rapidxml::xml_node<> *expression = XMLHelper::getChildNode(series_node, "EXPR"); expression; ID++, expression = expression->next_sibling("EXPR") ) {
-         property.addState(toString(ID), false);
+      for (auto expression : XMLHelper::NodesRange(series_node, "EXPR", true)) {
+         property.addState(to_string(ID), false);
 
-         // Labelled transition to the next measurement
-         string values;
-         XMLHelper::getAttribute(values, expression, "values");
-         values.erase(remove_if(values.begin(), values.end(), static_cast<int(*)(int)>(isspace)), values.end());
-         if (property.getStatesCount() > 1)
-            property.addEdge(ID, ID, "!" + values);
-         property.addEdge(ID, ID + 1, values);
+         PropertyAutomaton::Constraints cons = PropertyParsing::readConstraints(expression);
+
+         // Initial state lack the self-loop (optimization)
+
+         property.addEdge(ID, ID + 1, cons);
+         if (ID != 0) {
+            cons.values = "!" + cons.values;
+            property.addEdge(ID, ID, cons);
+         }
+         ID++;
       }
 
       // Add a final state that marks succesful time series walk
-      property.addState(toString(ID), true);
-      property.addEdge(ID, ID, "ff");
+      property.addState(to_string(ID), true);
 
       return property;
    }
+
 public:
    /**
      * Main parsing function. It expects a pointer to inside of a MODEL node.

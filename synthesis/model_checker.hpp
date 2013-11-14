@@ -43,12 +43,15 @@ class ModelChecker {
     */
    void transferUpdates(const StateID ID) {
       // Get passed colors, unique for each sucessor
+      vector<StateID> transports;
 
-      const vector<StateID> transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product, ID);
-      const vector<StateID> & targets = transports.empty() ? product.getLoops(ID) : transports;
+      if (ColoringFunc::broadcastParameters(settings.getParamNo(), product.getStructure(), product.getKSID(ID)).empty())
+         transports = product.getLoops(ID) ;
+      else
+         transports = ColoringFunc::broadcastParameters(settings.getParamNo(), product, ID);
 
       // For all passed values make update on target
-      for (const StateID trans : targets) {
+      for (const StateID trans : transports) {
          // If something new is added to the target, schedule it for an update
          if (storage.isFound(trans)) {
             // Determine what is necessary to update
@@ -75,7 +78,7 @@ class ModelChecker {
       // If there this round is finished, but there are still paths to find
       if (updates.empty() && (BFS_level < settings.getBound())) {
          updates = move(next_updates);
-         if (settings.isMinimal() && results.is_accepting)
+         if (settings.mimizeCost() && results.isAccepting(settings.minimal_count, INF))
             return;
          BFS_level++; // Increase level
       }
