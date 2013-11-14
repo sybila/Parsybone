@@ -128,10 +128,10 @@ public:
       string label = "(";
 
       for (const ActLevel lev : states[ID].levels)
-         label += toString(lev) + ",";
+         label += to_string(lev) + ",";
 
       label[label.length() - 1] = ';';
-      label += toString(getBAID(ID)) + ")";
+      label += to_string(getBAID(ID)) + ")";
 
       return label;
    }

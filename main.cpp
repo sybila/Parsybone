@@ -34,7 +34,7 @@ void checkDepthBound(const bool minimalize_cost, const size_t depth, SplitManage
       output_streamer.clear_line(verbose_str);
       split_manager.setStartPositions();
       output.eraseData();
-      output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + toString(depth));
+      output_streamer.output(verbose_str, "New lowest bound on Cost has been found. Restarting the computation. The current Cost is: " + to_string(depth));
       valid_param_count = 0;
       BFS_bound = depth;
    }

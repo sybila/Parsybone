@@ -35,7 +35,7 @@ class ArgumentParser {
             throw invalid_argument("The number of processes or the total count of processes is missing");
          user_options.processes_count = lexical_cast<size_t>(*position);
       } catch (bad_lexical_cast & e) {
-         throw invalid_argument("Error while parsing the modifier --dist" + toString(e.what()));
+         throw invalid_argument("Error while parsing the modifier --dist" + string(e.what()));
       }
 
       // Assert that process ID is in the range
@@ -54,7 +54,7 @@ class ArgumentParser {
             throw invalid_argument("Bound values is missing");
          user_options.bound_size = lexical_cast<size_t>(*position);
       } catch (bad_lexical_cast & e) {
-         throw invalid_argument("Error while parsing the modifier --bound" + toString(e.what()));
+         throw invalid_argument("Error while parsing the modifier --bound" + string(e.what()));
       }
 
       return 1;
@@ -173,7 +173,7 @@ class ArgumentParser {
          break;
 
       default:
-         throw invalid_argument("Unknown switch -" + toString(s));
+         throw invalid_argument("Unknown switch -" + s);
          break;
       }
    }

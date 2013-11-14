@@ -24,7 +24,7 @@ class BuchiParser {
          XMLHelper::getAttribute(traget_str, edge, "target");
          target_ID = automaton.findID(traget_str);
          if (target_ID >= automaton.getStatesCount())
-            throw invalid_argument(string("Incorrect value as a target of the state ").append(toString(source_ID)));
+            throw invalid_argument(string("Incorrect value as a target of the state ").append(to_string(source_ID)));
 
          PropertyAutomaton::Constraints cons = PropertyParsing::readConstraints(edge);
 
@@ -50,7 +50,7 @@ class BuchiParser {
 
 			// Get a name of the state, or use its ID as a string
 			if(!XMLHelper::getAttribute(name, state, "name", false))
-				name = toString(ID);
+				name = to_string(ID);
 
 			// Create a new state
          automaton.addState(name, final);

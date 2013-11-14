@@ -24,7 +24,7 @@ class MultistabilityParser {
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
       for (rapidxml::xml_node<> *expression = XMLHelper::getChildNode(series_node, "INITS"); expression; ID++, expression = expression->next_sibling("EXPR") ) {
-         property.addState(toString(ID), false);
+         property.addState(to_string(ID), false);
 
          // Labelled transition to the next measurement
          string values;
@@ -36,7 +36,7 @@ class MultistabilityParser {
       }
 
       // Add a final state that marks succesful time series walk
-      property.addState(toString(ID), true);
+      property.addState(to_string(ID), true);
       property.addEdge(ID, ID, "ff");
 
       return property;

@@ -75,7 +75,7 @@ public:
    void outputSummary(const ParamNo accepting, const ParamNo total) {
       if (user_options.use_database)
          database.finishOutpout();
-      output_streamer.output(verbose_str, "Total number of parametrizations: " + toString(accepting) + "/" + toString(total) + ".");
+      output_streamer.output(verbose_str, "Total number of parametrizations: " + to_string(accepting) + "/" + to_string(total) + ".");
    }
 
    /**
@@ -84,7 +84,7 @@ public:
    void outputRoundNo(const ParamNo round_no, const ParamNo round_count) const {
       // output numbers
       OutputStreamer::Trait trait = OutputStreamer::no_newl | OutputStreamer::rewrite_ln;
-      output_streamer.output(verbose_str, "Round: " + toString(round_no) + "/" + toString(round_count) + ".", trait);
+      output_streamer.output(verbose_str, "Round: " + to_string(round_no) + "/" + to_string(round_count) + ".", trait);
    }
 
    /**
@@ -92,16 +92,16 @@ public:
     */
    void outputRound(const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) {
       string param_vals = ModelTranslators::createParamString(model,param_no);
-      string line = toString(param_no) + separator + param_vals  + separator;
+      string line = to_string(param_no) + separator + param_vals  + separator;
       string update = param_vals;
       update.back() = ','; // must remove closing bracket, it will be added by database manager
 
       if (cost != INF)
          line += to_string(cost);
       line += separator;
-      update += toString(cost) + ",";
+      update += to_string(cost) + ",";
 
-      string robustness = robustness_val > 0. ? toString(robustness_val) : "\"\"";
+      string robustness = robustness_val > 0. ? to_string(robustness_val) : "\"\"";
       line += robustness + separator;
       update += robustness + ",";
 

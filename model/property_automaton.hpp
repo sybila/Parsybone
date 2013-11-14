@@ -59,7 +59,7 @@ public:
     */
    inline size_t addState(string name, bool final) {
       if (name.empty())
-         name = toString(states.size());
+         name = to_string(states.size());
       states.push_back({name, states.size(), final, Edges()});
       return states.size() - 1;
    }

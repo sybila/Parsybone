@@ -90,7 +90,7 @@ class ParameterHelper {
          ActLevel threshold = (thrs_comb[source_num] == 0) ? 0 : thresholds[thrs_comb[source_num] - 1];
 
          // Add current regulation as present.
-         string regulation_name = source_name + ":" + toString(threshold);
+         string regulation_name = source_name + ":" + to_string(threshold);
 
          // Add the regulation to the source
          context += regulation_name + ",";

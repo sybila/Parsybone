@@ -35,7 +35,7 @@ namespace XMLHelper {
       // try to get the node
       return_node = current_node->first_node(node_name);
       if (return_node == 0 && mandatory)
-            throw runtime_error("parser did not found the mandatory " + toString(node_name) + " node");
+            throw runtime_error("parser did not found the mandatory " + string(node_name) + " node");
       return return_node;
    }
 
@@ -57,7 +57,7 @@ namespace XMLHelper {
       // Check if the attribute has been required
       if (temp_attr == 0) {
          if (mandatory)
-            throw runtime_error("parser did not found the mandatory attribute " + toString(attribute_name));
+            throw runtime_error("parser did not found the mandatory attribute " + string(attribute_name));
          else
             return false;
       }
@@ -66,7 +66,7 @@ namespace XMLHelper {
          try {
             requested_data = lexical_cast<returnType, char*>(temp_attr->value());
          } catch (bad_lexical_cast e) {
-            output_streamer.output(error_str, "Error while parsing an attribute " + toString(attribute_name) + ": " + e.what() + ".");
+            output_streamer.output(error_str, "Error while parsing an attribute " + string(attribute_name) + ": " + string(e.what()) + ".");
             throw runtime_error("lexical_cast<" + string(typeid(returnType).name()) + ", char*>(" + string(temp_attr->value()) + ") failed");
          }
       }

@@ -68,7 +68,7 @@ public:
    }
 
    inline size_t getMinCount() const {
-      minimal_count;
+      return minimal_count;
    }
 };
 

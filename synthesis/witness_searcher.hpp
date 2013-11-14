@@ -134,7 +134,7 @@ public:
          // Reformes based on the user request
          for (const StateTransition & trans:transitions){
             if (!use_long_witnesses) {
-               acceptable_paths.append(toString(trans.first)).append(">").append(toString(trans.second)).append(",");
+               acceptable_paths.append(to_string(trans.first)).append(">").append(to_string(trans.second)).append(",");
             } else {
                acceptable_paths.append(product.getString(trans.first)).append(">").append(product.getString(trans.second)).append(",");
             }

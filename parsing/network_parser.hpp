@@ -34,7 +34,7 @@ class NetworkParser {
       XMLHelper::getAttribute(source, regulation, "source");
       source_ID = ModelTranslators::findID(model, source);
       if (source_ID >= model.species.size())
-         throw invalid_argument("ID of a regulation of the specie " + toString(model.getName(t_ID)) + " is incorrect");
+         throw invalid_argument("ID of a regulation of the specie " + model.getName(t_ID) + " is incorrect");
 
       return source_ID;
    }
@@ -49,13 +49,13 @@ class NetworkParser {
       if(!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
          threshold = 1;
       else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
-         throw invalid_argument("the threshold' value " + toString(threshold) + " is not within the range of the regulator " + toString(model.getName(source_ID)));
+         throw invalid_argument("the threshold' value " + to_string(threshold) + " is not within the range of the regulator " + model.getName(source_ID));
 
       // Test uniqueness of this combination (source, threshold)
       auto regulations = model.getRegulations(t_ID);
       for(const auto & regul:regulations) {
          if (threshold == regul.threshold && source_ID == regul.source)
-            throw invalid_argument("multiple definition of a regulation of a specie " + toString(model.getName(source_ID)));
+            throw invalid_argument("multiple definition of a regulation of a specie " + model.getName(source_ID));
       }
 
       return threshold;
@@ -99,7 +99,7 @@ class NetworkParser {
       for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) {
          // Get a name of the specie.
          if (!XMLHelper::getAttribute(name, specie, "name", false))
-            name = toString(specie_name++);
+            name = string(1, specie_name);
          // Throw an error if the name is not correct.
          else if (!ParsingCommons::isValidSpecName(name))
             ParsingCommons::specNameExc(name);
@@ -130,6 +130,7 @@ class NetworkParser {
 
          // Create a new specie
          model.addSpecie(name, max, targets, input, output);
+         specie_name++;
       }
    }
 

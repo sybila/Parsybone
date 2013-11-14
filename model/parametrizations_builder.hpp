@@ -108,14 +108,14 @@ class ParametrizationsBuilder {
       } while (iterate(top_color, bottom_color, subcolor));
 
       if (model.species[ID].subcolors.empty())
-         throw runtime_error(string("No valid parametrization found for the specie ").append(toString(ID)));
+         throw runtime_error(string("No valid parametrization found for the specie ").append(to_string(ID)));
    }
 
    /**
     * @brief outputProgress
     */
    static inline void outputProgress() {
-      output_streamer.output(verbose_str, "Testing edge constraints on partiall parametrizations: " + toString(++color_tested) + "/" + toString(color_no) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+      output_streamer.output(verbose_str, "Testing edge constraints on partiall parametrizations: " + to_string(++color_tested) + "/" + to_string(color_no) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
    }
 
    /**

@@ -82,7 +82,7 @@ public:
       // Creates states and their transitions
       for (size_t KS_ID = 0; KS_ID < product.getStructure().getStateCount(); KS_ID++) {
          for (size_t BA_ID = 0; BA_ID < product.getAutomaton().getStateCount(); BA_ID++) {
-            output_streamer.output(verbose_str, "Building product state: " + toString(++state_no) + "/" + toString(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+            output_streamer.output(verbose_str, "Building product state: " + to_string(++state_no) + "/" + to_string(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
             createProductState(KS_ID, BA_ID,  product);
          }
       }

@@ -130,7 +130,7 @@ namespace ModelTranslators {
    const string makeConcise(const Model::Parameter & param, const string target_name) {
       string context = "K_" + target_name + "_";
       for (auto values:param.requirements)
-         context += toString(values.second.front());
+         context += to_string(values.second.front());
       return context;
    }
 
@@ -225,7 +225,7 @@ namespace ModelTranslators {
       for (const auto & name:names) {
          auto pos = context.find(name);
          ActLevel threshold = getThreshold(model, context, t_ID, name, pos);
-         new_context += name + ":" + toString(threshold) + ",";
+         new_context += name + ":" + to_string(threshold) + ",";
       }
 
       // Remove the last comma and return
@@ -240,7 +240,7 @@ namespace ModelTranslators {
       for (const Model::Parameter & param : model.getParameters(t_ID))
          if (param.context.compare(canonic) == 0)
             return param;
-      throw runtime_error("Failed to match the context " + context + " for the specie " + toString(t_ID));
+      throw runtime_error("Failed to match the context " + context + " for the specie " + to_string(t_ID));
    }
 
    /**
@@ -251,7 +251,7 @@ namespace ModelTranslators {
       for (const Model::Regulation & regul : reguls)
          if (regul.source == s_ID && regul.threshold == threshold)
             return regul;
-      throw runtime_error("Failed to match the regulation " + toString(s_ID) + " -" + toString(threshold)+ "-> " + toString(t_ID));
+      throw runtime_error("Failed to match the regulation " + to_string(s_ID) + " -" + to_string(threshold)+ "-> " + to_string(t_ID));
    }
 }
 #endif // MODEL_TRANSLATORS_HPP

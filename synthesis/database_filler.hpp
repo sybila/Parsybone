@@ -28,7 +28,7 @@ class DatabaseFiller {
 
       string update = "";
       for(SpecieID target_ID:range(model.species.size())) {
-         string values = "(\"" + model.getName(target_ID) + "\", " + toString(model.getMax(target_ID)) + "); \n";
+         string values = "(\"" + model.getName(target_ID) + "\", " + to_string(model.getMax(target_ID)) + "); \n";
          update += makeInsert(COMPONENTS_TABLE) + values;
       }
       sql_adapter.safeExec(update);
@@ -43,7 +43,7 @@ class DatabaseFiller {
             values += "\"" + model.getName(target_ID) + "\", ";
             values += "\"";
             for (auto threshold:regul.second) {
-               values += toString(threshold) + ",";
+               values += to_string(threshold) + ",";
             }
             values.back() = '\"';
             values += "); \n";

@@ -30,7 +30,7 @@ class TimeSeriesParser {
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
       for (auto expression : XMLHelper::NodesRange(series_node, "EXPR", true)) {
-         property.addState(toString(ID), false);
+         property.addState(to_string(ID), false);
 
          PropertyAutomaton::Constraints cons = PropertyParsing::readConstraints(expression);
 
@@ -45,7 +45,7 @@ class TimeSeriesParser {
       }
 
       // Add a final state that marks succesful time series walk
-      property.addState(toString(ID), true);
+      property.addState(to_string(ID), true);
 
       return property;
    }
