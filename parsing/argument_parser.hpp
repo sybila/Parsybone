@@ -168,6 +168,10 @@ class ArgumentParser {
          user_options.minimalize_cost = true;
          break;
 
+      case 'n':
+         user_options.produce_negative = true;
+         break;
+
       default:
          throw invalid_argument("Unknown switch -" + toString(s));
          break;

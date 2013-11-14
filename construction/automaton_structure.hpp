@@ -84,7 +84,7 @@ public:
       const AutTransitionion & transition = states[ID].transitions[trans_no];
 
       for (size_t clause_num = 0; clause_num < transition.allowed_values.size(); clause_num++) {
-         // Cycle through the sates
+         // Cycle through the states
          for (size_t specie_num = 0; specie_num < transition.allowed_values[clause_num].size(); specie_num++) {
             // If you do not find current specie level between allowed, return false
             if (transition.allowed_values[clause_num][specie_num] != levels[specie_num])

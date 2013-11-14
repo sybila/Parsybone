@@ -56,6 +56,8 @@ int main(int argc, const char* argv[]) {
    try {
       user_options = ParsingManager::parseOptions(argc, argv);
       output_streamer.setOptions(user_options);
+      if (user_options.produce_negative & (user_options.analysis() | user_options.minimalize_cost | (user_options.bound_size != INF)))
+         throw runtime_error("The switch -n can not be used together with -m, -W, -w, -r, --bound as it produces only parametrizations that do not allow accepting by the automaton.");
    }
    catch (std::exception & e) {
       output_streamer.output(error_str, "Error occured while parsing arguments: \"" + string(e.what()) + "\".\n Call \"parsybone --help\" for usage.");
@@ -121,7 +123,7 @@ int main(int argc, const char* argv[]) {
          }
 
          // Parametrization was considered satisfying.
-         if (cost != INF) {
+         if ((cost != INF) ^ (user_options.produce_negative)) {
             checkDepthBound(user_options.minimalize_cost, cost, split_manager, output, BFS_bound, param_count);
             string witness_path = WitnessSearcher::getOutput(user_options.use_long_witnesses, product, witness_trans);
             output.outputRound(split_manager.getParamNo(), cost, robustness_val, witness_path);
