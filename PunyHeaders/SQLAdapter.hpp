@@ -29,7 +29,7 @@ class SQLAdapter {
    void openDatabase() {
       int result = sqlite3_open(file_name.c_str(), &database);
       if (result != SQLITE_OK)
-         throw runtime_error("sqlite3_open \"" + file_name + "\" failed with: " + toString(result));
+         throw runtime_error("sqlite3_open \"" + file_name + "\" failed with: " + to_string(result));
    }
 
    /**
@@ -124,7 +124,7 @@ public:
    void safeExec(const string & query) {
       int result = sqlite3_exec(database, query.c_str(), 0, 0, 0);
       if (result != SQLITE_OK)
-         throw runtime_error("sqlite3_exec \"" + query + "\" failed with: " + toString(result));
+         throw runtime_error("sqlite3_exec \"" + query + "\" failed with: " + to_string(result));
    }
 
    /**
@@ -136,7 +136,7 @@ public:
          result = sqlite3_finalize(statement);
          statement = nullptr;
          if (result != SQLITE_OK)
-            throw runtime_error("sqlite3_finalize failed with: " + toString(result));
+            throw runtime_error("sqlite3_finalize failed with: " + to_string(result));
       }
    }
 
@@ -152,7 +152,7 @@ public:
 
       result = sqlite3_prepare_v2(database, query.c_str(), -1, &statement, 0);
       if (result != SQLITE_OK)
-         throw runtime_error("sqlite3_prepare_v2 \"" + query + "\" failed with: "+ toString(result));
+         throw runtime_error("sqlite3_prepare_v2 \"" + query + "\" failed with: "+ to_string(result));
    }
 
    /**
@@ -217,7 +217,7 @@ public:
       accessTable(table_name);
 
       size_t column_no = 0;
-      while (column_name != toString(sqlite3_column_name(statement, column_no))) {
+      while (column_name.compare(sqlite3_column_name(statement, column_no)) != 0) {
          column_no++;
          if (column_no >= getColumnCount())
             throw runtime_error("Column " + column_name + " not found where expected.");
