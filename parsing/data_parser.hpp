@@ -26,6 +26,10 @@ class DataParser {
    rapidxml::xml_document<>  model_xml; ///< Main parsing node
    unique_ptr<char []>  parsed_data; ///< Data obtained from the stream
 
+   size_t getLine(char * point) const {
+      return count(parsed_data.get(), point, '\n') + 1;
+   }
+
 	/**
 	 * Creates RapidXML document from the input stream.
 	 */
@@ -43,8 +47,9 @@ class DataParser {
 		// Setup the parser with the c-string
 		try {
 			model_xml.parse<0>(parsed_data.get());
-		} catch (rapidxml::parse_error e) {
-         output_streamer.output(error_str, string("Error occured while trying to reconstruct xml document from the stream: ").append(e.what()).append("."));
+      } catch (rapidxml::parse_error e) {
+         string pos = to_string(getLine(e.where<char>()));
+         output_streamer.output(error_str, "Parsing exception \"" + string(e.what()) + "\" occured on the line " + pos);
          throw runtime_error("Rapidxml::xml_document<>.parse(char *) failed");
 		}
 	}
