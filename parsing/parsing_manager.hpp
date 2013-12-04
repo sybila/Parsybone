@@ -10,7 +10,7 @@
 #define PARSYBONE_PARSING_MANAGER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
-#include "../PunyHeaders/SQLAdapter.hpp"
+#include "../auxiliary/SQLAdapter.hpp"
 #include "data_parser.hpp"
 #include "argument_parser.hpp"
 
