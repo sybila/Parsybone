@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_COLOR_STORAGE_INCLUDED
 #define PARSYBONE_COLOR_STORAGE_INCLUDED
 
-#include "PunyHeaders/common_functions.hpp"
+#include "../PunyHeaders/common_functions.hpp"
 
 #include "../auxiliary/data_types.hpp"
 

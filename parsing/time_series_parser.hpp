@@ -1,7 +1,7 @@
 #ifndef PARSYBONE_TIME_SERIES_PARSER_INCLUDED
 #define PARSYBONE_TIME_SERIES_PARSER_INCLUDED
 
-#include "PunyHeaders/common_functions.hpp"
+#include "../PunyHeaders/common_functions.hpp"
 
 #include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"

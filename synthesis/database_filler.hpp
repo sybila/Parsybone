@@ -4,7 +4,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
 #include "../model/model_translators.hpp"
-#include <PunyHeaders/SQLAdapter.hpp>
+#include "../PunyHeaders/SQLAdapter.hpp"
 
 class DatabaseFiller {
    const Model & model;
