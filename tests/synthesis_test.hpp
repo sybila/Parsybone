@@ -62,7 +62,7 @@ TEST_F(SynthesisTest, CycleOnCircuitCheck) {
    ASSERT_EQ(3, reaches.found_depth.size());
 
    settings.mark_initals = false;
-   const int STATE_1 = 1, STATE_2 = 7, STATE_3 = 10;
+   const unsigned int STATE_1 = 1, STATE_2 = 7, STATE_3 = 10;
 
    ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_1));
    settings.initial_states = settings.final_states = {STATE_1};

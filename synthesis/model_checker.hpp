@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_MODEL_CHECKER_INCLUDED
 #define PARSYBONE_MODEL_CHECKER_INCLUDED
 
-#include "../auxiliaryommon_functions.hpp"
+#include "../auxiliary/common_functions.hpp"
 #include "color_storage.hpp"
 #include "coloring_func.hpp"
 #include "synthesis_results.hpp"

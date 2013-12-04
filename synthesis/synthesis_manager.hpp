@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 #define PARSYBONE_SYNTHESIS_MANAGER_INCLUDED
 
-#include "../auxiliaryime_manager.hpp"
+#include "../auxiliary/time_manager.hpp"
 
 #include "../model/model.hpp"
 #include "../model/property_automaton.hpp"

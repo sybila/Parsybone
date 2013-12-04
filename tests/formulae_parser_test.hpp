@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_FORMULAE_PARSER_TEST_INCLUDED
 #define PARSYBONE_FORMULAE_PARSER_TEST_INCLUDED
 
-#include "PunyHeaders/formulae_resolver.hpp"
+#include "../auxiliary/formulae_resolver.hpp"
 #include <gtest/gtest.h>
 
 class FormulaValuation : public ::testing::Test {

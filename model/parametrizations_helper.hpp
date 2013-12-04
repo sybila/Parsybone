@@ -3,7 +3,7 @@
 
 #include "../model/model_translators.hpp"
 #include "../auxiliary/data_types.hpp"
-#include "../PunyHeaders/formulae_resolver.hpp"
+#include "../auxiliary/formulae_resolver.hpp"
 
 class ParametrizationsHelper {
 
