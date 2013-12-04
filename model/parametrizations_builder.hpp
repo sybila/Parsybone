@@ -9,8 +9,8 @@
 #ifndef PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
 #define PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
 
-#include "../PunyHeaders/common_functions.hpp"
-#include "../PunyHeaders/formulae_resolver.hpp"
+#include "../auxiliary/common_functions.hpp"
+#include "../auxiliary/formulae_resolver.hpp"
 
 #include "../auxiliary/data_types.hpp"
 #include "parametrizations_helper.hpp"

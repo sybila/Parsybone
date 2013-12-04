@@ -10,7 +10,7 @@
 #define PARSYBONE_XML_HELPER_INCLUDED
 
 #include "../auxiliary/data_types.hpp"
-#include "../PunyHeaders/common_functions.hpp"
+#include "../auxiliary/common_functions.hpp"
 
 #include "../rapidxml/rapidxml.hpp"
 #include "../rapidxml/rapidxml_iterators.hpp"

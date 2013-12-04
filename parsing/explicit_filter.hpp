@@ -16,7 +16,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../model/model_translators.hpp"
-#include "../auxiliary/SQLAdapter.hpp"
+#include "../auxiliaryQLAdapter.hpp"
 
 class ExplicitFilter {
    set<ParamNo> allowed; ///< Numbers of all the parametrizations that are allowed.

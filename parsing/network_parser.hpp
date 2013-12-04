@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_NETWORK_PARSER_INCLUDED
 #define PARSYBONE_NETWORK_PARSER_INCLUDED
 
-#include "../PunyHeaders/formulae_resolver.hpp"
+#include "../auxiliary/formulae_resolver.hpp"
 
 #include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"
