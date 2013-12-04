@@ -60,7 +60,7 @@ public:
          }
       }
       format_desc.back() = ')';
-      format_desc += ":Cost:Robustness:WitnessPath";
+      format_desc += ":Cost:Robust:Witness";
       output_streamer.output(results_str, format_desc);
 
       if (user_options.use_database)
