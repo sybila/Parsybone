@@ -1,6 +1,9 @@
 Documentation/*
 ParsyboneMain/*
 ParsyboneTest/*
+ParsyboneMVS/*
+Parsybone*
+MiscCode/*
 *~
 *.o
 *.out
@@ -13,6 +16,7 @@ ParsyboneTest/*
 *.toc
 *.dvi
 *autosave*
-count.sh
 *bib
 *gz
+TODO
+doxy_config

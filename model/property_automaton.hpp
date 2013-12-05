@@ -9,7 +9,7 @@
 #ifndef PROPERTY_AUTOMATON_HPP
 #define PROPERTY_AUTOMATON_HPP
 
-#include "PunyHeaders/common_functions.hpp"
+#include "../auxiliary/common_functions.hpp"
 #include "../auxiliary/data_types.hpp"
 
 class PropertyAutomaton {

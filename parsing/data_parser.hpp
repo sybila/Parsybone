@@ -42,7 +42,11 @@ class DataParser {
 
 		// Copy data from String to newly created c-string
 		parsed_data.reset(new char[input_data.size() + 1]);
+#if defined(_MSC_VER)
+		strcpy_s(parsed_data.get(), input_data.size() + 1, input_data.c_str());
+#else
 		strcpy(parsed_data.get(), input_data.c_str());
+#endif
 
 		// Setup the parser with the c-string
 		try {

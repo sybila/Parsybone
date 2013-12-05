@@ -4,7 +4,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
 #include "../model/model_translators.hpp"
-#include <PunyHeaders/SQLAdapter.hpp>
+#include "../auxiliary/SQLAdapter.hpp"
 
 class DatabaseFiller {
    const Model & model;
@@ -63,9 +63,9 @@ class DatabaseFiller {
 
    void fillParametrizations(const string & prop_name) {
       string columns = "(" + getContexts();
-      columns += "Cost INTEGER,";
-      columns += "Robust_" + prop_name + " REAL,";
-      columns += "Witness_" + prop_name + " TEXT,";
+	  columns += "Cost_" + prop_name + " NTEGER, ";
+      columns += "Robust_" + prop_name + " REAL, ";
+      columns += "Witness_" + prop_name + " TEXT, ";
       columns += "Selection TEXT )";
 
       prepareTable(PARAMETRIZATIONS_TABLE, columns);

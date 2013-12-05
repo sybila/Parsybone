@@ -12,10 +12,8 @@
  */
 
 using namespace std;
-#include <string>
 
-#include "PunyHeaders/time_manager.hpp"
-
+#include "auxiliary/time_manager.hpp"
 #include "auxiliary/output_streamer.hpp"
 #include "auxiliary/user_options.hpp"
 #include "parsing/argument_parser.hpp"

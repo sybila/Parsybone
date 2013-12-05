@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_GRAPH_INTERFACE_INCLUDED
 #define PARSYBONE_GRAPH_INTERFACE_INCLUDED
 
-#include "PunyHeaders/common_functions.hpp"
+#include "../auxiliary/common_functions.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @file This file holds abstract basis for a graph with states and transitions between the states.

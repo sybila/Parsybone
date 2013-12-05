@@ -9,7 +9,7 @@
 #ifndef PARSYBONE_AUTOMATON_BUILDER_INCLUDED
 #define PARSYBONE_AUTOMATON_BUILDER_INCLUDED
 
-#include "PunyHeaders/common_functions.hpp"
+#include "../auxiliary/common_functions.hpp"
 
 #include "../model/model_translators.hpp"
 #include "../model/property_automaton.hpp"

@@ -14,7 +14,8 @@ sqlite.o:
 	$(GCC) -o $@ -c sqlite3/sqlite3.c
 	
 parsybone: sqlite.o main.cpp
-	$(GPP) $(OPT) -o $@ $^ -std=c++11 -I $(BOOST_PATH) -I sqlite3/ -I .
+	$(GPP) $(OPT) -o $@ $^ -std=c++11 -I $(BOOST_PATH) -I sqlite3/
+	rm sqlite.o
 	
 clean:
 	rm -f sqlite.o parsybone
