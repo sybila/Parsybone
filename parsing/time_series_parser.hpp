@@ -38,8 +38,9 @@ class TimeSeriesParser {
 
          property.addEdge(ID, ID + 1, cons);
          if (ID != 0) {
-            cons.values = "!" + cons.values;
-            property.addEdge(ID, ID, cons);
+			PropertyAutomaton::Constraints empty_cons;
+			empty_cons.values = "tt";
+			property.addEdge(ID, ID, empty_cons);
          }
          ID++;
       }
