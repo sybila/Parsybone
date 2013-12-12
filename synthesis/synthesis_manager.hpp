@@ -153,7 +153,7 @@ public:
       CheckerSettings settings;
       settings.param_no = param_no;
       settings.bfs_bound = BFS_bound;
-      settings.minimize_cost = true;
+	  settings.minimize_cost = true;
       settings.mark_initals = true;
       SynthesisResults results = model_checker->conductCheck(settings);
 

@@ -51,6 +51,9 @@ int main(int argc, const char* argv[]) {
    ProductStructure product;
    ExplicitFilter filter;
 
+   auto test = to_string(1);
+   unique_ptr<string> test2(new string("asd"));
+
    // Arguments
    try {
       user_options = ParsingManager::parseOptions(argc, argv);
