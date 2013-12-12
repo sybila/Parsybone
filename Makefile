@@ -11,7 +11,7 @@ OPT = -O3
 all: parsybone
 
 sqlite.o:
-	$(GCC) -o $@ -c sqlite3/sqlite3.c
+	$(GCC) -o $@ -c sqlite3/sqlite3.c -DSQLITE_THREADSAFE=0 -DSQLITE_OMIT_LOAD_EXTENSION 
 	
 parsybone: sqlite.o main.cpp
 	$(GPP) $(OPT) -o $@ $^ -std=c++11 -I $(BOOST_PATH) -I sqlite3/
