@@ -19,3 +19,4 @@ parsybone: sqlite.o main.cpp
 	
 clean:
 	rm -f sqlite.o parsybone
+	

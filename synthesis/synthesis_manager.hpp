@@ -155,6 +155,7 @@ public:
       settings.bfs_bound = BFS_bound;
       settings.minimize_cost = true;
       settings.mark_initals = true;
+	  settings.minimal_count = min_acc;
       SynthesisResults results = model_checker->conductCheck(settings);
 
       if ((witnesses || robustness) && results.isAccepting(min_acc, max_acc)) {
