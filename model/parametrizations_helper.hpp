@@ -20,7 +20,7 @@ public:
             }
          }
          // Except for the one with the specified source.
-         else if (current.requirements.find(regul_ID)->second == compare.requirements.find(regul_ID)->second) {
+         else if (current.requirements.find(regul_ID)->second.back() + 1 == compare.requirements.find(regul_ID)->second.front() + 1) {
             return false;
          }
       }

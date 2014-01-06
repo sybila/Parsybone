@@ -34,7 +34,7 @@ class ParametrizationsBuilder {
     * @param subcolor	coloring for this specie that is tested
     * @return	true if constrains are satisfied
     */
-   static void testConstrains(const Model & model, const SpecieID target_ID, const size_t & param_num, const Model::Regulation & regul,
+   static void testConstraints(const Model & model, const SpecieID target_ID, const size_t & param_num, const Model::Regulation & regul,
                               const Levels & subparam, bool & activating, bool & inhibiting ) {
       // Get reference data
       const auto & parameters = model.getParameters(target_ID);
@@ -74,7 +74,7 @@ class ParametrizationsBuilder {
          bool activating = false, inhibiting = false;
          // For each parameter containing the reugulator in parametrization control its satisfaction
          for (auto param_num:range(parameters.size())) {
-            testConstrains(model, ID, param_num, regul, subparam, activating, inhibiting);
+            testConstraints(model, ID, param_num, regul, subparam, activating, inhibiting);
          }
 
          // Test obtained knowledge agains the label itself - return false if the label is not satisfied
@@ -102,9 +102,9 @@ class ParametrizationsBuilder {
       do {
          outputProgress();
          // Test if the parametrization satisfies constraints.
-         if (!testSubparametrization(model, ID, subcolor))
-            continue;
+		 if (testSubparametrization(model, ID, subcolor))
          model.species[ID].subcolors.push_back(subcolor);
+
       } while (iterate(top_color, bottom_color, subcolor));
 
       if (model.species[ID].subcolors.empty())
@@ -145,6 +145,7 @@ public:
          ParamNo control = color_no;
          color_no += ParametrizationsHelper::getPossibleCount(model.getParameters(ID));
 
+		 // Overflow
          if (control > color_no)
             throw overflow_error("Possible number of parametrizations exceeds 2^64. Constrain the parametrization space manually.");
       }

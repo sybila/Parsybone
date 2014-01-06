@@ -50,7 +50,7 @@ namespace ModelTranslators {
     * @param ID
     * @return
     */
-   map<SpecieID, vector<ActLevel> > getThresholds(const Model & model, const SpecieID ID) {
+   map<SpecieID, Levels > getThresholds(const Model & model, const SpecieID ID) {
       map<SpecieID, Levels > thresholds;
       for (auto reg:model.getRegulations(ID)) {
          auto key = thresholds.find(reg.source);
