@@ -33,12 +33,12 @@ public:
       }
    };
 
-   /// Structure that stores regulation of a specie by another one
-   struct Satisfaction {
-      bool none;
-      bool activ;
-      bool inhib;
-      bool both;
+   /// Denotes edge constraint requirements, corresponds to a boolean function over two variables - act and inh
+   struct EdgeConstFunc {
+      bool none; // act == 0, inh == 0
+      bool act; // act == 1, inh == 0
+      bool inh; // act == 0, inh == 1
+      bool both; // act == 1, inh == 1
    };
    struct Regulation {
       StateID source; ///< Regulator specie ID.
@@ -46,7 +46,7 @@ public:
       string name; ///< Name of the regulator.
       Levels activity; ///< Source levels of the regulator.
       string label; ///< A behavioural constrain on this edge.
-      Satisfaction satisf; ///< What constraints must be satisfied by parameterization enforced by this edge.
+      EdgeConstFunc edge_const_func; ///< What constraints must be satisfied by parameterization enforced by this edge.
    };
    typedef vector<Regulation> Regulations;
 
@@ -93,7 +93,7 @@ public:
 
    inline void addRegulation(SpecieID source_ID, SpecieID target_ID, ActLevel threshold, string label) {
       string name = species[source_ID].name + ":" + to_string(threshold);
-      species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label, Satisfaction()});
+      species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label, EdgeConstFunc()});
    }
 
    inline void addParameter(const SpecieID ID, string context, map<StateID, Levels> requirements, Levels targets) {

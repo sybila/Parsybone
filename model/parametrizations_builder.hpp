@@ -78,7 +78,7 @@ class ParametrizationsBuilder {
          }
 
          // Test obtained knowledge agains the label itself - return false if the label is not satisfied
-         if (!ParametrizationsHelper::fitsConditions(regul.satisf, activating, inhibiting))
+         if (!ParametrizationsHelper::fitsConditions(regul.edge_const_func, activating, inhibiting))
             return false;
       }
 

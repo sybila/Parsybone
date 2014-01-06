@@ -54,15 +54,15 @@ public:
     * @brief fitsConditions
     * @param sat conditions set by a regulation.
     */
-   static bool fitsConditions(const Model::Satisfaction & sat, const bool activating, const bool inhibiting) {
+   static bool fitsConditions(const Model::EdgeConstFunc & sat, const bool activating, const bool inhibiting) {
       size_t comb_type = static_cast<size_t>(activating) + 2*static_cast<size_t>(inhibiting);
       switch (comb_type) {
       case 0:
          return sat.none;
       case 1:
-         return sat.activ;
+         return sat.act;
       case 2:
-         return sat.inhib;
+         return sat.inh;
       case 3:
          return sat.both;
       }

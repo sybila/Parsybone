@@ -43,7 +43,7 @@ class RegulationHelper {
       else if (label.compare(Label::Observable) == 0)
          formula = "(+ | -)";
       else if (label.compare(Label::NotObservable) == 0)
-         formula = "!(+ | -)";
+         formula = "(!+ & !-)";
       else if (label.compare(Label::Free) == 0)
          formula = "tt";
       else
@@ -84,10 +84,10 @@ public:
       for (const SpecieID ID : range(model.species.size())) {
          Model::Regulations & reguls = model.species[ID].regulations;
          for (Model::Regulation & regul:reguls) {
-            regul.satisf.none = resolveLabel(false, false, regul.label);
-            regul.satisf.activ = resolveLabel(true, false, regul.label);
-            regul.satisf.inhib = resolveLabel(false, true, regul.label);
-            regul.satisf.both = resolveLabel(true, true, regul.label);
+            regul.edge_const_func.none = resolveLabel(false, false, regul.label);
+            regul.edge_const_func.act = resolveLabel(true, false, regul.label);
+            regul.edge_const_func.inh = resolveLabel(false, true, regul.label);
+            regul.edge_const_func.both = resolveLabel(true, true, regul.label);
          }
       }
    }

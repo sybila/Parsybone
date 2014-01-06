@@ -50,14 +50,14 @@ class ParameterHelper {
             if (thrs_comb[source_no] != 0) {
                // Confirm that the regulator has the corresponding sign - find the regulator by the threshold (note that there is no 0 threshold, meaning change of the index)
                const Model::Regulation & regul = ModelTranslators::findRegulation(model, t_ID, sources[source_no], thrs[thrs_comb[source_no] - 1]);
-               all_act &= regul.satisf.activ & !regul.satisf.inhib ;
-               all_inh &= regul.satisf.inhib & !regul.satisf.activ ;
+               all_act &= regul.edge_const_func.act & !regul.edge_const_func.inh ;
+               all_inh &= regul.edge_const_func.inh & !regul.edge_const_func.act ;
             } else {
                // Confirm that the absent regulator has the opposing sign is all its threshilds.
                for (const ActLevel thr: thrs) {
                   const Model::Regulation & regul = ModelTranslators::findRegulation(model, t_ID, sources[source_no], thr);
-                  all_act &= !regul.satisf.activ & regul.satisf.inhib ;
-                  all_inh &= !regul.satisf.inhib & regul.satisf.activ ;
+                  all_act &= !regul.edge_const_func.act & regul.edge_const_func.inh ;
+                  all_inh &= !regul.edge_const_func.inh & regul.edge_const_func.act ;
                }
             }
          }
@@ -114,7 +114,7 @@ class ParameterHelper {
 //            if (model.getRegulations(ID).size() != ModelTranslators::getRegulatorsIDs(model, ID).size())
 //               throw runtime_error("force_extremes constraint cannot be used for multi-threshold model");
 //            for (const Model::Regulation & regul : model.getRegulations(ID)) {
-//               if ((regul.satisf.activ & regul.satisf.inhib) || regul.satisf.none)
+//               if ((regul.edge_const_func.act & regul.edge_const_func.inhib) || regul.edge_const_func.none)
 //                  throw runtime_error("force_extremes constraint cannot be used for models with ambiguous edges");
 //            }
 //         }
