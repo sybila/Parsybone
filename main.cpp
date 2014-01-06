@@ -11,8 +11,6 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
-using namespace std;
-
 #include "auxiliary/time_manager.hpp"
 #include "auxiliary/output_streamer.hpp"
 #include "auxiliary/user_options.hpp"

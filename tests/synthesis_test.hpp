@@ -59,16 +59,12 @@ TEST_F(SynthesisTest, CycleOnCircuitCheck) {
    settings.minimize_cost = true;
    settings.mark_initals = true;
    reaches = checker.conductCheck(settings);
-   ASSERT_EQ(3, reaches.found_depth.size());
+   ASSERT_EQ(2, reaches.found_depth.size());
 
    settings.mark_initals = false;
    const unsigned int STATE_1 = 1, STATE_2 = 7, STATE_3 = 10;
 
-   ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_1));
-   settings.initial_states = settings.final_states = {STATE_1};
-   results = checker.conductCheck(settings);
-   EXPECT_EQ(4, results.getLowerBound());
-   EXPECT_TRUE(results.isAccepting());
+   ASSERT_TRUE(reaches.found_depth.end() == reaches.found_depth.find(STATE_1));
 
    // Due to synchronicity, it's not possible to cycle from 7 (does not lie on the main circuit).
    ASSERT_TRUE(reaches.found_depth.end() != reaches.found_depth.find(STATE_2));

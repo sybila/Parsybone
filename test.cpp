@@ -9,8 +9,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @file This is a testing suite for the Parsybone program
 
-using namespace std;
-
 #include "tests/parsing_test.hpp"
 #include "tests/core_level_tests.hpp"
 #include "tests/formulae_parser_test.hpp"
@@ -21,5 +19,10 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     ::testing::InitGoogleTest( &argc, argv );
-    return RUN_ALL_TESTS();
+	int result = RUN_ALL_TESTS();
+
+#if (_MSC_VER == 1800)
+		cin.get();
+#endif 
+	return result;
 }

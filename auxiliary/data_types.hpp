@@ -9,9 +9,11 @@
 #ifndef PARSYBONE_DATA_TYPES_INCLUDED
 #define PARSYBONE_DATA_TYPES_INCLUDED
 
+
 #include <algorithm>
 #include <climits>
 #include <cmath>
+#include <chrono>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -27,6 +29,8 @@
 #include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+
+using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @file This file holds specifications of data types (typedefs and 3rd party classes) used by multiple classes throughout the computation.
