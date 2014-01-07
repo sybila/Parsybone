@@ -30,7 +30,12 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include <gecode/int.hh>
+#include <gecode/search.hh>
+#include <gecode/minimodel.hh>
+
 using namespace std;
+using namespace Gecode;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @file This file holds specifications of data types (typedefs and 3rd party classes) used by multiple classes throughout the computation.
