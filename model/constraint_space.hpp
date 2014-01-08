@@ -11,12 +11,16 @@
 
 #include "../auxiliary/common_functions.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Gecode constraints for partial parametrization of a single specie.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstraintSpace : public Space {
 	IntVarArray param_vals; ///< Parameter values.
 	size_t target_max;
 
 public:
 	NO_COPY(ConstraintSpace)
+
 		ConstraintSpace(const size_t param_no, const size_t _target_max)
 		: param_vals(*this, param_no, 0, _target_max), target_max(_target_max) {
 			branch(*this, param_vals, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
@@ -27,11 +31,11 @@ public:
 		param_vals.update(*this, share, other_space.param_vals);
 	}
 
-	virtual Space *copy(bool share) { return new ConstraintSpace(share, *this); }
+	virtual Space *copy(bool share) {
+		return new ConstraintSpace(share, *this);
+	}
 
-	/*
-	 * initial constraining of the values to the predefined ones
-	 */
+	/* initial constraining of the values to the predefined ones */
 	void remove_targets(const Levels &targets, const size_t param_no) {
 		// If a value is not among the possible targets, disable it.
 		for (const size_t val : range(target_max))
@@ -39,6 +43,7 @@ public:
 			rel(*this, param_vals[param_no], IRT_NQ, val);
 	}
 
+	/* Create an expression based on the conditions obtained from the edge label */
 	BoolExpr resolveLabel(const Model::Regulation & regul, BoolExpr & act, BoolExpr & inh) {
 		BoolExpr result = expr(*this, param_vals[0] != param_vals[0]);
 
@@ -54,6 +59,7 @@ public:
 		return result;
 	}
 
+	/* For each regulation create a constraint corresponding to its label */
 	void add_edge_cons(const vector<Model::Regulation> & reguls, const vector<Model::Parameter> & params) {
 		if (reguls.empty())
 			return;
@@ -77,7 +83,18 @@ public:
 	}
 
 	// print solution
-	void print(void) const { std::cout << param_vals << std::endl; }
+	void print(void) const {
+		std::cout << param_vals << std::endl;
+	}
+
+	Levels getSolution() const {
+		Levels result(param_vals.size(), 0u);
+
+		for (const size_t i : range(param_vals.size()))
+			result[i] = param_vals[i].val();
+
+		return result;
+	}
 };
 
 #endif

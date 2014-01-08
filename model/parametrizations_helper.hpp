@@ -17,14 +17,12 @@ class ParametrizationsHelper {
 
 public:
 	/**
-	 * @brief isSubordinate returns true if the current context is the same as the
-	 * compared context only with a higher activity value in specificed regulator.
+	 * @brief isSubordinate returns true if the current context is the same as the compared context only with a higher activity value in specificed regulator.
 	 */
 	static bool isSubordinate(const vector<Model::Regulation> &reguls, const Model::Parameter &current, const Model::Parameter &compare, const SpecieID source_ID) {
 		for (const Model::Regulation & regul : reguls) {
 			const SpecieID regul_ID = regul.source;
-			// All the regulations must have the same requirements, except for the one
-			// with the specified source, which must connect on the value.
+			// All the regulations must have the same requirements, except for the one with the specified source, which must connect on the value.
 			if (regul_ID != source_ID) {
 				if (current.requirements.find(regul_ID)->second.back() != compare.requirements.find(regul_ID)->second.back()) {
 					return false;
@@ -53,27 +51,13 @@ public:
 	}
 
 	/**
-	 * Compute and store boundaries on possible context values - used for
-	 * iterations.
-	 */
-	static void getBoundaries(const Model::Parameters &params,
-		Levels &bottom_color, Levels &top_color) {
-		for (auto param : params) {
-			bottom_color.push_back(param.targets.front());
-			top_color.push_back(param.targets.back());
-		}
-	}
-
-	/**
 	 * @brief getPossibleCount compute the number of possible colors
 	 */
 	static ParamNo getPossibleCount(const Model::Parameters &params) {
 		ParamNo colors_num = 1;
 		for (auto param : params) {
 			if (numeric_limits<ParamNo>::max() / param.targets.size() < colors_num)
-				throw overflow_error("Possible number of parametrizations exceeds "
-				"2^64. Constrain the parametrization space "
-				"manually.");
+				throw overflow_error("Possible number of parametrizations exceeds 2^64. Constrain the parametrization space manually.");
 			colors_num *= param.targets.size();
 		}
 		return colors_num;
