@@ -49,40 +49,6 @@ public:
 			count += containsRegulation(param, regul);
 		return count;
 	}
-
-	/**
-	 * @brief getPossibleCount compute the number of possible colors
-	 */
-	static ParamNo getPossibleCount(const Model::Parameters &params) {
-		ParamNo colors_num = 1;
-		for (auto param : params) {
-			if (numeric_limits<ParamNo>::max() / param.targets.size() < colors_num)
-				throw overflow_error("Possible number of parametrizations exceeds 2^64. Constrain the parametrization space manually.");
-			colors_num *= param.targets.size();
-		}
-		return colors_num;
-	}
-
-	/**
-	 * @brief fitsConditions
-	 * @param sat conditions set by a regulation.
-	 */
-	static bool fitsConditions(const Model::EdgeConstFunc &sat,
-		const bool activating, const bool inhibiting) {
-		size_t comb_type =
-			static_cast<size_t>(activating)+2 * static_cast<size_t>(inhibiting);
-		switch (comb_type) {
-		case 0:
-			return sat.none;
-		case 1:
-			return sat.act;
-		case 2:
-			return sat.inh;
-		case 3:
-			return sat.both;
-		}
-		return false;
-	}
 };
 
 #endif // PARAMETRIZATIONS_HELPER_HPP

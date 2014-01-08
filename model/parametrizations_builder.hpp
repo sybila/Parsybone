@@ -24,147 +24,24 @@
 /// satisfaction.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParametrizationsBuilder {
-	static ParamNo color_no; ///< Just for output, the total amount of sub-colors.
-	static ParamNo color_tested; ///< Just for output, the current amount of
-	/// sub-colors tested.
-
-	/**
-	 * Test specific constrain on given color - this function checks both observability and the edge constrain.
-	 * @param activating	a reference to the variable storing true iff the regulation has observable activating effect
-	 * @param inhibiting a reference to the variable storing true iff the regulation has observable inhibiting effect
-	 * @param ID	ID of the specie that undergoes the test
-	 * @param param_num	index of tested parameter
-	 * @param regul_num	index of regulation whose constrains are tested
-	 * @param subcolor	coloring for this specie that is tested
-	 * @return	true if constrains are satisfied
-	 */
-	static void testConstraints(const Model &model, const SpecieID target_ID,
-		const size_t &param_num,
-		const Model::Regulation &regul,
-		const Levels &subparam, bool &activating,
-		bool &inhibiting) {
-		// Get reference data
-		const auto &parameters = model.getParameters(target_ID);
-		const StateID source_ID = regul.source;
-
-		for (size_t compare_num : scope(parameters)) {
-			auto compare = parameters[compare_num];
-			if (ParametrizationsHelper::isSubordinate(model.getRegulations(target_ID), parameters[param_num], compare, source_ID)) {
-				// Assign regulation aspects
-				activating |= subparam[param_num] > subparam[compare_num];
-				inhibiting |= subparam[param_num] < subparam[compare_num];
-			}
-		}
-	}
-
-	/**
-	 * Tests if given subparametrization on a given specie can satisfy given
-	 * requirements.
-	 * @param ID	ID of the specie to test contexts in
-	 * @param subcolor	unique valuation of all regulatory contexts
-	 * @return	true if the subparametrization is feasible
-	 */
-	static bool testSubparametrization(const Model &model, const SpecieID ID,
-		const Levels &subparam) {
-		// get referecnces to Specie data
-		const auto &regulations = model.getRegulations(ID);
-		const auto &parameters = model.getParameters(ID);
-
-		// Cycle through all species's regulators
-		for (const Model::Regulation &regul : regulations) {
-			// Skip if there are no requirements (free label)
-			if (regul.label.compare(Label::Free) == 0)
-				continue;
-
-			// Prepare variables storing info about observable effects of this
-			// component
-			bool activating = false, inhibiting = false;
-			// For each parameter containing the reugulator in parametrization control
-			// its satisfaction
-			for (auto param_num : range(parameters.size()))
-			if (ParametrizationsHelper::containsRegulation(model.getParameters(ID)[param_num], regul))
-				testConstraints(model, ID, param_num, regul, subparam, activating, inhibiting);
-
-			// Test obtained knowledge agains the label itself - return false if the
-			// label is not satisfied
-			if (!ParametrizationsHelper::fitsConditions(regul.edge_const_func, activating, inhibiting))
-				return false;
-		}
-
-		// If everything has passed, return true
-		return true;
-	}
-
-	/**
-	 * Test all possible subcolors and saves valid.
-	 * @param valid	data storage to save in
-	 * @param ID	ID of currently used specie
-	 * @param colors_num	how many colors are there together
-	 * @param bottom_color	low bound on possible contexts
-	 * @param top_color	top bound on possible contexts
-	 */
-	static void testColors(Model &model, const SpecieID ID,
-		const Levels &bottom_color, const Levels &top_color) {
-		// Cycle through all possible subcolors for this specie
-		Levels subcolor(bottom_color);
-
-		// Cycle through all colors
-		do {
-			outputProgress();
-			// Test if the parametrization satisfies constraints.
-			if (testSubparametrization(model, ID, subcolor))
-				model.species[ID].subcolors.push_back(subcolor);
-
-		} while (iterate(top_color, bottom_color, subcolor));
-
-		if (model.species[ID].subcolors.empty())
-			throw runtime_error(string("No valid parametrization found for the specie ").append(to_string(ID)));
-	}
-
-	/**
-	 * @brief outputProgress
-	 */
-	static inline void outputProgress() {
-		output_streamer.output(verbose_str, "Testing edge constraints on partiall parametrizations: " + to_string(++color_tested) + "/" + to_string(color_no) + ".", 
-			OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-	}
-
-	/* temporary */
-	static void writeParametrizations(Model &model, const SpecieID ID) {
+	/* Create constraint space on parametrizations for the given specie and enumerate and store all the solutions. */
+	static void createKinetics(Model &model, const SpecieID ID) {
+		// Build the space
 		ConstraintSpace *constraint_space = new ConstraintSpace(model.getParameters(ID).size(), model.getMax(ID));
 
+		// Impose constraints
 		size_t param_no = 0;
 		for (auto &param : model.getParameters(ID))
 			constraint_space->remove_targets(param.targets, param_no++);
 		constraint_space->add_edge_cons(model.getRegulations(ID), model.getParameters(ID));
 
+		// Conduct search
 		DFS<ConstraintSpace> search(constraint_space);
 		delete constraint_space;
-
-		cout << "Parametrizations of " << ID << endl;
 		while (ConstraintSpace *space = search.next()) {
-			space->print();
+			model.species[ID].subcolors.push_back(space->getSolution());
 			delete space;
 		}
-	}
-
-	/**
-	 * For this specie, test all possible subcolors (all valuations of this specie
-	 * contexts) and store those that satisfy edge labels.
-	 * @param ID specie used in this round
-	 */
-	static void createKinetics(Model &model, const SpecieID ID) {
-		writeParametrizations(model, ID);
-
-		// Create boundaries for iteration
-		Levels bottom_color, top_color;
-		ParametrizationsHelper::getBoundaries(model.getParameters(ID), bottom_color,
-			top_color);
-		// model.species[ID].possible_count =
-		// ParametrizationsHelper::getPossibleCount(model.getParameters(ID));
-
-		// Test all the subcolors and save feasible
-		testColors(model, ID, bottom_color, top_color);
 	}
 
 public:
@@ -172,29 +49,16 @@ public:
 	 * Entry function of parsing, tests and stores subcolors for all the species.
 	 */
 	static void buildParametrizations(Model &model) {
-		color_tested = 0;
-		color_no = 0;
-		for (SpecieID ID = 0; ID < model.species.size(); ID++) {
-			ParamNo control = color_no;
-			color_no +=
-				ParametrizationsHelper::getPossibleCount(model.getParameters(ID));
-
-			// Overflow
-			if (control > color_no)
-				throw overflow_error("Possible number of parametrizations exceeds "
-				"2^64. Constrain the parametrization space "
-				"manually.");
-		}
-
 		// Cycle through species
-		for (SpecieID ID = 0; ID < model.species.size(); ID++)
+		for (SpecieID ID = 0; ID < model.species.size(); ID++) {
+			output_streamer.output(verbose_str, "Testing edge constraints for specie: " + to_string(ID + 1) + "/" 
+				+ to_string(model.species.size()) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 			createKinetics(model, ID);
+		}
 
 		output_streamer.clear_line(verbose_str);
 		output_streamer.output(verbose_str, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 	}
 };
-ParamNo ParametrizationsBuilder::color_tested;
-ParamNo ParametrizationsBuilder::color_no;
 
 #endif // PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
