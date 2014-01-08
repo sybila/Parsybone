@@ -10,6 +10,7 @@
 #define PARSING_TEST_DATA_HPP
 
 #include <gtest/gtest.h>
+#include "../auxiliary/data_types.hpp"
 
 class ParsingTest : public ::testing::Test {
 protected:
