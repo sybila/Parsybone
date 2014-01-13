@@ -10,6 +10,7 @@
 #define PARSYBONE_FORMULAE_PARSER_TEST_INCLUDED
 
 #include "../auxiliary/formulae_resolver.hpp"
+#include "../parsing/constraint_parser.hpp"
 #include <gtest/gtest.h>
 
 class FormulaValuation : public ::testing::Test {
@@ -53,6 +54,17 @@ TEST_F(FormulaValuation, CauseException) {
     EXPECT_THROW(FormulaeResolver::resolve(vars, "C"), runtime_error); // No C defined
     EXPECT_THROW(FormulaeResolver::resolve(vars, "A|B"), runtime_error); // No parenthesis
     EXPECT_THROW(FormulaeResolver::resolve(vars, "(A&&B)"), runtime_error); // Duplicate symbol
+}
+
+TEST(FormulaParsing, Basic) {
+	ConstraintParser *constraint_parser = new ConstraintParser({ "a", "b" }, { 2, 1 });
+	constraint_parser->applyFormula("a > b & b = 1");
+	DFS<ConstraintParser> search(constraint_parser);
+	delete constraint_parser;
+	while (ConstraintParser *space = search.next()) {
+		space->print();
+		delete space;
+	}
 }
 
 #endif // PARSYBONE_FORMULAE_PARSER_TEST_INCLUDED
