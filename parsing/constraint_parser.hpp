@@ -11,8 +11,6 @@
 
 #include "../auxiliary/common_functions.hpp"
 
-enum Comparison { comp_lt, comp_le, comp_e, comp_ne, comp_gt, comp_ge };
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,81 +44,36 @@ class ConstraintParser : public Space {
 		throw runtime_error("Unrecognized variable name \"" + specie_name + "\" in the fomula \"" + formula_ + "\".");
 	}
 
+	LinIntRel applyOperator(const string left_side, const string right_side, Gecode::IntRelType oper) {
+		int left_val = 0, right_val = 0;
+		if (getNumber(left_side, left_val))
+			return LinIntRel(left_val, oper, allowed_vals[findName(right_side)]);
+		else if (getNumber(right_side, right_val))
+			return LinIntRel(allowed_vals[findName(left_side)], oper, right_val); 
+		else
+			return LinIntRel(allowed_vals[findName(left_side)], oper, allowed_vals[findName(right_side)]);
+	}
+
 	/* Convert the atomic expression to the relevant constraint */
 	BoolExpr convertAtom(const string & atom) {
-		BoolExpr result;
-		string left_side, right_side;
-		int left_val, righ_val;
-
 		if (atom.compare("tt") == 0)
 			return tt_expr;
 		else if (atom.compare("ff") == 0)
 			return ff_expr;
-		else if (atom.find("<=") != atom.npos) {
-			left_side = atom.substr(0, atom.find("<="));
-			right_side = atom.substr(atom.find("<=") + 2);
-			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] >= left_val);
-			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] <= righ_val);
-			else
-				result = expr(*this, allowed_vals[findName(left_side)] <= allowed_vals[findName(right_side)]);
-		}
-		else if (atom.find(">=") != atom.npos) {
-			left_side = atom.substr(0, atom.find(">="));
-			right_side = atom.substr(atom.find(">=") + 2);
-			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] <= left_val);
-			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] >= righ_val);
-			else
-				result = expr(*this, allowed_vals[findName(left_side)] >= allowed_vals[findName(right_side)]);
-		}
-		else if (atom.find("!=") != atom.npos) {
-			left_side = atom.substr(0, atom.find("!="));
-			right_side = atom.substr(atom.find("!=") + 2);
-			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] != left_val);
-			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] != righ_val);
-			else
-				result = expr(*this, allowed_vals[findName(left_side)] != allowed_vals[findName(right_side)]);
-		}
-		else if (atom.find("=") != atom.npos) {
-			left_side = atom.substr(0, atom.find("="));
-			right_side = atom.substr(atom.find("=") + 1);
-			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] == left_val);
-			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] == righ_val);
-			else
-				result = expr(*this, allowed_vals[findName(left_side)] == allowed_vals[findName(right_side)]);
-		}
-		else if (atom.find("<") != atom.npos) {
-			left_side = atom.substr(0, atom.find("<"));
-			right_side = atom.substr(atom.find("<") + 1);
-			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] > left_val);
-			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] < righ_val);
-			else
-				result = expr(*this, allowed_vals[findName(left_side)] < allowed_vals[findName(right_side)]);
-		}
-		else if (atom.find(">") != atom.npos) {
-			left_side = atom.substr(0, atom.find(">"));
-			right_side = atom.substr(atom.find(">") + 1);
-			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] < left_val);
-			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] > righ_val);
-			else
-				result = expr(*this, allowed_vals[findName(left_side)] > allowed_vals[findName(right_side)]);
-		}
-		else {
-			result = expr(*this, allowed_vals[findName(atom)] == 1);
-		}
-
-		return result;
+		else if (atom.find("<=") != atom.npos) 
+			return applyOperator(atom.substr(0, atom.find("<=")), atom.substr(atom.find("<=") + 2), Gecode::IntRelType::IRT_LQ);
+		else if (atom.find(">=") != atom.npos) 
+			return applyOperator(atom.substr(0, atom.find(">=")), atom.substr(atom.find(">=") + 2), Gecode::IntRelType::IRT_GQ);
+		else if (atom.find("!=") != atom.npos)
+			return applyOperator(atom.substr(0, atom.find("!=")), atom.substr(atom.find("!=") + 2), Gecode::IntRelType::IRT_NQ);
+		else if (atom.find("=") != atom.npos)
+			return applyOperator(atom.substr(0, atom.find("=")), atom.substr(atom.find("=") + 1), Gecode::IntRelType::IRT_EQ);
+		else if (atom.find("<") != atom.npos)
+			return applyOperator(atom.substr(0, atom.find("<")), atom.substr(atom.find("<") + 1), Gecode::IntRelType::IRT_LE);
+		else if (atom.find(">") != atom.npos)
+			return applyOperator(atom.substr(0, atom.find(">")), atom.substr(atom.find(">") + 1), Gecode::IntRelType::IRT_GR);
+		else
+			return LinIntRel(allowed_vals[findName(atom)] ==  1);
 	}
 
 	/* Split the formula by the specified operator (either | or &). This is an intelligent split - only symbols that are outside parenthesis are considered. */
@@ -191,20 +144,20 @@ class ConstraintParser : public Space {
 		// Based on the divisions decide how to deal with the formula
 		if (div_by_or.size() == 1 && div_by_and.size() == 1) {
 			if (formula[0] == '!')
-				return expr(*this, !resolveFormula(formula.substr(1)));
+				return BoolExpr(!resolveFormula(formula.substr(1)));
 			else
 				return convertAtom(formula);
 		}
 		else if (div_by_or.size() > 1 && div_by_and.size() == 1) {
-			result = expr(*this, resolveFormula(div_by_or[0]) || resolveFormula(div_by_or[1]));
+			result = BoolExpr(resolveFormula(div_by_or[0]) || resolveFormula(div_by_or[1]));
 			for (const size_t expr_no : range(2u, div_by_or.size())) 
-				result = expr(*this, result || resolveFormula(div_by_or[expr_no]));
+				result = BoolExpr(result || resolveFormula(div_by_or[expr_no]));
 			return result;
 		}
 		else if (div_by_or.size() == 1 && div_by_and.size() > 1) {
-			result = expr(*this, resolveFormula(div_by_and[0]) && resolveFormula(div_by_and[1]));
+			result = BoolExpr(resolveFormula(div_by_and[0]) && resolveFormula(div_by_and[1]));
 			for (const size_t expr_no : range(2u, div_by_and.size()))
-				result = expr(*this, result && resolveFormula(div_by_and[expr_no]));
+				result = BoolExpr(result && resolveFormula(div_by_and[expr_no]));
 			return result;
 		}
 		else {
@@ -220,8 +173,8 @@ public:
 		: allowed_vals(*this, maxes.size(), 0, *max_element(maxes.begin(), maxes.end())), names(_names) {
 			branch(*this, allowed_vals, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
 			bound_values(maxes);
-			tt_expr = expr(*this, allowed_vals[0] == allowed_vals[0]);
-			ff_expr = expr(*this, allowed_vals[0] != allowed_vals[0]);
+			tt_expr = BoolExpr(allowed_vals[0] == allowed_vals[0]);
+			ff_expr = BoolExpr(allowed_vals[0] != allowed_vals[0]);
 		}
 
 	ConstraintParser(bool share, ConstraintParser &other_space)
