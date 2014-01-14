@@ -53,7 +53,7 @@ class UnparametrizedStructureBuilder {
       // Find out which function is currently active
       const size_t fun_no = getActiveFunction(specie, state_levels);
       // Fill the step size
-      const size_t step_size = model.species[specie].parameters[fun_no].step_size;
+      const ParamNo step_size = model.species[specie].parameters[fun_no].step_size;
       // Reference target values
       const Levels & parameter_vals = model.species[specie].parameters[fun_no].parameter_vals;
 

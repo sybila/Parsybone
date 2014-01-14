@@ -32,7 +32,7 @@ class ConstraintParser : public Space {
 		try {
 			value = lexical_cast<int>(atom_part);
 		}
-		catch (exception & e) {
+		catch (...) {
 			return false;
 		}
 		return true;

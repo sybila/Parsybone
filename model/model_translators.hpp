@@ -82,9 +82,9 @@ namespace ModelTranslators {
    /**
     * @brief getSpecieVals
     */
-   const vector<ParamNo> getSpecieVals(const Model & model, ParamNo number) {
+   const Levels getSpecieVals(const Model & model, ParamNo number) {
       // Prepare storage vector
-      vector<ParamNo> specie_vals(model.species.size());
+	  Levels specie_vals(model.species.size());
       auto reverse_val_it = specie_vals.rbegin();
 
       // Go through colors backwards
@@ -93,7 +93,7 @@ namespace ModelTranslators {
          // lower divisor value
          divisor /= specie_it->subcolors.size();
          // pick a number for current specie
-         *reverse_val_it = (number / divisor);
+         *reverse_val_it = static_cast<ActLevel>(number / divisor);
          // take the rest for next round
          number = number % divisor;
       }
@@ -106,7 +106,7 @@ namespace ModelTranslators {
     */
    const string createParamString(const Model & model, ParamNo number) {
       // compute numbers of partial parametrizations for each component
-      const vector<ParamNo> color_parts = getSpecieVals(model, number);
+	   const Levels color_parts = getSpecieVals(model, number);
 
       string color_str = "(";
       // cycle through the species

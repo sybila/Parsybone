@@ -39,12 +39,12 @@ protected:
 
 TEST_F(ConstraintParserTest, ResolveFormulae) {
 	// Test true formulae
-	std::string true_forms[] = { "tt", "A", "!B", "(ff|A)", "(A|B)", "!(A&B)", "(!(A&A)|!B)", "A | B | A" };
+	std::string true_forms[] = { "tt", "A", "!B", "(ff|A)", "(A|B)", "!(A&B)", "(!(A&A)|!B)", "A|B|A", "((A))" };
 	for (auto & formula : true_forms)
 		EXPECT_TRUE(contains({ "A", "B" }, { 1, 1 }, { 1, 0 }, formula)) << formula;
 
 	// Test false formulae
-	std::string false_forms[] = { "ff", "B", "((A|B)&ff)", "(B&!B)", "A &B&A" };
+	std::string false_forms[] = { "ff", "B", "((A|B)&ff)", "(B&!B)", "A&B&A" };
 	for (auto & formula : false_forms)
 		EXPECT_FALSE(contains({ "A", "B" }, { 1, 1 }, { 1, 0 }, formula)) << formula;
 }
@@ -57,7 +57,7 @@ TEST_F(ConstraintParserTest, ResolveConstraints) {
 		EXPECT_TRUE(contains({ "A", "B", "C" }, { 3, 2, 1 }, { 2, 0, 1 }, formula)) << formula;
 
 	// Test false formulae
-	std::string false_forms[] = { "A = C | A = B | B = C", "!(A > B)" };
+	std::string false_forms[] = { "A = C | A = B | B = C", "!(A > B)", "B = -1", "A > 2" };
 	for (auto & formula : false_forms)
 		EXPECT_FALSE(contains({ "A", "B", "C" }, { 3, 2, 1 }, { 2, 0, 1 }, formula)) << formula;
 }
@@ -78,6 +78,8 @@ TEST_F(ConstraintParserTest, CauseException) {
 	EXPECT_THROW(contains({ "A", "B" }, { 1, 1 }, { 1, 1 }, "C"), runtime_error); // No C defined
 	EXPECT_THROW(contains({ "A", "B" }, { 1, 1 }, { 1, 1 }, "A || B"), runtime_error); // Duplicate
 	EXPECT_THROW(contains({ "A", "B", "C" }, { 1, 1, 1 }, { 1, 1, 1 }, "A | B & C"), runtime_error); // Parenthesis ambiguity
+	EXPECT_THROW(contains({ "A", "B" }, { 1, 1 }, { 1, 1 }, "(((A | B) & A)"), runtime_error); // Parenthesis mismatch
+	EXPECT_THROW(contains({ "A" }, { 1 }, { 1 }, ")(A)("), runtime_error); // Parenthesis mismatch
 }
 
 
