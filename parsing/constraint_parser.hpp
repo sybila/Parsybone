@@ -23,12 +23,12 @@ class ConstraintParser : public Space {
 	string formula_;
 
 	/* Keep only the values that are actually the values of the species. */
-	void bound_values(const vector<size_t> & maxes){
-		for (const size_t i : scope(maxes)) 
+	void bound_values(const Levels & maxes){
+		for (const ActLevel i : scope(maxes)) 
 			rel(*this, allowed_vals[i] < (maxes[i] + 1));
 	}
 
-	bool getNumber(const string & atom_part, int & value) {
+	bool getNumber(string atom_part, int & value) {
 		try {
 			value = lexical_cast<int>(atom_part);
 		}
@@ -40,7 +40,6 @@ class ConstraintParser : public Space {
 
 	/* Find the number of the integer variable that corresponds to the given name of the specie. */
 	size_t findName(string specie_name) {
-		boost::trim(specie_name);
 		for (const size_t name_no : scope(names))
 		if (specie_name.compare(names[name_no]) == 0)
 			return name_no;
@@ -53,16 +52,31 @@ class ConstraintParser : public Space {
 		string left_side, right_side;
 		int left_val, righ_val;
 
-		if (atom.find("=") != atom.npos) {
-			left_side = atom.substr(0, atom.find("="));
-			right_side = atom.substr(atom.find("=") + 1);
+		if (atom.compare("tt") == 0)
+			return tt_expr;
+		else if (atom.compare("ff") == 0)
+			return ff_expr;
+		else if (atom.find("<=") != atom.npos) {
+			left_side = atom.substr(0, atom.find("<="));
+			right_side = atom.substr(atom.find("<=") + 2);
 			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] == left_val);
+				result = expr(*this, allowed_vals[findName(right_side)] >= left_val);
 			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] == righ_val);
-			else 
-				result = expr(*this, allowed_vals[findName(left_side)] == allowed_vals[findName(right_side)]);
-		} else if (atom.find("!=") != atom.npos) {
+				result = expr(*this, allowed_vals[findName(left_side)] <= righ_val);
+			else
+				result = expr(*this, allowed_vals[findName(left_side)] <= allowed_vals[findName(right_side)]);
+		}
+		else if (atom.find(">=") != atom.npos) {
+			left_side = atom.substr(0, atom.find(">="));
+			right_side = atom.substr(atom.find(">=") + 2);
+			if (getNumber(left_side, left_val))
+				result = expr(*this, allowed_vals[findName(right_side)] <= left_val);
+			if (getNumber(right_side, righ_val))
+				result = expr(*this, allowed_vals[findName(left_side)] >= righ_val);
+			else
+				result = expr(*this, allowed_vals[findName(left_side)] >= allowed_vals[findName(right_side)]);
+		}
+		else if (atom.find("!=") != atom.npos) {
 			left_side = atom.substr(0, atom.find("!="));
 			right_side = atom.substr(atom.find("!=") + 2);
 			if (getNumber(left_side, left_val))
@@ -71,6 +85,16 @@ class ConstraintParser : public Space {
 				result = expr(*this, allowed_vals[findName(left_side)] != righ_val);
 			else
 				result = expr(*this, allowed_vals[findName(left_side)] != allowed_vals[findName(right_side)]);
+		}
+		else if (atom.find("=") != atom.npos) {
+			left_side = atom.substr(0, atom.find("="));
+			right_side = atom.substr(atom.find("=") + 1);
+			if (getNumber(left_side, left_val))
+				result = expr(*this, allowed_vals[findName(right_side)] == left_val);
+			if (getNumber(right_side, righ_val))
+				result = expr(*this, allowed_vals[findName(left_side)] == righ_val);
+			else
+				result = expr(*this, allowed_vals[findName(left_side)] == allowed_vals[findName(right_side)]);
 		}
 		else if (atom.find("<") != atom.npos) {
 			left_side = atom.substr(0, atom.find("<"));
@@ -91,26 +115,6 @@ class ConstraintParser : public Space {
 				result = expr(*this, allowed_vals[findName(left_side)] > righ_val);
 			else
 				result = expr(*this, allowed_vals[findName(left_side)] > allowed_vals[findName(right_side)]);
-		}
-		else if (atom.find("<=") != atom.npos) {
-			left_side = atom.substr(0, atom.find("<="));
-			right_side = atom.substr(atom.find("<=") + 2);
-			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] >= left_val);
-			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] <= righ_val);
-			else
-				result = expr(*this, allowed_vals[findName(left_side)] <= allowed_vals[findName(right_side)]);
-		}
-		else if (atom.find(">=") != atom.npos) {
-			left_side = atom.substr(0, atom.find(">="));
-			right_side = atom.substr(atom.find(">=") + 2);
-			if (getNumber(left_side, left_val))
-				result = expr(*this, allowed_vals[findName(right_side)] <= left_val);
-			if (getNumber(right_side, righ_val))
-				result = expr(*this, allowed_vals[findName(left_side)] >= righ_val);
-			else
-				result = expr(*this, allowed_vals[findName(left_side)] >= allowed_vals[findName(right_side)]);
 		}
 		else {
 			result = expr(*this, allowed_vals[findName(atom)] == 1);
@@ -149,41 +153,48 @@ class ConstraintParser : public Space {
 
 	/* Trim the current formula and if it is enclosed in parenthesis, remove them. */
 	void remove_parenthesis(string & formula) {
-		boost::trim(formula);
-		if (*formula.begin() == '(' && *formula.rbegin() == ')')
-			formula = formula.substr(1, formula.size() - 2);
+		// If there's less than two characters there can't be no parenthesis.
+		if (formula.size() < 2)
+			return;
+		// Parenthesis must be enclosing
+		if (*formula.begin() != '(' || *formula.rbegin() != ')')
+			return;
+		// Only the last parenthesis must be matching
+		size_t parity = 1;
+		for (const size_t pos : range(1u, formula.size() - 1)) {
+			if (formula[pos] == '(')
+				parity++;
+			else if (formula[pos] == ')')
+				parity--;
+			if (parity == 0)
+				return;
+		}
+		
+		formula = formula.substr(1, formula.size() - 2);
 	}
 
-	/**/
+	/*  */
 	BoolExpr resolveFormula(string formula) {
 		BoolExpr result;
 
-		// Format the expression
+		// Remove outer parenthesis until you reach fixpoint.
 		string old_formula;
 		do {
 			old_formula = formula;
 			remove_parenthesis(formula);
 		} while (old_formula.compare(formula) != 0);
 
-		// In case the formula is preceded by the symbol !, negate the whole
-		for (const size_t pos : scope(formula)) {
-			if (formula[pos] == '!') {
-				result = expr(*this, !resolveFormula(formula.substr(pos + 1)));
-				return result;
-			}
-			else if (isspace(formula[pos]))
-				continue;
-			else
-				break;
-		}
-
 		// Make divisions of the current expression by operators
 		vector<string> div_by_or = splitByOperator(true, formula);
 		vector<string> div_by_and = splitByOperator(false, formula);
 
 		// Based on the divisions decide how to deal with the formula
-		if (div_by_or.size() == 1 && div_by_and.size() == 1)
-			return convertAtom(formula);
+		if (div_by_or.size() == 1 && div_by_and.size() == 1) {
+			if (formula[0] == '!')
+				return expr(*this, !resolveFormula(formula.substr(1)));
+			else
+				return convertAtom(formula);
+		}
 		else if (div_by_or.size() > 1 && div_by_and.size() == 1) {
 			result = expr(*this, resolveFormula(div_by_or[0]) || resolveFormula(div_by_or[1]));
 			for (const size_t expr_no : range(2u, div_by_or.size())) 
@@ -205,7 +216,7 @@ class ConstraintParser : public Space {
 public:
 	NO_COPY(ConstraintParser)
 
-		ConstraintParser(const vector<string> & _names, const vector<size_t> & maxes)
+		ConstraintParser(const vector<string> & _names, const Levels & maxes)
 		: allowed_vals(*this, maxes.size(), 0, *max_element(maxes.begin(), maxes.end())), names(_names) {
 			branch(*this, allowed_vals, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
 			bound_values(maxes);
@@ -238,8 +249,9 @@ public:
 	}
 
 	/* Take a logical formula and make it into a constraint that gets propagated. */
-	void applyFormula(const string & formula) {
+	void applyFormula(string formula) {
 		formula_ = formula;
+		formula.erase(remove_if(formula.begin(), formula.end(), isspace), formula.end());
 		BoolExpr expr = resolveFormula(formula);
 		rel(*this, expr);
 	}

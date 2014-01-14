@@ -56,15 +56,4 @@ TEST_F(FormulaValuation, CauseException) {
     EXPECT_THROW(FormulaeResolver::resolve(vars, "(A&&B)"), runtime_error); // Duplicate symbol
 }
 
-TEST(FormulaParsing, Basic) {
-	ConstraintParser *constraint_parser = new ConstraintParser({ "a", "b" }, { 2, 1 });
-	constraint_parser->applyFormula("a > b & b = 1");
-	DFS<ConstraintParser> search(constraint_parser);
-	delete constraint_parser;
-	while (ConstraintParser *space = search.next()) {
-		space->print();
-		delete space;
-	}
-}
-
 #endif // PARSYBONE_FORMULAE_PARSER_TEST_INCLUDED
