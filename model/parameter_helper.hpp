@@ -53,7 +53,7 @@ class ParameterHelper {
                all_act &= regul.edge_const_func.act & !regul.edge_const_func.inh ;
                all_inh &= regul.edge_const_func.inh & !regul.edge_const_func.act ;
             } else {
-               // Confirm that the absent regulator has the opposing sign is all its threshilds.
+               // Confirm that the absent regulator has the opposing sign is all its thresholds.
                for (const ActLevel thr: thrs) {
                   const Model::Regulation & regul = ModelTranslators::findRegulation(model, t_ID, sources[source_no], thr);
                   all_act &= !regul.edge_const_func.act & regul.edge_const_func.inh ;

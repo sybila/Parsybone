@@ -15,10 +15,10 @@
 /// \brief 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstraintParser : public Space {
-	vector<string> names;
-	IntVarArray allowed_vals;
-	BoolExpr tt_expr, ff_expr;
-	string formula_;
+	vector<string> names; ///< Names of the variables
+	IntVarArray allowed_vals; ///< The actual values
+	BoolExpr tt_expr, ff_expr; ///< Shorthand epxressions for true and false
+	string formula_; ///< The original formula, without formatting.
 
 	/* Keep only the values that are actually the values of the species. */
 	void bound_values(const Levels & maxes){
@@ -26,6 +26,7 @@ class ConstraintParser : public Space {
 			rel(*this, allowed_vals[i] < (maxes[i] + 1));
 	}
 
+	/* Transform the string into an integer, if possible. Return true iff sucessful. */
 	bool getNumber(string atom_part, int & value) {
 		try {
 			value = lexical_cast<int>(atom_part);
@@ -44,6 +45,7 @@ class ConstraintParser : public Space {
 		throw runtime_error("Unrecognized variable name \"" + specie_name + "\" in the fomula \"" + formula_ + "\".");
 	}
 
+	/* Apply the respective operator on the operands that are either converted to constants or matched to variables by name. */
 	LinIntRel applyOperator(const string left_side, const string right_side, Gecode::IntRelType oper) {
 		int left_val = 0, right_val = 0;
 		if (getNumber(left_side, left_val))
@@ -208,6 +210,29 @@ public:
 		BoolExpr expr = resolveFormula(formula);
 		rel(*this, expr);
 	}
+
+	// True if the two vectors are equal
+	static bool isEqual(const Levels & sat, const Levels & req) {
+		if (sat.size() != req.size())
+			return false;
+		return equal(sat.begin(), sat.end(), req.begin());
+	}
+
+	// True if the required result is in between solution of the formula
+	static bool contains(const vector<string> names, const Levels maxes, const Levels required, const string formula) {
+		ConstraintParser *constraint_parser = new ConstraintParser(names, maxes);
+		constraint_parser->applyFormula(formula);
+		DFS<ConstraintParser> search(constraint_parser);
+		delete constraint_parser;
+		while (ConstraintParser *space = search.next()) {
+			if (isEqual(space->getSolution(), required))
+				return true;
+			delete space;
+		}
+		return false;
+	}
 };
+
+
 
 #endif

@@ -6,6 +6,8 @@
 * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
 */
 
+/* TODO: Convert in formulae that will be resolved by parser. */
+
 #ifndef PARSYBONE_CONSTRAINT_SPACE_INCLUDED
 #define PARSYBONE_CONSTRAINT_SPACE_INCLUDED
 

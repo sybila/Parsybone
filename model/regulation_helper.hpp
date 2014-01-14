@@ -10,21 +10,11 @@
 #define REGULATION_HELPER_HPP
 
 #include "model_translators.hpp"
+#include "../parsing/constraint_parser.hpp"
 
 class RegulationHelper {
-   /**
-    * @brief resolveLabel  Return true if the label (edge constrain) of the regulation is satisfied, false otherwise. All labels can be resolved based only on whether mon+ and mon- are true.
-    * @param	activating	true if the parametrization satisfies +
-    * @param	inhibiting	true if the parametrization satisfies -
-    * @param	label	canonical form of edge label given as a string
-    * @return	true if the edge constrain is satisfied
-    */
-   static bool resolveLabel(const bool activating, const bool inhibiting, const string label) {
-      // Fill the atomic propositions
-      FormulaeResolver::Vals values;
-      values.insert(FormulaeResolver::Val("+", activating));
-      values.insert(FormulaeResolver::Val("-", inhibiting));
-
+   /*    */
+   static string getLabel(const string & label) {
       string formula;
 
       // Find the constrain and return its valuation
@@ -49,7 +39,7 @@ class RegulationHelper {
       else
          formula = label;
 
-      return (FormulaeResolver::resolve(values, formula));
+	  return formula;
    }
 
 public:
@@ -84,10 +74,11 @@ public:
       for (const SpecieID ID : range(model.species.size())) {
          Model::Regulations & reguls = model.species[ID].regulations;
          for (Model::Regulation & regul:reguls) {
-            regul.edge_const_func.none = resolveLabel(false, false, regul.label);
-            regul.edge_const_func.act = resolveLabel(true, false, regul.label);
-            regul.edge_const_func.inh = resolveLabel(false, true, regul.label);
-            regul.edge_const_func.both = resolveLabel(true, true, regul.label);
+			 string label = getLabel(regul.label);
+			 regul.edge_const_func.none = ConstraintParser::contains({ "+", "-" }, { 1, 1 }, { 0, 0 }, label); 
+			 regul.edge_const_func.act = ConstraintParser::contains({ "+", "-" }, { 1, 1 }, { 1, 0 }, label);
+			 regul.edge_const_func.inh = ConstraintParser::contains({ "+", "-" }, { 1, 1 }, { 0, 1 }, label);
+			 regul.edge_const_func.both = ConstraintParser::contains({ "+", "-" }, { 1, 1 }, { 1, 1 }, label);
          }
       }
    }
