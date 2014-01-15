@@ -17,12 +17,12 @@ TEST(ConstraintParserTest, ResolveFormulae) {
 	// Test true formulae
 	std::string true_forms[] = { "tt", "A", "!B", "(ff|A)", "(A|B)", "!(A&B)", "(!(A&A)|!B)", "A|B|A", "((A))" };
 	for (auto & formula : true_forms)
-		EXPECT_TRUE(ConstraintParser::contains({ "A", "B" }, { 1, 1 }, { 1, 0 }, formula)) << formula;
+		EXPECT_TRUE(ConstraintParser::contains({ "A", "B" }, 1, { 1, 0 }, formula)) << formula;
 
 	// Test false formulae
 	std::string false_forms[] = { "ff", "B", "((A|B)&ff)", "(B&!B)", "A&B&A" };
 	for (auto & formula : false_forms)
-		EXPECT_FALSE(ConstraintParser::contains({ "A", "B" }, { 1, 1 }, { 1, 0 }, formula)) << formula;
+		EXPECT_FALSE(ConstraintParser::contains({ "A", "B" }, 1, { 1, 0 }, formula)) << formula;
 
 	EXPECT_NO_THROW(ConstraintParser::contains({ "a_", "_b9" }, { 1, 1 }, { 1, 1 }, "a_ = _b9"));
 }
@@ -44,20 +44,20 @@ TEST(ConstraintParserTest, TruncateWhiteSpace) {
 	// Test true formulae
 	std::string true_forms[] = { " tt ", "  A   ", " ! B ", " ( ff | \n A  ) ", " \r ( A| B) ", "A & B = 0" };
 	for (auto & formula : true_forms)
-		EXPECT_TRUE(ConstraintParser::contains({ "A", "B" }, { 1, 1 }, { 1, 0 }, formula)) << formula;
+		EXPECT_TRUE(ConstraintParser::contains({ "A", "B" }, 1, { 1, 0 }, formula)) << formula;
 
 	// Test false formulae
 	std::string false_forms[] = { " ff ", "  B   ", " \r  ((A |B ) & ff)", "\n\n\n (B&!B)" };
 	for (auto & formula : false_forms)
-		EXPECT_FALSE(ConstraintParser::contains({ "A", "B" }, { 1, 1 }, { 1, 0 }, formula)) << formula;
+		EXPECT_FALSE(ConstraintParser::contains({ "A", "B" }, 1, { 1, 0 }, formula)) << formula;
 }
 
 TEST(ConstraintParserTest, CauseException) {
-	EXPECT_THROW(ConstraintParser::contains({ "A", "B" }, { 1, 1 }, { 1, 1 }, "C"), runtime_error); // No C defined
-	EXPECT_THROW(ConstraintParser::contains({ "A", "B" }, { 1, 1 }, { 1, 1 }, "A || B"), runtime_error); // Duplicate
-	EXPECT_THROW(ConstraintParser::contains({ "A", "B", "C" }, { 1, 1, 1 }, { 1, 1, 1 }, "A | B & C"), runtime_error); // Parenthesis ambiguity
-	EXPECT_THROW(ConstraintParser::contains({ "A", "B" }, { 1, 1 }, { 1, 1 }, "(((A | B) & A)"), runtime_error); // Parenthesis mismatch
-	EXPECT_THROW(ConstraintParser::contains({ "A" }, { 1 }, { 1 }, ")(A)("), runtime_error); // Parenthesis mismatch
+	EXPECT_THROW(ConstraintParser::contains({ "A", "B" }, 1, { 1, 1 }, "C"), runtime_error); // No C defined
+	EXPECT_THROW(ConstraintParser::contains({ "A", "B" }, 1, { 1, 1 }, "A || B"), runtime_error); // Duplicate
+	EXPECT_THROW(ConstraintParser::contains({ "A", "B", "C" }, 1, { 1, 1, 1 }, "A | B & C"), runtime_error); // Parenthesis ambiguity
+	EXPECT_THROW(ConstraintParser::contains({ "A", "B" }, 1, { 1, 1 }, "(((A | B) & A)"), runtime_error); // Parenthesis mismatch
+	EXPECT_THROW(ConstraintParser::contains({ "A" }, 1, { 1 }, ")(A)("), runtime_error); // Parenthesis mismatch
 }
 
 

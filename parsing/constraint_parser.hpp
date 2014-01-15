@@ -22,8 +22,7 @@ class ConstraintParser : public Space {
 
 	/* Keep only the values that are actually the values of the species. */
 	void bound_values(const Levels & maxes){
-		for (const ActLevel i : scope(maxes)) 
-			rel(*this, allowed_vals[i] < (maxes[i] + 1));
+
 	}
 
 	/* Transform the string into an integer, if possible. Return true iff sucessful. */
@@ -171,10 +170,9 @@ class ConstraintParser : public Space {
 public:
 	NO_COPY(ConstraintParser)
 
-		ConstraintParser(const vector<string> & _names, const Levels & maxes)
-		: allowed_vals(*this, maxes.size(), 0, *max_element(maxes.begin(), maxes.end())), names(_names) {
+		ConstraintParser(const vector<string> & _names, const size_t upper_bound)
+		: allowed_vals(*this, _names.size(), 0, upper_bound), names(_names) {
 			branch(*this, allowed_vals, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
-			bound_values(maxes);
 			tt_expr = BoolExpr(allowed_vals[0] == allowed_vals[0]);
 			ff_expr = BoolExpr(allowed_vals[0] != allowed_vals[0]);
 		}
@@ -186,6 +184,22 @@ public:
 
 	virtual Space *copy(bool share) {
 		return new ConstraintParser(share, *this);
+	}
+
+	void addBoundaries(const Levels & boundaries, const bool is_upper) {
+		if (boundaries.size() != allowed_vals.size())
+			throw runtime_error("Trying to bound space of solutions in a constraint parser, but the number of boundaries does not match the number of variables.");
+		auto op = is_upper ? IRT_LQ : IRT_GQ;
+		for (const ActLevel i : scope(boundaries))
+			rel(*this, allowed_vals[i], op, (boundaries[i]));
+	}
+
+	/* Take a logical formula and make it into a constraint that gets propagated. */
+	void applyFormula(string formula) {
+		formula_ = formula;
+		formula.erase(remove_if(formula.begin(), formula.end(), isspace), formula.end());
+		BoolExpr expr = resolveFormula(formula);
+		rel(*this, expr);
 	}
 
 	// print solution
@@ -203,33 +217,25 @@ public:
 		return result;
 	}
 
-	/* Take a logical formula and make it into a constraint that gets propagated. */
-	void applyFormula(string formula) {
-		formula_ = formula;
-		formula.erase(remove_if(formula.begin(), formula.end(), isspace), formula.end());
-		BoolExpr expr = resolveFormula(formula);
-		rel(*this, expr);
+	// True iff the required result is in between solution of the formula
+	static bool contains(const vector<string> & names, const ActLevel max, const Levels & required, const string & formula) {
+		Levels maxes(names.size(), max);
+		return contains(names, maxes, required, formula);
 	}
 
-	// True if the two vectors are equal
-	static bool isEqual(const Levels & sat, const Levels & req) {
-		if (sat.size() != req.size())
-			return false;
-		return equal(sat.begin(), sat.end(), req.begin());
-	}
-
-	// True if the required result is in between solution of the formula
-	static bool contains(const vector<string> names, const Levels maxes, const Levels required, const string formula) {
-		ConstraintParser *constraint_parser = new ConstraintParser(names, maxes);
+	// True iff the required result is in between solution of the formula
+	static bool contains(const vector<string> & names, const Levels & maxes, const Levels & required, const string & formula) {
+		ConstraintParser *constraint_parser = new ConstraintParser(names, *max_element(maxes.begin(), maxes.end()));
+		// Force the values by bounding from the both sides and add the formula.
+		constraint_parser->addBoundaries(maxes, true);
+		constraint_parser->addBoundaries(required, true);
+		constraint_parser->addBoundaries(required, false);
 		constraint_parser->applyFormula(formula);
+
+		// Return true iff a solution is found
 		DFS<ConstraintParser> search(constraint_parser);
 		delete constraint_parser;
-		while (ConstraintParser *space = search.next()) {
-			if (isEqual(space->getSolution(), required))
-				return true;
-			delete space;
-		}
-		return false;
+		return search.next();
 	}
 };
 
