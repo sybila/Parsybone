@@ -12,9 +12,9 @@
 #include "model_translators.hpp"
 #include "../parsing/constraint_parser.hpp"
 
-class RegulationHelper {
+namespace RegulationHelper {
    /*    */
-   static string getLabel(const string & label) {
+   string getLabel(const string & label) {
       string formula;
 
       // Find the constrain and return its valuation
@@ -42,11 +42,10 @@ class RegulationHelper {
 	  return formula;
    }
 
-public:
    /**
     * @brief fillActivationLevels For each regulation fill the levels of its source in which it is active.
     */
-   static void fillActivationLevels(Model & model) {
+   void fillActivationLevels(Model & model) {
       // Fill for all the species.
       for (auto ID:range(model.species.size())) {
          auto space = ModelTranslators::getThresholds(model, ID);
@@ -70,7 +69,7 @@ public:
    /**
     * @brief setConditions set conditions on nature of the regulation based on its label.
     */
-   static void fillConditions(Model & model) {
+   void fillConditions(Model & model) {
       for (const SpecieID ID : range(model.species.size())) {
          Model::Regulations & reguls = model.species[ID].regulations;
          for (Model::Regulation & regul:reguls) {
