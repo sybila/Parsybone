@@ -72,9 +72,9 @@ TEST_F(StructureTest, TestCorrectProduct) {
    ASSERT_EQ(4, b_k_2_cyclic.getInitialStates().size());
    EXPECT_TRUE(b_k_2_cyclic.isInitial(0));
    ASSERT_EQ(4, b_k_2_cyclic.getFinalStates().size());
-   EXPECT_EQ(7, b_k_2_cyclic.getProductID(2,1));
-   EXPECT_EQ(2, b_k_2_cyclic.getKSID(7));
-   EXPECT_EQ(1, b_k_2_cyclic.getBAID(7));
+   EXPECT_EQ(6, b_k_2_cyclic.getProductID(2,1));
+   EXPECT_EQ(2, b_k_2_cyclic.getKSID(6));
+   EXPECT_EQ(1, b_k_2_cyclic.getBAID(6));
 
    EXPECT_EQ(1, c_2_set_two_ones.getInitialStates().size());
    EXPECT_TRUE(c_2_set_two_ones.isInitial(c_2_set_two_ones.getProductID(2,0))) << "Only (0,1;0) should be initial.";

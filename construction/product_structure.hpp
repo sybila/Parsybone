@@ -47,50 +47,6 @@ class ProductStructure : public AutomatonInterface<ProdState>, public TSInterfac
 	UnparametrizedStructure structure;
 	AutomatonStructure automaton;
 
-	void createSubspace(const StateID BA_ID) {
-		for (const StateID KS_ID : range(structure.getStateCount())) {
-			StateID ID = getProductID(KS_ID, BA_ID);
-			const Levels& levels = structure.getStateLevels(KS_ID);
-			states.push_back(ProdState(ID, KS_ID, BA_ID, false, false, levels));
-		}
-	}
-
-	// TODO remove labels from states that have no outgoing edges
-	void relabel(const StateID BA_ID) {
-		if (automaton.isInitial(BA_ID)) {
-			for (const StateID KS_ID : range(structure.getStateCount())) {
-				StateID ID = getProductID(KS_ID, BA_ID);
-				// If there's a way to leave the state
-				if ((states[ID].transitions.size() + states[ID].loops.size()) > 0) {
-					initial_states.push_back(ID);
-					states[ID].initial = true;
-				}
-			}
-		}
-		if (automaton.isFinal(BA_ID)) {
-			for (const StateID KS_ID : range(structure.getStateCount())) {
-				StateID ID = getProductID(KS_ID, BA_ID);
-				// If there's a way to leave the state
-				if ((states[ID].transitions.size() + states[ID].loops.size()) > 0 || (automaton.getMyType() == BA_finite)) {
-					final_states.push_back(ID);
-					states[ID].final = true;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Add a new transition with all its values.
-	 * @param ID	add data to the state with this IS
-	 */
-	inline void addTransition(const StateID ID, const StateID target_ID, const TransConst & constraints) {
-		states[ID].transitions.push_back(ProdTransitionion(target_ID, constraints));
-	}
-
-	inline void addLoop(const StateID ID, const StateID loop) {
-		states[ID].loops.push_back(loop);
-	}
-
 public:
 	ProductStructure() = default;
 	ProductStructure(UnparametrizedStructure _structure, AutomatonStructure _automaton) : structure(move(_structure)), automaton(move(_automaton)) {

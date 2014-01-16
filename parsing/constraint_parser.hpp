@@ -12,7 +12,7 @@
 #include "../auxiliary/common_functions.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief 
+/// \brief A class that accepts and parser constraints from a string formula and provides solutions to these constraints.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstraintParser : public Space {
 	IntVarArray allowed_vals; ///< The actual values
@@ -159,6 +159,13 @@ class ConstraintParser : public Space {
 	}
 
 public:
+	// For safety, do not allow any other sort of creating the parser than by dedicated functions
+	ConstraintParser() = delete;
+	ConstraintParser(ConstraintParser &&) = delete;
+	ConstraintParser& operator=(ConstraintParser &&) = delete;
+	ConstraintParser(const ConstraintParser &) = delete; 
+	ConstraintParser& operator=(const ConstraintParser &) = delete;
+
 	ConstraintParser(const size_t number, const size_t upper_bound)
 		: allowed_vals(*this, number, 0, upper_bound) {
 		branch(*this, allowed_vals, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
