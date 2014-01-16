@@ -15,15 +15,7 @@
 /// \brief 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstraintParser : public Space {
-	vector<string> names; ///< Names of the variables
 	IntVarArray allowed_vals; ///< The actual values
-	BoolExpr tt_expr, ff_expr; ///< Shorthand epxressions for true and false
-	string formula_; ///< The original formula, without formatting.
-
-	/* Keep only the values that are actually the values of the species. */
-	void bound_values(const Levels & maxes){
-
-	}
 
 	/* Transform the string into an integer, if possible. Return true iff sucessful. */
 	bool getNumber(string atom_part, int & value) {
@@ -37,50 +29,50 @@ class ConstraintParser : public Space {
 	}
 
 	/* Find the number of the integer variable that corresponds to the given name of the specie. */
-	size_t findName(string specie_name) {
+	size_t findName(const vector<string> & names, string specie_name) {
 		for (const size_t name_no : scope(names))
 		if (specie_name.compare(names[name_no]) == 0)
 			return name_no;
-		throw runtime_error("Unrecognized variable name \"" + specie_name + "\" in the fomula \"" + formula_ + "\".");
+		throw runtime_error("Unrecognized variable name \"" + specie_name + "\".");
 	}
 
 	/* Apply the respective operator on the operands that are either converted to constants or matched to variables by name. */
-	LinIntRel applyOperator(const string left_side, const string right_side, Gecode::IntRelType oper) {
+	LinIntRel applyOperator(const vector<string> & names, const string left_side, const string right_side, Gecode::IntRelType oper) {
 		int left_val = 0, right_val = 0;
 		if (getNumber(left_side, left_val))
-			return LinIntRel(left_val, oper, allowed_vals[findName(right_side)]);
+			return LinIntRel(left_val, oper, allowed_vals[findName(names, right_side)]);
 		else if (getNumber(right_side, right_val))
-			return LinIntRel(allowed_vals[findName(left_side)], oper, right_val); 
+			return LinIntRel(allowed_vals[findName(names, left_side)], oper, right_val);
 		else
-			return LinIntRel(allowed_vals[findName(left_side)], oper, allowed_vals[findName(right_side)]);
+			return LinIntRel(allowed_vals[findName(names, left_side)], oper, allowed_vals[findName(names, right_side)]);
 	}
 
 	/* Convert the atomic expression to the relevant constraint */
-	BoolExpr convertAtom(const string & atom) {
+	BoolExpr convertAtom(const vector<string> & names, const string & atom) {
 		if (atom.compare("tt") == 0)
-			return tt_expr;
+			return BoolExpr(allowed_vals[0] == allowed_vals[0]);
 		else if (atom.compare("ff") == 0)
-			return ff_expr;
-		else if (atom.find("<=") != atom.npos) 
-			return applyOperator(atom.substr(0, atom.find("<=")), atom.substr(atom.find("<=") + 2), Gecode::IntRelType::IRT_LQ);
-		else if (atom.find(">=") != atom.npos) 
-			return applyOperator(atom.substr(0, atom.find(">=")), atom.substr(atom.find(">=") + 2), Gecode::IntRelType::IRT_GQ);
+			return BoolExpr(allowed_vals[0] != allowed_vals[0]);
+		else if (atom.find("<=") != atom.npos)
+			return applyOperator(names, atom.substr(0, atom.find("<=")), atom.substr(atom.find("<=") + 2), Gecode::IntRelType::IRT_LQ);
+		else if (atom.find(">=") != atom.npos)
+			return applyOperator(names, atom.substr(0, atom.find(">=")), atom.substr(atom.find(">=") + 2), Gecode::IntRelType::IRT_GQ);
 		else if (atom.find("!=") != atom.npos)
-			return applyOperator(atom.substr(0, atom.find("!=")), atom.substr(atom.find("!=") + 2), Gecode::IntRelType::IRT_NQ);
+			return applyOperator(names, atom.substr(0, atom.find("!=")), atom.substr(atom.find("!=") + 2), Gecode::IntRelType::IRT_NQ);
 		else if (atom.find("=") != atom.npos)
-			return applyOperator(atom.substr(0, atom.find("=")), atom.substr(atom.find("=") + 1), Gecode::IntRelType::IRT_EQ);
+			return applyOperator(names, atom.substr(0, atom.find("=")), atom.substr(atom.find("=") + 1), Gecode::IntRelType::IRT_EQ);
 		else if (atom.find("<") != atom.npos)
-			return applyOperator(atom.substr(0, atom.find("<")), atom.substr(atom.find("<") + 1), Gecode::IntRelType::IRT_LE);
+			return applyOperator(names, atom.substr(0, atom.find("<")), atom.substr(atom.find("<") + 1), Gecode::IntRelType::IRT_LE);
 		else if (atom.find(">") != atom.npos)
-			return applyOperator(atom.substr(0, atom.find(">")), atom.substr(atom.find(">") + 1), Gecode::IntRelType::IRT_GR);
+			return applyOperator(names, atom.substr(0, atom.find(">")), atom.substr(atom.find(">") + 1), Gecode::IntRelType::IRT_GR);
 		else
-			return LinIntRel(allowed_vals[findName(atom)] ==  1);
+			return LinIntRel(allowed_vals[findName(names, atom)] == 1);
 	}
 
 	/* Split the formula by the specified operator (either | or &). This is an intelligent split - only symbols that are outside parenthesis are considered. */
 	vector<string> splitByOperator(const bool is_or, const string & formula) {
 		vector<string> result;
-		
+
 		int parity = 0;
 		size_t last_pos = 0;
 		for (const size_t pos : scope(formula)) {
@@ -89,7 +81,7 @@ class ConstraintParser : public Space {
 			else if (formula[pos] == ')')
 				parity--;
 			if (parity < 0)
-				throw runtime_error("There is a right bracket without matching left bracket in the part \"" + formula + "\" of the fomula \"" + formula_ + "\".");
+				throw runtime_error("There is a right bracket without matching left bracket in the part \"" + formula + "\".");
 
 			if (parity == 0 && ((formula[pos] == '|' && is_or) || (formula[pos] == '&' && !is_or))) {
 				result.push_back(formula.substr(last_pos, pos - last_pos));
@@ -100,7 +92,7 @@ class ConstraintParser : public Space {
 		result.push_back(formula.substr(last_pos));
 
 		if (parity > 0)
-			throw runtime_error("There is a left bracket without matching right bracket in the part \"" + formula + "\" of the fomula \"" + formula_ + "\".");
+			throw runtime_error("There is a left bracket without matching right bracket in the part \"" + formula + "\".");
 
 		return result;
 	}
@@ -123,12 +115,12 @@ class ConstraintParser : public Space {
 			if (parity == 0)
 				return;
 		}
-		
+
 		formula = formula.substr(1, formula.size() - 2);
 	}
 
 	/*  */
-	BoolExpr resolveFormula(string formula) {
+	BoolExpr resolveFormula(const vector<string> & names, string formula) {
 		BoolExpr result;
 
 		// Remove outer parenthesis until you reach fixpoint.
@@ -145,37 +137,32 @@ class ConstraintParser : public Space {
 		// Based on the divisions decide how to deal with the formula
 		if (div_by_or.size() == 1 && div_by_and.size() == 1) {
 			if (formula[0] == '!')
-				return BoolExpr(!resolveFormula(formula.substr(1)));
+				return BoolExpr(!resolveFormula(names, formula.substr(1)));
 			else
-				return convertAtom(formula);
+				return convertAtom(names, formula);
 		}
 		else if (div_by_or.size() > 1 && div_by_and.size() == 1) {
-			result = BoolExpr(resolveFormula(div_by_or[0]) || resolveFormula(div_by_or[1]));
-			for (const size_t expr_no : range(2u, div_by_or.size())) 
-				result = BoolExpr(result || resolveFormula(div_by_or[expr_no]));
+			result = BoolExpr(resolveFormula(names, div_by_or[0]) || resolveFormula(names, div_by_or[1]));
+			for (const size_t expr_no : range(2u, div_by_or.size()))
+				result = BoolExpr(result || resolveFormula(names, div_by_or[expr_no]));
 			return result;
 		}
 		else if (div_by_or.size() == 1 && div_by_and.size() > 1) {
-			result = BoolExpr(resolveFormula(div_by_and[0]) && resolveFormula(div_by_and[1]));
+			result = BoolExpr(resolveFormula(names, div_by_and[0]) && resolveFormula(names, div_by_and[1]));
 			for (const size_t expr_no : range(2u, div_by_and.size()))
-				result = BoolExpr(result && resolveFormula(div_by_and[expr_no]));
+				result = BoolExpr(result && resolveFormula(names, div_by_and[expr_no]));
 			return result;
 		}
 		else {
-			throw runtime_error("Error when parsing the part \"" + formula + "\" of the fomula \"" + formula_ + 
-				"\". Operators | and & are mixed, add parenthesis.");
+			throw runtime_error("Error when parsing the part \"" + formula + "\" Operators | and & are mixed, add parenthesis.");
 		}
 	}
 
 public:
-	NO_COPY(ConstraintParser)
-
-		ConstraintParser(const vector<string> & _names, const size_t upper_bound)
-		: allowed_vals(*this, _names.size(), 0, upper_bound), names(_names) {
-			branch(*this, allowed_vals, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
-			tt_expr = BoolExpr(allowed_vals[0] == allowed_vals[0]);
-			ff_expr = BoolExpr(allowed_vals[0] != allowed_vals[0]);
-		}
+	ConstraintParser(const size_t number, const size_t upper_bound)
+		: allowed_vals(*this, number, 0, upper_bound) {
+		branch(*this, allowed_vals, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
+	}
 
 	ConstraintParser(bool share, ConstraintParser &other_space)
 		: Space(share, other_space) {
@@ -195,10 +182,10 @@ public:
 	}
 
 	/* Take a logical formula and make it into a constraint that gets propagated. */
-	void applyFormula(string formula) {
-		formula_ = formula;
+	void applyFormula(const vector<string> & names, string formula) {
+		// Remove spaces
 		formula.erase(remove_if(formula.begin(), formula.end(), isspace), formula.end());
-		BoolExpr expr = resolveFormula(formula);
+		BoolExpr expr = resolveFormula(names, formula);
 		rel(*this, expr);
 	}
 
@@ -225,17 +212,19 @@ public:
 
 	// True iff the required result is in between solution of the formula
 	static bool contains(const vector<string> & names, const Levels & maxes, const Levels & required, const string & formula) {
-		ConstraintParser *constraint_parser = new ConstraintParser(names, *max_element(maxes.begin(), maxes.end()));
+		ConstraintParser *constraint_parser = new ConstraintParser(maxes.size(), *max_element(maxes.begin(), maxes.end()));
 		// Force the values by bounding from the both sides and add the formula.
 		constraint_parser->addBoundaries(maxes, true);
 		constraint_parser->addBoundaries(required, true);
 		constraint_parser->addBoundaries(required, false);
-		constraint_parser->applyFormula(formula);
+		constraint_parser->applyFormula(names, formula);
 
 		// Return true iff a solution is found
 		DFS<ConstraintParser> search(constraint_parser);
+		
+		ConstraintParser * new_par = search.next();
 		delete constraint_parser;
-		return search.next();
+		return new_par;
 	}
 };
 

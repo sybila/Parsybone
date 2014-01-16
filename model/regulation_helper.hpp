@@ -65,22 +65,6 @@ namespace RegulationHelper {
          }
       }
    }
-
-   /**
-    * @brief setConditions set conditions on nature of the regulation based on its label.
-    */
-   void fillConditions(Model & model) {
-      for (const SpecieID ID : range(model.species.size())) {
-         Model::Regulations & reguls = model.species[ID].regulations;
-         for (Model::Regulation & regul:reguls) {
-			 string label = getLabel(regul.label);
-			 regul.edge_const_func.none = ConstraintParser::contains({ "+", "-" }, { 1, 1 }, { 0, 0 }, label); 
-			 regul.edge_const_func.act = ConstraintParser::contains({ "+", "-" }, { 1, 1 }, { 1, 0 }, label);
-			 regul.edge_const_func.inh = ConstraintParser::contains({ "+", "-" }, { 1, 1 }, { 0, 1 }, label);
-			 regul.edge_const_func.both = ConstraintParser::contains({ "+", "-" }, { 1, 1 }, { 1, 1 }, label);
-         }
-      }
-   }
 };
 
 #endif // REGULATION_HELPER_HPP

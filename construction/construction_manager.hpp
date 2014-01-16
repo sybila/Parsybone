@@ -29,8 +29,6 @@ namespace ConstructionManager {
    void computeModelProps(Model & model) {
       // Add levels to the regulations.
       RegulationHelper::fillActivationLevels(model);
-      // Set conditions on the edges.
-      RegulationHelper::fillConditions(model);
       // Compute parameter values.
       ParameterHelper::fillParameters(model);
       // Replace explicitly defined parameters.

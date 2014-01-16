@@ -112,6 +112,7 @@ class UnparametrizedStructureBuilder {
     */
    void computeBoundaries() {
       states_count = 1;
+	  vector<size_t> differences;
       for(size_t specie_num = 0; specie_num < model.species.size(); specie_num++) {
          // Maximal values of species
          maxes.push_back(model.getMax(specie_num));
@@ -153,6 +154,10 @@ public:
     */
    UnparametrizedStructure buildStructure() {
       UnparametrizedStructure structure;
+	  structure.maxes = maxes;
+	  structure.mins = mins;
+	  structure.diffs.resize(maxes.size());
+	  transform(maxes.begin(), maxes.end(), mins.begin(), structure.diffs.begin(), std::minus<ActLevel>());
       const size_t state_count = accumulate(maxes.begin(), maxes.end(), 1, [](const size_t res, const size_t val){return res * (val + 1);});
       size_t state_no = 0;
 

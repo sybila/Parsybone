@@ -23,103 +23,85 @@
 /// Automaton is provided with string labels on the edges that are parsed and resolved for the graph.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AutomatonBuilder {
-   const Model & model; ///< Model that holds the data.
-   const PropertyAutomaton & property;
+	const Model & model; ///< Model that holds the data.
+	const PropertyAutomaton & property;
 
-   Levels maxes; ///< Maximal activity levels of the species.
-   Levels mins; ///< Minimal activity levels of the species.
+	vector<string> names; ///< Name of the i-th specie.
+	Levels maxes; ///< Maximal activity levels of the species.
+	Levels mins; ///< Minimal activity levels of the species.
 
-   /**
-    * Compute a vector of maximal levels and store information about states.
-    */
-   void computeBoundaries() {
-      for(const SpecieID ID : scope(model.species)) {
-         // Maximal values of species
-         maxes.push_back(model.getMax(ID));
-         mins.push_back(model.getMin(ID));
-      }
-   }
+	/**
+	 * Compute a vector of maximal levels and store information about states.
+	 */
+	void computeBoundaries() {
+		for (const SpecieID ID : scope(model.species)) {
+			// Maximal values of species
+			names.push_back(model.getName(ID));
+			maxes.push_back(model.getMax(ID));
+			mins.push_back(model.getMin(ID));
+		}
+	}
 
-   /**
-    * Computes a vector containing all Levels that are acceptable for a transition with a given label.
-    */
-   Configurations getAllowed(const string & label) const {
-      // Get atoms of the lable
-      auto atoms = AutomatonHelper::getAtoms(label);
-      // Decide in which activation levels of species those atoms are true
-      auto values = AutomatonHelper::getValues(atoms, model);
+	/**
+	 * Creates transitions from labelled edges of BA and passes them to the automaton structure.
+	 */
+	void addTransitions(AutomatonStructure & automaton, const StateID ID) const {
+		const PropertyAutomaton::Edges & edges = property.getEdges(ID);
 
-      // Try all combinations of values that are possible and for each resolve the label
-      Configurations allowed;
-      Levels iterated = mins;
-      do {
-         auto valuation = AutomatonHelper::getValuation(atoms, values, iterated);
-         if (FormulaeResolver::resolve(valuation, label))
-            allowed.push_back(iterated);
-      } while (iterate(maxes, mins, iterated));
+		// Transform each edge into transition and pass it to the automaton
+		for (const PropertyAutomaton::Edge & edge : edges) {
+			// Compute allowed values from string of constrains
+			ConstraintParser * parser = new ConstraintParser(maxes.size(), *max_element(maxes.begin(), maxes.end()));
+			parser->applyFormula(names, edge.cons.values);
+			parser->addBoundaries(maxes, true);
+			parser->addBoundaries(mins, false);
 
-      return allowed;
-   }
+			automaton.addTransition(ID, { edge.target_ID, parser, edge.cons.transient, edge.cons.stable });
+		}
+	}
 
-   /**
-    * Creates transitions from labelled edges of BA and passes them to automaton structure.
-    */
-   void addTransitions(AutomatonStructure & automaton, const StateID ID) const {
-      const PropertyAutomaton::Edges & edges = property.getEdges(ID);
-
-      // Transform each edge into transition and pass it to the automaton
-      for (size_t edge_num = 0; edge_num < edges.size(); edge_num++) {
-         // Compute allowed values from string of constrains
-         Configurations allowed_values = move(getAllowed(edges[edge_num].cons.values));
-         // If the transition is possible for at least some values, add it
-         if (!allowed_values.empty()) {
-            automaton.addTransition(ID, {edges[edge_num].target_ID, allowed_values, edges[edge_num].cons.transient, edges[edge_num].cons.stable});
-         }
-      }
-   }
-
-   /**
-    * @brief setAutType sets type of the automaton based on the type of the property
-    */
-   void setAutType(AutomatonStructure & automaton) {
-      switch (property.getPropType()) {
-         case LTL:
-            automaton.my_type = BA_standard;
-            break;
-         case TimeSeries:
-            automaton.my_type = BA_finite;
-            break;
-         default:
-         throw runtime_error("Type of the verification automaton is not known.");
-      }
-   }
+	/**
+	 * @brief setAutType sets type of the automaton based on the type of the property
+	 */
+	void setAutType(AutomatonStructure & automaton) {
+		switch (property.getPropType()) {
+		case LTL:
+			automaton.my_type = BA_standard;
+			break;
+		case TimeSeries:
+			automaton.my_type = BA_finite;
+			break;
+		default:
+			throw runtime_error("Type of the verification automaton is not known.");
+		}
+	}
 
 public:
-   AutomatonBuilder(const Model & _model, const PropertyAutomaton & _property) : model(_model), property(_property) {
-      computeBoundaries();
-   }
+	AutomatonBuilder(const Model & _model, const PropertyAutomaton & _property) : model(_model), property(_property) {
+		computeBoundaries();
+	}
 
-   /**
-    * Create the transitions from the model and fill the automaton with them.
-    */
-   AutomatonStructure buildAutomaton() {
-      AutomatonStructure automaton;
-      setAutType(automaton);
-      const size_t state_count = property.getStatesCount();
-      size_t state_no = 0;
+	/**
+	 * Create the transitions from the model and fill the automaton with them.
+	 */
+	AutomatonStructure buildAutomaton() {
+		AutomatonStructure automaton;
+		setAutType(automaton);
+		const size_t state_count = property.getStatesCount();
+		size_t state_no = 0;
 
-      // List throught all the automaton states
-      for (StateID ID = 0; ID < property.getStatesCount(); ID++) {
-         output_streamer.output(verbose_str, "Building automaton state: " + to_string(++state_no) + "/" + to_string(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-         // Fill auxiliary data
-         automaton.addState(ID, property.isFinal(ID));
-         // Add transitions for this state
-         addTransitions(automaton, ID);
-      }
-      output_streamer.clear_line(verbose_str);
+		// List throught all the automaton states
+		for (StateID ID = 0; ID < property.getStatesCount(); ID++) {
+			output_streamer.output(verbose_str, "Building automaton state: " + to_string(++state_no) + "/" + to_string(state_count) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+			// Fill auxiliary data
+			automaton.addState(ID, property.isFinal(ID));
+			// Add transitions for this state
+			addTransitions(automaton, ID);
+		}
+		output_streamer.clear_line(verbose_str);
 
-      return automaton;
-   }
+		return automaton;
+	}
 };
 
 #endif // PARSYBONE_AUTOMATON_BUILDER_INCLUDED

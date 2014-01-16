@@ -47,30 +47,6 @@ TEST_F(ModelsTest, ParametrizationControl) {
 }
 
 /// This test controls functionality of loop bounding constraint.
-TEST_F(ModelsTest, ParametrizationExtremal) {
-   circuit_2.addSpecie("C", 1, range<ActLevel>(2u));
-   circuit_2.addRegulation(2, 0, 1, "!-");
-   circuit_2.restrictions.force_extremes = true;
-   ConstructionManager::computeModelProps(circuit_2);
-
-   const Model::Parameter & full_act_1 = ModelTranslators::matchContext(circuit_2, "B:0,C:1", 0);
-   ASSERT_EQ(1, full_act_1.targets.size()) << "Target is supposed to be 1.";
-   EXPECT_EQ(1, full_act_1.targets[0]) << "Target is supposed to be 1.";
-   const Model::Parameter & none_act_1 = ModelTranslators::matchContext(circuit_2, "B:1,C:0", 0);
-   ASSERT_EQ(1, none_act_1.targets.size()) << "Target is supposed to be 0.";
-   EXPECT_EQ(0, none_act_1.targets[0]) << "Target is supposed to be 0.";
-   const Model::Parameter & mixed_1 = ModelTranslators::matchContext(circuit_2, "B:1,C:1", 0);
-   ASSERT_EQ(2, mixed_1.targets.size()) << "Target is supposed to be 0.";
-   const Model::Parameter & mixed_2 = ModelTranslators::matchContext(circuit_2, "B:0,C:0", 0);
-   ASSERT_EQ(2, mixed_2.targets.size()) << "Target is supposed to be 0.";
-
-   bool_k_2.restrictions.force_extremes = true;
-   ConstructionManager::computeModelProps(bool_k_2);
-   const Model::Parameter & fake_full_act = ModelTranslators::matchContext(bool_k_2, "A:0,B:0,C:1", 0);
-   EXPECT_EQ(2, fake_full_act.targets.size()) << "Target is supposed to be 1.";
-}
-
-/// This test controls functionality of loop bounding constraint.
 TEST_F(ModelsTest, ParametrizationLoopBound) {
    Model loop_model;
    loop_model.addSpecie("A", 1, range<ActLevel>(2u));

@@ -13,7 +13,6 @@
 #include "../auxiliary/formulae_resolver.hpp"
 #include "../auxiliary/data_types.hpp"
 #include "parametrizations_helper.hpp"
-#include "constraint_space.hpp"
 #include "model_translators.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,6 +71,7 @@ class ParametrizationsBuilder {
 		formula = "(" + formula + ")";
 	}
 
+
 	static string createFormula(const Model &model, const SpecieID ID) {
 		string result = "tt ";
 
@@ -103,10 +103,10 @@ class ParametrizationsBuilder {
 		for (const Model::Parameter & param : model.getParameters(ID))
 			names.push_back(param.context);
 		
-		ConstraintParser * cons_pars = new ConstraintParser(names, model.getMax(ID));
+		ConstraintParser * cons_pars = new ConstraintParser(names.size(), model.getMax(ID));
 
 		// Impose constraints
-		cons_pars->applyFormula(formula);
+		cons_pars->applyFormula(names, formula);
 
 		// Conduct search
 		DFS<ConstraintParser> search(cons_pars);
