@@ -51,17 +51,32 @@ class ProductStructure : public AutomatonInterface<ProdState>, public TSInterfac
 		for (const StateID KS_ID : range(structure.getStateCount())) {
 			StateID ID = getProductID(KS_ID, BA_ID);
 			const Levels& levels = structure.getStateLevels(KS_ID);
-			states.push_back(ProdState(ID, KS_ID, BA_ID, automaton.isInitial(BA_ID), automaton.isFinal(BA_ID), levels));
-			if (automaton.isInitial(BA_ID))
-				initial_states.push_back(ID);
-			if (automaton.isFinal(BA_ID))
-				final_states.push_back(ID);
+			states.push_back(ProdState(ID, KS_ID, BA_ID, false, false, levels));
 		}
 	}
 
 	// TODO remove labels from states that have no outgoing edges
-	void relabel() {
-
+	void relabel(const StateID BA_ID) {
+		if (automaton.isInitial(BA_ID)) {
+			for (const StateID KS_ID : range(structure.getStateCount())) {
+				StateID ID = getProductID(KS_ID, BA_ID);
+				// If there's a way to leave the state
+				if ((states[ID].transitions.size() + states[ID].loops.size()) > 0) {
+					initial_states.push_back(ID);
+					states[ID].initial = true;
+				}
+			}
+		}
+		if (automaton.isFinal(BA_ID)) {
+			for (const StateID KS_ID : range(structure.getStateCount())) {
+				StateID ID = getProductID(KS_ID, BA_ID);
+				// If there's a way to leave the state
+				if ((states[ID].transitions.size() + states[ID].loops.size()) > 0 || (automaton.getMyType() == BA_finite)) {
+					final_states.push_back(ID);
+					states[ID].final = true;
+				}
+			}
+		}
 	}
 
 	/**

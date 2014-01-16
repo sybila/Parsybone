@@ -21,8 +21,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename Transition>
 struct AutomatonStateProperty : public StateProperty<Transition> {
-   const bool initial; ///< True if the state is initial.
-   const bool final; ///< True if this state is final.
+   bool initial; ///< True if the state is initial.
+   bool final; ///< True if this state is final.
 
    /**
     * Adds information if the state is final or initial, passes the rest.

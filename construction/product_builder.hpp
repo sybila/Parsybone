@@ -67,6 +67,7 @@ public:
 				OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 			product.createSubspace(BA_ID);
 			addSubspaceTransitions(BA_ID, product);
+			product.relabel(BA_ID);
 		}
 
 		output_streamer.clear_line(verbose_str);
