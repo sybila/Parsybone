@@ -111,7 +111,8 @@ protected:
       stable_prop.addEdge(1,2,{"tt",false, true});
       stable_prop.addEdge(2,2,{"ff"});
 
-      bistable_prop = PropertyAutomaton(TimeSeries, 2, INF);
+      bistable_prop = PropertyAutomaton(TimeSeries);
+	  bistable_prop.min_acc = 2;
       bistable_prop.addState("init",false);
       bistable_prop.addState("stable",false);
       bistable_prop.addState("final",true);

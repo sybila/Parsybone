@@ -50,14 +50,14 @@ TEST_F(StructureTest, TestCorrectAutomata) {
 }
 
 TEST_F(StructureTest, TestCorrectUnparametrizedStucture) {
-   UnparametrizedStructureBuilder o_t_u_s_builder(one_three);
+   UnparametrizedStructureBuilder o_t_u_s_builder(one_three, trivial_prop);
    UnparametrizedStructure o_t_u_s = o_t_u_s_builder.buildStructure();
    ASSERT_EQ(8, o_t_u_s.getStateCount());
    EXPECT_EQ(0, o_t_u_s.getStateLevels(0).front());
    EXPECT_EQ(3, o_t_u_s.getStateLevels(7).back());
    ASSERT_EQ(2, o_t_u_s.getTransitionCount(0)) << "Exactly two transitions should be possible from (0,0) .";
 
-   UnparametrizedStructureBuilder b_k_2_u_s_builder(bool_k_2);
+   UnparametrizedStructureBuilder b_k_2_u_s_builder(bool_k_2, trivial_prop);
    UnparametrizedStructure b_k_2_u_s = b_k_2_u_s_builder.buildStructure();
    ASSERT_EQ(4, b_k_2_u_s.getStateCount());
    EXPECT_EQ(0, b_k_2_u_s.getStateLevels(0).front());

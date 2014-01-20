@@ -50,8 +50,7 @@ public:
 	size_t min_acc; ///< Minimal number of accepting states required for acceptation (LTL counting)
 	size_t max_acc; ///< Maximal number --||--
 
-	PropertyAutomaton(const PropType _prop_type) : prop_type(_prop_type), experiment("tt"), min_acc(1u), max_acc(INF) { }
-	PropertyAutomaton() : PropertyAutomaton(LTL) { }
+	PropertyAutomaton(const PropType _prop_type = LTL) : prop_type(_prop_type), experiment("tt"), min_acc(1u), max_acc(INF) { }
 
 	/**
 	 * Add a new state to the automaton. If the name is empty, then "ID of the automaton" + "letter" is used.
