@@ -14,7 +14,6 @@
 #include "../model/model_translators.hpp"
 #include "../model/property_automaton.hpp"
 #include "automaton_structure.hpp"
-#include "automaton_helper.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///  \brief Transform graph of the automaton into a set of labeled transitions in an AutomatonStructure object.

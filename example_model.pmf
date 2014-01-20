@@ -3,17 +3,14 @@
 	<SPECIE>
 		<REGUL source="B" threshold="1" />
 		<REGUL source="A" />            
-		<PARAM context="" value="0" />
-		<PARAM context="B" value="1" />
-		<PARAM context="A" value="0" />
-		<PARAM context="A,B" value="0"/>   
+		<CONSTR expr="A:0 = 0" />
+		<CONSTR expr="B = 1" />
+		<CONSTR expr="A = 0" />
+		<CONSTR expr="A,B = 0"/>   
 	</SPECIE>
 	<SPECIE>
 		<REGUL source="A" />
-		<REGUL source="B" label="+" />            
-		<PARAM context="" value="0,1" />
-		<PARAM context="B" value="1" />
-		<PARAM context="A" value="0" />
-		<PARAM context="A,B" />            
+		<REGUL source="B" />            
+		<CONSTR expr="A,B = A:0 & A:1 > 0" />
 	</SPECIE>
 </NETWORK>

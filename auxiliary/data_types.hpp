@@ -120,5 +120,6 @@ typedef vector<StateID> Neighbours;
 
 /// this value represents infinite value - used for showing that a variable is unset
 const size_t INF = ~0u;
+const ActLevel INF_SHORT = ~((short) 0u);
 
 #endif // PARSYBONE_DATA_TYPES_INCLUDED

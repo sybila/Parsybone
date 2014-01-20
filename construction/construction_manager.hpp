@@ -33,6 +33,8 @@ namespace ConstructionManager {
       ParameterHelper::fillParameters(model);
       // Replace explicitly defined parameters.
       ParameterReader::constrainParameters(model);
+
+	  vector<bool> allowed_states;
       // Compute exact parametrization for the model.
       ParametrizationsBuilder::buildParametrizations(model);
       // Build labels for regulations.
@@ -44,7 +46,7 @@ namespace ConstructionManager {
     */
    ProductStructure construct(const Model & model, const PropertyAutomaton & property) {
       // Create the UKS
-      UnparametrizedStructureBuilder unparametrized_structure_builder(model);
+      UnparametrizedStructureBuilder unparametrized_structure_builder(model, property);
       UnparametrizedStructure unparametrized_structure = unparametrized_structure_builder.buildStructure();
 
       // Create the Buchi automaton

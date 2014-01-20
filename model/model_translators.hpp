@@ -46,6 +46,16 @@ namespace ModelTranslators {
    }
 
    /**
+   * @return	names of all the species
+   */
+   vector<string> getAllNames(const Model & model) {
+	   vector<string> names;
+	   for (const Model::ModelSpecie & specie : model.species)
+		   names.push_back(specie.name);
+	   return names;
+   }
+
+   /**
     * @brief getThresholds Finds a list of thresholds for each regulator of a given component.
     * @param ID
     * @return
@@ -135,7 +145,7 @@ namespace ModelTranslators {
    }
 
    /**
-    * @return numbers of all parametrizations that match the one given on input
+    * @return numbers of all parametrizations that match the givene values in all the values that overlap
     */
    set<ParamNo> findMatching(const Model & model, const Levels & param_vals) {
       set<ParamNo> matching;
@@ -150,7 +160,7 @@ namespace ModelTranslators {
             bool valid = true;
             // For the match to occur, all values must either be equal or defined irellevant.
             for (const size_t value_no: scope(model.species[ID].subcolors[subolor_no])) {
-               if (param_vals[value_no + begin] != numeric_limits<ActLevel>::infinity() && param_vals[value_no + begin] != model.species[ID].subcolors[subolor_no][value_no]) {
+               if (param_vals[value_no + begin] != INF_SHORT && param_vals[value_no + begin] != model.species[ID].subcolors[subolor_no][value_no]) {
                   valid = false;
                   break;
                }
@@ -211,7 +221,7 @@ namespace ModelTranslators {
       }
 	  // Check if the threshold is valid
 	  size_t thrs = boost::lexical_cast<size_t>(to_return);
-	  if (find(thresholds.begin(), thresholds.end(), thrs) == thresholds.end())
+	  if (thrs != 0 && find(thresholds.begin(), thresholds.end(), thrs) == thresholds.end())
 		  throw runtime_error ("The threshold value \"" + to_return + "\" is not valid for the context \"" + context + "\".");
 
 	  return thrs;

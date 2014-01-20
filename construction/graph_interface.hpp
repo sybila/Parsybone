@@ -20,13 +20,13 @@
 /// \brief This is just a very simple basis for a transition in a graph.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct TransitionProperty {
-   /// Unique ID of the state.
-   const StateID target_ID;
+	/// Unique ID of the state.
+	const StateID target_ID;
 
-   /**
-    * Basic constructor fills in the ID.
-    */
-   TransitionProperty(StateID _target_ID) : target_ID(_target_ID) { }
+	/**
+	 * Basic constructor fills in the ID.
+	 */
+	TransitionProperty(StateID _target_ID) : target_ID(_target_ID) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,15 +34,15 @@ struct TransitionProperty {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename Transition>
 struct StateProperty {
-   /// Unique ID of the state.
-   const StateID ID;
-   /// Graph or automaton transitions, basically it is an edge with a label.
-   vector<Transition> transitions;
+	/// Unique ID of the state.
+	const StateID ID;
+	/// Graph or automaton transitions, basically it is an edge with a label.
+	vector<Transition> transitions;
 
-   /**
-    * Basic constructor that fills in the ID and label.
-    */
-   StateProperty<Transition>(const StateID _ID) : ID(_ID) { }
+	/**
+	 * Basic constructor that fills in the ID and label.
+	 */
+	StateProperty<Transition>(const StateID _ID) : ID(_ID) { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,11 +51,11 @@ struct StateProperty {
 template <typename StateT>
 class GraphInterface {
 protected:
-   vector<StateT> states; ///< Vector holding states of the graph.
+	vector<StateT> states; ///< Vector holding states of the graph.
 
 public:
-   NO_COPY(GraphInterface)
-   virtual ~GraphInterface() = default;
+	NO_COPY(GraphInterface)
+		virtual ~GraphInterface() = default;
 
 	/**
 	 * Obtains number of states of the graph.
@@ -68,7 +68,7 @@ public:
 	/**
 	 * Obtains number of outcoming transitions for given state.
 	 * @param ID	ID of the state to get the number from
-	 * @return	integer with number of outcoming transitions 
+	 * @return	integer with number of outcoming transitions
 	 */
 	inline size_t getTransitionCount(const StateID ID) const {
 		return states[ID].transitions.size();
@@ -90,8 +90,8 @@ public:
 	 * @return	given state as a string
 	 */
 
-   const string getString(const StateID ID) const {
-      return to_string(ID);
+	const string getString(const StateID ID) const {
+		return to_string(ID);
 	}
 };
 
