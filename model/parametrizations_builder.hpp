@@ -13,7 +13,7 @@
 #include "../auxiliary/formulae_resolver.hpp"
 #include "../auxiliary/data_types.hpp"
 #include "parametrizations_helper.hpp"
-#include "model_translators.hpp"
+#include "constraint_reader.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class that computes feasible parametrizations for each specie from
@@ -125,7 +125,7 @@ public:
 		for (SpecieID ID = 0; ID < model.species.size(); ID++) {
 			output_streamer.output(verbose_str, "Testing edge constraints for Specie: " + to_string(ID + 1) + "/"
 				+ to_string(model.species.size()) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
-			string formula = createFormula(model, ID);
+			string formula = createFormula(model, ID) + " & " + ConstraintReader::consToFormula(model, ID);
 			createKinetics(ID, formula, model);
 		}
 

@@ -92,7 +92,11 @@ TEST_F(ModelsTest, ReadConstraints) {
 	EXPECT_THROW(ConstraintReader::consToFormula(one_three, 0), runtime_error);
 
 	one_three.species[0].par_cons.clear();
-	one_three.species[0].par_cons.push_back("A:1,B");
+	one_three.species[0].par_cons.push_back("A:2");
+	EXPECT_THROW(ConstraintReader::consToFormula(one_three, 0), runtime_error);
+
+	one_three.species[0].par_cons.clear();
+	one_three.species[0].par_cons.push_back("A,1");
 	EXPECT_THROW(ConstraintReader::consToFormula(one_three, 0), runtime_error);
 }
 

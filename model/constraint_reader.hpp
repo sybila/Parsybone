@@ -33,6 +33,7 @@ class ConstraintReader {
 	static string formatConstraint(string original, const Model & model, const SpecieID ID) {
 		string result;
 
+		// Copy all the characters, replace contexts for canonic versions
 		size_t start = INF;
 		for (const size_t pos : scope(original)) {
 			if (start == INF) {
@@ -46,18 +47,18 @@ class ConstraintReader {
 			else {
 				if (!belongsToContext(original[pos])) {
 					string context = original.substr(start, pos - start);
-					context = ModelTranslators::makeCanonic(model, context, ID);
-					result.append(context);
+					result.append(ModelTranslators::makeCanonic(model, context, ID));
+
 					result.push_back(original[pos]);
 					start = INF;
 				}
 			}
 		}
 
+		// Add the last context in the canonic form
 		if (start != INF) {
 			string context = original.substr(start);
-			context = ModelTranslators::makeCanonic(model, context, ID);
-			result.append(context);
+			result.append(ModelTranslators::makeCanonic(model, context, ID));
 		}
 
 		return result;

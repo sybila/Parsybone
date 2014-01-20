@@ -186,15 +186,15 @@ namespace ModelTranslators {
       if (pos == context.npos)
          return 0;
       const size_t COLON_POS = pos + name.length(); // Where colon is supposed to be.
+	  auto thresholds = getThresholds(model, t_ID).find(findID(model, name))->second;
 
       // Regulator level not specified.
       if (context[COLON_POS] != ':') {
          // Control if the context is unambiguous.
-         auto thresholds = getThresholds(model, t_ID);
-         if (thresholds.find(findID(model,name))->second.size() > 1)
+		  if (thresholds.size() > 1)
             throw runtime_error ("Ambiguous context \"" + context + "\" - no threshold specified for a regulator " + name + " that has multiple regulations.");
          // If valid, add the threshold 1.
-         return thresholds.find(findID(model, name))->second[0];
+		  return thresholds[0];
       }
 
       // There is not a threshold given after double colon.
@@ -209,7 +209,12 @@ namespace ModelTranslators {
          to_return.push_back(context[COLON_POS + number]);
          number++;
       }
-      return (boost::lexical_cast<size_t>(to_return));
+	  // Check if the threshold is valid
+	  size_t thrs = boost::lexical_cast<size_t>(to_return);
+	  if (find(thresholds.begin(), thresholds.end(), thrs) == thresholds.end())
+		  throw runtime_error ("The threshold value \"" + to_return + "\" is not valid for the context \"" + context + "\".");
+
+	  return thrs;
    }
 
    /**
