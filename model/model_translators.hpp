@@ -150,7 +150,7 @@ namespace ModelTranslators {
             bool valid = true;
             // For the match to occur, all values must either be equal or defined irellevant.
             for (const size_t value_no: scope(model.species[ID].subcolors[subolor_no])) {
-               if (param_vals[value_no + begin] != static_cast<ActLevel>(INF) && param_vals[value_no + begin] != model.species[ID].subcolors[subolor_no][value_no]) {
+               if (param_vals[value_no + begin] != numeric_limits<ActLevel>::infinity() && param_vals[value_no + begin] != model.species[ID].subcolors[subolor_no][value_no]) {
                   valid = false;
                   break;
                }
@@ -220,6 +220,15 @@ namespace ModelTranslators {
    static string makeCanonic(const Model & model, const string & context, const SpecieID t_ID) {
       string new_context; // new canonic form
       const auto names = getRegulatorsNames(model, t_ID);
+
+	  // Control correctness
+	  vector<string> reguls; 
+	  split(reguls, context, is_any_of(","));
+	  for (const string regul : reguls) {
+		  string spec_name = regul.substr(0, min(regul.find(':'), regul.size()));
+		  if (find(names.begin(), names.end(), spec_name) == names.end())
+			  throw runtime_error("Unrecognized specie \"" + spec_name + "\" in the context \"" + context + "\".");
+	  }
 
       // For each of the regulator of the specie.
       for (const auto & name:names) {

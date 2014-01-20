@@ -6,11 +6,10 @@
 * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
 */
 
-#ifndef PARSYBONE_LABELING_BUILDER_INCLUDED
-#define PARSYBONE_LABELING_BUILDER_INCLUDED
+#ifndef PARSYBONE_CONSTRAINT_READER_INCLUDED
+#define PARSYBONE_CONSTRAINT_READER_INCLUDED
 
 #include "model_translators.hpp"
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Parses contrints as specified in the model and return a formula built from these constraints.
@@ -18,12 +17,12 @@
 class ConstraintReader {
 	/* Specie can start with a letter or with _ */
 	static bool initiatesContext(const char ch) {
-		return static_cast<bool>(isalpha(ch)) || ch == '_';
+		return isalpha(ch) != 0 || ch == '_';
 	}
 
-	/* Context may contain specie-characters or number or colon */
+	/* Context may contain specie-characters or number or colon or comma*/
 	static bool belongsToContext(const char ch) {
-		return initiatesContext(ch) || static_cast<bool>(isdigit(ch)) || ch == ':';
+		return initiatesContext(ch) || isdigit(ch) != 0 || ch == ':' || ch == ',';
 	}
 
 	static string addParenthesis(string expr) {
@@ -55,11 +54,17 @@ class ConstraintReader {
 			}
 		}
 
+		if (start != INF) {
+			string context = original.substr(start);
+			context = ModelTranslators::makeCanonic(model, context, ID);
+			result.append(context);
+		}
+
 		return result;
 	}
 public:
 
-	static string readConstraint(const Model & model, const SpecieID ID) {
+	static string consToFormula(const Model & model, const SpecieID ID) {
 		string formula; // Resulting formula specifying all the constraints
 		
 		formula = "tt";
@@ -71,4 +76,4 @@ public:
 		return addParenthesis(formula);
 	}
 };
-#endif // PARSYBONE_LABELING_BUILDER_INCLUDED
+#endif // PARSYBONE_CONSTRAINT_READER_INCLUDED

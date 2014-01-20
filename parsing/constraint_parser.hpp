@@ -192,7 +192,7 @@ public:
 	/* Take a logical formula and make it into a constraint that gets propagated. */
 	void applyFormula(const vector<string> & names, string formula) {
 		// Remove spaces
-		formula.erase(remove_if(formula.begin(), formula.end(), [](const char ch){return static_cast<bool>(isspace(ch)); }), formula.end());
+		formula.erase(remove_if(formula.begin(), formula.end(), (int(*)(int))isspace), formula.end());
 		BoolExpr expr = resolveFormula(names, formula);
 		rel(*this, expr);
 	}
@@ -232,7 +232,7 @@ public:
 
 		ConstraintParser * new_par = search.next();
 		delete constraint_parser;
-		return new_par;
+		return new_par != 0;
 	}
 };
 
