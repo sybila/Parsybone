@@ -191,7 +191,7 @@ public:
 	/* Take a logical formula and make it into a constraint that gets propagated. */
 	void applyFormula(const vector<string> & names, string formula) {
 		// Remove spaces
-		formula.erase(remove_if(formula.begin(), formula.end(), isspace), formula.end());
+		formula.erase(remove_if(formula.begin(), formula.end(), [](const char ch){return static_cast<bool>(isspace(ch)); }), formula.end());
 		BoolExpr expr = resolveFormula(names, formula);
 		rel(*this, expr);
 	}
