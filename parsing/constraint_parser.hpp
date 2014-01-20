@@ -107,7 +107,7 @@ class ConstraintParser : public Space {
 			return;
 		// Only the last parenthesis must be matching
 		size_t parity = 1;
-		for (const size_t pos : range(1u, formula.size() - 1)) {
+		for (const size_t pos : range(static_cast<size_t>(1), formula.size() - 1)) {
 			if (formula[pos] == '(')
 				parity++;
 			else if (formula[pos] == ')')
@@ -143,13 +143,13 @@ class ConstraintParser : public Space {
 		}
 		else if (div_by_or.size() > 1 && div_by_and.size() == 1) {
 			result = BoolExpr(resolveFormula(names, div_by_or[0]) || resolveFormula(names, div_by_or[1]));
-			for (const size_t expr_no : range(2u, div_by_or.size()))
+			for (const size_t expr_no : range(static_cast<size_t>(2), div_by_or.size()))
 				result = BoolExpr(result || resolveFormula(names, div_by_or[expr_no]));
 			return result;
 		}
 		else if (div_by_or.size() == 1 && div_by_and.size() > 1) {
 			result = BoolExpr(resolveFormula(names, div_by_and[0]) && resolveFormula(names, div_by_and[1]));
-			for (const size_t expr_no : range(2u, div_by_and.size()))
+			for (const size_t expr_no : range(static_cast<size_t>(2), div_by_and.size()))
 				result = BoolExpr(result && resolveFormula(names, div_by_and[expr_no]));
 			return result;
 		}
