@@ -11,9 +11,9 @@
 
 #include "../auxiliary/common_functions.hpp"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief A class that accepts and parser constraints from a string formula and provides solutions to these constraints.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConstraintParser : public Space {
 	IntVarArray allowed_vals; ///< The actual values
 
@@ -163,7 +163,7 @@ public:
 	ConstraintParser() = delete;
 	ConstraintParser(ConstraintParser &&) = delete;
 	ConstraintParser& operator=(ConstraintParser &&) = delete;
-	ConstraintParser(const ConstraintParser &) = delete; 
+	ConstraintParser(const ConstraintParser &) = delete;
 	ConstraintParser& operator=(const ConstraintParser &) = delete;
 
 	ConstraintParser(const size_t number, const size_t upper_bound)
@@ -182,7 +182,8 @@ public:
 
 	void addBoundaries(const Levels & boundaries, const bool is_upper) {
 		if (boundaries.size() != allowed_vals.size())
-			throw runtime_error("Trying to bound space of solutions in a constraint parser, but the number of boundaries does not match the number of variables.");
+			throw runtime_error("Trying to bound the space of solutions in a constraint parser"
+			"but the number of boundaries does not match the number of variables.");
 		auto op = is_upper ? IRT_LQ : IRT_GQ;
 		for (const ActLevel i : scope(boundaries))
 			rel(*this, allowed_vals[i], op, (boundaries[i]));
@@ -228,7 +229,7 @@ public:
 
 		// Return true iff a solution is found
 		DFS<ConstraintParser> search(constraint_parser);
-		
+
 		ConstraintParser * new_par = search.next();
 		delete constraint_parser;
 		return new_par;

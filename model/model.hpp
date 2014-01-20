@@ -12,13 +12,13 @@
 #include "../auxiliary/common_functions.hpp"
 #include "../auxiliary/output_streamer.hpp"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Storage for data parsed from the model.
 ///
 /// Model stores model data in the raw form, almost the same as in the model file itself.
 /// Model data can be set only form the ModelParser object.
 /// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Model {
 public:
    NO_COPY(Model)
@@ -53,11 +53,6 @@ public:
    };
    typedef vector<Parameter> Parameters;
 
-   typedef pair<string,string> ParamSpec;
-   struct ParamSpecs {
-      vector<ParamSpec> k_pars;
-	  vector<ParamSpec> c_pars;
-   };
    struct SpecTraits {
       bool input;
       bool output;
@@ -69,7 +64,8 @@ public:
       ActLevel max_value; ///< Maximal activation level of the specie.
       Levels basals; ///< Basal targets (is no basal value is given, then all).
       SpecTraits traits; ///< Description of the specie in the network.
-      ParamSpecs params_specs; ///< Constraints on parameters.
+	  vector<pair<string, string>>  par_kin; ///< Specification of individual kinetics.
+	  vector<string> par_cons;  ///< Constraints on the parameters.
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
@@ -80,7 +76,7 @@ public:
    vector<ModelSpecie> species; ///< vector of all species of the model
 
    inline void addSpecie(string name, ActLevel max_value, Levels targets, bool input = false, bool output = false) {
-      species.push_back({name, species.size(), max_value, targets, SpecTraits({input, output}), ParamSpecs(), Regulations(), Parameters(), Configurations()});
+	   species.push_back({ name, species.size(), max_value, targets, SpecTraits({ input, output }), vector<pair<string, string>>(), vector<string>(), Regulations(), Parameters(), Configurations() });
    }
 
    inline void addRegulation(SpecieID source_ID, SpecieID target_ID, ActLevel threshold, string label) {

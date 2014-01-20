@@ -217,7 +217,7 @@ namespace ModelTranslators {
     * @param context any valid context form as a string
     * @return canonic context form
     */
-   static string formCanonicContext(const Model & model, const string & context, const SpecieID t_ID) {
+   static string makeCanonic(const Model & model, const string & context, const SpecieID t_ID) {
       string new_context; // new canonic form
       const auto names = getRegulatorsNames(model, t_ID);
 
@@ -236,7 +236,7 @@ namespace ModelTranslators {
     * @return  the parameter that has the given context
     */
    const Model::Parameter & matchContext(const Model & model, const string & context, const SpecieID t_ID) {
-      const string canonic = formCanonicContext(model, context, t_ID);
+      const string canonic = makeCanonic(model, context, t_ID);
       for (const Model::Parameter & param : model.getParameters(t_ID))
          if (param.context.compare(canonic) == 0)
             return param;

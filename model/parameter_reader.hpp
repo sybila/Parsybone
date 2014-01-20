@@ -11,7 +11,10 @@
 
 #include "parameter_helper.hpp"
 #include "model_translators.hpp"
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief This class is responsible for explicit specification of parameter values is situ i.e. bouning of values each kinetic parameter can take 
+/// inedependently on the values of others.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ParameterReader {
    /**
     * @brief replaceInContext
@@ -86,9 +89,9 @@ class ParameterReader {
     */
    static void replaceExplicit(const Model & model, Model::Parameters & constraints, const SpecieID t_ID) {
       // List through all the PARAM nodes.
-      for (const auto & param : model.species[t_ID].params_specs.k_pars) {
+      for (const auto & param : model.species[t_ID].par_kin) {
          // Obtain context specified.
-         string can_context = ModelTranslators::formCanonicContext(model, param.first, t_ID);
+         string can_context = ModelTranslators::makeCanonic(model, param.first, t_ID);
 
          // Get the levels.
          Levels targets = interpretLevels(model, param.second, t_ID);
