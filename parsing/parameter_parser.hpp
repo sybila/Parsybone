@@ -35,9 +35,9 @@ public:
       for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE") ) {
          // Create all contexts with all the possible values.
          auto k_pars = parseParameters("PARAM", "context", specie);
-         auto l_pars = parseParameters("LOGIC", "expression", specie);
+		 auto c_pars = parseParameters("CONSTR", "values", specie);
 
-         model.species[ID].params_specs = {k_pars,l_pars};
+		 model.species[ID].params_specs = { k_pars, c_pars };
       }
    }
 };

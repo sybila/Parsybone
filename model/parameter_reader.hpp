@@ -111,10 +111,6 @@ public:
          // Create all contexts with all the possible values.
          auto parameters = model.getParameters(ID);
 
-         // If logic description is given evaluate results.
-         if (!model.species[ID].params_specs.l_pars.empty())
-            throw runtime_error("Logical expression temporarily disabled.");
-
          // Otherwise replace values.
          replaceExplicit(model, parameters, ID);
 

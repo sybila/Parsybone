@@ -56,7 +56,7 @@ public:
    typedef pair<string,string> ParamSpec;
    struct ParamSpecs {
       vector<ParamSpec> k_pars;
-      vector<ParamSpec> l_pars;
+	  vector<ParamSpec> c_pars;
    };
    struct SpecTraits {
       bool input;
