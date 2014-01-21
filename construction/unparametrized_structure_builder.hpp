@@ -69,13 +69,13 @@ class UnparametrizedStructureBuilder {
 			// If this value is not the lowest one, add neighbour with lower
 			if (state_levels[specie] > 0) {
 				const StateID target_ID = ID - index_jumps[specie];
-				if (allowed_states[ID])
+				if (allowed_states[target_ID])
 					addTransition(ID, target_ID, specie, false, state_levels, structure);
 			}
 			// If this value is not the highest one, add neighbour with higher
 			if (state_levels[specie] < structure.maxes[specie]) {
 				const StateID target_ID = ID + index_jumps[specie];
-				if (allowed_states[ID])
+				if (allowed_states[target_ID])
 					addTransition(ID, target_ID, specie, true, state_levels, structure);
 			}
 		}
@@ -144,15 +144,15 @@ class UnparametrizedStructureBuilder {
 		}
 	}
 
-	/**/
-	void prepareAllowed(const UnparametrizedStructure & structure, const size_t state_count) {
+	/* Prepare the data structure that stores IDs of allowed states. */
+	void prepareAllowed(const UnparametrizedStructure & structure, const size_t state_count, const bool init) {
 		if (state_count * property.getStatesCount() > structure.states.max_size())
 			throw runtime_error("The number of states of the product (" + to_string(state_count * property.getStatesCount()) +
 			" is bigger than the maximum of " + to_string(structure.states.max_size()));
-		allowed_states.resize(state_count);
+		allowed_states.resize(state_count, init);
 	}
 
-	/* */
+	/* Label, as allowed, those states that satisfy the experiment;*/
 	void solveConstrains(UnparametrizedStructure & structure) {
 		ConstraintParser * cons_pars = new ConstraintParser(structure.maxes.size(), *max_element(structure.maxes.begin(), structure.maxes.end()));
 
@@ -182,8 +182,13 @@ public:
 		// Compute transitions-related values
 		computeJumps();
 		// Solve constraints
-		prepareAllowed(structure, state_count);
-		solveConstrains(structure);
+		if (property.getExperiment().compare("tt") == 0) {
+			prepareAllowed(structure, state_count, true);
+		}
+		else {
+			prepareAllowed(structure, state_count, false);
+			solveConstrains(structure);
+		}
 
 		size_t state_no = 0;
 
