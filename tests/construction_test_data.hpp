@@ -24,6 +24,7 @@ protected:
    ProductStructure trivial;
    ProductStructure b_k_2_stable;
    ProductStructure b_k_2_bistable;
+   ProductStructure c_2_experiment;
 
    void SetUp() override {
       ModelsTest::SetUp();
@@ -43,6 +44,7 @@ protected:
       b_k_2_a_peak = ConstructionManager::construct(bool_k_2, arbitrary_peak_prop);
       b_k_2_stable = ConstructionManager::construct(bool_k_2, stable_prop);
       b_k_2_bistable = ConstructionManager::construct(bool_k_2, bistable_prop);
+	  c_2_experiment = ConstructionManager::construct(circuit_2, experiment_series);
    }
 };
 

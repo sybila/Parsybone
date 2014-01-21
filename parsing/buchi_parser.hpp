@@ -1,10 +1,10 @@
 #ifndef PARSYBONE_AUTOMATON_PARSER_INCLUDED
 #define PARSYBONE_AUTOMATON_PARSER_INCLUDED
 
-#include "../auxiliary/data_types.hpp"
 #include "xml_helper.hpp"
 #include "../model/model.hpp"
 #include "../model/property_automaton.hpp"
+#include "parsing_commons.hpp"
 #include "property_parsing.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ class BuchiParser {
 			if (target_ID >= automaton.getStatesCount())
 				throw invalid_argument(string("Incorrect value as a target of the state ").append(to_string(source_ID)));
 
-			PropertyAutomaton::Constraints cons = PropertyParsing::readConstraints(edge);
+			PropertyAutomaton::Constraints cons = ParsingCommons::readConstraints(edge);
 
 			// Add a new regulation to the specified target
 			automaton.addEdge(source_ID, target_ID, cons);
@@ -77,6 +77,7 @@ public:
 	 */
 	static PropertyAutomaton parse(const rapidxml::xml_node<> * const automaton_node) {
 		PropertyAutomaton automaton(LTL);
+		ParsingCommons::parsePropertySetup(automaton_node, automaton);
 
 		// Parse states
 		firstParse(automaton_node, automaton);

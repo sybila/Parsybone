@@ -24,6 +24,7 @@ protected:
    SynthesisManager b_k_2_a_p_man;
    SynthesisManager b_k_2_s_man;
    SynthesisManager b_k_2_bs_man;
+   SynthesisManager c_2_e_man;
 
    void SetUp() override {
       StructureTest::SetUp();
@@ -38,6 +39,7 @@ protected:
       b_k_2_a_p_man = SynthesisManager(b_k_2_a_peak);
       b_k_2_s_man = SynthesisManager(b_k_2_stable);
       b_k_2_bs_man = SynthesisManager(b_k_2_bistable);
+	  c_2_e_man = SynthesisManager(c_2_experiment);
    }
 };
 

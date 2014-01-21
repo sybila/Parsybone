@@ -164,32 +164,42 @@ TEST_F(SynthesisTest, TestBounds) {
 }
 
 TEST_F(SynthesisTest, TestStable) {
-   vector<StateTransition> witness; double robust;
-   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-      b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true, 1, INF);
+	vector<StateTransition> witness; double robust;
+	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
+		b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true, 1, INF);
 
-      // First transition must be transient, second stable.
-      bool correct = true;
-      for (StateTransition & trans : witness)
-         if (b_k_2_stable.getBAID(trans.first) == 0)
-            correct &= (b_k_2_stable.getKSID(trans.first) != (b_k_2_stable.getKSID(trans.second)));
-         else if (b_k_2_stable.getBAID(trans.first) == 1)
-            correct &= (b_k_2_stable.getKSID(trans.first) == (b_k_2_stable.getKSID(trans.second)));
+		// First transition must be transient, second stable.
+		bool correct = true;
+		for (StateTransition & trans : witness)
+		if (b_k_2_stable.getBAID(trans.first) == 0)
+			correct &= (b_k_2_stable.getKSID(trans.first) != (b_k_2_stable.getKSID(trans.second)));
+		else if (b_k_2_stable.getBAID(trans.first) == 1)
+			correct &= (b_k_2_stable.getKSID(trans.first) == (b_k_2_stable.getKSID(trans.second)));
 
-      EXPECT_TRUE(correct);
-   }
+		EXPECT_TRUE(correct);
+	}
 }
 
-
 TEST_F(SynthesisTest, TestBistable) {
-   vector<StateTransition> witness; double robust;
-   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-      EXPECT_EQ(2u, bistable_prop.getMinAcc());
-      EXPECT_EQ(INF, bistable_prop.getMaxAcc());
-      b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true, bistable_prop.getMinAcc(), bistable_prop.getMaxAcc());
-      if (!witness.empty())
-         EXPECT_TRUE(containsTrans(WitnessSearcher::getOutput(true, c_2_cyclic, witness), {"(0,1;1)>(0,1;2)","(1,0;1)>(1,0;2)"}));
-   }
+	vector<StateTransition> witness; double robust;
+	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
+		EXPECT_EQ(2u, bistable_prop.getMinAcc());
+		EXPECT_EQ(INF, bistable_prop.getMaxAcc());
+		b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true, bistable_prop.getMinAcc(), bistable_prop.getMaxAcc());
+		if (!witness.empty())
+			EXPECT_TRUE(containsTrans(WitnessSearcher::getOutput(true, c_2_cyclic, witness), { "(0,1;1)>(0,1;2)", "(1,0;1)>(1,0;2)" }));
+	}
+}
+
+TEST_F(SynthesisTest, TestExperiment) {
+	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(circuit_2); param_no++) {
+		vector<StateTransition> witness_path; double robust;
+		b_k_2_a_p_man.checkFull(witness_path, robust, param_no, INF, true, true);
+		string witness = WitnessSearcher::getOutput(true, b_k_2_a_peak, witness_path);
+		// Experiment requires B to be 1 all the time
+		EXPECT_TRUE(witness.find("0,0") == string::npos);
+		EXPECT_TRUE(witness.find("1,0") == string::npos);
+	}
 }
 
 

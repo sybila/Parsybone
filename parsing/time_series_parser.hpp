@@ -20,20 +20,15 @@ class TimeSeriesParser {
     * First state has only transition under given condition. Others have loop if (!expression) and transition if (expression).
     */
    static PropertyAutomaton parseExpressions(const rapidxml::xml_node<> * const series_node) {
-      size_t val;
-	  string expr;
-
       PropertyAutomaton property(TimeSeries);
-	  property.min_acc = XMLHelper::getAttribute(val, series_node, "min_acc", false) ? val : 1;
-	  property.max_acc = XMLHelper::getAttribute(val, series_node, "max_acc", false) ? val : INF;
-	  property.experiment = XMLHelper::getAttribute(expr, series_node, "experiment", false) ? expr : "tt";
+	  ParsingCommons::parsePropertySetup(series_node, property);
 
       // Read all the measurements. For each add tt self-loop and conditional step to the next state
       StateID ID = 0;
       for (auto expression : XMLHelper::NodesRange(series_node, "EXPR", true)) {
          property.addState(to_string(ID), false);
 
-         PropertyAutomaton::Constraints cons = PropertyParsing::readConstraints(expression);
+		 PropertyAutomaton::Constraints cons = ParsingCommons::readConstraints(expression);
 
          // Initial state lack the self-loop (optimization)
 

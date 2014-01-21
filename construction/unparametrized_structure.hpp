@@ -42,8 +42,9 @@ public:
 	/**
 	  * Add a new state, only with ID and levels
 	  */
-	inline void addState(const StateID ID, const Levels& species_level) {
-		GraphInterface<TSStateProperty>::states.push_back(TSStateProperty(ID, species_level));
+	template <class LevelT>
+	inline void addState(const StateID ID, LevelT&& species_level) {
+		GraphInterface<TSStateProperty>::states.emplace_back(TSStateProperty(ID, forward<LevelT>(species_level)));
 	}
 
 	/**
