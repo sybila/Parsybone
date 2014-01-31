@@ -35,7 +35,7 @@ class ConstraintReader {
 
 		// Copy all the characters, replace contexts for canonic versions
 		size_t start = INF;
-		for (const size_t pos : scope(original)) {
+		for (const size_t pos : cscope(original)) {
 			if (start == INF) {
 				if (initiatesContext(original[pos])) {
 					start = pos;

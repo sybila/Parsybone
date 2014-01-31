@@ -51,7 +51,7 @@ class LabelingBuilder {
 			+ to_string(model.getMax(ID) + 1) + " ^ " + to_string(model.getParameters(ID).size()));
 
 		// Go through regulations of a specie - each represents a single function
-		for (auto param_no : scope(params)) {
+		for (auto param_no : cscope(params)) {
 			Configurations source_values;
 			// Compute allowed values for each regulating specie for this function to be active
 			for (auto source_num : params[param_no].requirements) {
@@ -75,7 +75,7 @@ public:
 		ParamNo step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through all the species
-		for (auto ID : range(model.species.size())) {
+		for (auto ID : crange(model.species.size())) {
 			addRegulations(model, ID, step_size);
 		}
 	}

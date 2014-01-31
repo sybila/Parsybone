@@ -47,7 +47,7 @@ namespace RegulationHelper {
     */
    void fillActivationLevels(Model & model) {
       // Fill for all the species.
-      for (auto ID:range(model.species.size())) {
+      for (auto ID:crange(model.species.size())) {
          auto space = ModelTranslators::getThresholds(model, ID);
 
          // List through the regulations of the specie.
@@ -61,7 +61,9 @@ namespace RegulationHelper {
             // Create the maximum based on whethter this is the last threshold or not.
             ActLevel end = (th_it == thresholds.end()) ? model.getMax(regul.source) + 1 : *th_it;
 
-            regul.activity = range(begin, end);
+			regul.activity.resize(end - begin);
+			size_t val = begin;
+			generate(regul.activity.begin(), regul.activity.end(), [&val](){return val++; });
          }
       }
    }

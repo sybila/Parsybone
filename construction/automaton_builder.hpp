@@ -33,7 +33,7 @@ class AutomatonBuilder {
 	 * Compute a vector of maximal levels and store information about states.
 	 */
 	void computeBoundaries() {
-		for (const SpecieID ID : scope(model.species)) {
+		for (const SpecieID ID : cscope(model.species)) {
 			// Maximal values of species
 			names.push_back(model.getName(ID));
 			maxes.push_back(model.getMax(ID));

@@ -114,7 +114,9 @@ class NetworkParser {
             if (basal > max)
                throw invalid_argument("basal value is greater than maximal value for specie " + name);
          } else {
-            targets = range<ActLevel>(max + 1);
+			 targets.resize(max + 1);
+			 size_t val = 0;
+			 generate(targets.begin(), targets.end(), [&val](){return val++; });
          }
 
          // Check if the node is either input or output node.

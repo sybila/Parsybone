@@ -20,7 +20,7 @@
 class ProductBuilder {
 	/* Create the copy of Unparametrized structure with the states of product with the given BA_ID. */
 	void createSubspace(const StateID BA_ID, ProductStructure & product) const {
-		for (const StateID KS_ID : range(product.getStructure().getStateCount())) {
+		for (const StateID KS_ID : crange(product.getStructure().getStateCount())) {
 			StateID ID = product.getProductID(KS_ID, BA_ID);
 			const Levels& levels = product.getStructure().getStateLevels(KS_ID);
 			product.states.push_back(ProdState(ID, KS_ID, BA_ID, false, false, levels));
@@ -33,7 +33,7 @@ class ProductBuilder {
 	 */
 	void relabel(const StateID BA_ID, ProductStructure & product) const {
 		if (product.getAutomaton().isInitial(BA_ID)) {
-			for (const StateID KS_ID : range(product.getStructure().getStateCount())) {
+			for (const StateID KS_ID : crange(product.getStructure().getStateCount())) {
 				StateID ID = product.getProductID(KS_ID, BA_ID);
 				// If there's a way to leave the state
 				if ((product.states[ID].transitions.size() + product.states[ID].loops.size()) > 0) {
@@ -43,7 +43,7 @@ class ProductBuilder {
 			}
 		}
 		if (product.getAutomaton().isFinal(BA_ID)) {
-			for (const StateID KS_ID : range(product.getStructure().getStateCount())) {
+			for (const StateID KS_ID : crange(product.getStructure().getStateCount())) {
 				StateID ID = product.getProductID(KS_ID, BA_ID);
 				// If there's a way to leave the state
 				if ((product.states[ID].transitions.size() + product.states[ID].loops.size()) > 0 || (product.getAutomaton().getMyType() == BA_finite)) {
@@ -72,7 +72,7 @@ class ProductBuilder {
 
 			// Add all the trasient combinations for the kripke structure
 			if (!automaton.isStableRequired(BA_ID, trans_no)) {
-				for (const size_t trans_no : range(structure.getTransitionCount(KS_ID))) {
+				for (const size_t trans_no : crange(structure.getTransitionCount(KS_ID))) {
 					const StateID KS_target = product.getStructure().getTargetID(KS_ID, trans_no);
 					const TransConst & trans_const = product.getStructure().getTransitionConst(KS_ID, trans_no);
 					product.states[ID].transitions.push_back({ product.getProductID(KS_target, BA_target), trans_const });
@@ -101,7 +101,7 @@ public:
 
 			// Create that what relates to this BA state
 			createSubspace(BA_ID, product);
-			for (const size_t trans_no : range(product.getAutomaton().getTransitionCount(BA_ID))) 
+			for (const size_t trans_no : crange(product.getAutomaton().getTransitionCount(BA_ID))) 
 				addSubspaceTransitions(BA_ID, trans_no, product);
 			relabel(BA_ID, product);
 		}

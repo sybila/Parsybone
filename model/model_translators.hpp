@@ -120,7 +120,7 @@ namespace ModelTranslators {
 
       string color_str = "(";
       // cycle through the species
-      for (const SpecieID ID : scope(model.species)) {
+      for (const SpecieID ID : crange(model.species.size())) {
          auto color = model.species[ID].subcolors[color_parts[ID]];
          // fill partial parametrization of the specie
          for (auto it = color.begin(); it != color.end(); it++) {
@@ -152,14 +152,14 @@ namespace ModelTranslators {
       size_t begin = 0; //< Used to denote current range of the parametrization
 
       // Test subparametrizations for all species.
-      for (const SpecieID ID : scope(model.species)) {
+      for (const SpecieID ID : cscope(model.species)) {
          vector<ParamNo> submatch;
 
          // Try to match all the subcolors fo the current specie
-         for (const size_t subolor_no : scope(model.species[ID].subcolors)) {
+         for (const size_t subolor_no : cscope(model.species[ID].subcolors)) {
             bool valid = true;
             // For the match to occur, all values must either be equal or defined irellevant.
-            for (const size_t value_no: scope(model.species[ID].subcolors[subolor_no])) {
+            for (const size_t value_no: cscope(model.species[ID].subcolors[subolor_no])) {
                if (param_vals[value_no + begin] != INF_SHORT && param_vals[value_no + begin] != model.species[ID].subcolors[subolor_no][value_no]) {
                   valid = false;
                   break;

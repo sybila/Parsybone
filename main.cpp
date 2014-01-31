@@ -73,6 +73,7 @@ int main(int argc, const char* argv[]) {
    // Construction of data structures
    try {
       ConstructionManager::computeModelProps(model);
+
       for (const string & filter_name : user_options.filter_databases) {
          SQLAdapter adapter;
          adapter.setDatabase(filter_name);

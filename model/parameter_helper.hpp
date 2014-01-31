@@ -53,7 +53,7 @@ class ParameterHelper {
 		map<StateID, Levels> requirements;
 
 		// Loop over all the sources.
-		for (auto source_num : range(thrs_comb.size())) {
+		for (auto source_num : crange(thrs_comb.size())) {
 			// Find the source details and its current threshold
 			string source_name = ModelTranslators::getRegulatorsNames(model, t_ID)[source_num];
 			StateID source_ID = ModelTranslators::getRegulatorsIDs(model, t_ID)[source_num];
@@ -70,7 +70,10 @@ class ParameterHelper {
 
 			// Find in which levels the specie must be for the regulation to occur.
 			ActLevel next_th = (thrs_comb[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[thrs_comb[source_num]];
-			Levels activity_levels = range(threshold, next_th);
+			Levels activity_levels(next_th - threshold);
+			size_t val = threshold;
+			generate(activity_levels.begin(), activity_levels.end(), [&val](){return val++; });
+	
 			requirements.insert(make_pair(source_ID, activity_levels));
 		}
 
@@ -106,7 +109,7 @@ public:
 	 * @brief fillParameters   fill idividual parameter values based on user specifications.
 	 */
 	static void fillParameters(Model & model) {
-		for (const SpecieID ID : range(model.species.size())) {
+		for (const SpecieID ID : crange(model.species.size())) {
 			createParameters(model, ID);
 		}
 	}

@@ -285,7 +285,7 @@ public:
    void updateColumn(const string & table_name, const string & column_name, const vector<ColumnType> & column) {
       string query;
 
-      for (const auto i:range(column.size())) {
+      for (const auto i:crange(column.size())) {
          query += "UPDATE " + table_name + " SET " + column_name + "=" + boost::lexical_cast<string>(column[i])
                   + " WHERE ROWID=" + boost::lexical_cast<string>(i + 1) + "; ";
       }

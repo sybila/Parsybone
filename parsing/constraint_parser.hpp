@@ -30,7 +30,7 @@ class ConstraintParser : public Space {
 
 	/* Find the number of the integer variable that corresponds to the given name of the specie. */
 	size_t findName(const vector<string> & names, string specie_name) {
-		for (const size_t name_no : scope(names))
+		for (const size_t name_no : cscope(names))
 		if (specie_name.compare(names[name_no]) == 0)
 			return name_no;
 		throw runtime_error("Unrecognized variable name \"" + specie_name + "\".");
@@ -75,7 +75,7 @@ class ConstraintParser : public Space {
 
 		int parity = 0;
 		size_t last_pos = 0;
-		for (const size_t pos : scope(formula)) {
+		for (const size_t pos : cscope(formula)) {
 			if (formula[pos] == '(')
 				parity++;
 			else if (formula[pos] == ')')
@@ -107,7 +107,7 @@ class ConstraintParser : public Space {
 			return;
 		// Only the last parenthesis must be matching
 		size_t parity = 1;
-		for (const size_t pos : range(static_cast<size_t>(1), formula.size() - 1)) {
+		for (const size_t pos : crange(static_cast<size_t>(1), formula.size() - 1)) {
 			if (formula[pos] == '(')
 				parity++;
 			else if (formula[pos] == ')')
@@ -143,13 +143,13 @@ class ConstraintParser : public Space {
 		}
 		else if (div_by_or.size() > 1 && div_by_and.size() == 1) {
 			result = BoolExpr(resolveFormula(names, div_by_or[0]) || resolveFormula(names, div_by_or[1]));
-			for (const size_t expr_no : range(static_cast<size_t>(2), div_by_or.size()))
+			for (const size_t expr_no : crange(static_cast<size_t>(2), div_by_or.size()))
 				result = BoolExpr(result || resolveFormula(names, div_by_or[expr_no]));
 			return result;
 		}
 		else if (div_by_or.size() == 1 && div_by_and.size() > 1) {
 			result = BoolExpr(resolveFormula(names, div_by_and[0]) && resolveFormula(names, div_by_and[1]));
-			for (const size_t expr_no : range(static_cast<size_t>(2), div_by_and.size()))
+			for (const size_t expr_no : crange(static_cast<size_t>(2), div_by_and.size()))
 				result = BoolExpr(result && resolveFormula(names, div_by_and[expr_no]));
 			return result;
 		}
@@ -185,7 +185,7 @@ public:
 			throw runtime_error("Trying to bound the space of solutions in a constraint parser"
 			"but the number of boundaries does not match the number of variables.");
 		auto op = is_upper ? IRT_LQ : IRT_GQ;
-		for (const ActLevel i : scope(boundaries))
+		for (const ActLevel i : cscope(boundaries))
 			rel(*this, allowed_vals[i], op, (boundaries[i]));
 	}
 
@@ -206,7 +206,7 @@ public:
 	Levels getSolution() const {
 		Levels result(allowed_vals.size(), 0u);
 
-		for (const size_t i : range(allowed_vals.size()))
+		for (const size_t i : cscope(allowed_vals))
 			result[i] = allowed_vals[i].val();
 
 		return result;
@@ -233,6 +233,32 @@ public:
 		ConstraintParser * new_par = search.next();
 		delete constraint_parser;
 		return new_par != 0;
+	}
+
+	static void testCopy() {
+		/*ConstraintParser *constraint_parser = new ConstraintParser(2, 2);
+		ConstraintParser *copy = nullptr;
+		try {
+			copy = new ConstraintParser(false, *constraint_parser);
+		}
+		catch (exception & e) {
+			cout << e.what();
+		}
+
+		// Return true iff a solution is found
+		constraint_parser->applyFormula({ "A", "B" }, "A > B");
+		DFS<ConstraintParser> search(constraint_parser);
+		ConstraintParser * new_par = search.next();
+		cout << "Not empty A > B: " << (new_par != 0);
+		delete constraint_parser;
+
+		// Return true iff a solution is found
+		constraint_parser->applyFormula({ "A", "B" }, "A < B");
+		DFS<ConstraintParser> search2(copy);
+		ConstraintParser * new_par2= search2.next();
+		cout << "Not empty A < B: " << (new_par2 != 0);
+		delete copy;*/
+		
 	}
 };
 

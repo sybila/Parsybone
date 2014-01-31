@@ -55,9 +55,9 @@ class ParametrizationsBuilder {
 	/* For each regulation create a constraint corresponding to its label */
 	static void createEdgeCons(const vector<Model::Regulation> & reguls, const vector<Model::Parameter> & params, Model::Regulation & regul, string & plus, string & minus) {
 		plus = minus = "ff ";
-		for (const size_t param_no : scope(params)) {
+		for (const size_t param_no : cscope(params)) {
 			if (ParametrizationsHelper::containsRegulation(params[param_no], regul)) {
-				for (const size_t compare_no : scope(params)) {
+				for (const size_t compare_no : cscope(params)) {
 					if (ParametrizationsHelper::isSubordinate(reguls, params[param_no], params[compare_no], regul.source)) {
 						plus += " | " + params[param_no].context + " > " + params[compare_no].context;
 						minus += " | " + params[param_no].context + " < " + params[compare_no].context;

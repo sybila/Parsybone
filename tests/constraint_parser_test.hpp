@@ -13,6 +13,10 @@
 #include "../parsing/constraint_parser.hpp"
 #include <gtest/gtest.h>
 
+TEST(ConstraintParserTest, TestCopy) {
+	ConstraintParser::testCopy();
+}
+
 TEST(ConstraintParserTest, ResolveFormulae) {
 	// Test true formulae
 	std::string true_forms[] = { "tt", "A", "!B", "(ff|A)", "(A|B)", "!(A&B)", "(!(A&A)|!B)", "A|B|A", "((A))" };

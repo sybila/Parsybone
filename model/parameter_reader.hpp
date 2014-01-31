@@ -58,7 +58,7 @@ class ParameterReader {
          }
 
          if (val < model.getMin(t_ID) || val > model.getMax(t_ID))
-            throw invalid_argument("target value " + val_str + " out of range for specie " + model.getName(t_ID));
+            throw invalid_argument("target value " + val_str + " out of crange for specie " + model.getName(t_ID));
 
          specified.push_back(val);
       }
@@ -110,7 +110,7 @@ public:
     */
    static void constrainParameters(Model & model) {
       // For each specie create its parameters.
-      for (SpecieID ID : range(model.species.size())) {
+      for (SpecieID ID : crange(model.species.size())) {
          // Create all contexts with all the possible values.
          auto parameters = model.getParameters(ID);
 

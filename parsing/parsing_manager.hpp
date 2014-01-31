@@ -22,7 +22,7 @@ namespace ParsingManager {
       UserOptions user_options;
 
       vector<string> arguments;
-      for (const size_t argn : range(argc))
+      for (const size_t argn : crange(argc))
          arguments.push_back(argv[argn]);
 
       // Parse arguments

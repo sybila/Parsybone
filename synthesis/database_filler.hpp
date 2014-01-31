@@ -27,7 +27,7 @@ class DatabaseFiller {
       prepareTable(COMPONENTS_TABLE, "(Name TEXT, MaxActivity INTEGER)");
 
       string update = "";
-      for(SpecieID target_ID:range(model.species.size())) {
+      for(SpecieID target_ID:crange(model.species.size())) {
          string values = "(\"" + model.getName(target_ID) + "\", " + to_string(model.getMax(target_ID)) + "); \n";
          update += makeInsert(COMPONENTS_TABLE) + values;
       }
@@ -37,7 +37,7 @@ class DatabaseFiller {
    void fillRegulations() {
       prepareTable(REGULATIONS_TABLE, "(Regulator TEXT, Target TEXT, Thresholds TEXT)");
       string update = "";
-      for(SpecieID target_ID:range(model.species.size())) {
+      for(SpecieID target_ID:crange(model.species.size())) {
          for(auto regul:ModelTranslators::getThresholds(model, target_ID)) {
             string values = "(\"" + model.getName(regul.first) + "\", ";
             values += "\"" + model.getName(target_ID) + "\", ";
@@ -55,7 +55,7 @@ class DatabaseFiller {
 
    string getContexts() const {
       string contexts = "";
-      for(SpecieID target_ID:range(model.species.size()))
+      for(SpecieID target_ID:crange(model.species.size()))
          for(auto param:model.getParameters(target_ID))
             contexts += ModelTranslators::makeConcise(param, model.getName(target_ID)) + " INTEGER, ";
       return contexts;

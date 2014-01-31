@@ -29,10 +29,10 @@ class ExplicitFilter {
       vector<size_t> locations;
       vector<string> names = sql_adapter.readColumnNames(PARAMETRIZATIONS_TABLE, regex(".*"));
 
-      for (const SpecieID ID : scope(model.species)) {
+      for (const SpecieID ID : cscope(model.species)) {
          const Model::Parameters & params = model.getParameters(ID);
          // Add the column number if the context was found, INF otherwise
-         for (const size_t kpar_no : scope(params)) {
+         for (const size_t kpar_no : cscope(params)) {
             auto column_it = find(names.begin(), names.end(), ModelTranslators::makeConcise(params[kpar_no], model.getName(ID)));
             if (column_it == names.end())
                locations.push_back(INF);
