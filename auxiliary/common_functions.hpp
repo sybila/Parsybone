@@ -44,8 +44,35 @@ namespace Common {
 	}
 
 	/**
-	* @brief Increases integral value by 1.
-	* @param[in,out] val  reference to value that will be increased
+	* @brief creates a vector with the given range
+	* @param[in] begin    first number in the range
+	* @param[in] end    first number not in the range
+	* @return  a vector for [begin,end[
+	*/
+	template<typename IntegralType>
+	inline std::vector<IntegralType> vrange(const IntegralType begin, const IntegralType end) {
+		std::vector<IntegralType> values(end - begin);
+
+		size_t val = begin;
+		generate(values.begin(), values.end(), [&val](){return val++; });
+
+		return values;
+	}
+
+	/**
+	* @brief creates a vector with the given range
+	* @param[in] end    first number not in the range
+	* @return  a vector for [0,end[
+	*/
+	template<typename IntegralType>
+	inline std::vector<IntegralType> vrange(const IntegralType end)  {
+		return vrange(static_cast<IntegralType>(0), end);
+	}
+
+
+	/**
+    * @brief Increases integral value by 1.
+ 	* @param[in,out] val  reference to value that will be increased
 	*/
 	template<typename IntegralType>
 	void increase(typename std::vector<IntegralType>::reference val) { val++; }

@@ -70,11 +70,8 @@ class ParameterHelper {
 
 			// Find in which levels the specie must be for the regulation to occur.
 			ActLevel next_th = (thrs_comb[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[thrs_comb[source_num]];
-			Levels activity_levels(next_th - threshold);
-			size_t val = threshold;
-			generate(activity_levels.begin(), activity_levels.end(), [&val](){return val++; });
 	
-			requirements.insert(make_pair(source_ID, activity_levels));
+			requirements.insert(make_pair(source_ID, vrange(threshold, next_th)));
 		}
 
 		model.addParameter(t_ID, move(context.substr(0, context.length() - 1)), move(requirements),

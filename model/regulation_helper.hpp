@@ -61,9 +61,7 @@ namespace RegulationHelper {
             // Create the maximum based on whethter this is the last threshold or not.
             ActLevel end = (th_it == thresholds.end()) ? model.getMax(regul.source) + 1 : *th_it;
 
-			regul.activity.resize(end - begin);
-			size_t val = begin;
-			generate(regul.activity.begin(), regul.activity.end(), [&val](){return val++; });
+			regul.activity = vrange(begin, end);
          }
       }
    }
