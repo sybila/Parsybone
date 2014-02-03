@@ -2,20 +2,21 @@
 * Copyright (C) 2012-2013 - Adam Streck
 * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
 * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
-* ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
+* ParSyBoNe is released without any warranty. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
 * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
 */
 
 #ifndef PARSYBONE_CONSTRAINT_PARSER_TEST_INCLUDED
 #define PARSYBONE_CONSTRAINT_PARSER_TEST_INCLUDED
 
-#include "../auxiliary/formulae_resolver.hpp"
-#include "../parsing/constraint_parser.hpp"
 #include <gtest/gtest.h>
 
-TEST(ConstraintParserTest, TestCopy) {
+#include "../auxiliary/space_solver.hpp"
+#include "../parsing/constraint_parser.hpp"
+
+/*TEST(ConstraintParserTest, TestCopy) {
 	ConstraintParser::testCopy();
-}
+}*/
 
 TEST(ConstraintParserTest, ResolveFormulae) {
 	// Test true formulae
@@ -64,5 +65,17 @@ TEST(ConstraintParserTest, CauseException) {
 	EXPECT_THROW(ConstraintParser::contains({ "A" }, 1, { 1 }, ")(A)("), runtime_error); // Parenthesis mismatch
 }
 
+TEST(SpaceSolverTest, SolveSpace) {
+	SpaceSolver<ConstraintParser, ActLevel> solver{ new ConstraintParser(2, 1) };
+	solver->applyFormula({ "A", "B" }, "(B & A)");
+	EXPECT_FALSE(solver.next().empty()) << "The formula is solvable, the solution is empty.";
+
+	SpaceSolver<ConstraintParser, ActLevel> new_solver{ new ConstraintParser(2, 1) };
+	EXPECT_NO_THROW(new_solver = move(solver)) << "Moving the solver";
+	EXPECT_NO_THROW(solver = { new ConstraintParser(2, 1) }) << "Initializing the solver anew";
+
+	EXPECT_TRUE(new_solver.next().empty()) << "More than one solution returned for a formula with just one.";
+	EXPECT_THROW(new_solver->applyFormula({ "A", "B" }, "(!A & A)"), runtime_error) << "Modifying closed searcher.";
+}
 
 #endif // PARSYBONE_CONSTRAINT_PARSER_TEST_INCLUDED

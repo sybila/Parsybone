@@ -106,16 +106,6 @@ namespace Common {
 		}
 		return true;
 	}
-
-	/**
-	* @brief getLenght  computes lenght of an interval in a given pair
-	* @param range   pair describing the range in the form [first,last)
-	* @return  numerical lenght of the given range
-	*/
-	template<typename IntegralType>
-	size_t getLenght(const std::pair<IntegralType, IntegralType> range) {
-		return (range.second - range.first + 1);
-	}
 } using namespace Common;
 
 #define NO_COPY(TypeName) \

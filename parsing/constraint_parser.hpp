@@ -2,7 +2,7 @@
 * Copyright (C) 2012-2013 - Adam Streck
 * This file is a part of the ParSyBoNe (Parameter Synthetizer for Boolean Networks) verification tool.
 * ParSyBoNe is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.
-* ParSyBoNe is released without any warrany. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
+* ParSyBoNe is released without any warranty. See the GNU General Public License for more details. <http://www.gnu.org/licenses/>.
 * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
 */
 
@@ -236,14 +236,8 @@ public:
 	}
 
 	static void testCopy() {
-		/*ConstraintParser *constraint_parser = new ConstraintParser(2, 2);
-		ConstraintParser *copy = nullptr;
-		try {
-			copy = new ConstraintParser(false, *constraint_parser);
-		}
-		catch (exception & e) {
-			cout << e.what();
-		}
+		ConstraintParser *constraint_parser = new ConstraintParser(2, 2);
+		ConstraintParser *copy = static_cast<ConstraintParser*>(constraint_parser->clone());
 
 		// Return true iff a solution is found
 		constraint_parser->applyFormula({ "A", "B" }, "A > B");
@@ -253,11 +247,11 @@ public:
 		delete constraint_parser;
 
 		// Return true iff a solution is found
-		constraint_parser->applyFormula({ "A", "B" }, "A < B");
+		copy->applyFormula({ "A", "B" }, "A < B");
 		DFS<ConstraintParser> search2(copy);
 		ConstraintParser * new_par2= search2.next();
 		cout << "Not empty A < B: " << (new_par2 != 0);
-		delete copy;*/
+		delete copy;
 		
 	}
 };
