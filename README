@@ -44,5 +44,5 @@ Building:
 	PunyHeaders must be in the include path. 
 	
 Execution:
-    Call --help for execution arguments.
+	Call --help for execution arguments.
 	Call --ver for curret version details.
