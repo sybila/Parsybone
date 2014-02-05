@@ -16,7 +16,7 @@
 /// Space must implement getSolution() function that returns a vector of variables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename SpaceType, typename VarType = int>
-class SpaceSolver {
+class SpaceSolver final {
 	SpaceType * space; ///< Holds some version of the Gecode::Space
 	DFS<SpaceType> * dfs; ///< Eventually holds a DFS for the Space
 
@@ -59,6 +59,8 @@ public:
 
 	// @return	a next solution if available and an empty vector if not
 	vector<VarType> next() {
+		vector<VarType> result;
+
 		// Initialize the search in the first call
 		if (dfs == nullptr) 
 			dfs = new DFS<SpaceType>(space);
@@ -68,10 +70,14 @@ public:
 		space = dfs->next();
 
 		// C to C++ representation
-		if (space == NULL)
+		if (space == NULL) 
 			space = nullptr;
-
-		return (space == nullptr) ? vector<VarType>() : space->getSolution();
+		
+		// Get the result if there's any
+		if (space != nullptr)
+			result = space->getSolution();
+	
+		return result;
 	}
 };
 

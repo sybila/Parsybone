@@ -1,8 +1,8 @@
 Parsybone (Parameter Synthesizer for Boolean Networks)
-Copyright (C) 2012-2013 - Adam Streck
+Copyright (C) 2012-2014 - Adam Streck
 
-This is a development version and is not intended for use by non-developers!
-For the latest release version, see https://github.com/sybila/Parsybone/tree/release .
+This repository contains a development version and release that has been discontinued.
+If you want to use Parsybone for analysis, we recommend using it through an on-line interface here: http://esther.fi.muni.cz/Home .
 
 Discrete Biomathematics, Freie Universitat, Berlin ( http://www.mi.fu-berlin.de/en/math/groups/dibimath )
 Systems Biology Laboratory of Masaryk University, Brno ( http://sybila.fi.muni.cz )

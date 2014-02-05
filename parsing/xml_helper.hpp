@@ -81,7 +81,7 @@ namespace XMLHelper {
    public:
       NodeIter() {
          tag = "";
-         node = 0;
+         node = nullptr;
       }
 
       NodeIter(rapidxml::xml_node<> * parent, const char * tag) : node(parent), tag(tag) { }
