@@ -30,13 +30,11 @@ Contents of the repository:
 Requirements:
 	GCC v4.7.0 or newer on Linux and Mac; MinGW 4.7.0 or newer on the Windows platform; MVC++ November 2013 or newer
 	Boost headers version 1.47 or newer. (http://www.boost.org/)
-	Sqlite3 library (http://www.sqlite.org/)
 	Gecode library (http://www.gecode.org/)
 	Google test library for the test project
 	
 Building:
 	Boost headers must be in the include path. It's not necessary to build boost!
-	PunyHeaders must be in the include path. 
 	
 Execution:
 	Call --help for execution arguments.
