@@ -7,7 +7,7 @@ If you want to use Parsybone for analysis, we recommend using it through an on-l
 Discrete Biomathematics, Freie Universitat, Berlin ( http://www.mi.fu-berlin.de/en/math/groups/dibimath )
 Systems Biology Laboratory of Masaryk University, Brno ( http://sybila.fi.muni.cz )
 
-open-source 2012-2013, licensed as GNU GPL v3
+open-source 2012-2014, licensed as GNU GPL v3
 the repository includes 3rd party code of:
 	RapidXML ( see http://rapidxml.sourceforge.net/ )
 	sqlite3 (see http://www.sqlite.org/ , not present in the master branch )
@@ -19,24 +19,19 @@ Contents of the repository:
 	auxiliary, construction, parsing, synthesis: header files of the program
 	tests: header files of the testing suite
 
-	ParsyboneMain, ParsyboneTesting: QTCreator projects
-
 	example_model.pmf: simple example model for usage with the tool
 	example_series.ppf: sample time series corresponding to the example model
 	example_automaton.ppf: sample automaton corresponding to the example model
 
 	Manual: folder containing source for the manual
-	reference_v_1_0_0_0.pdf: source code description in the pdf file form
-	reference_v_1_0_0_0_HTML: source code description in the form of HTML we pages.
 	
 	MiscCode: additional sources that are not directly related to Parsybone
 
 Requirements:
-	GCC v4.7.0 or newer on Linux and Mac, MinGW 4.7.0 or newer on the Windows platform
+	GCC v4.7.0 or newer on Linux and Mac; MinGW 4.7.0 or newer on the Windows platform; MVC++ November 2013 or newer
 	Boost headers version 1.47 or newer. (http://www.boost.org/)
 	Sqlite3 library (http://www.sqlite.org/)
-	PunyHeaders headers (https://github.com/xstreck1/PunyHeaders)
-
+	Gecode library (http://www.gecode.org/)
 	Google test library for the test project
 	
 Building:
