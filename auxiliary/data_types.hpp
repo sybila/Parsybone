@@ -29,6 +29,7 @@
 #include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/range/algorithm.hpp>
 #include <boost/range/counting_range.hpp>
 #include <boost/range/irange.hpp>
 
@@ -49,6 +50,7 @@ using boost::bad_lexical_cast;
 using boost::is_any_of;
 using boost::split;
 using boost::trim;
+namespace rng = boost::range;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT/OUTPUT

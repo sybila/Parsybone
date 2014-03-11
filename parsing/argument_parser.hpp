@@ -255,7 +255,7 @@ public:
       if (user_options.model_name.empty())
          throw (invalid_argument("Model file (file with a " + MODEL_SUFFIX + " suffix) is missing"));
       if (user_options.property_name.empty())
-         throw (invalid_argument("Model file (file with a " + PROPERTY_SUFFIX + " suffix) is missing"));
+         throw (invalid_argument("Property file (file with a " + PROPERTY_SUFFIX + " suffix) is missing"));
 
       return user_options;
    }

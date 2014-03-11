@@ -77,8 +77,38 @@ class NetworkParser {
             label = Label::Free;
 
          // Add a new regulation to the specified target
-         model.addRegulation(s_ID, t_ID, threshold, label);
+		 string name = model.species[s_ID].name + ":" + to_string(threshold);
+		 model.species[t_ID].regulations.push_back({ s_ID, threshold, move(name), Levels(), label });
       }
+
+	  // Sort regulators lexicographically
+	  rng::sort(model.species[t_ID].regulations, [](const Model::Regulation & A, const Model::Regulation & B) {
+		  return A.source < B.source;
+	  });
+   }
+
+   /**
+    * Parse a description of a single specie.
+    */
+   static void parseSpecie(const rapidxml::xml_node<> * const specie, const Model::SpecType type, const char default_name, Model & model) {
+	   // Data to fill
+	   string name; size_t max; size_t basal = 0; Levels targets;
+
+	   // Get a name of the specie.
+	   if (!XMLHelper::getAttribute(name, specie, "name", false))
+		   name = string(1, default_name);
+	   // Throw an error if the name is not correct.
+	   else if (!ParsingCommons::isValidSpecName(name))
+		   ParsingCommons::specNameExc(name);
+
+	   // Get a max value and conver to integer.
+	   if (!XMLHelper::getAttribute(max, specie, "max", false))
+		   max = 1;
+
+	   // Create a new specie
+	   model.species.push_back({ name, model.species.size(), max, vrange<ActLevel>(max + 1), 
+		   vector<pair<string, string>>(), vector<string>(), Model::Input,
+		   Model::Regulations(), Model::Parameters(), Configurations() });
    }
 
    /**
@@ -91,47 +121,18 @@ class NetworkParser {
     */
    static void firstParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
       // Start the naming from capital A.
-      char specie_name = 'A';
-      // Specie data
-      string name; size_t max; size_t basal = 0; Levels targets;
+      char specie_name = 'A';     
 
       // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
-      for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) {
-         // Get a name of the specie.
-         if (!XMLHelper::getAttribute(name, specie, "name", false))
-            name = string(1, specie_name);
-         // Throw an error if the name is not correct.
-         else if (!ParsingCommons::isValidSpecName(name))
-            ParsingCommons::specNameExc(name);
+      for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) 
+		  parseSpecie(specie, Model::Component, specie_name++, model);
+	  for (auto specie : XMLHelper::NodesRange(structure_node, "INPUT", false))
+		  parseSpecie(specie, Model::Input, specie_name++, model);
 
-         // Get a max value and conver to integer.
-         if (!XMLHelper::getAttribute(max, specie, "max", false))
-            max = 1;
-
-         // Obtain basal values
-         if(XMLHelper::getAttribute(basal, specie, "basal", false)) {
-            targets.push_back(basal);
-            if (basal > max)
-               throw invalid_argument("basal value is greater than maximal value for specie " + name);
-         } else {
-			 targets = vrange<ActLevel>(max + 1);
-         }
-
-         // Check if the node is either input or output node.
-         bool input = false, output = false;
-         string node_type;
-         if(XMLHelper::getAttribute(node_type, specie, "type", false)) {
-            if (node_type.compare("input") == 0)
-               input = true;
-            else if (node_type.compare("output") == 0) {
-               output = true;
-            }
-         }
-
-         // Create a new specie
-         model.addSpecie(name, max, targets, input, output);
-         specie_name++;
-      }
+	  // Sort the species lexicographically
+	  rng::sort(model.species, [](const Model::ModelSpecie & A, const Model::ModelSpecie & B) {
+		  return A.name < B.name;
+	  });
    }
 
    /**
