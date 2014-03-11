@@ -1,6 +1,6 @@
 <NETWORK>
 	<CONSTRAINT type="bound_loop" />
-	<SPECIE>
+	<SPECIE name="A">
 		<REGUL source="B" threshold="1" />
 		<REGUL source="A" />            
 		<CONSTR expr="A:0 = 0" />
@@ -8,7 +8,7 @@
 		<CONSTR expr="A = 0" />
 		<CONSTR expr="A,B = 0"/>   
 	</SPECIE>
-	<SPECIE>
+	<SPECIE name="B">
 		<REGUL source="A" />
 		<REGUL source="B" />            
 		<CONSTR expr="A,B = A:0 & A:1 > 0" />

@@ -25,5 +25,6 @@ int main(int argc, char* argv[]) {
 #if (_MSC_VER == 1800)
 		cin.get();
 #endif 
+
 	return result;
 }

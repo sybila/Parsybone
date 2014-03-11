@@ -50,8 +50,8 @@ TEST_F(ModelsTest, ParametrizationControl) {
 /// This test controls functionality of loop bounding constraint.
 TEST_F(ModelsTest, ParametrizationLoopBound) {
 	Model loop_model;
-	loop_model.addSpecie("A", 1, { 0u, 1u });
-	loop_model.addSpecie("B", 5, { 0u, 1u, 2u, 3u, 4u, 5u });
+	loop_model.addSpecie("A", 1, { 0u, 1u }, Model::Component);
+	loop_model.addSpecie("B", 5, { 0u, 1u, 2u, 3u, 4u, 5u }, Model::Component);
 	loop_model.addRegulation(0, 1, 1, "");
 	loop_model.addRegulation(1, 1, 2, "");
 	loop_model.addRegulation(1, 1, 4, "");

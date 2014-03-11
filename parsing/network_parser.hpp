@@ -24,156 +24,167 @@
 /// \attention Only models with up to 9 levels are supported.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class NetworkParser {
-   /**
-    * In a current regulation get source of that regulation, if possible.
-    */
-   static SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, Model & model ) {
-      string source; SpecieID source_ID;
+	/**
+	 * In a current regulation get source of that regulation, if possible.
+	 */
+	static SpecieID getSourceID(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, Model & model) {
+		string source; SpecieID source_ID;
 
-      // Find the source and check correctness
-      XMLHelper::getAttribute(source, regulation, "source");
-      source_ID = ModelTranslators::findID(model, source);
-      if (source_ID >= model.species.size())
-         throw invalid_argument("ID of a regulation of the specie " + model.getName(t_ID) + " is incorrect");
+		// Find the source and check correctness
+		XMLHelper::getAttribute(source, regulation, "source");
+		source_ID = ModelTranslators::findID(model, source);
+		if (source_ID >= model.species.size())
+			throw invalid_argument("ID of a regulation of the specie " + model.getName(t_ID) + " is incorrect");
 
-      return source_ID;
-   }
+		return source_ID;
+	}
 
-   /**
-    * Obtain a treshold of a current regulation and check if it is correct and unique.
-    */
-   static size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, const SpecieID source_ID, Model & model ) {
-      size_t threshold;
+	/**
+	 * Obtain a treshold of a current regulation and check if it is correct and unique.
+	 */
+	static size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, const SpecieID source_ID, Model & model) {
+		size_t threshold;
 
-      // Try to find a threshold, if not present, set to 1
-      if(!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
-         threshold = 1;
-      else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
-         throw invalid_argument("the threshold' value " + to_string(threshold) + " is not within the range of the regulator " + model.getName(source_ID));
+		// Try to find a threshold, if not present, set to 1
+		if (!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
+			threshold = 1;
+		else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
+			throw invalid_argument("the threshold' value " + to_string(threshold) + " is not within the range of the regulator " + model.getName(source_ID));
 
-      // Test uniqueness of this combination (source, threshold)
-      auto regulations = model.getRegulations(t_ID);
-      for(const auto & regul:regulations) {
-         if (threshold == regul.threshold && source_ID == regul.source)
-            throw invalid_argument("multiple definition of a regulation of a specie " + model.getName(source_ID));
-      }
+		// Test uniqueness of this combination (source, threshold)
+		auto regulations = model.getRegulations(t_ID);
+		for (const auto & regul : regulations) {
+			if (threshold == regul.threshold && source_ID == regul.source)
+				throw invalid_argument("multiple definition of a regulation of a specie " + model.getName(source_ID));
+		}
 
-      return threshold;
-   }
+		return threshold;
+	}
 
-   /**
-    * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
-    * If not provided, attributes are defaulted - threshold to 1, label to Label::free
-    */
-   static void parseRegulations(const rapidxml::xml_node<> * const specie_node, SpecieID t_ID, Model & model) {
-      // Regulation data
-      string label;
+	/**
+	 * Starting from the SPECIE node, the function parses all the REGUL tags and reads the data from them.
+	 * If not provided, attributes are defaulted - threshold to 1, label to Label::free
+	 */
+	static void parseRegulations(const rapidxml::xml_node<> * const specie_node, Model & model) {
+		// Get ID of the regulated component
+		string name;
+		XMLHelper::getAttribute(name, specie_node, "name", true);
+		const SpecieID t_ID = rng::find_if(model.species, [&name](const Model::ModelSpecie & specie) {
+			return (specie.name == name);
+		})->ID;
 
-      // Cycle through REGUL TAGS
-      for (auto regulation : XMLHelper::NodesRange(specie_node, "REGUL", true)) {
-         auto s_ID = getSourceID(regulation, t_ID, model);
-         auto threshold = getThreshold(regulation, t_ID, s_ID, model);
-         if (!XMLHelper::getAttribute(label, regulation, "label", false))
-            label = Label::Free;
+		// Cycle through REGUL TAGS
+		for (auto regulation : XMLHelper::NodesRange(specie_node, "REGUL", true)) {
+			string label;
+			if (!XMLHelper::getAttribute(label, regulation, "label", false))
+				label = Label::Free;
+			SpecieID s_ID = getSourceID(regulation, t_ID, model);
+			size_t threshold = getThreshold(regulation, t_ID, s_ID, model);
 
-         // Add a new regulation to the specified target
-		 string name = model.species[s_ID].name + ":" + to_string(threshold);
-		 model.species[t_ID].regulations.push_back({ s_ID, threshold, move(name), Levels(), label });
-      }
+			// Add a new regulation to the specified target
+			model.addRegulation(s_ID, t_ID, threshold, label);
+		}
 
-	  // Sort regulators lexicographically
-	  rng::sort(model.species[t_ID].regulations, [](const Model::Regulation & A, const Model::Regulation & B) {
-		  return A.source < B.source;
-	  });
-   }
+		// Sort regulators lexicographically
+		rng::sort(model.species[t_ID].regulations, [](const Model::Regulation & A, const Model::Regulation & B) {
+			return A.source < B.source;
+		});
+	}
 
-   /**
-    * Parse a description of a single specie.
-    */
-   static void parseSpecie(const rapidxml::xml_node<> * const specie, const Model::SpecType type, const char default_name, Model & model) {
-	   // Data to fill
-	   string name; size_t max; size_t basal = 0; Levels targets;
+	/**
+	 * Parse a description of a single specie.
+	 */
+	static void parseSpecie(const rapidxml::xml_node<> * const specie, const Model::SpecType type, Model & model) {
+		// Data to fill
+		string name; size_t max; size_t basal = 0; Levels basals;
 
-	   // Get a name of the specie.
-	   if (!XMLHelper::getAttribute(name, specie, "name", false))
-		   name = string(1, default_name);
-	   // Throw an error if the name is not correct.
-	   else if (!ParsingCommons::isValidSpecName(name))
-		   ParsingCommons::specNameExc(name);
+		// Get a name of the specie.
+		XMLHelper::getAttribute(name, specie, "name", true);
+		if (!ParsingCommons::isValidSpecName(name))
+			ParsingCommons::specNameExc(name);
 
-	   // Get a max value and conver to integer.
-	   if (!XMLHelper::getAttribute(max, specie, "max", false))
-		   max = 1;
+		// Get a max value and conver to integer.
+		if (!XMLHelper::getAttribute(max, specie, "max", false))
+			max = 1;
 
-	   // Create a new specie
-	   model.species.push_back({ name, model.species.size(), max, vrange<ActLevel>(max + 1), 
-		   vector<pair<string, string>>(), vector<string>(), Model::Input,
-		   Model::Regulations(), Model::Parameters(), Configurations() });
-   }
+		// Obtain basal values
+		if (XMLHelper::getAttribute(basal, specie, "basal", false)) {
+			if (type != Model::SpecType::Component)
+				throw invalid_argument("basal value allowed only for the SPECIE components");
+			basals.push_back(basal);
+			if (basal > max)
+				throw invalid_argument("basal value is greater than maximal value for specie " + name);
+		}
+		else {
+			basals = vrange<ActLevel>(max + 1);
+		}
 
-   /**
-    * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
-    * If not provided, attributes are defaulted -
-    * name is equal to ordinal number starting from 0,
-    * max to 1,
-    * targets to the range [0,max]
-    * input and output to false
-    */
-   static void firstParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
-      // Start the naming from capital A.
-      char specie_name = 'A';     
+		// Create a new specie
+		model.addSpecie(name, max, basals, type);
+	}
 
-      // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
-      for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) 
-		  parseSpecie(specie, Model::Component, specie_name++, model);
-	  for (auto specie : XMLHelper::NodesRange(structure_node, "INPUT", false))
-		  parseSpecie(specie, Model::Input, specie_name++, model);
+	/**
+	 * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
+	 * If not provided, attributes are defaulted -
+	 * name is equal to ordinal number starting from 0,
+	 * max to 1,
+	 * targets to the range [0,max]
+	 * input and output to false
+	 */
+	static void firstParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
+		// Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
+		for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false))
+			parseSpecie(specie, Model::Component, model);
+		for (auto specie : XMLHelper::NodesRange(structure_node, "INPUT", false))
+			parseSpecie(specie, Model::Input, model);
 
-	  // Sort the species lexicographically
-	  rng::sort(model.species, [](const Model::ModelSpecie & A, const Model::ModelSpecie & B) {
-		  return A.name < B.name;
-	  });
-   }
+		// Sort the species lexicographically
+		rng::sort(model.species, [](const Model::ModelSpecie & A, const Model::ModelSpecie & B) {
+			return A.name < B.name;
+		});
+	}
 
-   /**
-    * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
-    */
-   static void secondParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
-      // Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
-      SpecieID ID = 0;
-      for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false)) {
-         // Get all the regulations of the specie and store them to the model.
-         parseRegulations(specie, ID++, model);
-      }
-   }
+	/**
+	 * Starting from the STRUCTURE node, the function parses all the SPECIE tags and reads the data from them.
+	 */
+	static void secondParse(const rapidxml::xml_node<> * const structure_node, Model & model) {
+		// Step into first SPECIE tag, end when the current node does not have next sibling (all SPECIES tags were parsed)
+		// Get all the regulations of the specie and store them to the model.
+		for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false))
+			parseRegulations(specie, model);
+		for (auto specie : XMLHelper::NodesRange(structure_node, "INPUT", false))
+			parseRegulations(specie, model);
+	}
 
 public:
-   /**
-    * Main parsing function. It expects a pointer to inside of a MODEL node.
-    */
-   static void parseNetwork(const rapidxml::xml_node<> * const network_node, Model & model) {
-      // Create the species.
-      firstParse(network_node, model);
-      // Add regulatory logic.
-      secondParse(network_node, model);
-   }
+	/**
+	 * Main parsing function. It expects a pointer to inside of a MODEL node.
+	 */
+	static void parseNetwork(const rapidxml::xml_node<> * const network_node, Model & model) {
+		// Create the species.
+		firstParse(network_node, model);
+		// Add regulatory logic.
+		secondParse(network_node, model);
+	}
 
-   /**
-    * @brief parseConstraints   Parses the constraints given by the user.
-    */
-   static void parseConstraints(const rapidxml::xml_node<> * const network_node, Model & model) {
-       for (auto constraint : XMLHelper::NodesRange(network_node, "CONSTRAINT", false)) {
-           string const_type;
-           XMLHelper::getAttribute(const_type, constraint, "type");
-           if (const_type.compare("bound_loop")  == 0) {
-               model.restrictions.bound_loop = true;
-           } else if (const_type.compare("force_extremes") == 0) {
-               model.restrictions.force_extremes = true;
-           } else {
-               throw runtime_error("Constraint \"" + const_type + "\" is not a valid constraint.");
-           }
-       }
-   }
+	/**
+	 * @brief parseConstraints   Parses the constraints given by the user.
+	 */
+	static void parseConstraints(const rapidxml::xml_node<> * const network_node, Model & model) {
+		for (auto constraint : XMLHelper::NodesRange(network_node, "CONSTRAINT", false)) {
+			string const_type;
+			XMLHelper::getAttribute(const_type, constraint, "type");
+			if (const_type.compare("bound_loop") == 0) {
+				model.restrictions.bound_loop = true;
+			}
+			else if (const_type.compare("force_extremes") == 0) {
+				model.restrictions.force_extremes = true;
+			}
+			else {
+				throw runtime_error("Constraint \"" + const_type + "\" is not a valid constraint.");
+			}
+		}
+	}
 };
 
 #endif // PARSYBONE_NETWORK_PARSER_INCLUDED

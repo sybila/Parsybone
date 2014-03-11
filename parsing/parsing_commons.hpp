@@ -35,14 +35,18 @@ namespace ParsingCommons {
 	 * - contains only letters, digits or underscore
 	 */
 	bool isValidSpecName(const string & spec_name) {
+		if (spec_name.empty())
+			return false;
 		bool valid = isalpha(spec_name[0]) || spec_name[0] == '_';
 		for (char ch : spec_name)
 			valid &= isalnum(ch) || ch == '_';
-		return spec_name.length() >= 2 && valid;
+		return valid;
 	}
 
 	/* Throws an exception if a name is not valid. */
 	void specNameExc(const string & spec_name) {
+		if (spec_name.empty())
+			throw invalid_argument("An empty specie name occured.");
 		throw invalid_argument("Name of the specie \"" + spec_name + "\" is incorrect. Specie names can contain only letters,numbers and underscore.");
 	}
 }

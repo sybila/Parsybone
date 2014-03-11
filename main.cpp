@@ -140,7 +140,7 @@ int main(int argc, const char* argv[]) {
    if (user_options.be_verbose)
       time_manager.writeClock("* Runtime");
 
-#if (_MSC_VER == 1800)
+#if (_MSC_VER == 1800 && _DEBUG)
    cin.get();
 #endif 
 

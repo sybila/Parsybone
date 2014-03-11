@@ -74,8 +74,8 @@ class ParameterHelper {
 			requirements.insert(make_pair(source_ID, vrange(threshold, next_th)));
 		}
 
-		Levels targets = getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID);
-		model.species[t_ID].parameters.push_back({ context.substr(context.length() - 1), move(requirements), move(targets), 0, Levels() });
+		model.addParameter(t_ID, move(context.substr(0, context.length() - 1)), move(requirements),
+			move(getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID)));
 	}
 
 public:

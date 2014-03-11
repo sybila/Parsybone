@@ -63,9 +63,9 @@ public:
       SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
       ActLevel max_value; ///< Maximal activation level of the specie.
       Levels basals; ///< Basal targets (is no basal value is given, then all).
+	  SpecType spec_type; ///< What is the type of this specie.
 	  vector<pair<string, string>>  par_kin; ///< Specification of individual kinetics.
 	  vector<string> par_cons;  ///< Constraints on the parameters.
-	  SpecType spec_type; ///< What is the type of this specie.
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
       Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
@@ -74,6 +74,20 @@ public:
 
    Restrictions restrictions;
    vector<ModelSpecie> species; ///< vector of all species of the model
+
+   inline void addSpecie(const string & name, const size_t max, const Levels basals, const Model::SpecType type) {
+	   species.push_back({ name, species.size(), max, basals, type,
+		   vector<pair<string, string>>(), vector<string>(), Model::Regulations(), Model::Parameters(), Configurations() });
+   }
+
+   inline void addRegulation(SpecieID source_ID, SpecieID target_ID, ActLevel threshold, string label) {
+      string name = species[source_ID].name + ":" + to_string(threshold);
+      species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label});
+   }
+
+   inline void addParameter(const SpecieID ID, string context, map<StateID, Levels> requirements, Levels targets) {
+      species[ID].parameters.push_back({context, requirements, targets, 0, Levels()});
+   }
 
    inline ParamNo getStepSize(const SpecieID ID) const {
       if (species[ID].parameters.empty())
@@ -86,7 +100,7 @@ public:
    }
 
    inline ActLevel getMin(const SpecieID ID) const {
-      return ID ? 0 : 0; // Just to disable a warning, always return 0
+      return ID ? 0 : 0; // Just to disable a warning
    }
 
    inline ActLevel getMax(const SpecieID ID) const {
