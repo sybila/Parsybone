@@ -182,7 +182,7 @@ public:
 
 	void addBoundaries(const Levels & boundaries, const bool is_upper) {
 		if (boundaries.size() != allowed_vals.size())
-			throw runtime_error("Trying to bound the space of solutions in a constraint parser"
+			throw runtime_error("Trying to bound the space of solutions in a constraint parser "
 			"but the number of boundaries does not match the number of variables.");
 		auto op = is_upper ? IRT_LQ : IRT_GQ;
 		for (const ActLevel i : cscope(boundaries))
@@ -200,6 +200,16 @@ public:
 	// print solution
 	void print(void) const {
 		std::cout << allowed_vals << std::endl;
+	}
+
+	// get boundaries after propagation
+	Levels getBounds(bool upper) const {
+		Levels result(allowed_vals.size(), 0u);
+
+		for (const size_t i : cscope(allowed_vals))
+			result[i] = upper ? allowed_vals[i].max() : allowed_vals[i].min();
+
+		return result;
 	}
 
 	/* Obtain a vector with the solution */

@@ -28,6 +28,7 @@
 #include <boost/assert.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/range/numeric.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/range/counting_range.hpp>
 #include <boost/range/irange.hpp>

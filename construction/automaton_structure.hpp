@@ -87,8 +87,6 @@ public:
 		states[ID].transitions.push_back(move(transition));
 	}
 
-public:
-
 	bool isStableRequired(const StateID ID, const size_t trans_no) const {
 		return states[ID].transitions[trans_no].require_stable;
 	}

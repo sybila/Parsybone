@@ -67,7 +67,7 @@ class UnparametrizedStructureBuilder {
 	void addTransitions(const StateID ID, const Levels & state_levels, UnparametrizedStructure & structure) {
 		for (size_t specie = 0; specie < model.species.size(); specie++) {
 			// If this value is not the lowest one, add neighbour with lower
-			if (state_levels[specie] > 0) {
+			if (state_levels[specie] > structure.mins[specie]) {
 				const StateID target_ID = ID - index_jumps[specie];
 				if (allowed_states[target_ID])
 					addTransition(ID, target_ID, specie, false, state_levels, structure);
@@ -110,37 +110,18 @@ class UnparametrizedStructureBuilder {
 	}
 
 	/**
-	 * Compute a vector of maximal levels and store information about states
-	 */
-	size_t computeBoundaries(UnparametrizedStructure & structure) {
-		size_t states_count = 1;
-
-		for (size_t specie_num = 0; specie_num < model.species.size(); specie_num++) {
-			// Maximal values of species
-			structure.maxes.emplace_back(model.getMax(specie_num));
-			structure.mins.emplace_back(model.getMin(specie_num));
-			const size_t diff = model.getMax(specie_num) - model.getMin(specie_num);
-			structure.diffs.emplace_back(diff);
-			// How many states
-			states_count *= (diff + 1);
-		}
-
-		return states_count;
-	}
-
-	/**
 	 * Creates a vector of index differences between neighbour states in each direction.
 	 * Value is difference of the indexes between two states that were generated as a cartesian product.
 	 * Differences are caused by the way the states are generated.
 	 */
-	void computeJumps() {
-		index_jumps.resize(model.species.size());
+	void computeJumps(const Levels & range_size) {
+		index_jumps.reserve(model.species.size());
 		// How many far away are two neighbour in the vector
 		size_t jump_lenght = 1;
 		// Species with higher index cause bigger differences
-		for (size_t specie_num = 0; specie_num < model.species.size(); specie_num++) {
-			index_jumps[specie_num] = jump_lenght;
-			jump_lenght *= (model.getMax(specie_num) + 1);
+		for (size_t specie_no : cscope(model.species)) {
+			index_jumps.emplace_back(jump_lenght);
+			jump_lenght *= (range_size[specie_no]);
 		}
 	}
 
@@ -153,20 +134,42 @@ class UnparametrizedStructureBuilder {
 	}
 
 	/* Label, as allowed, those states that satisfy the experiment;*/
-	void solveConstrains(UnparametrizedStructure & structure) {
-		ConstraintParser * cons_pars = new ConstraintParser(structure.maxes.size(), *max_element(structure.maxes.begin(), structure.maxes.end()));
+	size_t solveConstrains(UnparametrizedStructure & structure) {
+		ConstraintParser * cons_pars = new ConstraintParser(model.species.size(), ModelTranslators::getMaxLevel(model));
 
 		// Impose constraints
-		cons_pars->addBoundaries(structure.maxes, true);
+		Levels maxes;
+		rng::transform(model.species, back_inserter(maxes), [](const Model::ModelSpecie & specie){ return specie.max_value; });
+		cons_pars->addBoundaries(maxes, true);
 		cons_pars->applyFormula(ModelTranslators::getAllNames(model), property.getExperiment());
 
+		// Obtain boundary details
+		cons_pars->status();
+		structure.mins = cons_pars->getBounds(false);
+		structure.maxes = cons_pars->getBounds(true);
+		rng::transform(structure.maxes, structure.mins, back_inserter(structure.range_size), [](const ActLevel max, const ActLevel min) {
+			return max - min + 1;
+		});
+
+		// Compute distances between neighbours
+		computeJumps(structure.range_size);
+
+		// Mark allowed states
+		size_t state_count = boost::accumulate(structure.range_size, 1, multiplies<ActLevel>());
+		bool all_states = property.getExperiment() == "tt";
+		prepareAllowed(structure, state_count, all_states);
+
 		// Conduct search
-		DFS<ConstraintParser> search(cons_pars);
-		delete cons_pars;
-		while (ConstraintParser *result = search.next()) {
-			allowed_states[structure.getID(result->getSolution())] = true;
-			delete result;
+		if (!all_states) {
+			DFS<ConstraintParser> search(cons_pars);
+			delete cons_pars;
+			while (ConstraintParser *result = search.next()) {
+				allowed_states[structure.getID(result->getSolution())] = true;
+				delete result;
+			}
 		}
+
+		return state_count;
 	}
 
 public:
@@ -176,36 +179,23 @@ public:
 	 * Create the states from the model and fill the structure with them.
 	 */
 	UnparametrizedStructure buildStructure() {
-		UnparametrizedStructure structure;
-		// Compute species-related values
-		const size_t state_count = computeBoundaries(structure);
-		// Compute transitions-related values
-		computeJumps();
-		// Solve constraints
-		if (property.getExperiment().compare("tt") == 0) {
-			prepareAllowed(structure, state_count, true);
-		}
-		else {
-			prepareAllowed(structure, state_count, false);
-			solveConstrains(structure);
-		}
-
-		size_t state_no = 0;
-
+		UnparametrizedStructure structure;		
+	
 		// Create states
-		StateID ID = 0;
-		Levels levels(model.species.size(), 0);
+		size_t state_no = 0;
+		const size_t state_count = solveConstrains(structure);
+		Levels levels(structure.mins);
 		do {
-			output_streamer.output(verbose_str, "Creating transitions for state: " + to_string(++state_no) + "/" + to_string(state_count) + ".",
+			output_streamer.output(verbose_str, "Creating transitions for state: " + to_string(state_no) + "/" + to_string(state_count) + ".",
 				OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 			// Fill the structure with the state
-			if (allowed_states[ID]) {
-				structure.addState(ID, levels);
-				addTransitions(ID, levels, structure);
+			if (allowed_states[state_no]) {
+				structure.addState(state_no, levels);
+				addTransitions(state_no, levels, structure);
 			} else {
-				structure.addState(ID, Levels());
+				structure.addState(state_no, Levels());
 			}
-			ID++;
+			state_no++;
 		} while (iterate(structure.maxes, structure.mins, levels));
 
 		output_streamer.clear_line(verbose_str);

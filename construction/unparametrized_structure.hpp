@@ -27,7 +27,7 @@ class UnparametrizedStructure : public TSInterface<TSStateProperty> {
 	friend class UnparametrizedStructureBuilder;
 	Levels maxes; ///< Maximal activity levels of the species.
 	Levels mins; ///< Minimal activity levels of the species.
-	Levels diffs; ///< Differences between the two.
+	Levels range_size; ///< Differences between the two.
 
 public:
 	UnparametrizedStructure() = default;
@@ -61,7 +61,7 @@ public:
 
 		for (size_t lvl_no = 0; lvl_no < levels.size(); lvl_no++) {
 			result += (levels[lvl_no] - mins[lvl_no]) * factor;
-			factor *= (diffs[lvl_no] + 1);
+			factor *= (range_size[lvl_no]);
 		}
 
 		return result;

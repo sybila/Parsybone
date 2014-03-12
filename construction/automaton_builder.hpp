@@ -28,17 +28,32 @@ class AutomatonBuilder {
 	vector<string> names; ///< Name of the i-th specie.
 	Levels maxes; ///< Maximal activity levels of the species.
 	Levels mins; ///< Minimal activity levels of the species.
+	Levels range_size; ///< Number of valid values for the species.
 
 	/**
 	 * Compute a vector of maximal levels and store information about states.
 	 */
 	void computeBoundaries() {
+		// Compute naive bounds.
 		for (const SpecieID ID : cscope(model.species)) {
 			// Maximal values of species
 			names.push_back(model.getName(ID));
 			maxes.push_back(model.getMax(ID));
 			mins.push_back(model.getMin(ID));
 		}
+
+		// Add experiment constraints.
+		ConstraintParser * cons_pars = new ConstraintParser(model.species.size(), ModelTranslators::getMaxLevel(model));
+		cons_pars->addBoundaries(maxes, true);
+		cons_pars->applyFormula(ModelTranslators::getAllNames(model), property.getExperiment());
+		cons_pars->status();
+
+		// Compute refined boundaries.
+		mins = cons_pars->getBounds(false);
+		maxes = cons_pars->getBounds(true);
+		rng::transform(maxes, mins, back_inserter(range_size), [](const ActLevel max, const ActLevel min) {
+			return max - min + 1;
+		});
 	}
 
 	/**
