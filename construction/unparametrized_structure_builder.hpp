@@ -155,7 +155,7 @@ class UnparametrizedStructureBuilder {
 		computeJumps(structure.range_size);
 
 		// Mark allowed states
-		size_t state_count = boost::accumulate(structure.range_size, 1, multiplies<ActLevel>());
+		size_t state_count = accumulate(structure.range_size.begin(), structure.range_size.end(), 1, multiplies<size_t>());
 		bool all_states = property.getExperiment() == "tt";
 		prepareAllowed(structure, state_count, all_states);
 
