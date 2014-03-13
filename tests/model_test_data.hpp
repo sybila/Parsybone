@@ -25,6 +25,7 @@ protected:
    Model one_three;
    Model circuit_2;
    Model bool_k_2;
+   Model input_cascade;
    PropertyAutomaton trivial_prop;
    PropertyAutomaton o_t_series_prop;
    PropertyAutomaton A_cyclic_prop;
@@ -35,7 +36,7 @@ protected:
    PropertyAutomaton experiment_series;
 
    void setUpModels() {
-	   trivial_model.addSpecie("A", 1, { 0, 1 }, Model::Component);
+	  trivial_model.addSpecie("A", 1, { 0, 1 }, Model::Component);
       trivial_model.addRegulation(0,0,1,"Free");
 
       one_three.addSpecie("A", 1, {0,1}, Model::Component);
@@ -56,6 +57,12 @@ protected:
       bool_k_2.addRegulation(0, 1, 1, "Free");
       bool_k_2.addRegulation(1, 0, 1, "Free");
       bool_k_2.addRegulation(1, 1, 1, "Free");
+
+	  input_cascade.addSpecie("A", 1, { 0, 1 }, Model::Input);
+	  input_cascade.addSpecie("B", 1, { 0, 1 }, Model::Input);
+	  input_cascade.addSpecie("C", 1, { 0, 1 }, Model::Component);
+	  input_cascade.addRegulation(0, 2, 1, "ActivatingOnly");
+	  input_cascade.addRegulation(1, 2, 1, "NotActivating");
    }
 
    void setUpAutomata() {

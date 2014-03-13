@@ -25,6 +25,7 @@ protected:
    ProductStructure b_k_2_stable;
    ProductStructure b_k_2_bistable;
    ProductStructure c_2_experiment;
+   ProductStructure i_c_set_two_ones;
 
    void SetUp() override {
       ModelsTest::SetUp();
@@ -33,6 +34,7 @@ protected:
       ConstructionManager::computeModelProps(one_three);
       ConstructionManager::computeModelProps(bool_k_2);
       ConstructionManager::computeModelProps(circuit_2);
+	  ConstructionManager::computeModelProps(input_cascade);
 
       o_t_series = ConstructionManager::construct(one_three, o_t_series_prop);
       o_t_cyclic = ConstructionManager::construct(one_three, A_cyclic_prop);
@@ -45,6 +47,7 @@ protected:
       b_k_2_stable = ConstructionManager::construct(bool_k_2, stable_prop);
       b_k_2_bistable = ConstructionManager::construct(bool_k_2, bistable_prop);
 	  c_2_experiment = ConstructionManager::construct(circuit_2, experiment_series);
+	  i_c_set_two_ones = ConstructionManager::construct(input_cascade, set_two_ones_prop);
    }
 };
 
