@@ -76,6 +76,8 @@ public:
 
 		// Cycle through all the species
 		for (auto ID : crange(model.species.size())) {
+			if (model.species[ID].spec_type == Model::Input)
+				continue;
 			addRegulations(model, ID, step_size);
 		}
 	}

@@ -152,7 +152,6 @@ class NetworkParser {
 		// Get all the regulations of the specie and store them to the model.
 		for (auto specie : XMLHelper::NodesRange(structure_node, "SPECIE", false))
 			parseRegulations(specie, model);
-
 	}
 
 public:

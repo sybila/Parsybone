@@ -107,7 +107,9 @@ public:
 	 */
 	static void fillParameters(Model & model) {
 		for (const SpecieID ID : crange(model.species.size())) {
-			createParameters(model, ID);
+			// do not create parameters for the input nodes
+			if (model.species[ID].spec_type != Model::Input)
+				createParameters(model, ID);
 		}
 	}
 };

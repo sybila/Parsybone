@@ -74,6 +74,7 @@ class ParametrizationsBuilder {
 	static string createFormula(const Model &model, const SpecieID ID) {
 		string result = "tt ";
 
+		// Add constraints for all the regulations
 		for (Model::Regulation regul : model.getRegulations(ID)) {
 			string plus, minus, label; 
 			createEdgeCons(model.getRegulations(ID), model.getParameters(ID), regul, plus, minus);
@@ -85,6 +86,7 @@ class ParametrizationsBuilder {
 			result += " & " + label;
 		}
 
+		// List all the possible target values for a parameter
 		for (Model::Parameter param : model.getParameters(ID)) {
 			string allowed;
 			allowed = addAllowed(param.targets, param.context);
@@ -125,6 +127,9 @@ public:
 		for (SpecieID ID = 0; ID < model.species.size(); ID++) {
 			output_streamer.output(verbose_str, "Testing edge constraints for Specie: " + to_string(ID + 1) + "/"
 				+ to_string(model.species.size()) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+			if (model.species[ID].spec_type == Model::Input)
+				continue;
+
 			string formula = createFormula(model, ID) + " & " + ConstraintReader::consToFormula(model, ID);
 			createKinetics(ID, formula, model);
 		}

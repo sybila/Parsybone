@@ -33,8 +33,6 @@ namespace ConstructionManager {
       ParameterHelper::fillParameters(model);
       // Replace explicitly defined parameters.
       ParameterReader::constrainParameters(model);
-
-	  vector<bool> allowed_states;
       // Compute exact parametrization for the model.
       ParametrizationsBuilder::buildParametrizations(model);
       // Build labels for regulations.

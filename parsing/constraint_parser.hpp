@@ -168,6 +168,8 @@ public:
 
 	ConstraintParser(const size_t number, const size_t upper_bound)
 		: allowed_vals(*this, number, 0, upper_bound) {
+		if (number == 0)
+			throw invalid_argument("A call for constraint parser with no variables.");
 		branch(*this, allowed_vals, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
 	}
 
@@ -245,6 +247,8 @@ public:
 		return new_par != 0;
 	}
 
+	/*
+	// Just testing stuff
 	static void testCopy() {
 		ConstraintParser *constraint_parser = new ConstraintParser(2, 2);
 		ConstraintParser *copy = static_cast<ConstraintParser*>(constraint_parser->clone());
@@ -262,8 +266,7 @@ public:
 		ConstraintParser * new_par2= search2.next();
 		cout << "Not empty A < B: " << (new_par2 != 0);
 		delete copy;
-		
-	}
+	}*/
 };
 
 

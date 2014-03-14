@@ -66,6 +66,10 @@ class UnparametrizedStructureBuilder {
 	 */
 	void addTransitions(const StateID ID, const Levels & state_levels, UnparametrizedStructure & structure) {
 		for (size_t specie = 0; specie < model.species.size(); specie++) {
+			// Do not add transitions in the dimension of the input specie
+			if (model.species[specie].spec_type == Model::Input)
+				continue;
+
 			// If this value is not the lowest one, add neighbour with lower
 			if (state_levels[specie] > structure.mins[specie]) {
 				const StateID target_ID = ID - index_jumps[specie];
