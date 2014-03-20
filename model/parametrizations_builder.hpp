@@ -98,7 +98,9 @@ class ParametrizationsBuilder {
 	}
 
 	/* Create constraint space on parametrizations for the given specie and enumerate and store all the solutions. */
-	static void createKinetics(const SpecieID ID, const string formula, Model & model) {
+	static Configurations  createKinetics(const SpecieID ID, const string formula, Model & model) {
+		Configurations result;
+
 		// Build the space
 		vector<string> names;
 		for (const Model::Parameter & param : model.getParameters(ID))
@@ -112,10 +114,12 @@ class ParametrizationsBuilder {
 		// Conduct search
 		DFS<ConstraintParser> search(cons_pars);
 		delete cons_pars;
-		while (ConstraintParser *result = search.next()) {
-			model.species[ID].subcolors.push_back(result->getSolution());
-			delete result;
+		while (ConstraintParser *match = search.next()) {
+			result.push_back(match->getSolution());
+			delete match;
 		}
+
+		return result;
 	}
 
 public:
@@ -131,7 +135,8 @@ public:
 				continue;
 
 			string formula = createFormula(model, ID) + " & " + ConstraintReader::consToFormula(model, ID);
-			createKinetics(ID, formula, model);
+			Configurations subcolors = createKinetics(ID, formula, model);
+			model.species[ID].subcolors = subcolors;
 		}
 
 		output_streamer.clear_line(verbose_str);

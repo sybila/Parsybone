@@ -46,9 +46,10 @@ class LabelingBuilder {
 		vector<Model::Parameter> & params = model.species[ID].parameters;
 
 		// Display stats
-		output_streamer.output(verbose_str, "Specie " + model.getName(ID) + " has " + to_string(params.size()) + " regulatory contexts with "
-			+ to_string(model.getSubcolors(ID).size()) + " possible parametrizations out of "
-			+ to_string(model.getMax(ID) + 1) + " ^ " + to_string(model.getParameters(ID).size()));
+		if (model.species[ID].spec_type != Model::Input)
+			output_streamer.output(verbose_str, "Specie " + model.getName(ID) + " has " + to_string(params.size()) + " parameters with "
+				+ to_string(model.species[ID].subcolors.size()) + " parametrizations out of "
+				+ to_string(model.species[ID].max_value + 1) + " ^ " + to_string(model.getParameters(ID).size()));
 
 		// Go through regulations of a specie - each represents a single function
 		for (auto param_no : cscope(params)) {
@@ -64,7 +65,7 @@ class LabelingBuilder {
 		}
 
 		// Increase step size for the next function
-		step_size *= model.getSubcolors(ID).size();
+		step_size *= model.species[ID].subcolors.size();
 	}
 
 public:

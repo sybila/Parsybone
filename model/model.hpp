@@ -47,6 +47,7 @@ public:
       string context; ///< String name of the context of regulators.
       map<StateID, Levels> requirements; ///< Levels of the source species.
       Levels targets; ///< Towards which level this context may regulate.
+	  bool functional; ///< True iff the property currently employed allows for such a context to occur.
 
       ParamNo step_size; ///< How many neighbour parameters have the same value for this function.
       Levels parameter_vals; ///< Levels towards which this function regulates based on current subcolor.
@@ -86,7 +87,7 @@ public:
    }
 
    inline void addParameter(const SpecieID ID, string context, map<StateID, Levels> requirements, Levels targets) {
-      species[ID].parameters.push_back({context, requirements, targets, 0, Levels()});
+      species[ID].parameters.push_back({context, requirements, targets, true, 0, Levels()});
    }
 
    inline ParamNo getStepSize(const SpecieID ID) const {
@@ -119,9 +120,6 @@ public:
       return species[ID].parameters;
    }
 
-   inline const Configurations & getSubcolors(const SpecieID ID)  const {
-      return species[ID].subcolors;
-   }
 };
 
 #endif // MODEL_HPP
