@@ -34,7 +34,7 @@ class NetworkParser {
 		XMLHelper::getAttribute(source, regulation, "source");
 		source_ID = ModelTranslators::findID(model, source);
 		if (source_ID >= model.species.size())
-			throw invalid_argument("ID of a regulation of the specie " + model.getName(t_ID) + " is incorrect");
+			throw invalid_argument("ID of a regulation of the specie " + model.species[t_ID].name + " is incorrect");
 
 		return source_ID;
 	}
@@ -42,20 +42,20 @@ class NetworkParser {
 	/**
 	 * Obtain a treshold of a current regulation and check if it is correct and unique.
 	 */
-	static size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, const SpecieID source_ID, Model & model) {
+	static size_t getThreshold(const rapidxml::xml_node<> * const regulation, const SpecieID t_ID, const SpecieID s_ID, Model & model) {
 		size_t threshold;
 
 		// Try to find a threshold, if not present, set to 1
 		if (!XMLHelper::getAttribute(threshold, regulation, "threshold", false))
 			threshold = 1;
-		else if (threshold > model.getMax(source_ID) || threshold == 0) // Control the value
-			throw invalid_argument("the threshold' value " + to_string(threshold) + " is not within the range of the regulator " + model.getName(source_ID));
+		else if (threshold > model.species[s_ID].max_value || threshold == 0) // Control the value
+			throw invalid_argument("the threshold' value " + to_string(threshold) + " is not within the range of the regulator " + model.species[s_ID].name);
 
 		// Test uniqueness of this combination (source, threshold)
-		auto regulations = model.getRegulations(t_ID);
+		auto regulations = model.species[t_ID].regulations;
 		for (const auto & regul : regulations) {
-			if (threshold == regul.threshold && source_ID == regul.source)
-				throw invalid_argument("multiple definition of a regulation of a specie " + model.getName(source_ID));
+			if (threshold == regul.threshold && s_ID == regul.source)
+				throw invalid_argument("multiple definition of a regulation of a specie " + model.species[s_ID].name);
 		}
 
 		return threshold;

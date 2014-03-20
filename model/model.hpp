@@ -93,22 +93,6 @@ public:
       return species[ID].step_size;
    }
 
-   inline const string & getName(const SpecieID ID) const {
-      return species[ID].name;
-   }
-
-   inline ActLevel getMin(const SpecieID ID) const {
-      return ID ? 0 : 0; // Just to disable a warning
-   }
-
-   inline ActLevel getMax(const SpecieID ID) const {
-      return species[ID].max_value;
-   }
-
-   inline const vector<Regulation> & getRegulations(const SpecieID ID) const {
-      return species[ID].regulations;
-   }
-
    inline const vector<Parameter> & getParameters(const SpecieID ID)  const {
       return species[ID].parameters;
    }

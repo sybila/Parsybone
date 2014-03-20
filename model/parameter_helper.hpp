@@ -25,7 +25,7 @@ class ParameterHelper {
 			size_t self_thrs = thrs_comb[autoreg];
 			Levels thresholds = (all_thrs.find(t_ID))->second;
 			size_t bottom_border = 0u < self_thrs ? thresholds[self_thrs - 1] : 0u;
-			size_t top_border = thresholds.size() > self_thrs ? thresholds[self_thrs] : model.getMax(t_ID) + 1;
+			size_t top_border = thresholds.size() > self_thrs ? thresholds[self_thrs] : model.species[t_ID].max_value + 1;
 			Levels new_targets;
 
 			// Add levels that are between the thresholds and one below/above if corresponds to the original.
@@ -56,8 +56,8 @@ class ParameterHelper {
 		for (auto source_num : crange(thrs_comb.size())) {
 			// Find the source details and its current threshold
 			string source_name = ModelTranslators::getRegulatorsNames(model, t_ID)[source_num];
-			StateID source_ID = ModelTranslators::getRegulatorsIDs(model, t_ID)[source_num];
-			auto thresholds = all_thrs.find(source_ID)->second;
+			StateID s_ID = ModelTranslators::getRegulatorsIDs(model, t_ID)[source_num];
+			auto thresholds = all_thrs.find(s_ID)->second;
 
 			// Find activity level of the current threshold.
 			ActLevel threshold = (thrs_comb[source_num] == 0) ? 0 : thresholds[thrs_comb[source_num] - 1];
@@ -69,9 +69,9 @@ class ParameterHelper {
 			context += regulation_name + ",";
 
 			// Find in which levels the specie must be for the regulation to occur.
-			ActLevel next_th = (thrs_comb[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[thrs_comb[source_num]];
+			ActLevel next_th = (thrs_comb[source_num] == thresholds.size()) ? model.species[s_ID].max_value + 1 : thresholds[thrs_comb[source_num]];
 
-			requirements.insert(make_pair(source_ID, vrange(threshold, next_th)));
+			requirements.insert(make_pair(s_ID, vrange(threshold, next_th)));
 		}
 
 		model.addParameter(t_ID, move(context.substr(0, context.length() - 1)), move(requirements),

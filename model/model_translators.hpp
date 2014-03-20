@@ -40,7 +40,7 @@ namespace ModelTranslators {
 		auto regulators = getRegulatorsIDs(model, ID);
 		vector<string> names;
 		for (auto reg : regulators) {
-			names.push_back(model.getName(reg));
+			names.push_back(model.species[reg].name);
 		}
 		return names;
 	}
@@ -62,7 +62,7 @@ namespace ModelTranslators {
 	 */
 	map<SpecieID, Levels > getThresholds(const Model & model, const SpecieID ID) {
 		map<SpecieID, Levels > thresholds;
-		for (auto reg : model.getRegulations(ID)) {
+		for (auto reg : model.species[ID].regulations) {
 			auto key = thresholds.find(reg.source);
 			if (key == thresholds.end()) {
 				thresholds.insert(make_pair(reg.source, Levels(1, reg.threshold)));
@@ -281,7 +281,7 @@ namespace ModelTranslators {
 	 * @return regulation with given parameters
 	 */
 	const Model::Regulation & findRegulation(const Model & model, const SpecieID t_ID, const SpecieID s_ID, const ActLevel threshold) {
-		const auto & reguls = model.getRegulations(t_ID);
+		const auto & reguls = model.species[t_ID].regulations;
 		for (const Model::Regulation & regul : reguls)
 			if (regul.source == s_ID && regul.threshold == threshold)
 				return regul;

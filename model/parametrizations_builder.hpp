@@ -75,9 +75,9 @@ class ParametrizationsBuilder {
 		string result = "tt ";
 
 		// Add constraints for all the regulations
-		for (Model::Regulation regul : model.getRegulations(ID)) {
+		for (Model::Regulation regul : model.species[ID].regulations) {
 			string plus, minus, label; 
-			createEdgeCons(model.getRegulations(ID), model.getParameters(ID), regul, plus, minus);
+			createEdgeCons(model.species[ID].regulations, model.getParameters(ID), regul, plus, minus);
 			addParenthesis(plus);
 			addParenthesis(minus);
 			label = RegulationHelper::getLabel(regul.label);
@@ -106,7 +106,7 @@ class ParametrizationsBuilder {
 		for (const Model::Parameter & param : model.getParameters(ID))
 			names.push_back(param.context);
 		
-		ConstraintParser * cons_pars = new ConstraintParser(names.size(), model.getMax(ID));
+		ConstraintParser * cons_pars = new ConstraintParser(names.size(), model.species[ID].max_value);
 
 		// Impose constraints
 		cons_pars->applyFormula(names, formula);

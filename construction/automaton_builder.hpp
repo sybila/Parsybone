@@ -37,9 +37,9 @@ class AutomatonBuilder {
 		// Compute naive bounds.
 		for (const SpecieID ID : cscope(model.species)) {
 			// Maximal values of species
-			names.push_back(model.getName(ID));
-			maxes.push_back(model.getMax(ID));
-			mins.push_back(model.getMin(ID));
+			names.push_back(model.species[ID].name);
+			maxes.push_back(model.species[ID].max_value);
+			mins.push_back(0);
 		}
 
 		// Add experiment constraints.

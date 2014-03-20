@@ -36,7 +36,7 @@ class LabelingBuilder {
 	}
 
 	/**
-	 * Creates the kinetic parameters in explicit form from the model information. 
+	 * Creates the kinetic parameters in explicit form from the model information.
 	 * All feasible parameters for the specie are then stored in the FunctionsStructure.
 	 * @param ID	ID of the specie to compute the kinetic parameters for
 	 * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
@@ -47,9 +47,9 @@ class LabelingBuilder {
 
 		// Display stats
 		if (model.species[ID].spec_type != Model::Input)
-			output_streamer.output(verbose_str, "Specie " + model.getName(ID) + " has " + to_string(params.size()) + " parameters with "
-				+ to_string(model.species[ID].subcolors.size()) + " parametrizations out of "
-				+ to_string(model.species[ID].max_value + 1) + " ^ " + to_string(model.getParameters(ID).size()));
+			output_streamer.output(verbose_str, "Specie " + model.species[ID].name + " has " + to_string(params.size()) + " parameters with "
+			+ to_string(model.species[ID].subcolors.size()) + " parametrizations out of "
+			+ to_string(model.species[ID].max_value + 1) + " ^ " + to_string(model.getParameters(ID).size()));
 
 		// Go through regulations of a specie - each represents a single function
 		for (auto param_no : cscope(params)) {
@@ -61,7 +61,7 @@ class LabelingBuilder {
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
 			params[param_no].parameter_vals = getTargetVals(model, ID, param_no);
-			
+
 		}
 
 		model.species[ID].step_size = step_size;

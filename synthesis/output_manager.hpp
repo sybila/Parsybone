@@ -56,7 +56,7 @@ public:
 
       for(SpecieID ID:crange(model.species.size())) {
          for(auto param:model.getParameters(ID)) {
-            format_desc += model.getName(ID) + "{" + param.context + "},";
+			 format_desc += model.species[ID].name + "{" + param.context + "},";
          }
       }
       format_desc.back() = ')';
