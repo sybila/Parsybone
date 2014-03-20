@@ -37,7 +37,7 @@ public:
       StateID source; ///< Regulator specie ID.
       ActLevel threshold; ///< Level of the regulator required for the regulation to be active.
       string name; ///< Name of the regulator.
-      Levels activity; ///< Source levels of the regulator.
+      // Levels activity; ///< Source levels of the regulator.
       string label; ///< A behavioural constrain on this edge.
    };
    typedef vector<Regulation> Regulations;
@@ -49,7 +49,6 @@ public:
       Levels targets; ///< Towards which level this context may regulate.
 	  bool functional; ///< True iff the property currently employed allows for such a context to occur.
 
-      ParamNo step_size; ///< How many neighbour parameters have the same value for this function.
       Levels parameter_vals; ///< Levels towards which this function regulates based on current subcolor.
    };
    typedef vector<Parameter> Parameters;
@@ -63,9 +62,8 @@ public:
       string name; ///< Actuall name of the specie.
       SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
       ActLevel max_value; ///< Maximal activation level of the specie.
-      Levels basals; ///< Basal targets (is no basal value is given, then all).
 	  SpecType spec_type; ///< What is the type of this specie.
-	  vector<pair<string, string>>  par_kin; ///< Specification of individual kinetics.
+	  ParamNo step_size; ///< How many neighbour parameters have the same value for this function.
 	  vector<string> par_cons;  ///< Constraints on the parameters.
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
@@ -76,24 +74,23 @@ public:
    Restrictions restrictions;
    vector<ModelSpecie> species; ///< vector of all species of the model
 
-   inline void addSpecie(const string & name, const size_t max, const Levels basals, const Model::SpecType type) {
-	   species.push_back({ name, species.size(), max, basals, type,
-		   vector<pair<string, string>>(), vector<string>(), Model::Regulations(), Model::Parameters(), Configurations() });
+   inline void addSpecie(const string & name, const size_t max, const Model::SpecType type) {
+	   species.push_back({ name, species.size(), max, type, 0, vector<string>(), Model::Regulations(), Model::Parameters(), Configurations() });
    }
 
    inline void addRegulation(SpecieID source_ID, SpecieID target_ID, ActLevel threshold, string label) {
       string name = species[source_ID].name + ":" + to_string(threshold);
-      species[target_ID].regulations.push_back({source_ID, threshold, move(name), Levels(), label});
+      species[target_ID].regulations.push_back({source_ID, threshold, move(name), label});
    }
 
    inline void addParameter(const SpecieID ID, string context, map<StateID, Levels> requirements, Levels targets) {
-      species[ID].parameters.push_back({context, requirements, targets, true, 0, Levels()});
+      species[ID].parameters.push_back({context, requirements, targets, true, Levels()});
    }
 
    inline ParamNo getStepSize(const SpecieID ID) const {
       if (species[ID].parameters.empty())
          throw runtime_error("Trying to obtain step size before parametrizations were built");
-      return species[ID].parameters.front().step_size;
+      return species[ID].step_size;
    }
 
    inline const string & getName(const SpecieID ID) const {
@@ -106,10 +103,6 @@ public:
 
    inline ActLevel getMax(const SpecieID ID) const {
       return species[ID].max_value;
-   }
-
-   inline Levels getBasalTargets(const SpecieID ID) const {
-      return species[ID].basals;
    }
 
    inline const vector<Regulation> & getRegulations(const SpecieID ID) const {

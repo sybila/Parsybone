@@ -13,7 +13,7 @@
 
 TEST_F(StructureTest, TestMultiedge) {
    Model multiedge;
-   multiedge.addSpecie("A", 2, { 0, 1, 2 }, Model::Component);
+   multiedge.addSpecie("A", 2,  Model::Component);
    multiedge.addRegulation(0, 0, 1, "-");
    multiedge.addRegulation(0, 0, 2, "!-");
    EXPECT_NO_THROW(ConstructionManager::computeModelProps(multiedge));

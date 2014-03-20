@@ -123,9 +123,18 @@ namespace ModelTranslators {
 		// cycle through the species
 		for (const SpecieID ID : crange(model.species.size())) {
 			auto color = model.species[ID].subcolors[color_parts[ID]];
+			auto color_it = color.begin();
 			// fill partial parametrization of the specie
-			for (auto it = color.begin(); it != color.end(); it++) {
-				color_str += lexical_cast<string, size_t>(*it);
+			for (const Model::Parameter param : model.species[ID].parameters) {
+				// There may be more contexts than values due to the fact that some are not functional. These are assigned the value -1.
+				if (param.functional) {
+					color_str += to_string(*color_it);
+					color_it++;
+				}
+				else {
+					color_str += "-1";
+				}
+				
 				color_str += ",";
 			}
 		}

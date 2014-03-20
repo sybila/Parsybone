@@ -6,26 +6,7 @@
 
 class ParameterParser {
 private:
-	/**
-	 * @brief parseParameters Reads the constraints.
-	 */
-	static vector<pair<string, string>> parseParKin(const rapidxml::xml_node<> * const specie_node) {
-		vector<pair<string, string>>  result;
-
-		// List through all the PARAM nodes.
-		for (auto parameter : XMLHelper::NodesRange(specie_node, "PARAM", false)) {
-			// Obtain context specified.
-			string context;
-			XMLHelper::getAttribute(context, parameter, "context");
-			string value = "?";
-			XMLHelper::getAttribute(value, parameter, "value", false);
-			result.push_back(make_pair(context, value));
-		}
-
-		return result;
-	}
-
-	/**
+   /**
 	* @brief parseParameters Reads the constraints.
 	*/
 	static vector<string> parseParCons(const rapidxml::xml_node<> * const specie_node) {
@@ -50,7 +31,6 @@ public:
 		auto specie = XMLHelper::getChildNode(network_node, "SPECIE");
 		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE")) {
 			// Create all contexts with all the possible values.
-			model.species[ID].par_kin = parseParKin(specie);
 			model.species[ID].par_cons = parseParCons(specie);
 		}
 	}

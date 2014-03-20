@@ -61,9 +61,10 @@ class LabelingBuilder {
 
 			// Add target values (if input negative, add all possibilities), if positive, add current requested value
 			params[param_no].parameter_vals = getTargetVals(model, ID, param_no);
-			params[param_no].step_size = step_size;
+			
 		}
 
+		model.species[ID].step_size = step_size;
 		// Increase step size for the next function
 		step_size *= model.species[ID].subcolors.size();
 	}

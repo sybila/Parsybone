@@ -10,7 +10,6 @@
 #define MODEL_FUNCTIONS_TEST_HPP
 
 #include "model_test_data.hpp"
-#include "../model/parameter_reader.hpp"
 #include "../model/regulation_helper.hpp"
 #include "../model/constraint_reader.hpp"
 
@@ -23,44 +22,16 @@ TEST_F(ModelsTest, ModelFunctions) {
 	ASSERT_EQ(2, ModelTranslators::getRegulatorsIDs(one_three, 0).size()) << "There must be only two IDs for regulations, even though there are three incoming interactions.";
 }
 
-/// Controls whether explicit parametrizaitions do replace the original values.
-TEST_F(ModelsTest, ParametrizationControl) {
-
-	one_three.species[0].par_kin.push_back(make_pair("A,B:1", "1"));
-	one_three.species[0].par_kin.push_back(make_pair("B:3", "0"));
-	one_three.species[1].par_kin.push_back(make_pair("A", "3"));
-
-	// Transform the description into semantics.
-	ASSERT_NO_THROW(ParameterHelper::fillParameters(one_three));
-	ASSERT_NO_THROW(ParameterReader::constrainParameters(one_three));
-
-	auto params = one_three.getParameters(0);
-	ASSERT_EQ(6, params.size()) << "There should be 6 contexts for A.";
-	for (const auto & param : params) {
-		if (param.context.compare("A:1,B:1") == 0) {
-			ASSERT_EQ(1, param.targets.size()) << "One possible target val in this context.";
-			EXPECT_EQ(1, param.targets[0]) << "Target value in given countext should be one.";
-		}
-		if (param.context.compare("A:0,B:1") == 0) {
-			ASSERT_EQ(2, param.targets.size()) << "Target values should not be constrained.";
-		}
-	}
-}
-
 /// This test controls functionality of loop bounding constraint.
 TEST_F(ModelsTest, ParametrizationLoopBound) {
 	Model loop_model;
-	loop_model.addSpecie("A", 1, { 0u, 1u }, Model::Component);
-	loop_model.addSpecie("B", 5, { 0u, 1u, 2u, 3u, 4u, 5u }, Model::Component);
+	loop_model.addSpecie("A", 1, Model::Component);
+	loop_model.addSpecie("B", 5, Model::Component);
 	loop_model.addRegulation(0, 1, 1, "");
 	loop_model.addRegulation(1, 1, 2, "");
 	loop_model.addRegulation(1, 1, 4, "");
 	loop_model.restrictions.bound_loop = true;
-	RegulationHelper::fillActivationLevels(loop_model);
 	ParameterHelper::fillParameters(loop_model);
-
-	// Transform the description into semantics.
-	ASSERT_NO_THROW(ParameterReader::constrainParameters(loop_model));
 
 	auto params = loop_model.getParameters(1);
 	ASSERT_EQ(6, params.size()) << "There should be 6 contexts for B.";

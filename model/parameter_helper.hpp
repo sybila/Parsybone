@@ -18,7 +18,7 @@ class ParameterHelper {
 	 * @param autoreg index of the regulation that goes from itself
 	 */
 	static Levels getTargetValues(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const size_t autoreg, const SpecieID t_ID) {
-		Levels targets = model.getBasalTargets(t_ID);
+		Levels targets = vrange<ActLevel>(0u, model.species[t_ID].max_value + 1u);
 
 		// If there is the loop restriction
 		if (model.restrictions.bound_loop && autoreg != INF) {
@@ -32,12 +32,12 @@ class ParameterHelper {
 			if (targets.front() < bottom_border)
 				new_targets.push_back(bottom_border - 1);
 			for (const auto target : targets)
-			if (target >= bottom_border && target < top_border)
-				new_targets.push_back(target);
+				if (target >= bottom_border && target < top_border)
+					new_targets.push_back(target);
 			if (targets.back() >= top_border)
 				new_targets.push_back(top_border);
 
-			targets = new_targets;
+			return new_targets;
 		}
 
 		return targets;
@@ -70,7 +70,7 @@ class ParameterHelper {
 
 			// Find in which levels the specie must be for the regulation to occur.
 			ActLevel next_th = (thrs_comb[source_num] == thresholds.size()) ? model.getMax(source_ID) + 1 : thresholds[thrs_comb[source_num]];
-	
+
 			requirements.insert(make_pair(source_ID, vrange(threshold, next_th)));
 		}
 
@@ -78,10 +78,9 @@ class ParameterHelper {
 			move(getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID)));
 	}
 
-public:
 	/**
-	 * @brief createParameters Creates a description of kinetic parameters.
-	 */
+	* @brief createParameters Creates a description of kinetic parameters.
+	*/
 	static void createParameters(Model & model, const SpecieID t_ID) {
 		auto all_thrs = ModelTranslators::getThresholds(model, t_ID);
 		Levels bottom, thrs_comb, top;
@@ -102,6 +101,7 @@ public:
 		} while (iterate(top, bottom, thrs_comb));
 	}
 
+public:
 	/**
 	 * @brief fillParameters   fill idividual parameter values based on user specifications.
 	 */

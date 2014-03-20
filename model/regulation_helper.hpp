@@ -41,30 +41,6 @@ namespace RegulationHelper {
 
 	  return formula;
    }
-
-   /**
-    * @brief fillActivationLevels For each regulation fill the levels of its source in which it is active.
-    */
-   void fillActivationLevels(Model & model) {
-      // Fill for all the species.
-      for (auto ID:crange(model.species.size())) {
-         auto space = ModelTranslators::getThresholds(model, ID);
-
-         // List through the regulations of the specie.
-         for (auto regul:model.getRegulations((ID))) {
-            // Start at the lower threshold
-            ActLevel begin = regul.threshold;
-            // See if there is an upper threshold
-            auto thresholds = space.find(regul.source)->second;
-            sort(thresholds.begin(), thresholds.end(), [](unsigned int a, unsigned int b){return a <= b;});
-            auto th_it = find(thresholds.begin(), thresholds.end(), begin) + 1;
-            // Create the maximum based on whethter this is the last threshold or not.
-            ActLevel end = (th_it == thresholds.end()) ? model.getMax(regul.source) + 1 : *th_it;
-
-			regul.activity = vrange(begin, end);
-         }
-      }
-   }
 };
 
 #endif // REGULATION_HELPER_HPP

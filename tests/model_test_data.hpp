@@ -11,7 +11,6 @@
 
 #include <gtest/gtest.h>
 
-#include "../model/parameter_reader.hpp"
 #include "../model/regulation_helper.hpp"
 #include "../construction/construction_manager.hpp"
 
@@ -36,31 +35,31 @@ protected:
    PropertyAutomaton experiment_series;
 
    void setUpModels() {
-	  trivial_model.addSpecie("A", 1, { 0, 1 }, Model::Component);
+	  trivial_model.addSpecie("A", 1, Model::Component);
       trivial_model.addRegulation(0,0,1,"Free");
 
-      one_three.addSpecie("A", 1, {0,1}, Model::Component);
-	  one_three.addSpecie("B", 3, { 0, 1, 2, 3 }, Model::Component);
+      one_three.addSpecie("A", 1,Model::Component);
+	  one_three.addSpecie("B", 3, Model::Component);
       one_three.addRegulation(0, 1, 1, "+");
       one_three.addRegulation(0, 0, 1, "-");
       one_three.addRegulation(1, 0, 1, "-");
       one_three.addRegulation(1, 0, 3, "(-|+)");
 
-	  circuit_2.addSpecie("A", 1, { 0, 1 }, Model::Component);
-	  circuit_2.addSpecie("B", 1, { 0, 1 }, Model::Component);
+	  circuit_2.addSpecie("A", 1, Model::Component);
+	  circuit_2.addSpecie("B", 1, Model::Component);
       circuit_2.addRegulation(0, 1, 1, "+");
       circuit_2.addRegulation(1, 0, 1, "-");
 
-	  bool_k_2.addSpecie("A", 1, { 0, 1 }, Model::Component);
-	  bool_k_2.addSpecie("B", 1, { 0, 1 }, Model::Component);
+	  bool_k_2.addSpecie("A", 1, Model::Component);
+	  bool_k_2.addSpecie("B", 1, Model::Component);
       bool_k_2.addRegulation(0, 0, 1, "Free");
       bool_k_2.addRegulation(0, 1, 1, "Free");
       bool_k_2.addRegulation(1, 0, 1, "Free");
       bool_k_2.addRegulation(1, 1, 1, "Free");
 
-	  input_cascade.addSpecie("A", 1, { 0, 1 }, Model::Input);
-	  input_cascade.addSpecie("B", 1, { 0, 1 }, Model::Input);
-	  input_cascade.addSpecie("C", 1, { 0, 1 }, Model::Component);
+	  input_cascade.addSpecie("A", 1, Model::Input);
+	  input_cascade.addSpecie("B", 1, Model::Input);
+	  input_cascade.addSpecie("C", 1, Model::Component);
 	  input_cascade.addRegulation(0, 2, 1, "ActivatingOnly");
 	  input_cascade.addRegulation(1, 2, 1, "NotActivating");
    }

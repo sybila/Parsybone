@@ -9,9 +9,9 @@
 #ifndef PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 #define PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
 
-#include "../model/parameter_reader.hpp"
 #include "../model/parametrizations_builder.hpp"
 #include "../model/labeling_builder.hpp"
+#include "../model/parameter_helper.hpp"
 #include "automaton_builder.hpp"
 #include "unparametrized_structure_builder.hpp"
 #include "product_builder.hpp"
@@ -27,12 +27,8 @@ namespace ConstructionManager {
     * @brief computeModelProps
     */
    void computeModelProps(Model & model) {
-      // Add levels to the regulations.
-      RegulationHelper::fillActivationLevels(model);
       // Compute parameter values.
       ParameterHelper::fillParameters(model);
-      // Replace explicitly defined parameters.
-      ParameterReader::constrainParameters(model);
       // Compute exact parametrization for the model.
       ParametrizationsBuilder::buildParametrizations(model);
       // Build labels for regulations.

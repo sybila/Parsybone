@@ -107,20 +107,8 @@ class NetworkParser {
 		if (!XMLHelper::getAttribute(max, specie, "max", false))
 			max = 1;
 
-		// Obtain basal values
-		if (XMLHelper::getAttribute(basal, specie, "basal", false)) {
-			if (type != Model::SpecType::Component)
-				throw invalid_argument("basal value allowed only for the SPECIE components");
-			basals.push_back(basal);
-			if (basal > max)
-				throw invalid_argument("basal value is greater than maximal value for specie " + name);
-		}
-		else {
-			basals = vrange<ActLevel>(max + 1);
-		}
-
 		// Create a new specie
-		model.addSpecie(name, max, basals, type);
+		model.addSpecie(name, max, type);
 	}
 
 	/**
