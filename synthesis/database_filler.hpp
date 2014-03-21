@@ -4,6 +4,7 @@
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/user_options.hpp"
 #include "../model/model_translators.hpp"
+#include "../kinetics/kinetics.hpp"
 #include "../auxiliary/SQLAdapter.hpp"
 
 class DatabaseFiller {
@@ -58,7 +59,7 @@ class DatabaseFiller {
 		string contexts = "";
 		for (SpecieID t_ID : crange(model.species.size()))
 			for (auto param : kinetics.species[t_ID].params)
-				contexts += ModelTranslators::makeConcise(param, model.species[t_ID].name) + " INTEGER, ";
+				contexts += KineticsTranslators::makeConcise(param, model.species[t_ID].name) + " INTEGER, ";
 		return contexts;
 	}
 

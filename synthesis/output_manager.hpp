@@ -15,6 +15,7 @@
 #include "robustness_compute.hpp"
 #include "database_filler.hpp"
 #include "../model/model_translators.hpp"
+#include "../kinetics/kinetics_translators.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class that outputs formatted resulting data.
@@ -93,7 +94,7 @@ public:
 	 * Output parametrizations from this round together with additional data, if requested.
 	 */
 	void outputRound(const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) {
-		string param_vals = ModelTranslators::createParamString(model, param_no);
+		string param_vals = KineticsTranslators::createParamString(kinetics, param_no);
 		string line = to_string(param_no) + separator + param_vals + separator;
 		string update = param_vals;
 		update.back() = ','; // must remove closing bracket, it will be added by database manager

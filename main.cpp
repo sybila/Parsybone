@@ -97,7 +97,7 @@ int main(int argc, const char* argv[]) {
 
 	// Synthesis of parametrizations
 	try {
-		SplitManager split_manager(user_options.processes_count, user_options.process_number, ModelTranslators::getSpaceSize(kinetics));
+		SplitManager split_manager(user_options.processes_count, user_options.process_number, KineticsTranslators::getSpaceSize(kinetics));
 		split_manager.computeSubspace();
 		OutputManager output(user_options, property, model, kinetics);
 		SynthesisManager synthesis_manager(product);

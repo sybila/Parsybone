@@ -10,6 +10,7 @@
 #define PARAMETRIZATIONS_HELPER_HPP
 
 #include "../model/model_translators.hpp"
+#include "../kinetics/kinetics_translators.hpp"
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/formulae_resolver.hpp"
 

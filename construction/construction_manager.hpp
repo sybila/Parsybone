@@ -8,8 +8,8 @@
 
 #pragma once 
 
-#include "../model/parametrizations_builder.hpp"
-#include "../model/parameter_helper.hpp"
+#include "../kinetics/parametrizations_builder.hpp"
+#include "../kinetics/parameter_helper.hpp"
 #include "../model/property_automaton.hpp"
 #include "automaton_builder.hpp"
 #include "unparametrized_structure_builder.hpp"

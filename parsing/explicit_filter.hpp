@@ -16,6 +16,7 @@
 
 #include "../auxiliary/data_types.hpp"
 #include "../model/model_translators.hpp"
+#include "../kinetics/kinetics_translators.hpp"
 #include "../auxiliary/SQLAdapter.hpp"
 
 class ExplicitFilter {
@@ -33,7 +34,7 @@ class ExplicitFilter {
 			const Kinetics::Params & params = kinetics.species[ID].params;
 			// Add the column number if the context was found, INF otherwise
 			for (const size_t kpar_no : cscope(params)) {
-				auto column_it = find(names.begin(), names.end(), ModelTranslators::makeConcise(params[kpar_no], kinetics.species[ID].name));
+				auto column_it = find(names.begin(), names.end(), KineticsTranslators::makeConcise(params[kpar_no], kinetics.species[ID].name));
 				if (column_it == names.end())
 					locations.push_back(INF);
 				else
@@ -60,7 +61,7 @@ public:
 		Levels column_data = sql_adapter.getRow<ActLevel>(colum_match);
 		set<ParamNo> newly_added;
 		while (!column_data.empty()) {
-			set<ParamNo> matching = ModelTranslators::findMatching(kinetics, column_data);
+			set<ParamNo> matching = KineticsTranslators::findMatching(kinetics, column_data);
 			newly_added.insert(matching.begin(), matching.end());
 			column_data = sql_adapter.getRow<ActLevel>(colum_match);
 		}
