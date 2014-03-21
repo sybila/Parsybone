@@ -20,17 +20,17 @@ bool containsTrans(const string & witness, const vector<string> & trans ) {
 
 TEST_F(SynthesisTest, AnalysisOnTrivial) {
    vector<StateTransition> witness; double robust;
-   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-      b_k_t_man.checkFinite(witness, robust, 1, INF, true, true, 1, INF);
+   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(kin_com_tri); param_no++) {
+      sym_com_tri.checkFinite(witness, robust, 1, INF, true, true, 1, INF);
       EXPECT_EQ(1., robust);
    }
 }
 
 TEST_F(SynthesisTest, SetTwoOnCircuitFull) {
-   ColorStorage storage(c_2_set_two_ones);
-   ModelChecker checker(c_2_set_two_ones, storage);
-   WitnessSearcher searcher(c_2_set_two_ones, storage);
-   RobustnessCompute robustness(c_2_set_two_ones, storage);
+   ColorStorage storage(pro_cir_one);
+   ModelChecker checker(pro_cir_one, storage);
+   WitnessSearcher searcher(pro_cir_one, storage);
+   RobustnessCompute robustness(pro_cir_one, storage);
 
    CheckerSettings settings;
    settings.mark_initals = true;
@@ -42,7 +42,7 @@ TEST_F(SynthesisTest, SetTwoOnCircuitFull) {
    const vector<StateTransition> & trans = searcher.getTransitions();
    EXPECT_FALSE(trans.empty());
 
-   string witness = WitnessSearcher::getOutput(true, c_2_set_two_ones, trans);
+   string witness = WitnessSearcher::getOutput(true, pro_cir_one, trans);
    EXPECT_TRUE(containsTrans(witness, {"(0,1;0)>(0,0;1)", "(0,0;1)>(1,0;1)", "(1,0;1)>(1,1;1)", "(1,1;1)>(0,1;2)}"}));
 
    robustness.compute(results, trans, settings);
@@ -50,8 +50,8 @@ TEST_F(SynthesisTest, SetTwoOnCircuitFull) {
 }
 
 TEST_F(SynthesisTest, CycleOnCircuitCheck) {
-   ColorStorage storage(c_2_cyclic);
-   ModelChecker checker(c_2_cyclic, storage);
+   ColorStorage storage(pro_cir_cyc);
+   ModelChecker checker(pro_cir_cyc, storage);
    CheckerSettings settings;
    SynthesisResults reaches;
    SynthesisResults results;
@@ -81,10 +81,10 @@ TEST_F(SynthesisTest, CycleOnCircuitCheck) {
 }
 
 TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
-   ColorStorage storage(c_2_cyclic);
-   ModelChecker checker(c_2_cyclic, storage);
-   WitnessSearcher searcher(c_2_cyclic, storage);
-   RobustnessCompute robustness(c_2_cyclic, storage);
+   ColorStorage storage(pro_cir_cyc);
+   ModelChecker checker(pro_cir_cyc, storage);
+   WitnessSearcher searcher(pro_cir_cyc, storage);
+   RobustnessCompute robustness(pro_cir_cyc, storage);
    CheckerSettings settings;
    SynthesisResults results ;
 
@@ -98,7 +98,7 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    results = checker.conductCheck(settings);
    ASSERT_TRUE(results.isAccepting());
    searcher.findWitnesses(results, settings);
-   witness += WitnessSearcher::getOutput(true, c_2_cyclic, searcher.getTransitions());
+   witness += WitnessSearcher::getOutput(true, pro_cir_cyc, searcher.getTransitions());
    robustness.compute(results, searcher.getTransitions(), settings);
    robutness_val = robustness.getRobustness();
 
@@ -107,7 +107,7 @@ TEST_F(SynthesisTest, CycleOnCircuitAnalysis) {
    results = checker.conductCheck(settings);
    ASSERT_TRUE(results.isAccepting());
    searcher.findWitnesses(results, settings);
-   witness += WitnessSearcher::getOutput(true, c_2_cyclic, searcher.getTransitions());
+   witness += WitnessSearcher::getOutput(true, pro_cir_cyc, searcher.getTransitions());
    robustness.compute(results, searcher.getTransitions(), settings);
    robutness_val *= robustness.getRobustness();
 
@@ -121,10 +121,10 @@ TEST_F(SynthesisTest, TestPeakOnCircuit) {
    vector<string> witnesses;
    vector<double> robustnesses;
    bool full_found = false; // There exists a full branch path
-   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-      size_t cost = b_k_2_a_p_man.checkFull(witness, robust, param_no, INF, true, true);
+   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(kin_com_tri); param_no++) {
+      size_t cost = sym_com_top.checkFull(witness, robust, param_no, INF, true, true);
       if (cost == 4) {
-         witnesses.push_back(WitnessSearcher::getOutput(true, b_k_2_a_peak, witness));
+         witnesses.push_back(WitnessSearcher::getOutput(true, pro_com_top, witness));
          witness.clear();
          robustnesses.push_back(robust);
          full_found |= containsTrans(witnesses.back(), {"(1,0;0)>(1,1;1)","(0,1;0)>(1,1;1)","(1,1;1)>(1,0;2)","(1,1;1)>(0,1;2)"});
@@ -144,20 +144,20 @@ TEST_F(SynthesisTest, TestPeakOnCircuit) {
 
 TEST_F(SynthesisTest, TestBounds) {
    vector<StateTransition> witness; double robust;
-   EXPECT_EQ(4, c_2_s_2_o_man.checkFinite(witness, robust, 1, 4, false, false, 1, INF));
+   EXPECT_EQ(4, sym_cir_one.checkFinite(witness, robust, 1, 4, false, false, 1, INF));
    witness.clear();
-   EXPECT_EQ(INF, c_2_s_2_o_man.checkFinite(witness, robust, 1, 3, false, false, 1, INF)) << "Should not proceed as the bound is too low.";
+   EXPECT_EQ(INF, sym_cir_one.checkFinite(witness, robust, 1, 3, false, false, 1, INF)) << "Should not proceed as the bound is too low.";
 
    witness.clear();
-   EXPECT_EQ(5, c_2_c_man.checkFull(witness, robust, 1, INF, true, true));
-   EXPECT_TRUE(containsTrans(WitnessSearcher::getOutput(true, c_2_cyclic, witness), {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)"}));
+   EXPECT_EQ(5, sym_cir_cyc.checkFull(witness, robust, 1, INF, true, true));
+   EXPECT_TRUE(containsTrans(WitnessSearcher::getOutput(true, pro_cir_cyc, witness), {"(1,0;0)>(1,1;1)","(1,1;1)>(0,1;2)","(0,1;2)>(0,0;1)","(0,0;1)>(1,0;0)"}));
    EXPECT_DOUBLE_EQ(0.25, robust) << "Should be reduced only to 25% as the other path is 7 setps long.";
 
    vector<size_t> sizes1;
    vector<size_t> sizes2;
-   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-      sizes1.push_back(b_k_c_man.checkFull(witness, robust, param_no, INF, true, true));
-      sizes2.push_back(b_k_c_man.checkFull(witness, robust, param_no, 3, true, true));
+   for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(kin_com_tri); param_no++) {
+      sizes1.push_back(sym_com_cyc.checkFull(witness, robust, param_no, INF, true, true));
+	  sizes2.push_back(sym_com_cyc.checkFull(witness, robust, param_no, 3, true, true));
    }
    EXPECT_EQ(count(sizes2.begin(), sizes2.end(), INF),
              count_if(sizes1.begin(), sizes1.end(),[](const size_t val){return val > 3;}));
@@ -165,16 +165,16 @@ TEST_F(SynthesisTest, TestBounds) {
 
 TEST_F(SynthesisTest, TestStable) {
 	vector<StateTransition> witness; double robust;
-	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-		b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true, 1, INF);
+	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(kin_com_sta); param_no++) {
+		sym_com_sta.checkFinite(witness, robust, param_no, INF, true, true, 1, INF);
 
 		// First transition must be transient, second stable.
 		bool correct = true;
 		for (StateTransition & trans : witness)
-		if (b_k_2_stable.getBAID(trans.first) == 0)
-			correct &= (b_k_2_stable.getKSID(trans.first) != (b_k_2_stable.getKSID(trans.second)));
-		else if (b_k_2_stable.getBAID(trans.first) == 1)
-			correct &= (b_k_2_stable.getKSID(trans.first) == (b_k_2_stable.getKSID(trans.second)));
+		if (pro_com_sta.getBAID(trans.first) == 0)
+			correct &= (pro_com_sta.getKSID(trans.first) != (pro_com_sta.getKSID(trans.second)));
+		else if (pro_com_sta.getBAID(trans.first) == 1)
+			correct &= (pro_com_sta.getKSID(trans.first) == (pro_com_sta.getKSID(trans.second)));
 
 		EXPECT_TRUE(correct);
 	}
@@ -182,20 +182,20 @@ TEST_F(SynthesisTest, TestStable) {
 
 TEST_F(SynthesisTest, TestBistable) {
 	vector<StateTransition> witness; double robust;
-	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(bool_k_2); param_no++) {
-		EXPECT_EQ(2u, bistable_prop.getMinAcc());
-		EXPECT_EQ(INF, bistable_prop.getMaxAcc());
-		b_k_2_s_man.checkFinite(witness, robust, param_no, INF, true, true, bistable_prop.getMinAcc(), bistable_prop.getMaxAcc());
+	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(kin_com_bst); param_no++) {
+		EXPECT_EQ(2u, ltl_bst.getMinAcc());
+		EXPECT_EQ(INF, ltl_bst.getMaxAcc());
+		sym_com_bst.checkFinite(witness, robust, param_no, INF, true, true, ltl_bst.getMinAcc(), ltl_bst.getMaxAcc());
 		if (!witness.empty())
-			EXPECT_TRUE(containsTrans(WitnessSearcher::getOutput(true, c_2_cyclic, witness), { "(0,1;1)>(0,1;2)", "(1,0;1)>(1,0;2)" }));
+			EXPECT_TRUE(containsTrans(WitnessSearcher::getOutput(true, pro_cir_cyc, witness), { "(0,1;1)>(0,1;2)", "(1,0;1)>(1,0;2)" }));
 	}
 }
 
 TEST_F(SynthesisTest, TestExperiment) {
-	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(circuit_2); param_no++) {
+	for (ParamNo param_no = 0; param_no < ModelTranslators::getSpaceSize(kin_com_top); param_no++) {
 		vector<StateTransition> witness_path; double robust;
-		b_k_2_a_p_man.checkFull(witness_path, robust, param_no, INF, true, true);
-		string witness = WitnessSearcher::getOutput(true, b_k_2_a_peak, witness_path);
+		sym_com_top.checkFull(witness_path, robust, param_no, INF, true, true);
+		string witness = WitnessSearcher::getOutput(true, pro_com_top, witness_path);
 		// Experiment requires B to be 1 all the time
 		EXPECT_TRUE(witness.find("0,0") == string::npos);
 		EXPECT_TRUE(witness.find("1,0") == string::npos);

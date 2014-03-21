@@ -6,8 +6,7 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
-#ifndef MODEL_FUNCTIONS_TEST_HPP
-#define MODEL_FUNCTIONS_TEST_HPP
+#pragma once
 
 #include "model_test_data.hpp"
 #include "../model/regulation_helper.hpp"
@@ -15,60 +14,40 @@
 
 /// Test various functions the model class posseses.
 TEST_F(ModelsTest, ModelFunctions) {
-	auto tresholds = ModelTranslators::getThresholds(one_three, 0);
+	auto tresholds = ModelTranslators::getThresholds(mod_mul, 0);
 	ASSERT_EQ(2u, tresholds.size());
 	ASSERT_EQ(3u, tresholds.find(1)->second[1]);
 
-	ASSERT_EQ(2, ModelTranslators::getRegulatorsIDs(one_three, 0).size()) << "There must be only two IDs for regulations, even though there are three incoming interactions.";
+	ASSERT_EQ(2, ModelTranslators::getRegulatorsIDs(mod_mul, 0).size()) << "There must be only two IDs for regulations, even though there are three incoming interactions.";
 }
 
-/// This test controls functionality of loop bounding constraint.
-TEST_F(ModelsTest, ParametrizationLoopBound) {
-	Model loop_model;
-	loop_model.addSpecie("A", 1, Model::Component);
-	loop_model.addSpecie("B", 5, Model::Component);
-	loop_model.addRegulation(0, 1, 1, "");
-	loop_model.addRegulation(1, 1, 2, "");
-	loop_model.addRegulation(1, 1, 4, "");
-	loop_model.restrictions.bound_loop = true;
-	ParameterHelper::fillParameters(loop_model);
-
-	auto params = loop_model.getParameters(1);
-	ASSERT_EQ(6, params.size()) << "There should be 6 contexts for B.";
-	ASSERT_EQ(3, params[0].targets.size()) << "Targets {0,1,2}";
-	EXPECT_EQ(2, params[0].targets[2]) << "Targets {0,1,2}";
-	ASSERT_EQ(4, params[3].targets.size()) << "Targets {1,2,3,4}";
-	EXPECT_EQ(1, params[3].targets[0]) << "Targets {1,2,3,4}";
-}
 
 TEST_F(ModelsTest, ReadConstraints) {
-	one_three.species[0].par_cons.clear();
-	one_three.species[0].par_cons.push_back("A:1,B:3");
-	EXPECT_STREQ("(tt & (A:1,B:3))", ConstraintReader::consToFormula(one_three, 0).c_str());
+	mod_mul.species[0].par_cons.clear();
+	mod_mul.species[0].par_cons.push_back("A:1,B:3");
+	EXPECT_STREQ("(tt & (A:1,B:3))", ConstraintReader::consToFormula(mod_mul, 0).c_str());
 
-	one_three.species[0].par_cons.clear();
-	one_three.species[0].par_cons.push_back("A,B:3");
-	EXPECT_STREQ("(tt & (A:1,B:3))", ConstraintReader::consToFormula(one_three, 0).c_str());
+	mod_mul.species[0].par_cons.clear();
+	mod_mul.species[0].par_cons.push_back("A,B:3");
+	EXPECT_STREQ("(tt & (A:1,B:3))", ConstraintReader::consToFormula(mod_mul, 0).c_str());
 
-	one_three.species[0].par_cons.clear();
-	one_three.species[0].par_cons.push_back("B:3");
-	EXPECT_STREQ("(tt & (A:0,B:3))", ConstraintReader::consToFormula(one_three, 0).c_str());
+	mod_mul.species[0].par_cons.clear();
+	mod_mul.species[0].par_cons.push_back("B:3");
+	EXPECT_STREQ("(tt & (A:0,B:3))", ConstraintReader::consToFormula(mod_mul, 0).c_str());
 
-	one_three.species[0].par_cons.clear();
-	one_three.species[0].par_cons.push_back("B");
-	EXPECT_THROW(ConstraintReader::consToFormula(one_three, 0), runtime_error);
+	mod_mul.species[0].par_cons.clear();
+	mod_mul.species[0].par_cons.push_back("B");
+	EXPECT_THROW(ConstraintReader::consToFormula(mod_mul, 0), runtime_error);
 
-	one_three.species[0].par_cons.clear();
-	one_three.species[0].par_cons.push_back("ax");
-	EXPECT_THROW(ConstraintReader::consToFormula(one_three, 0), runtime_error);
+	mod_mul.species[0].par_cons.clear();
+	mod_mul.species[0].par_cons.push_back("ax");
+	EXPECT_THROW(ConstraintReader::consToFormula(mod_mul, 0), runtime_error);
 
-	one_three.species[0].par_cons.clear();
-	one_three.species[0].par_cons.push_back("A:2");
-	EXPECT_THROW(ConstraintReader::consToFormula(one_three, 0), runtime_error);
+	mod_mul.species[0].par_cons.clear();
+	mod_mul.species[0].par_cons.push_back("A:2");
+	EXPECT_THROW(ConstraintReader::consToFormula(mod_mul, 0), runtime_error);
 
-	one_three.species[0].par_cons.clear();
-	one_three.species[0].par_cons.push_back("A,1");
-	EXPECT_THROW(ConstraintReader::consToFormula(one_three, 0), runtime_error);
+	mod_mul.species[0].par_cons.clear();
+	mod_mul.species[0].par_cons.push_back("A,1");
+	EXPECT_THROW(ConstraintReader::consToFormula(mod_mul, 0), runtime_error);
 }
-
-#endif // MODEL_FUNCTIONS_TEST_HPP

@@ -16,71 +16,40 @@
 /// \brief This serves for converting subparametrizations into individual kinetic parameters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LabelingBuilder {
-	/**
-	 * This function returns a vector containing target value for a given regulatory contexts for ALL the contexts allowed (in lexicographical order).
-	 * @param ID	ID of the specie that is regulated
-	 * @param param_num	ordinal number of the kinetic parameter (in a lexicographical order)
-	 * @return	vector with a target value for a given specie and regulatory context for each subcolor (parametrization of the single specie)
-	 */
-	static Levels getTargetVals(const Model & model, const SpecieID ID, const size_t param_num) {
-		//Data to fill
-		Levels all_target_vals;
-		all_target_vals.reserve(model.species[ID].subcolors.size());
+	// Get a column of the subparametrization table
+	static Levels getTargetVals(const Configurations & subcolors, const size_t param_num) {
+		Levels result;
+		result.reserve(subcolors.size());
 
 		// Store values for given regulation
-		for (const auto & subcolor : model.species[ID].subcolors) {
-			all_target_vals.push_back(subcolor[param_num]);
-		}
+		for (auto & subcolor : subcolors)
+			result.push_back(subcolor[param_num]);
 
-		return all_target_vals;
-	}
-
-	/**
-	 * Creates the kinetic parameters in explicit form from the model information.
-	 * All feasible parameters for the specie are then stored in the FunctionsStructure.
-	 * @param ID	ID of the specie to compute the kinetic parameters for
-	 * @param step_size	number for steps between parametrization change of this specie - this value grows with each successive specie.
-	 */
-	static void addRegulations(Model & model, const SpecieID ID, ParamNo & step_size) {
-		// get referecnces to Specie data
-		vector<Model::Parameter> & params = model.species[ID].parameters;
-
-		// Display stats
-		if (model.species[ID].spec_type != Model::Input)
-			output_streamer.output(verbose_str, "Specie " + model.species[ID].name + " has " + to_string(params.size()) + " parameters with "
-			+ to_string(model.species[ID].subcolors.size()) + " parametrizations out of "
-			+ to_string(model.species[ID].max_value + 1) + " ^ " + to_string(model.getParameters(ID).size()));
-
-		// Go through regulations of a specie - each represents a single function
-		for (auto param_no : cscope(params)) {
-			Configurations source_values;
-			// Compute allowed values for each regulating specie for this function to be active
-			for (auto source_num : params[param_no].requirements) {
-				source_values.push_back(source_num.second);
-			}
-
-			// Add target values (if input negative, add all possibilities), if positive, add current requested value
-			params[param_no].parameter_vals = getTargetVals(model, ID, param_no);
-
-		}
-
-		model.species[ID].step_size = step_size;
-		// Increase step size for the next function
-		step_size *= model.species[ID].subcolors.size();
+		return result;
 	}
 
 public:
 	/**
 	 * For each specie recreate all its regulatory functions (all possible labels)
 	 */
-	static void buildLabeling(Model & model) {
+	static void buildLabeling(const Model & model, Kinetics & kinetics) {
 		ParamNo step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through all the species
 		for (auto ID : crange(model.species.size())) {
-			if (model.species[ID].spec_type == Model::Input)
-				continue;
-			addRegulations(model, ID, step_size);
+			if (model.species[ID].spec_type == Model::Input) continue;
+			Kinetics::Specie & specie = kinetics.species[model.species[ID].name];
+
+			// Display stats
+			output_streamer.output(verbose_str, "Specie " + model.species[ID].name + " has " + to_string(specie.params.size()) + " parameters with "
+				+ to_string(specie.subcolors.size()) + " parametrizations out of " + to_string(model.species[ID].max_value + 1) + " ^ " + to_string(specie.params.size()));
+
+			// Go through regulations of a specie - each represents a single function
+			for (auto & param : specie.params) {;
+
+				// Add target values (if input negative, add all possibilities), if positive, add current requested value
+				param.second.target_in_subcolor = getTargetVals(specie.subcolors);
+			}
 		}
 	}
 };

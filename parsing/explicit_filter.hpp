@@ -25,15 +25,15 @@ class ExplicitFilter {
 	/**
 	 * @return a vector of column numbers in database, ordered in the same way as paremters of the model
 	 */
-	vector<size_t> getColumns(const Model & model, SQLAdapter & sql_adapter) {
+	vector<size_t> getColumns(const Kinetics & kinetics, SQLAdapter & sql_adapter) {
 		vector<size_t> locations;
 		vector<string> names = sql_adapter.readColumnNames(PARAMETRIZATIONS_TABLE, regex(".*"));
 
-		for (const SpecieID ID : cscope(model.species)) {
-			const Model::Parameters & params = model.getParameters(ID);
+		for (const SpecieID ID : cscope(kinetics.species)) {
+			const Kinetics::Params & params = kinetics.species[ID].params;
 			// Add the column number if the context was found, INF otherwise
 			for (const size_t kpar_no : cscope(params)) {
-				auto column_it = find(names.begin(), names.end(), ModelTranslators::makeConcise(params[kpar_no], model.species[ID].name));
+				auto column_it = find(names.begin(), names.end(), ModelTranslators::makeConcise(params[kpar_no], kinetics.species[ID].name));
 				if (column_it == names.end())
 					locations.push_back(INF);
 				else
@@ -49,18 +49,18 @@ public:
 	/**
 	 * @brief addAllowed add parametrizations that are allowed by given database
 	 */
-	void addAllowed(const Model & model, SQLAdapter & sql_adapter) {
+	void addAllowed(const Kinetics & kinetics, SQLAdapter & sql_adapter) {
 		is_filter_active = true;
 
 		// Obtain columns that are being referenced
-		vector<size_t> colum_match = getColumns(model, sql_adapter);
+		vector<size_t> colum_match = getColumns(kinetics, sql_adapter);
 		sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
 
 		// Create the set of parametrizations that are allowed.
 		Levels column_data = sql_adapter.getRow<ActLevel>(colum_match);
 		set<ParamNo> newly_added;
 		while (!column_data.empty()) {
-			set<ParamNo> matching = ModelTranslators::findMatching(model, column_data);
+			set<ParamNo> matching = ModelTranslators::findMatching(kinetics, column_data);
 			newly_added.insert(matching.begin(), matching.end());
 			column_data = sql_adapter.getRow<ActLevel>(colum_match);
 		}

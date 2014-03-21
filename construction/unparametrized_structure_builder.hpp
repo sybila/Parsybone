@@ -23,6 +23,7 @@
 class UnparametrizedStructureBuilder {
 	const Model & model;
 	const PropertyAutomaton & property;
+	const Kinetics & kinetics;
 
 	vector<size_t> index_jumps; ///< Holds index differences between two neighbour states in each direction for each specie.
 	vector<bool> allowed_states; ///< Masking the states (by IDs) that are allowed by the current experiment
@@ -53,9 +54,9 @@ class UnparametrizedStructureBuilder {
 		// Find out which function is currently active
 		const size_t fun_no = getActiveFunction(specie, state_levels);
 		// Fill the step size
-		const ParamNo step_size = model.species[specie].step_size;
+		const ParamNo step_size = kinetics.species[specie].step_size;
 		// Reference target values
-		const Levels & parameter_vals = model.species[specie].parameters[fun_no].parameter_vals;
+		const Levels & parameter_vals = kinetics.species[specie].params[fun_no].target_in_subcolor;
 
 		if (isFeasible(parameter_vals, direction, state_levels[specie]))
 			structure.addTransition(ID, target, step_size, direction, state_levels[specie], parameter_vals);
@@ -91,8 +92,8 @@ class UnparametrizedStructureBuilder {
 	bool testRegulators(const map<StateID, Levels> requirements, const Levels & state_levels) {
 		// List throught regulating species of the function
 		for (auto regul : requirements)
-		if (count(regul.second.begin(), regul.second.end(), state_levels[regul.first]) == 0)
-			return false;
+			if (count(regul.second.begin(), regul.second.end(), state_levels[regul.first]) == 0)
+				return false;
 
 		// Return true if all species passed.
 		return true;
@@ -104,9 +105,8 @@ class UnparametrizedStructureBuilder {
 	size_t getActiveFunction(const SpecieID ID, const Levels & state_levels) {
 		// Cycle until the function is found
 		bool found = false;
-		for (size_t param_no = 0; param_no < model.getParameters(ID).size(); param_no++) {
-			found = testRegulators(model.getParameters(ID)[param_no].requirements, state_levels);
-
+		for (const size_t param_no : cscope(kinetics.species[ID].params)) {
+			found = testRegulators(kinetics.species[ID].params[param_no].requirements, state_levels);
 			if (found)
 				return param_no;
 		}
@@ -177,14 +177,15 @@ class UnparametrizedStructureBuilder {
 	}
 
 public:
-	UnparametrizedStructureBuilder(const Model & _model, const PropertyAutomaton & _property) : model(_model), property(_property) {}
+	UnparametrizedStructureBuilder(const Model & _model, const PropertyAutomaton & _property, const Kinetics & _kinetics)
+		: model(_model), property(_property), kinetics(_kinetics) {}
 
 	/**
 	 * Create the states from the model and fill the structure with them.
 	 */
 	UnparametrizedStructure buildStructure() {
-		UnparametrizedStructure structure;		
-	
+		UnparametrizedStructure structure;
+
 		// Create states
 		size_t state_no = 0;
 		const size_t state_count = solveConstrains(structure);
@@ -196,7 +197,8 @@ public:
 			if (allowed_states[state_no]) {
 				structure.addState(state_no, levels);
 				addTransitions(state_no, levels, structure);
-			} else {
+			}
+			else {
 				structure.addState(state_no, Levels());
 			}
 			state_no++;

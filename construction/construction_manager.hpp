@@ -6,12 +6,11 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
-#ifndef PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
-#define PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED
+#pragma once 
 
 #include "../model/parametrizations_builder.hpp"
-#include "../model/labeling_builder.hpp"
 #include "../model/parameter_helper.hpp"
+#include "../model/property_automaton.hpp"
 #include "automaton_builder.hpp"
 #include "unparametrized_structure_builder.hpp"
 #include "product_builder.hpp"
@@ -23,36 +22,35 @@
 /// All the objects constructed are stored within a provided CostructionHolder and further acessible only via constant getters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace ConstructionManager {
-   /**
-    * @brief computeModelProps
-    */
-   void computeModelProps(Model & model) {
-      // Compute parameter values.
-      ParameterHelper::fillParameters(model);
-      // Compute exact parametrization for the model.
-      ParametrizationsBuilder::buildParametrizations(model);
-      // Build labels for regulations.
-      LabelingBuilder::buildLabeling(model);
-   }
+	/**
+	 * @brief computeModelProps
+	 */
+	Kinetics computeKinetics(const Model & model, const PropertyAutomaton & property) {
+		Kinetics result;
 
-   /**
-    * Function that constructs all the data in a cascade of temporal builders.
-    */
-   ProductStructure construct(const Model & model, const PropertyAutomaton & property) {
-      // Create the UKS
-      UnparametrizedStructureBuilder unparametrized_structure_builder(model, property);
-      UnparametrizedStructure unparametrized_structure = unparametrized_structure_builder.buildStructure();
+		// Compute parameter values.
+		result.species = ParameterHelper::buildParams(model);
+		// Compute exact parametrization for the model.
+		ParametrizationsBuilder::buildParametrizations(model, result);
 
-      // Create the Buchi automaton
-      AutomatonBuilder automaton_builder(model, property);
-      AutomatonStructure automaton = automaton_builder.buildAutomaton();
+		return result;
+	}
 
-      // Create the product
-      ProductBuilder product_builder;
-      ProductStructure product = product_builder.buildProduct(move(unparametrized_structure), move(automaton));
-      return product;
-   }
+	/**
+	 * Function that constructs all the data in a cascade of temporal builders.
+	 */
+	ProductStructure construct(const Model & model, const PropertyAutomaton & property, const Kinetics & kinetics) {
+		// Create the UKS
+		UnparametrizedStructureBuilder unparametrized_structure_builder(model, property, kinetics);
+		UnparametrizedStructure unparametrized_structure = unparametrized_structure_builder.buildStructure();
+
+		// Create the Buchi automaton
+		AutomatonBuilder automaton_builder(model, property);
+		AutomatonStructure automaton = automaton_builder.buildAutomaton();
+
+		// Create the product
+		ProductBuilder product_builder;
+		ProductStructure product = product_builder.buildProduct(move(unparametrized_structure), move(automaton));
+		return product;
+	}
 }
-
-
-#endif // PARSYBONE_CONSTRUCTION_MANAGER_INCLUDED

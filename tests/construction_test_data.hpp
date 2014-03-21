@@ -10,45 +10,39 @@
 #define TESTING_STRUCTURE_SOURCE_HPP
 
 #include "../construction/construction_manager.hpp"
-#include "model_test_data.hpp"
+#include "kinetics_test_data.hpp"
 
-class StructureTest : public ModelsTest {
+class StructureTest : public KineticsTest {
 protected:
-   ProductStructure o_t_series;
-   ProductStructure o_t_cyclic;
-   ProductStructure b_k_2_cyclic;
-   ProductStructure b_k_2_trivial;
-   ProductStructure c_2_set_two_ones;
-   ProductStructure c_2_cyclic;
-   ProductStructure b_k_2_a_peak;
-   ProductStructure trivial;
-   ProductStructure b_k_2_stable;
-   ProductStructure b_k_2_bistable;
-   ProductStructure c_2_experiment;
-   ProductStructure i_c_set_two_ones;
+	ProductStructure pro_cas_one;
+	ProductStructure pro_cir_one;
+	ProductStructure pro_cir_cyc;
+	ProductStructure pro_cir_exp;
+	ProductStructure pro_com_bst;
+	ProductStructure pro_com_cyc;
+	ProductStructure pro_com_sta;
+	ProductStructure pro_com_top;
+	ProductStructure pro_com_tri;
+	ProductStructure pro_mul_cyc;
+	ProductStructure pro_mul_mul;
+	ProductStructure pro_tri_tri;
 
-   void SetUp() override {
-      ModelsTest::SetUp();
+	void SetUp() override {
+		KineticsTest::SetUp();
 
-      ConstructionManager::computeModelProps(trivial_model);
-      ConstructionManager::computeModelProps(one_three);
-      ConstructionManager::computeModelProps(bool_k_2);
-      ConstructionManager::computeModelProps(circuit_2);
-	  ConstructionManager::computeModelProps(input_cascade);
-
-      o_t_series = ConstructionManager::construct(one_three, o_t_series_prop);
-      o_t_cyclic = ConstructionManager::construct(one_three, A_cyclic_prop);
-      b_k_2_cyclic = ConstructionManager::construct(bool_k_2, A_cyclic_prop);
-      b_k_2_trivial = ConstructionManager::construct(bool_k_2, trivial_prop);
-      trivial = ConstructionManager::construct(trivial_model, trivial_prop);
-      c_2_set_two_ones = ConstructionManager::construct(circuit_2, set_two_ones_prop);
-      c_2_cyclic = ConstructionManager::construct(circuit_2, A_cyclic_prop);
-      b_k_2_a_peak = ConstructionManager::construct(bool_k_2, arbitrary_peak_prop);
-      b_k_2_stable = ConstructionManager::construct(bool_k_2, stable_prop);
-      b_k_2_bistable = ConstructionManager::construct(bool_k_2, bistable_prop);
-	  c_2_experiment = ConstructionManager::construct(circuit_2, experiment_series);
-	  i_c_set_two_ones = ConstructionManager::construct(input_cascade, set_two_ones_prop);
-   }
+		pro_cas_one = ConstructionManager::construct(mod_cas, ltl_one, kin_cas_one);
+		pro_cir_cyc = ConstructionManager::construct(mod_cir, ltl_cyc, kin_cir_cyc);
+		pro_cir_exp = ConstructionManager::construct(mod_cir, ltl_exp, kin_cir_exp);
+		pro_cir_one = ConstructionManager::construct(mod_cir, ltl_one, kin_cir_one);
+		pro_com_bst = ConstructionManager::construct(mod_com, ltl_bst, kin_com_bst);
+		pro_com_cyc = ConstructionManager::construct(mod_com, ltl_cyc, kin_com_cyc);
+		pro_com_sta = ConstructionManager::construct(mod_com, ltl_sta, kin_com_sta);
+		pro_com_top = ConstructionManager::construct(mod_com, ltl_top, kin_com_top);
+		pro_com_tri = ConstructionManager::construct(mod_com, ltl_tri, kin_com_tri);
+		pro_mul_mul = ConstructionManager::construct(mod_mul, ltl_mul, kin_mul_mul);
+		pro_mul_cyc = ConstructionManager::construct(mod_mul, ltl_cyc, kin_mul_cyc);
+		pro_tri_tri = ConstructionManager::construct(mod_tri, ltl_tri, kin_tri_tri);
+	}
 };
 
 #endif // TESTING_STRUCTURE_SOURCE_HPP

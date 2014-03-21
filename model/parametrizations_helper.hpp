@@ -13,13 +13,11 @@
 #include "../auxiliary/data_types.hpp"
 #include "../auxiliary/formulae_resolver.hpp"
 
-class ParametrizationsHelper {
-
-public:
+namespace ParametrizationsHelper {
 	/**
 	 * @brief isSubordinate returns true if the current context is the same as the compared context only with a higher activity value in specificed regulator.
 	 */
-	static bool isSubordinate(const vector<Model::Regulation> &reguls, const Model::Parameter &current, const Model::Parameter &compare, const SpecieID source_ID) {
+	bool isSubordinate(const vector<Model::Regulation> &reguls, const Kinetics::Param &current, const Kinetics::Param &compare, const SpecieID source_ID) {
 		for (const Model::Regulation & regul : reguls) {
 			const SpecieID regul_ID = regul.source;
 			// All the regulations must have the same requirements, except for the one with the specified source, which must connect on the value.
@@ -39,15 +37,8 @@ public:
 	/**
 	 * Return true if the given parameter's context is dependent on the given regulation.
 	 */
-	static bool containsRegulation(const Model::Parameter &param, const Model::Regulation &regul) {
-		return param.requirements.find(regul.source)->second.front() == regul.threshold;
-	}
-
-	static size_t contextsWithRegul(const vector<Model::Parameter> &params, const Model::Regulation &regul) {
-		size_t count = 0;
-		for (const Model::Parameter & param : params)
-			count += containsRegulation(param, regul);
-		return count;
+	bool containsRegulation(const Kinetics::Param &param_data, const Model::Regulation &regul) {
+		return param_data.requirements.find(regul.source)->second.front() == regul.threshold;
 	}
 };
 

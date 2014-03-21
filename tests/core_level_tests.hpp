@@ -6,8 +6,7 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
-#ifndef CORE_LEVEL_TESTS_HPP
-#define CORE_LEVEL_TESTS_HPP
+#pragma once
 
 #include <gtest/gtest.h>
 #include "../synthesis/split_manager.hpp"
@@ -22,5 +21,3 @@ TEST(CoreLevelTest, SplitTest) {
       param_no += 3;
    } while(manager.increaseRound());
 }
-
-#endif // CORE_LEVEL_TESTS_HPP

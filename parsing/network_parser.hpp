@@ -69,9 +69,10 @@ class NetworkParser {
 		// Get ID of the regulated component
 		string name;
 		XMLHelper::getAttribute(name, specie_node, "name", true);
-		const SpecieID t_ID = rng::find_if(model.species, [&name](const Model::ModelSpecie & specie) {
+		const SpecieID t_ID = distance(begin(model.species), 
+			find_if(begin(model.species), end(model.species), [&name](const Model::ModelSpecie & specie) {
 			return (specie.name == name);
-		})->ID;
+		}));
 
 		// Cycle through REGUL TAGS
 		for (auto regulation : XMLHelper::NodesRange(specie_node, "REGUL", true)) {

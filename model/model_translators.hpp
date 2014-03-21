@@ -10,15 +10,16 @@
 #define MODEL_TRANSLATORS_HPP
 
 #include "model.hpp"
+#include "../kinetics/kinetics.hpp"
 
 namespace ModelTranslators {
 	/**
 	 * @brief findID  obtain ID of the specie.
 	 */
 	SpecieID findID(const Model & model, const string & name) {
-		for (auto & spec : model.species)
-			if (spec.name.compare(name) == 0)
-				return spec.ID;
+		for (const SpecieID ID : cscope(model.species))
+			if (model.species[ID].name == name)
+				return ID;
 		return INF;
 	}
 
@@ -79,30 +80,26 @@ namespace ModelTranslators {
 		return thresholds;
 	}
 
-	/**
-	 * @brief getSpaceSize
-	 */
-	ParamNo getSpaceSize(const Model & model) {
-		ParamNo space_size = 1;
-		for (const Model::ModelSpecie & spec : model.species)
-			space_size *= spec.subcolors.size();
-
-		return space_size;
+	// @return the number of parametrizations
+	inline ParamNo getSpaceSize(const Kinetics & kinetics) {
+		return accumulate(begin(kinetics.species), end(kinetics.species), 1, [](const ParamNo A, const Kinetics::Specie & B) {
+			return A * B.col_count;
+		});
 	}
 
 	/**
 	 * @brief getSpecieVals
 	 */
-	const Levels getSpecieVals(const Model & model, ParamNo number) {
+	const Levels getSpecieVals(const Kinetics & kinetics, ParamNo number) {
 		// Prepare storage vector
-		Levels specie_vals(model.species.size());
+		Levels specie_vals(kinetics.species.size());
 		auto reverse_val_it = specie_vals.rbegin();
 
 		// Go through colors backwards
-		ParamNo divisor = getSpaceSize(model);
-		for (auto specie_it = model.species.rbegin(); specie_it != model.species.rend(); specie_it++, reverse_val_it++) {
+		ParamNo divisor = getSpaceSize(kinetics);
+		for (auto kin_it = kinetics.species.rbegin(); kin_it != kinetics.species.rend(); kin_it++, reverse_val_it++) {
 			// lower divisor value
-			divisor /= specie_it->subcolors.size();
+			divisor /= kin_it->col_count;
 			// pick a number for current specie
 			*reverse_val_it = static_cast<ActLevel>(number / divisor);
 			// take the rest for next round
@@ -112,11 +109,9 @@ namespace ModelTranslators {
 		return specie_vals;
 	}
 
-	/**
-	 * @brief createColorString
-	 */
+	// TODO: TURNED OFF
 	const string createParamString(const Model & model, ParamNo number) {
-		// compute numbers of partial parametrizations for each component
+		/*// compute numbers of partial parametrizations for each component
 		const Levels color_parts = getSpecieVals(model, number);
 
 		string color_str = "(";
@@ -141,32 +136,32 @@ namespace ModelTranslators {
 		// Change the last value
 		*(color_str.end() - 1) = ')';
 
-		return color_str;
+		return color_str;*/
+
+		return "()";
 	}
 
 	/**
 	 * @return representation of the parametrization used by the database
 	 */
-	const string makeConcise(const Model::Parameter & param, const string target_name) {
+	const string makeConcise(const Kinetics::Param & param, const string target_name) {
 		string context = "K_" + target_name + "_";
 		for (auto values : param.requirements)
 			context += to_string(values.second.front());
 		return context;
 	}
 
-	/**
-	 * @return numbers of all parametrizations that match the givene values in all the values that overlap
-	 */
-	set<ParamNo> findMatching(const Model & model, const Levels & param_vals) {
-		set<ParamNo> matching;
+	//TODO TURNED OFF
+	set<ParamNo> findMatching(const Kinetics & kinetics, const Levels & param_vals) {
+		/*set<ParamNo> matching;
 		size_t begin = 0; //< Used to denote current range of the parametrization
 
 		// Test subparametrizations for all species.
-		for (const SpecieID ID : cscope(model.species)) {
+		for (const SpecieID ID : cscope(kinetics.species)) {
 			vector<ParamNo> submatch;
 
 			// Try to match all the subcolors fo the current specie
-			for (const size_t subolor_no : cscope(model.species[ID].subcolors)) {
+			for (const size_t subolor_no : crange(kinetics.species[ID].)) {
 				bool valid = true;
 				// For the match to occur, all values must either be equal or defined irellevant.
 				for (const size_t value_no : cscope(model.species[ID].subcolors[subolor_no])) {
@@ -194,7 +189,8 @@ namespace ModelTranslators {
 			// Move the beginning for the next specie
 			begin += model.species[ID].parameters.size();
 		}
-		return matching;
+		return matching;*/
+		return set<ParamNo>{};
 	}
 
 	/**
@@ -269,9 +265,9 @@ namespace ModelTranslators {
 	/**
 	 * @return  the parameter that has the given context
 	 */
-	const Model::Parameter & matchContext(const Model & model, const string & context, const SpecieID t_ID) {
+	const Kinetics::Param & matchContext(const Model & model, const Kinetics & kinetics, const string & context, const SpecieID t_ID) {
 		const string canonic = makeCanonic(model, context, t_ID);
-		for (const Model::Parameter & param : model.getParameters(t_ID))
+		for (auto & param : kinetics.species[t_ID].params)
 			if (param.context.compare(canonic) == 0)
 				return param;
 		throw runtime_error("Failed to match the context " + context + " for the specie " + to_string(t_ID));

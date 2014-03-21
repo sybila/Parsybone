@@ -46,6 +46,7 @@ int main(int argc, const char* argv[]) {
 	UserOptions user_options;
 	Model model;
 	PropertyAutomaton property;
+	Kinetics kinetics;
 	ProductStructure product;
 	ExplicitFilter filter;
 
@@ -61,6 +62,7 @@ int main(int argc, const char* argv[]) {
 		return 1;
 	}
 
+	// Parse 
 	try {
 		model = ParsingManager::parseModel(user_options.model_path, user_options.model_name);
 		property = ParsingManager::parseProperty(user_options.property_path, user_options.property_name);
@@ -70,27 +72,34 @@ int main(int argc, const char* argv[]) {
 		return 2;
 	}
 
+	// Build kinetics
+	try {
+		kinetics = ConstructionManager::computeKinetics(model, property);
+	}
+	catch (std::exception & e) {
+		output_streamer.output(error_str, string("Error occured while building the kinetics: \"" + string(e.what()) + "\".\n Contact support for details."));
+		return 3;
+	}
+
 	// Construction of data structures
 	try {
-		ConstructionManager::computeModelProps(model);
-
 		for (const string & filter_name : user_options.filter_databases) {
 			SQLAdapter adapter;
 			adapter.setDatabase(filter_name);
-			filter.addAllowed(model, adapter);
+			filter.addAllowed(kinetics, adapter);
 		}
-		product = ConstructionManager::construct(model, property);
+		product = ConstructionManager::construct(model, property, kinetics);
 	}
 	catch (std::exception & e) {
 		output_streamer.output(error_str, string("Error occured while building the data structures: \"" + string(e.what()) + "\". \n Contact support for details."));
-		return 3;
+		return 4;
 	}
 
 	// Synthesis of parametrizations
 	try {
-		SplitManager split_manager(user_options.processes_count, user_options.process_number, ModelTranslators::getSpaceSize(model));
+		SplitManager split_manager(user_options.processes_count, user_options.process_number, ModelTranslators::getSpaceSize(kinetics));
 		split_manager.computeSubspace();
-		OutputManager output(user_options, property, model);
+		OutputManager output(user_options, property, model, kinetics);
 		SynthesisManager synthesis_manager(product);
 		ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
 		size_t BFS_bound = user_options.bound_size; ///< Maximal cost on the verified property.
@@ -134,7 +143,7 @@ int main(int argc, const char* argv[]) {
 	}
 	catch (std::exception & e) {
 		output_streamer.output(error_str, string("Error occured while syntetizing the parametrizations: \"" + string(e.what()) + "\".\n Contact support for details."));
-		return 4;
+		return 5;
 	}
 
 	if (user_options.be_verbose)

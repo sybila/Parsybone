@@ -6,8 +6,7 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
-#ifndef PARSYBONE_FORMULAE_PARSER_TEST_INCLUDED
-#define PARSYBONE_FORMULAE_PARSER_TEST_INCLUDED
+#pragma once
 
 #include "../auxiliary/formulae_resolver.hpp"
 #include "../parsing/constraint_parser.hpp"
@@ -55,5 +54,3 @@ TEST_F(FormulaValuation, CauseException) {
     EXPECT_THROW(FormulaeResolver::resolve(vars, "A|B"), runtime_error); // No parenthesis
     EXPECT_THROW(FormulaeResolver::resolve(vars, "(A&&B)"), runtime_error); // Duplicate symbol
 }
-
-#endif // PARSYBONE_FORMULAE_PARSER_TEST_INCLUDED

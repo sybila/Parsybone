@@ -6,8 +6,7 @@
  * For affiliations see http://www.mi.fu-berlin.de/en/math/groups/dibimath and http://sybila.fi.muni.cz/ .
  */
 
-#ifndef MODEL_HPP
-#define MODEL_HPP
+#pragma once
 
 #include "../auxiliary/common_functions.hpp"
 #include "../auxiliary/output_streamer.hpp"
@@ -19,8 +18,7 @@
 /// Model data can be set only form the ModelParser object.
 /// Rest of the code can access the data only via constant getters - once the data are parse, model remains constant.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Model {
-public:
+struct Model {
    NO_COPY(Model)
 
    /// Structure that holds additional static constraints inherent to the Thomas framework.
@@ -60,43 +58,22 @@ public:
    /// Structure that holds data about a single specie. Most of the data is equal to that in the model file.
    struct ModelSpecie {
       string name; ///< Actuall name of the specie.
-      SpecieID ID; ///< Numerical constant used to distinguish the specie. Starts from 0!
       ActLevel max_value; ///< Maximal activation level of the specie.
 	  SpecType spec_type; ///< What is the type of this specie.
-	  ParamNo step_size; ///< How many neighbour parameters have the same value for this function.
 	  vector<string> par_cons;  ///< Constraints on the parameters.
 
       Regulations regulations; ///< Regulations of the specie (activations or inhibitions by other species).
-      Parameters parameters; /// Kintetic parameters for the specie (or at least their partiall specifiaction).
-      Configurations subcolors; ///< Feasible subcolors of the specie. THIS INFORMATION GETS REPLICATED TO PARAMETER_VALS - POSSIBLE PLACE OF SIMPLIFICATION
    };
 
    Restrictions restrictions;
    vector<ModelSpecie> species; ///< vector of all species of the model
 
    inline void addSpecie(const string & name, const size_t max, const Model::SpecType type) {
-	   species.push_back({ name, species.size(), max, type, 0, vector<string>(), Model::Regulations(), Model::Parameters(), Configurations() });
+	   species.push_back({ name, max, type, vector<string>(), Model::Regulations()});
    }
 
    inline void addRegulation(SpecieID source_ID, SpecieID target_ID, ActLevel threshold, string label) {
       string name = species[source_ID].name + ":" + to_string(threshold);
-      species[target_ID].regulations.push_back({source_ID, threshold, move(name), label});
+      species[target_ID].regulations.push_back({source_ID, threshold, move(name), move(label)});
    }
-
-   inline void addParameter(const SpecieID ID, string context, map<StateID, Levels> requirements, Levels targets) {
-      species[ID].parameters.push_back({context, requirements, targets, true, Levels()});
-   }
-
-   inline ParamNo getStepSize(const SpecieID ID) const {
-      if (species[ID].parameters.empty())
-         throw runtime_error("Trying to obtain step size before parametrizations were built");
-      return species[ID].step_size;
-   }
-
-   inline const vector<Parameter> & getParameters(const SpecieID ID)  const {
-      return species[ID].parameters;
-   }
-
 };
-
-#endif // MODEL_HPP

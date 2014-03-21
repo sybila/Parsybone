@@ -6,12 +6,12 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
-#ifndef PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
-#define PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED
+#pragma once
 
 #include "../auxiliary/common_functions.hpp"
 #include "../auxiliary/formulae_resolver.hpp"
 #include "../auxiliary/data_types.hpp"
+#include "../model/regulation_helper.hpp"
 #include "parametrizations_helper.hpp"
 #include "constraint_reader.hpp"
 
@@ -53,14 +53,14 @@ class ParametrizationsBuilder {
 	}
 
 	/* For each regulation create a constraint corresponding to its label */
-	static void createEdgeCons(const vector<Model::Regulation> & reguls, const vector<Model::Parameter> & params, Model::Regulation & regul, string & plus, string & minus) {
+	static void createEdgeCons(const vector<Model::Regulation> & reguls, const Kinetics::Params & params, const Model::Regulation & regul, string & plus, string & minus) {
 		plus = minus = "ff ";
-		for (const size_t param_no : cscope(params)) {
-			if (ParametrizationsHelper::containsRegulation(params[param_no], regul)) {
-				for (const size_t compare_no : cscope(params)) {
-					if (ParametrizationsHelper::isSubordinate(reguls, params[param_no], params[compare_no], regul.source)) {
-						plus += " | " + params[param_no].context + " > " + params[compare_no].context;
-						minus += " | " + params[param_no].context + " < " + params[compare_no].context;
+		for (const auto param : params) {
+			if (ParametrizationsHelper::containsRegulation(param, regul)) {
+				for (const auto compare : params) {
+					if (ParametrizationsHelper::isSubordinate(reguls, param, compare, regul.source)) {
+						plus += " | " + param.context + " > " + compare.context;
+						minus += " | " + param.context + " < " + compare.context;
 					}
 				}
 			}
@@ -71,13 +71,13 @@ class ParametrizationsBuilder {
 		formula = "(" + formula + ")";
 	}
 
-	static string createFormula(const Model &model, const SpecieID ID) {
+	static string createFormula(const vector<Model::Regulation> & reguls, const Kinetics::Params & params) {
 		string result = "tt ";
 
 		// Add constraints for all the regulations
-		for (Model::Regulation regul : model.species[ID].regulations) {
+		for (auto & regul : reguls) {
 			string plus, minus, label; 
-			createEdgeCons(model.species[ID].regulations, model.getParameters(ID), regul, plus, minus);
+			createEdgeCons(reguls, params, regul, plus, minus);
 			addParenthesis(plus);
 			addParenthesis(minus);
 			label = RegulationHelper::getLabel(regul.label);
@@ -87,7 +87,7 @@ class ParametrizationsBuilder {
 		}
 
 		// List all the possible target values for a parameter
-		for (Model::Parameter param : model.getParameters(ID)) {
+		for (auto & param : params) {
 			string allowed;
 			allowed = addAllowed(param.targets, param.context);
 			addParenthesis(allowed);
@@ -98,15 +98,15 @@ class ParametrizationsBuilder {
 	}
 
 	/* Create constraint space on parametrizations for the given specie and enumerate and store all the solutions. */
-	static Configurations  createKinetics(const SpecieID ID, const string formula, Model & model) {
+	static Configurations  createPartCol(const Kinetics::Params & params, const string formula, const size_t max_value) {
 		Configurations result;
 
 		// Build the space
 		vector<string> names;
-		for (const Model::Parameter & param : model.getParameters(ID))
+		for (const auto & param : params)
 			names.push_back(param.context);
 		
-		ConstraintParser * cons_pars = new ConstraintParser(names.size(), model.species[ID].max_value);
+		ConstraintParser * cons_pars = new ConstraintParser(names.size(), max_value);
 
 		// Impose constraints
 		cons_pars->applyFormula(names, formula);
@@ -126,22 +126,35 @@ public:
 	/**
 	 * Entry function of parsing, tests and stores subcolors for all the species.
 	 */
-	static void buildParametrizations(Model &model) {
+	static void buildParametrizations(const Model &model, Kinetics & kinetics) {
+		ParamNo step_size = 1; // Variable necessary for encoding of colors
+
 		// Cycle through species
-		for (SpecieID ID = 0; ID < model.species.size(); ID++) {
+		for (const SpecieID ID : cscope(model.species)) {
 			output_streamer.output(verbose_str, "Testing edge constraints for Specie: " + to_string(ID + 1) + "/"
 				+ to_string(model.species.size()) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+			kinetics.species[ID].step_size = step_size;
 			if (model.species[ID].spec_type == Model::Input)
 				continue;
 
-			string formula = createFormula(model, ID) + " & " + ConstraintReader::consToFormula(model, ID);
-			Configurations subcolors = createKinetics(ID, formula, model);
-			model.species[ID].subcolors = subcolors;
+			// Solve the parametrizations
+			string formula = createFormula(model.species[ID].regulations, kinetics.species[ID].params) 
+				+ " & " + ConstraintReader::consToFormula(model, ID);
+			Configurations subcolors = createPartCol(kinetics.species[ID].params, formula, model.species[ID].max_value);
+			
+			// Copy the data
+			auto & params = kinetics.species[ID].params;
+			for (const Levels & subcolor : subcolors) {
+				for (const size_t param_no : cscope(subcolor)) {
+					params[param_no].target_in_subcolor.emplace_back(subcolor[param_no]);
+				}
+			}
+			
+			kinetics.species[ID].col_count = subcolors.size();
+			step_size *= subcolors.size();
 		}
 
 		output_streamer.clear_line(verbose_str);
 		output_streamer.output(verbose_str, "", OutputStreamer::no_out | OutputStreamer::rewrite_ln | OutputStreamer::no_newl);
 	}
 };
-
-#endif // PARSYBONE_PARAMETRIZATIONS_BUILDER_INCLUDED

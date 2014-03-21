@@ -6,25 +6,28 @@
 * For affiliations see http://www.mi.fu-berlin.de/en/math/groups/dibimath and http://sybila.fi.muni.cz/ .
 */
 
-#ifndef MODEL_HPP
-#define MODEL_HPP
+#pragma once
 
 #include "../auxiliary/common_functions.hpp"
 #include "../auxiliary/output_streamer.hpp"
 
-struct Kintetics {
-	struct ParameterData {
+struct Kinetics {
+	struct Param {
+		string context;
+		Levels targets; ///< Towards which level this context may regulate.
+		map<StateID, Levels> requirements; ///< Levels of the source species.
+	
+		Levels target_in_subcolor;
 		bool functional;
-		Levels list_of_params;
 	};
+	using Params = vector<Param>;
 
 	struct Specie {
-		map<string, ParameterData> params;
-		Configurations partial_coloring;
+		string name;
+		Params params;
+		ParamNo col_count;
 		ParamNo step_size;
 	};
 
-	map <string, Specie> species;
+	vector<Specie> species;
 };
-
-#endif // MODEL_HPP

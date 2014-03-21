@@ -6,9 +6,9 @@
  * For affiliations see <http://www.mi.fu-berlin.de/en/math/groups/dibimath> and <http://sybila.fi.muni.cz/>.
  */
 
-#ifndef PARAMETER_HELPER_HPP
-#define PARAMETER_HELPER_HPP
+#pragma once
 
+#include "../kinetics/kinetics.hpp"
 #include "model.hpp"
 #include "regulation_helper.hpp"
 
@@ -47,8 +47,7 @@ class ParameterHelper {
 	 * @brief getSingleParam creates a parameter for a single context.
 	 * @return
 	 */
-	static void addSingleParam(Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const SpecieID t_ID, const size_t autoreg_ID) {
-		// Empty data to fill.
+	static Kinetics::Param addSingleParam(const Model & model, const map<SpecieID, Levels> & all_thrs, const Levels & thrs_comb, const SpecieID t_ID, const size_t autoreg_ID) {
 		string context;
 		map<StateID, Levels> requirements;
 
@@ -74,44 +73,46 @@ class ParameterHelper {
 			requirements.insert(make_pair(s_ID, vrange(threshold, next_th)));
 		}
 
-		model.addParameter(t_ID, move(context.substr(0, context.length() - 1)), move(requirements),
-			move(getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID)));
+		context.resize(context.length() - 1);
+		return Kinetics::Param{ context, getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID), move(requirements), Levels(), true };
 	}
 
-	/**
-	* @brief createParameters Creates a description of kinetic parameters.
-	*/
-	static void createParameters(Model & model, const SpecieID t_ID) {
+	// @brief createParameters Creates a description of kinetic parameters.
+	static Kinetics::Params createParameters(const Model & model, const SpecieID t_ID) {
+		Kinetics::Params result;
+
 		auto all_thrs = ModelTranslators::getThresholds(model, t_ID);
 		Levels bottom, thrs_comb, top;
-		size_t autoreg = INF;
+		size_t autoreg{ INF };
 
 		// These containers hold number of thresholds per regulator.
 		for (auto & source_thresholds : all_thrs) {
-			bottom.push_back(0);
-			thrs_comb.push_back(0);
-			top.push_back(source_thresholds.second.size());
+			bottom.push_back(0); thrs_comb.push_back(0); top.push_back(source_thresholds.second.size());
 			if (source_thresholds.first == t_ID)
 				autoreg = thrs_comb.size() - 1;
 		}
 
 		// Loop over all the contexts.
 		do {
-			addSingleParam(model, all_thrs, thrs_comb, t_ID, autoreg);
+			result.emplace_back(addSingleParam(model, all_thrs, thrs_comb, t_ID, autoreg));
 		} while (iterate(top, bottom, thrs_comb));
+
+		return result;
 	}
 
 public:
-	/**
-	 * @brief fillParameters   fill idividual parameter values based on user specifications.
-	 */
-	static void fillParameters(Model & model) {
-		for (const SpecieID ID : crange(model.species.size())) {
-			// do not create parameters for the input nodes
+	// @brief fillParameters   fill idividual parameter values based on user specifications.
+	static vector<Kinetics::Specie> buildParams(const Model & model) {
+		vector<Kinetics::Specie>  result;
+
+		// Create params for the non-input nodes
+		for (const SpecieID ID : crange(model.species.size())) 
 			if (model.species[ID].spec_type != Model::Input)
-				createParameters(model, ID);
-		}
+				result.emplace_back(Kinetics::Specie{ model.species[ID].name, createParameters(model, ID), 0, 0 });
+			else 
+				result.emplace_back(Kinetics::Specie{ model.species[ID].name, Kinetics::Params(), 0, 0 });
+	
+		return result;
 	}
 };
 
-#endif // PARAMETER_HELPER_HPP

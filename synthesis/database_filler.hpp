@@ -8,6 +8,7 @@
 
 class DatabaseFiller {
 	const Model & model;
+	const Kinetics & kinetics;
 	SQLAdapter sql_adapter;
 
 	bool in_output; ///< True if there is currently transaction ongoing.
@@ -55,9 +56,9 @@ class DatabaseFiller {
 
 	string getContexts() const {
 		string contexts = "";
-		for (SpecieID target_ID : crange(model.species.size()))
-			for (auto param : model.getParameters(target_ID))
-				contexts += ModelTranslators::makeConcise(param, model.species[target_ID].name) + " INTEGER, ";
+		for (SpecieID t_ID : crange(model.species.size()))
+			for (auto param : kinetics.species[t_ID].params)
+				contexts += ModelTranslators::makeConcise(param, model.species[t_ID].name) + " INTEGER, ";
 		return contexts;
 	}
 
@@ -72,7 +73,7 @@ class DatabaseFiller {
 	}
 
 public:
-	DatabaseFiller(const Model & _model, const string & datafile_name, const bool create_database) : model(_model) {
+	DatabaseFiller(const Model & _model, const Kinetics & _kinetics, const string & datafile_name, const bool create_database) : model(_model), kinetics(_kinetics) {
 		if (create_database)
 			sql_adapter.setDatabase(datafile_name);
 		in_output = false;

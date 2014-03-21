@@ -16,7 +16,7 @@ TEST_F(StructureTest, DatabaseTest) {
    UserOptions user_options;
    user_options.use_database = true;
    user_options.database_file = "trivial.sqlite";
-   OutputManager output(user_options, trivial_prop, trivial_model);
+   OutputManager output(user_options, ltl_tri, mod_tri, kin_tri_tri);
 
    EXPECT_NO_THROW(output.outputForm());
    EXPECT_NO_THROW(output.outputRound(0, 3, 0.5, "{(0>0)}"));
