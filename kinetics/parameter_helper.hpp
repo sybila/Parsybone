@@ -73,7 +73,8 @@ class ParameterHelper {
 			requirements.insert(make_pair(s_ID, vrange(threshold, next_th)));
 		}
 
-		context.resize(context.length() - 1);
+		if (!context.empty())
+			context.resize(context.length() - 1);
 		return Kinetics::Param{ context, getTargetValues(model, all_thrs, thrs_comb, autoreg_ID, t_ID), move(requirements), Levels(), true };
 	}
 
