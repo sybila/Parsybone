@@ -12,7 +12,7 @@
 #include "model_test_data.hpp"
 #include "../synthesis/output_manager.hpp"
 
-TEST_F(StructureTest, DatabaseTest) {
+TEST_F(StructureTest, DatabaseOutputTest) {
    UserOptions user_options;
    user_options.use_database = true;
    user_options.database_file = "trivial.sqlite";

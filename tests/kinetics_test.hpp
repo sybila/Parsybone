@@ -29,9 +29,12 @@ TEST_F(KineticsTest, CorrectInput) {
 }
 
 TEST_F(KineticsTest, NonFunctional) {
-	// B is set to 1 by experiment - others should be non-functional.
+	// B is set to 1 by experiment - others should be non-functional with no parametrizations.
 	for (auto & param_of_A : kin_cir_exp.species[0].params) {
 		bool has_B_1 = (param_of_A.context.find("B:1") != string::npos);
 		ASSERT_TRUE(has_B_1 == param_of_A.functional);
+		ASSERT_TRUE(param_of_A.functional != param_of_A.target_in_subcolor.empty());
 	}
+
+	string param_vals = KineticsTranslators::createParamString(kin_cir_exp, 0);
 }
