@@ -10,13 +10,13 @@ TEST_F(KineticsTest, ParametrizationLoopBound) {
 	mod_loo.addRegulation(1, 1, 4, "");
 	mod_loo.restrictions.bound_loop = true;
 	
-	auto params = ParameterHelper::buildParams(mod_loo)[1].params;
+	auto params = ParameterBuilder::buildParams(mod_loo)[1].params;
 
 	ASSERT_EQ(6, params.size()) << "There should be 6 contexts for B.";
 	ASSERT_EQ(3, params[0].targets.size()) << "Targets {0,1,2}";
 	EXPECT_EQ(2, params[0].targets[2]) << "Targets {0,1,2}";
-	ASSERT_EQ(4, params[3].targets.size()) << "Targets {1,2,3,4}";
-	EXPECT_EQ(1, params[3].targets[0]) << "Targets {1,2,3,4}";
+	ASSERT_EQ(4, params[1].targets.size()) << "Targets {1,2,3,4}";
+	EXPECT_EQ(1, params[1].targets[0]) << "Targets {1,2,3,4}";
 }
 
 TEST_F(KineticsTest, CorrectInput) {
@@ -29,9 +29,9 @@ TEST_F(KineticsTest, CorrectInput) {
 }
 
 TEST_F(KineticsTest, NonFunctional) {
-	// Inputs have no subparametrizations
-	for (auto & param_of_C : kin_cas_one.species[2].params ) {
-		bool has_B_1 = (param_of_C.context.find("B:1") == string::npos);
-		ASSERT_TRUE(has_B_1 == param_of_C.functional);
+	// B is set to 1 by experiment - others should be non-functional.
+	for (auto & param_of_A : kin_cir_exp.species[0].params) {
+		bool has_B_1 = (param_of_A.context.find("B:1") != string::npos);
+		ASSERT_TRUE(has_B_1 == param_of_A.functional);
 	}
 }

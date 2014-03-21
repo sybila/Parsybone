@@ -12,8 +12,9 @@
 #include "../auxiliary/formulae_resolver.hpp"
 #include "../auxiliary/data_types.hpp"
 #include "../model/model_helper.hpp"
-#include "parametrizations_helper.hpp"
-#include "constraint_reader.hpp"
+#include "../model/property_automaton.hpp"
+#include "../kinetics/parametrizations_helper.hpp"
+#include "../kinetics/constraint_reader.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Class that computes feasible parametrizations for each specie from
@@ -126,7 +127,7 @@ public:
 	/**
 	 * Entry function of parsing, tests and stores subcolors for all the species.
 	 */
-	static void buildParametrizations(const Model &model, Kinetics & kinetics) {
+	static void buildParametrizations(const Model &model, const PropertyAutomaton & property, Kinetics & kinetics) {
 		ParamNo step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through species

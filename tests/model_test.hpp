@@ -9,7 +9,7 @@
 #pragma once
 
 #include "model_test_data.hpp"
-#include "../model/regulation_helper.hpp"
+#include "../model/model_helper.hpp"
 #include "../model/constraint_reader.hpp"
 
 /// Test various functions the model class posseses.

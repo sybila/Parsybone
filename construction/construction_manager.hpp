@@ -9,7 +9,7 @@
 #pragma once 
 
 #include "../kinetics/parametrizations_builder.hpp"
-#include "../kinetics/parameter_helper.hpp"
+#include "../kinetics/parameter_builder.hpp"
 #include "../model/property_automaton.hpp"
 #include "automaton_builder.hpp"
 #include "unparametrized_structure_builder.hpp"
@@ -22,14 +22,14 @@
 /// All the objects constructed are stored within a provided CostructionHolder and further acessible only via constant getters.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace ConstructionManager {
-	/**
-	 * @brief computeModelProps
-	 */
+	// @brief computeModelProps
 	Kinetics computeKinetics(const Model & model, const PropertyAutomaton & property) {
 		Kinetics result;
 
 		// Compute parameter values.
-		result.species = ParameterHelper::buildParams(model);
+		result.species = ParameterBuilder::buildParams(model);
+		// Disable non-functioncal contexts (optimization)
+		ParameterHelper::find_functional(model, property, result);
 		// Compute exact parametrization for the model.
 		ParametrizationsBuilder::buildParametrizations(model, result);
 

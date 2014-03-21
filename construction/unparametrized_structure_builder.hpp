@@ -137,24 +137,16 @@ class UnparametrizedStructureBuilder {
 		allowed_states.resize(state_count, init);
 	}
 
-	/* Label, as allowed, those states that satisfy the experiment;*/
+	// Label, as allowed, those states that satisfy the experiment
 	size_t solveConstrains(UnparametrizedStructure & structure) {
+		pair<Levels, Levels> bounds = ModelHelper::getBounds(model, property);
+		structure.mins = bounds.first; structure.maxes = bounds.second;
+		rng::transform(structure.maxes, structure.mins, back_inserter(structure.range_size), [](const ActLevel max, const ActLevel min) {return max - min + 1;});
+
 		ConstraintParser * cons_pars = new ConstraintParser(model.species.size(), ModelTranslators::getMaxLevel(model));
-
-		// Impose constraints
-		Levels maxes;
-		rng::transform(model.species, back_inserter(maxes), [](const Model::ModelSpecie & specie){ return specie.max_value; });
-		cons_pars->addBoundaries(maxes, true);
+		cons_pars->addBoundaries(bounds.first, false);
+		cons_pars->addBoundaries(bounds.second, true);
 		cons_pars->applyFormula(ModelTranslators::getAllNames(model), property.getExperiment());
-
-		// Obtain boundary details
-		cons_pars->status();
-		structure.mins = cons_pars->getBounds(false);
-		structure.maxes = cons_pars->getBounds(true);
-		rng::transform(structure.maxes, structure.mins, back_inserter(structure.range_size), [](const ActLevel max, const ActLevel min) {
-			return max - min + 1;
-		});
-
 		// Compute distances between neighbours
 		computeJumps(structure.range_size);
 
@@ -168,7 +160,8 @@ class UnparametrizedStructureBuilder {
 			DFS<ConstraintParser> search(cons_pars);
 			delete cons_pars;
 			while (ConstraintParser *result = search.next()) {
-				allowed_states[structure.getID(result->getSolution())] = true;
+				StateID ID = structure.getID(result->getSolution());
+				allowed_states[ID] = true;
 				delete result;
 			}
 		}
