@@ -23,33 +23,34 @@ class ExplicitFilter {
 	set<ParamNo> allowed; ///< Numbers of all the parametrizations that are allowed.
 	bool is_filter_active; ///< True iff there was an input mask.
 
-	/**
-	 * @return a vector of column numbers in database, ordered in the same way as paremters of the model
-	 */
+	// @return a vector of column numbers in database, ordered in the same way as paremeters of the model (if not found, get pad by INF value)
 	vector<size_t> getColumns(const Kinetics & kinetics, SQLAdapter & sql_adapter) {
-		vector<size_t> locations;
-		vector<string> names = sql_adapter.readColumnNames(PARAMETRIZATIONS_TABLE, regex(".*"));
+		vector<size_t> result;
+		vector<string> names = sql_adapter.readColumnNames(PARAMETRIZATIONS_TABLE, regex("K_.*"));
 
+		// Test each specie for all the parameters on incoming regulators
 		for (const SpecieID ID : cscope(kinetics.species)) {
 			const Kinetics::Params & params = kinetics.species[ID].params;
 			// Add the column number if the context was found, INF otherwise
-			for (const size_t kpar_no : cscope(params)) {
-				auto column_it = find(names.begin(), names.end(), KineticsTranslators::makeConcise(params[kpar_no], kinetics.species[ID].name));
+			for (const size_t param_no : cscope(params)) {
+				string column_name = KineticsTranslators::makeConcise(params[param_no], kinetics.species[ID].name);
+				auto column_it = find(WHOLE(names), column_name);
 				if (column_it == names.end())
-					locations.push_back(INF);
+					throw runtime_error("An column " + column_name + " not found in the filtering database " + sql_adapter.getName());
 				else
-					locations.push_back(distance(names.begin(), column_it));
+					result.push_back(distance(names.begin(), column_it));
 			}
 		}
-		return locations;
+
+		if (result.size() != names.size())
+			throw runtime_error("There are more contexts in the database " + sql_adapter.getName() + " than there are in the model");
+		return result;
 	}
 
 public:
-	ExplicitFilter() : is_filter_active(false) {}
+	ExplicitFilter() : is_filter_active{ false } {}
 
-	/**
-	 * @brief addAllowed add parametrizations that are allowed by given database
-	 */
+	// @brief addAllowed add parametrizations that are allowed by given database
 	void addAllowed(const Kinetics & kinetics, SQLAdapter & sql_adapter) {
 		is_filter_active = true;
 
@@ -58,12 +59,12 @@ public:
 		sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
 
 		// Create the set of parametrizations that are allowed.
-		Levels column_data = sql_adapter.getRow<ActLevel>(colum_match);
+		Levels row_data = sql_adapter.getRow<ActLevel>(colum_match);
 		set<ParamNo> newly_added;
-		while (!column_data.empty()) {
-			set<ParamNo> matching = KineticsTranslators::findMatching(kinetics, column_data);
-			newly_added.insert(matching.begin(), matching.end());
-			column_data = sql_adapter.getRow<ActLevel>(colum_match);
+		while (!row_data.empty()) {
+			set<ParamNo> matching = KineticsTranslators::findMatching(kinetics, row_data);
+			newly_added.insert(WHOLE(matching));
+			row_data = sql_adapter.getRow<ActLevel>(colum_match);
 		}
 
 		// If there were no parametrizations allowed, allow current, otherwise create an intersection of new and old ones.
@@ -72,7 +73,7 @@ public:
 		}
 		else {
 			set<ParamNo> united;
-			set_intersection(allowed.begin(), allowed.end(), newly_added.begin(), newly_added.end(), inserter(united, united.begin()));
+			set_intersection(WHOLE(allowed), WHOLE(newly_added), inserter(united, united.begin()));
 			allowed = united;
 		}
 

@@ -62,9 +62,7 @@ namespace KineticsTranslators {
 		return color_str;
 	}
 
-	/**
-	* @return representation of the parametrization used by the database
-	*/
+	// @return representation of the parametrization used by the database
 	const string makeConcise(const Kinetics::Param & param, const string target_name) {
 		string context = "K_" + target_name + "_";
 		for (auto values : param.requirements)
@@ -72,46 +70,44 @@ namespace KineticsTranslators {
 		return context;
 	}
 
-	//TODO TURNED OFF
+	// @Obtain all the parametrizations ID for the given levels string
 	set<ParamNo> findMatching(const Kinetics & kinetics, const Levels & param_vals) {
-		/*set<ParamNo> matching;
-		size_t begin = 0; //< Used to denote current range of the parametrization
+		set<ParamNo> result;
+
 
 		// Test subparametrizations for all species.
+		size_t begin = 0;
 		for (const SpecieID ID : cscope(kinetics.species)) {
-		vector<ParamNo> submatch;
+			vector<ParamNo> submatch;
+			auto & params = kinetics.species[ID].params;
 
-		// Try to match all the subcolors fo the current specie
-		for (const size_t subolor_no : crange(kinetics.species[ID].)) {
-		bool valid = true;
-		// For the match to occur, all values must either be equal or defined irellevant.
-		for (const size_t value_no : cscope(model.species[ID].subcolors[subolor_no])) {
-		if (param_vals[value_no + begin] != INF_SHORT && param_vals[value_no + begin] != model.species[ID].subcolors[subolor_no][value_no]) {
-		valid = false;
-		break;
-		}
-		}
-		if (valid)
-		submatch.push_back(subolor_no * model.getStepSize(ID));
-		}
+			// Try to match all the subcolors for the current specie
+			for (const size_t subolor_no : crange(kinetics.species[ID].col_count)) {
+				bool valid = true;
+				for (const size_t param_no : cscope(params)) {
+					if (param_vals[param_no + begin] != -1 && param_vals[param_no + begin] != params[param_no].target_in_subcolor[subolor_no]) {
+						valid = false;
+						break;
+					}
+				}
+				if (valid) submatch.push_back(subolor_no * kinetics.species[ID].step_size);
+			}
 
-		// At least one subparametrization must be found for each specie, if not end.
-		if (submatch.empty())
-		return set<ParamNo>();
+			// At least one subparametrization must be found for each specie, if not end.
+			if (submatch.empty())
+				return set<ParamNo>();
 
-		// Create the results as all possible combinations.
-		set<ParamNo> old = matching.empty() ? set<ParamNo>({ 0 }) : move(matching);
-		for (const ParamNo o_match : old) {
-		for (const ParamNo m_match : submatch) {
-		matching.insert(o_match + m_match);
-		}
-		}
+			// Create the results as all possible combinations.
+			set<ParamNo> old = result.empty() ? set<ParamNo>({ 0 }) : move(result);
+			for (const ParamNo o_match : old) {
+				for (const ParamNo m_match : submatch) {
+					result.insert(o_match + m_match);
+				}
+			}
 
-		// Move the beginning for the next specie
-		begin += model.species[ID].parameters.size();
+			begin += params.size();
 		}
-		return matching;*/
-		return set<ParamNo>{};
+		return result;
 	}
 
 

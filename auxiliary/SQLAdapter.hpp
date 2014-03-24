@@ -247,9 +247,7 @@ public:
       safePrepare("SELECT * FROM " + table_name + ";");
    }
 
-   /**
-    * @return data from the current row
-    */
+   // @return data references by indices specified in the columns vector
    template <typename DataType>
    vector<DataType> getRow(const vector<size_t> & columns) {
       vector<DataType> data;
@@ -258,13 +256,16 @@ public:
       if (sqlite3_step(statement) == SQLITE_ROW) {
          for (const size_t column : columns) {
             const unsigned char * entry = 0;
-            if (column < getColumnCount())
-                entry = sqlite3_column_text(statement, column);
+			if (column < getColumnCount())
+				entry = sqlite3_column_text(statement, column);
+			else
+				throw runtime_error("Trying to access a column in the database that does not exist.");
+
             try {
                if (entry != 0)
                   data.push_back(boost::lexical_cast<DataType>(entry));
                else // Replace null value with zero.
-                  data.push_back(boost::lexical_cast<DataType>('0'));
+                  data.push_back(boost::lexical_cast<DataType>(0));
             } catch(boost::bad_lexical_cast & e) {
                cerr << "Converting \"" << entry << "\" into " << typeid(DataType).name() << " has failed with " << e.what();
             }
@@ -325,6 +326,11 @@ public:
          query += "UPDATE " + table_name + " SET " + column_name + "=NULL;";
 
       safeExec(query);
+   }
+
+   // @return the name of the database
+   string getName() const {
+	   return file_name;
    }
 };
 

@@ -123,4 +123,6 @@ namespace Common {
 	TypeName(TypeName && ) = default;  \
 	TypeName& operator=(TypeName && ) = default; 
 
+#define WHOLE(Container) begin(Container),end(Container)
+
 #endif // COMMON_FUNCTIONS_HPP
