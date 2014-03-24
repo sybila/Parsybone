@@ -22,10 +22,10 @@ class ParameterBuilder {
 
 		// If there is the loop restriction
 		if (model.restrictions.bound_loop && autoreg != INF) {
-			size_t self_thrs = thrs_comb[autoreg];
+			ActLevel self_thrs = thrs_comb[autoreg];
 			Levels thresholds = (all_thrs.find(t_ID))->second;
-			size_t bottom_border = 0u < self_thrs ? thresholds[self_thrs - 1] : 0u;
-			size_t top_border = thresholds.size() > self_thrs ? thresholds[self_thrs] : model.species[t_ID].max_value + 1;
+			ActLevel bottom_border = 0u < self_thrs ? thresholds[self_thrs - 1] : 0u;
+			ActLevel top_border = thresholds.size() > self_thrs ? thresholds[self_thrs] : model.species[t_ID].max_value + 1;
 			Levels new_targets;
 
 			// Add levels that are between the thresholds and one below/above if corresponds to the original.

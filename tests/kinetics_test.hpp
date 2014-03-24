@@ -23,7 +23,7 @@ TEST_F(KineticsTest, CorrectInput) {
 	// Inputs have no subparametrizations
 	for (const SpecieID ID : cscope(mod_cas.species)) {
 		bool is_input = (mod_cas.species[ID].spec_type == Model::Input);
-		bool no_cols = (kin_cas_one.species[ID].col_count == 0);
+		bool no_cols = (kin_cas_one.species[ID].params.size() == 0);
 		ASSERT_TRUE(is_input == no_cols);
 	}
 }
