@@ -68,7 +68,7 @@ struct Model {
    Restrictions restrictions;
    vector<ModelSpecie> species; ///< vector of all species of the model
 
-   inline void addSpecie(const string & name, const size_t max, const Model::SpecType type) {
+   inline void addSpecie(const string & name, const ActLevel max, const Model::SpecType type) {
 	   species.push_back({ name, max, type, vector<string>(), Model::Regulations()});
    }
 

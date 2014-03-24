@@ -97,7 +97,7 @@ class NetworkParser {
 	 */
 	static void parseSpecie(const rapidxml::xml_node<> * const specie, const Model::SpecType type, Model & model) {
 		// Data to fill
-		string name; size_t max; size_t basal = 0; Levels basals;
+		string name; ActLevel max;
 
 		// Get a name of the specie.
 		XMLHelper::getAttribute(name, specie, "name", true);
