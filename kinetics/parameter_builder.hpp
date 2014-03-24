@@ -99,7 +99,7 @@ class ParameterBuilder {
 			result.emplace_back(addSingleParam(model, all_thrs, thrs_comb, t_ID, autoreg));
 		} while (iterate(top, bottom, thrs_comb));
 
-		rng::sort(result, [](Kinetics::Param & A, Kinetics::Param & B){return A.context < B.context; });
+		rng::sort(result, [](const Kinetics::Param & A, const Kinetics::Param & B){return A.context < B.context; });
 		return result;
 	}
 
