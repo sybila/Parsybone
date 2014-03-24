@@ -10,7 +10,8 @@
 	</SPECIE>
 	<SPECIE name="B">
 		<REGUL source="A" />
-		<REGUL source="B" />            
-		<CONSTR expr="A,B = A:0 & A:1 > 0" />
+		<REGUL source="C" />            
+		<CONSTR expr="A,C = A:0 & A:1 > 0" />
 	</SPECIE>
+	<INPUT name="C" />
 </NETWORK>

@@ -48,9 +48,9 @@ namespace KineticsTranslators {
 		for (const SpecieID ID : cscope(kinetics.species)) {
 			for (auto & param : kinetics.species[ID].params) {
 				// There may be more contexts than values due to the fact that some are not functional. These are assigned the value -1.
-				if (param.functional) 
+				if (param.functional)
 					color_str += to_string(param.target_in_subcolor[color_parts[ID]]);
-				else 
+				else
 					color_str += "-1";
 
 				color_str += ",";
@@ -58,7 +58,7 @@ namespace KineticsTranslators {
 		}
 
 		// Change the last value
-		color_str[color_str.size() - 1]  = ')';
+		color_str[color_str.size() - 1] = ')';
 		return color_str;
 	}
 

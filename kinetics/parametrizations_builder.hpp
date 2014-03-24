@@ -148,25 +148,30 @@ public:
 		for (const SpecieID ID : cscope(model.species)) {
 			output_streamer.output(verbose_str, "Testing edge constraints for Specie: " + to_string(ID + 1) + "/"
 				+ to_string(model.species.size()) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
+
 			kinetics.species[ID].step_size = step_size;
-			if (model.species[ID].spec_type == Model::Input)
-				continue;
 
-			// Solve the parametrizations
-			string formula = createFormula(model.species[ID].regulations, kinetics.species[ID].params) + " & " + ConstraintReader::consToFormula(model, ID);
-			Configurations subcolors = createPartCol(kinetics.species[ID].params, formula, model.species[ID].max_value);
-			subcolors = remove_redundant(kinetics.species[ID].params, move(subcolors));
+			if (model.species[ID].spec_type == Model::Input) {
+				kinetics.species[ID].col_count = 1;
+			}
+			else {
 
-			// Copy the data
-			auto & params = kinetics.species[ID].params;
-			for (const Levels & subcolor : subcolors)
-				for (const size_t param_no : cscope(subcolor))
-					if (params[param_no].functional)
-						params[param_no].target_in_subcolor.emplace_back(subcolor[param_no]);
+				// Solve the parametrizations
+				string formula = createFormula(model.species[ID].regulations, kinetics.species[ID].params) + " & " + ConstraintReader::consToFormula(model, ID);
+				Configurations subcolors = createPartCol(kinetics.species[ID].params, formula, model.species[ID].max_value);
+				subcolors = remove_redundant(kinetics.species[ID].params, move(subcolors));
+
+				// Copy the data
+				auto & params = kinetics.species[ID].params;
+				for (const Levels & subcolor : subcolors)
+					for (const size_t param_no : cscope(subcolor))
+						if (params[param_no].functional)
+							params[param_no].target_in_subcolor.emplace_back(subcolor[param_no]);
 
 
-			kinetics.species[ID].col_count = subcolors.size();
-			step_size *= subcolors.size();
+				kinetics.species[ID].col_count = subcolors.size();
+				step_size *= subcolors.size();
+			}
 		}
 
 		output_streamer.clear_line(verbose_str);

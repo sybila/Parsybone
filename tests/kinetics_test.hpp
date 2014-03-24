@@ -36,5 +36,5 @@ TEST_F(KineticsTest, NonFunctional) {
 		ASSERT_TRUE(param_of_A.functional != param_of_A.target_in_subcolor.empty());
 	}
 
-	string param_vals = KineticsTranslators::createParamString(kin_cir_exp, 0);
+	EXPECT_STREQ("(-1,0,0,1)", KineticsTranslators::createParamString(kin_cir_exp, 0).c_str());
 }
