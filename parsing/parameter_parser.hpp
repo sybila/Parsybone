@@ -27,9 +27,13 @@ public:
 	 * @brief parse   Reads explicit parameter specification from the model file.
 	 */
 	static void parse(const rapidxml::xml_node<> * const network_node, Model & model) {
-		// For each specie find explicit descriptions
-		auto specie = XMLHelper::getChildNode(network_node, "SPECIE");
-		for (SpecieID ID = 0; specie; ID++, specie = specie->next_sibling("SPECIE")) {
+
+		for (auto specie : XMLHelper::NodesRange(network_node, "SPECIE", true)) {
+			// Get ID of the regulated component
+			string name;
+			XMLHelper::getAttribute(name, specie, "name", true);
+			const SpecieID ID = ModelTranslators::findID(model, name);
+
 			// Create all contexts with all the possible values.
 			model.species[ID].par_cons = parseParCons(specie);
 		}
