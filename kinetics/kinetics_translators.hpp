@@ -20,50 +20,60 @@ namespace KineticsTranslators {
 	}
 
 	// @return 
-	const Levels getSpecieVals(const Kinetics & kinetics, ParamNo number) {
+	Levels getSpecieVals(const Kinetics & kinetics, ParamNo param_no) {
 		// Prepare storage vector
 		Levels specie_vals(kinetics.species.size());
-		auto reverse_val_it = specie_vals.rbegin();
+		auto spec_it = specie_vals.begin();
 
 		// Go through colors backwards
 		ParamNo divisor = getSpaceSize(kinetics);
-		for (auto kin_it = kinetics.species.rbegin(); kin_it != kinetics.species.rend(); kin_it++, reverse_val_it++) {
+		for (auto kin_it = kinetics.species.begin(); kin_it != kinetics.species.end(); kin_it++, spec_it++) {
 			// lower divisor value
 			divisor /= kin_it->col_count;
 			// pick a number for current specie
-			*reverse_val_it = static_cast<ActLevel>(number / divisor);
+			*spec_it = static_cast<ActLevel>(param_no / divisor);
 			// take the rest for next round
-			number = number % divisor;
+			param_no = param_no % divisor;
 		}
 
 		return specie_vals;
 	}
 
-	// @return parametrizations string in the form "(val_1,...,val_n)".
-	const string createParamString(const Kinetics & kinetics, ParamNo number) {
+	// @return parametrization vector from its number
+	Levels createParamVector(const Kinetics & kinetics, const ParamNo param_no) {
+		Levels result;
 		// compute numbers of partial parametrizations for each component
-		const Levels color_parts = getSpecieVals(kinetics, number);
+		const Levels color_parts = getSpecieVals(kinetics, param_no);
 
-		string color_str = "(";
 		for (const SpecieID ID : cscope(kinetics.species)) {
 			for (auto & param : kinetics.species[ID].params) {
 				// There may be more contexts than values due to the fact that some are not functional. These are assigned the value -1.
 				if (param.functional)
-					color_str += to_string(param.target_in_subcolor[color_parts[ID]]);
+					result.emplace_back(param.target_in_subcolor[color_parts[ID]]);
 				else
-					color_str += "-1";
-
-				color_str += ",";
+					result.emplace_back(-1);
 			}
 		}
 
 		// Change the last value
-		color_str[color_str.size() - 1] = ')';
-		return color_str;
+		return result;
+	}
+
+	// @return parametrizations string in the form "(val_1,...,val_n)".
+	string createParamString(const Kinetics & kinetics, const ParamNo param_no) {
+		string result = "(";
+		// Compute numbers of partial parametrizations for each component.
+		Levels params = createParamVector(kinetics, param_no);
+		// Convert.
+		for (const ActLevel param : params)
+			result += to_string(param) + ",";
+		// Change the last value.
+		result[result.size() - 1] = ')';
+		return result;
 	}
 
 	// @return representation of the parametrization used by the database
-	const string makeConcise(const Kinetics::Param & param, const string target_name) {
+	string makeConcise(const Kinetics::Param & param, const string target_name) {
 		string context = "K_" + target_name + "_";
 		for (auto values : param.requirements)
 			context += to_string(values.second.front());

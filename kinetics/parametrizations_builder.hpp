@@ -145,10 +145,11 @@ public:
 		ParamNo step_size = 1; // Variable necessary for encoding of colors
 
 		// Cycle through species
-		for (const SpecieID ID : cscope(model.species)) {
-			output_streamer.output(verbose_str, "Testing edge constraints for Specie: " + to_string(ID + 1) + "/"
+		for (SpecieID ind = model.species.size(); ind > 0; --ind) {
+			output_streamer.output(verbose_str, "Testing edge constraints for Specie: " + to_string(ind) + "/"
 				+ to_string(model.species.size()) + ".", OutputStreamer::no_newl | OutputStreamer::rewrite_ln);
 
+			SpecieID ID = ind - 1;
 			kinetics.species[ID].step_size = step_size;
 
 			if (model.species[ID].spec_type == Model::Input) {
@@ -159,6 +160,7 @@ public:
 				// Solve the parametrizations
 				string formula = createFormula(model.species[ID].regulations, kinetics.species[ID].params) + " & " + ConstraintReader::consToFormula(model, ID);
 				Configurations subcolors = createPartCol(kinetics.species[ID].params, formula, model.species[ID].max_value);
+				sort(WHOLE(subcolors));
 				subcolors = remove_redundant(kinetics.species[ID].params, move(subcolors));
 
 				// Copy the data

@@ -20,8 +20,12 @@
 #include "../auxiliary/SQLAdapter.hpp"
 
 class ExplicitFilter {
-	set<ParamNo> allowed; ///< Numbers of all the parametrizations that are allowed.
-	bool is_filter_active; ///< True iff there was an input mask.
+	struct SingleFilter {
+		SQLAdapter database; ///< Adapter to the filtering databases.
+		vector<size_t> columns; ///< Which columns in the database correspond to the parameters.
+		Levels last_parametrization; ///< The last parametrization tested (and also pointed to by the database).
+	};
+	vector<SingleFilter> filters;
 
 	// @return a vector of column numbers in database, ordered in the same way as paremeters of the model (if not found, get pad by INF value)
 	vector<size_t> getColumns(const Kinetics & kinetics, SQLAdapter & sql_adapter) {
@@ -48,48 +52,41 @@ class ExplicitFilter {
 	}
 
 public:
-	ExplicitFilter() : is_filter_active{ false } {}
+	ExplicitFilter() {}
 
-	// @brief addAllowed add parametrizations that are allowed by given database
-	void addAllowed(const Kinetics & kinetics, SQLAdapter & sql_adapter) {
-		is_filter_active = true;
+	// @brief prepare add parametrizations that are allowed by given database
+	void prepare(const Kinetics & kinetics, SQLAdapter sql_adapter) {
+		SingleFilter filter;
 
-		// Obtain columns that are being referenced
-		vector<size_t> colum_match = getColumns(kinetics, sql_adapter);
+		// Obtain columns that are being referenced.
+		filter.columns = getColumns(kinetics, sql_adapter);
+		// Query the respective table.
 		sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
+		// Obtain the database.
+		filter.database = move(sql_adapter);
+		// Bottom vector is empty
+		filter.last_parametrization = Levels{numeric_limits<ActLevel>::min()};
 
-		// Create the set of parametrizations that are allowed.
-		Levels row_data = sql_adapter.getRow<ActLevel>(colum_match);
-		set<ParamNo> newly_added;
-		while (!row_data.empty()) {
-			set<ParamNo> matching = KineticsTranslators::findMatching(kinetics, row_data);
-			newly_added.insert(WHOLE(matching));
-			row_data = sql_adapter.getRow<ActLevel>(colum_match);
-		}
-
-		// If there were no parametrizations allowed, allow current, otherwise create an intersection of new and old ones.
-		if (allowed.empty()) {
-			allowed = newly_added;
-		}
-		else {
-			set<ParamNo> united;
-			set_intersection(WHOLE(allowed), WHOLE(newly_added), inserter(united, united.begin()));
-			allowed = united;
-		}
-
-		if (allowed.empty()) {
-			throw runtime_error("Filtering by a database removed all parametrizations. Nothing to check.");
-		}
+		filters.emplace_back(move(filter));
 	}
 
 	/**
 	 * @return true iff the parametrization is not filtered out.
 	 */
-	inline bool isAllowed(ParamNo param_no) {
-		if (is_filter_active)
-			return (allowed.find(param_no) != allowed.end());
-		else
+	inline bool isAllowed(const Kinetics & kinetics, const ParamNo param_no) {
+		if (filters.empty())
 			return true;
+		
+		// Update each parametrization to the position that's equal or greater that the current parametrization and return false if it is not equal.
+		Levels parametrization = KineticsTranslators::createParamVector(kinetics, param_no);
+		for (auto & filter : filters) {
+			while (!filter.last_parametrization.empty() && filter.last_parametrization < parametrization) {
+				filter.last_parametrization = filter.database.getRow<ActLevel>(filter.columns);
+			}
+			if (filter.last_parametrization != parametrization)
+				return false;
+		}
+		return true;
 	}
 };
 

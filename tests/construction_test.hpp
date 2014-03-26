@@ -64,8 +64,8 @@ TEST_F(StructureTest, TestCorrectUnparametrizedStucture) {
 	EXPECT_EQ(0, ust_com_tri.getStateLevels(0).front());
 	EXPECT_EQ(1, ust_com_tri.getStateLevels(3).back());
 	ASSERT_EQ(2, ust_com_tri.getTransitionCount(0)) << "Exactly two transitions should be possible from (0,0) ";
-	EXPECT_EQ(1, ust_com_tri.getTransitionConst(0, 0).step_size);
-	EXPECT_EQ(16, ust_com_tri.getTransitionConst(0, 1).step_size);
+	EXPECT_EQ(16, ust_com_tri.getTransitionConst(0, 0).step_size);
+	EXPECT_EQ(1, ust_com_tri.getTransitionConst(0, 1).step_size);
 }
 
 TEST_F(StructureTest, TestCorrectProduct) {

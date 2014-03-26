@@ -42,6 +42,9 @@ void checkDepthBound(const bool minimalize_cost, const size_t depth, SplitManage
  */
 int main(int argc, const char* argv[]) {
 	time_manager.startClock("* Runtime", false);
+#if (_MSC_VER == 1800)
+	setvbuf(stdout, 0, _IOLBF, 4096);
+#endif
 
 	UserOptions user_options;
 	Model model;
@@ -86,7 +89,7 @@ int main(int argc, const char* argv[]) {
 		for (const string & filter_name : user_options.filter_databases) {
 			SQLAdapter adapter;
 			adapter.setDatabase(filter_name);
-			filter.addAllowed(kinetics, adapter);
+			filter.prepare(kinetics, move(adapter));
 		}
 		product = ConstructionManager::construct(model, property, kinetics);
 	}
@@ -108,7 +111,7 @@ int main(int argc, const char* argv[]) {
 		// Do the computation for all the rounds
 		do {
 			output.outputRoundNo(split_manager.getRoundNo(), split_manager.getRoundCount());
-			if (!filter.isAllowed(split_manager.getParamNo()))
+			if (!filter.isAllowed(kinetics, split_manager.getParamNo()))
 				continue;
 
 			vector<StateTransition> witness_trans;
