@@ -1,0 +1,68 @@
+<NETWORK>
+    <INPUT name="igf1" />
+    <INPUT name="il1a" />
+    <INPUT name="tgfa" />
+    <INPUT name="tnfa" />
+    <SPECIE name="akt">
+        <REGUL source="pi3k" label="ActivatingOnly" />
+    </SPECIE>
+    <SPECIE name="erk12">
+        <REGUL source="mek12" label="ActivatingOnly" />
+    </SPECIE>
+    <SPECIE name="hsp27">
+        <REGUL source="p38" label="ActivatingOnly" />
+        <REGUL source="erk12" label="ActivatingOnly" />
+        <REGUL source="map3k7" label="ActivatingOnly" />
+		<CONSTR expr="!(p38:0,erk12:0,map3k7:0 = 0 & p38:0,erk12:0,map3k7:1 = 0 & p38:0,erk12:1,map3k7:0 = 0 & p38:1,erk12:0,map3k7:0 = 0 & p38:0,erk12:1,map3k7:1 = 0 & p38:1,erk12:0,map3k7:1 = 0 & p38:1,erk12:1,map3k7:0 = 0 & p38:1,erk12:1,map3k7:1 = 1)" />
+    </SPECIE>
+    <SPECIE name="ikb">
+        <REGUL source="ikk" label="ActivatingOnly" />
+    </SPECIE>
+    <SPECIE name="ikk">
+        <REGUL source="map3k1" label="ActivatingOnly" />
+        <REGUL source="map3k7" label="ActivatingOnly" />
+        <REGUL source="akt" label="ActivatingOnly" />
+		<CONSTR expr="!(map3k1:0,akt:0,map3k7:0 = 0 & map3k1:0,akt:0,map3k7:1 = 0 & map3k1:0,akt:1,map3k7:0 = 0 & map3k1:1,akt:0,map3k7:0 = 0 & map3k1:0,akt:1,map3k7:1 = 0 & map3k1:1,akt:0,map3k7:1 = 0 & map3k1:1,akt:1,map3k7:0 = 0 & map3k1:1,akt:1,map3k7:1 = 1)" />
+    </SPECIE>
+    <SPECIE name="map3k1">
+        <REGUL source="ras" label="ActivatingOnly" />
+        <REGUL source="pi3k" label="ActivatingOnly" />
+        <REGUL source="il1a" label="ActivatingOnly" />
+		<CONSTR expr="!(ras:0,pi3k:0,il1a:0 = 0 & ras:0,pi3k:0,il1a:1 = 0 & ras:0,pi3k:1,il1a:0 = 0 & ras:1,pi3k:0,il1a:0 = 0 & ras:0,pi3k:1,il1a:1 = 0 & ras:1,pi3k:0,il1a:1 = 0 & ras:1,pi3k:1,il1a:0 = 0 & ras:1,pi3k:1,il1a:1 = 1)" />
+    </SPECIE>
+    <SPECIE name="map3k7">
+        <REGUL source="il1a" label="ActivatingOnly" />
+        <REGUL source="tnfa" label="ActivatingOnly" />
+    </SPECIE>
+    <SPECIE name="mek12">
+        <REGUL source="akt" label="InhibitingOnly" />
+        <REGUL source="ras" label="ActivatingOnly" />
+        <REGUL source="pi3k" label="ActivatingOnly" />
+		<CONSTR expr="!(ras:0,akt:0,pi3k:0 = 0 & ras:0,akt:0,pi3k:1 = 0 & ras:0,akt:1,pi3k:0 = 0 & ras:1,akt:0,pi3k:0 = 0 & ras:0,akt:1,pi3k:1 = 0 & ras:1,akt:0,pi3k:1 = 0 & ras:1,akt:1,pi3k:0 = 0 & ras:1,akt:1,pi3k:1 = 1)" />
+    </SPECIE>
+    <SPECIE name="mkk4">
+        <REGUL source="map3k7" label="ActivatingOnly" />
+        <REGUL source="map3k1" label="ActivatingOnly" />
+        <REGUL source="tnfa" label="ActivatingOnly" />
+		<CONSTR expr="!(map3k1:0,tnfa:0,map3k7:0 = 0 & map3k1:0,tnfa:0,map3k7:1 = 0 & map3k1:0,tnfa:1,map3k7:0 = 0 & map3k1:1,tnfa:0,map3k7:0 = 0 & map3k1:0,tnfa:1,map3k7:1 = 0 & map3k1:1,tnfa:0,map3k7:1 = 0 & map3k1:1,tnfa:1,map3k7:0 = 0 & map3k1:1,tnfa:1,map3k7:1 = 1)" />
+    </SPECIE>
+    <SPECIE name="p38">
+        <REGUL source="mkk4" label="ActivatingOnly" />
+        <REGUL source="map3k7" label="ActivatingOnly" />
+    </SPECIE>
+    <SPECIE name="pi3k">
+        <REGUL source="ras" label="ActivatingOnly" />
+        <REGUL source="igf1" label="ActivatingOnly" />
+        <REGUL source="tgfa" label="ActivatingOnly" />
+        <REGUL source="tnfa" label="ActivatingOnly" />
+		<CONSTR expr="!(ras:0,igf1:0,tgfa:0 = 0 & ras:0,igf1:0,tgfa:1 = 0 & ras:0,igf1:1,tgfa:0 = 0 & ras:1,igf1:0,tgfa:0 = 0 & ras:0,igf1:1,tgfa:1 = 0 & ras:1,igf1:0,tgfa:1 = 0 & ras:1,igf1:1,tgfa:0 = 0 & ras:1,igf1:1,tgfa:1 = 1)" />
+		<CONSTR expr="!(tnfa:0,igf1:0,tgfa:0 = 0 & tnfa:0,igf1:0,tgfa:1 = 0 & tnfa:0,igf1:1,tgfa:0 = 0 & tnfa:1,igf1:0,tgfa:0 = 0 & tnfa:0,igf1:1,tgfa:1 = 0 & tnfa:1,igf1:0,tgfa:1 = 0 & tnfa:1,igf1:1,tgfa:0 = 0 & tnfa:1,igf1:1,tgfa:1 = 1)" />
+		<CONSTR expr="!(ras:0,tnfa:0,tgfa:0 = 0 & ras:0,tnfa:0,tgfa:1 = 0 & ras:0,tnfa:1,tgfa:0 = 0 & ras:1,tnfa:0,tgfa:0 = 0 & ras:0,tnfa:1,tgfa:1 = 0 & ras:1,tnfa:0,tgfa:1 = 0 & ras:1,tnfa:1,tgfa:0 = 0 & ras:1,tnfa:1,tgfa:1 = 1)" />
+		<CONSTR expr="!(ras:0,igf1:0,tnfa:0 = 0 & ras:0,igf1:0,tnfa:1 = 0 & ras:0,igf1:1,tnfa:0 = 0 & ras:1,igf1:0,tnfa:0 = 0 & ras:0,igf1:1,tnfa:1 = 0 & ras:1,igf1:0,tnfa:1 = 0 & ras:1,igf1:1,tnfa:0 = 0 & ras:1,igf1:1,tnfa:1 = 1)" />
+		<CONSTR expr="!(ras:0,tnfa:0,ras:0,igf1:0 = 0 & ras:0,tnfa:0,ras:1,igf1:0 = 0 & ras:0,tnfa:1,ras:0,igf1:0 = 0 & ras:1,tnfa:0,ras:0,igf1:0 = 0 & ras:0,tnfa:1,ras:1,igf1:0 = 0 & ras:1,tnfa:0,ras:1,igf1:0 = 0 & ras:1,tnfa:1,ras:0,igf1:0 = 0 & ras:1,tnfa:1,ras:1,igf1:0 = 0 & ras:0,tnfa:0,ras:0,igf1:1 = 0 & ras:0,tnfa:0,ras:1,igf1:1 = 0 & ras:0,tnfa:1,ras:0,igf1:1 = 0 & ras:1,tnfa:0,ras:0,igf1:1 = 0 & ras:0,tnfa:1,ras:1,igf1:1 = 0 & ras:1,tnfa:0,ras:1,igf1:1 = 0 & ras:1,tnfa:1,ras:0,igf1:1 = 0 & ras:1,tnfa:1,ras:1,igf1:1 = 1)" />
+    </SPECIE>
+    <SPECIE name="ras">
+        <REGUL source="igf1" label="ActivatingOnly" />
+        <REGUL source="tgfa" label="ActivatingOnly" />
+    </SPECIE>
+</NETWORK>

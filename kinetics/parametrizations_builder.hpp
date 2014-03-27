@@ -125,16 +125,17 @@ class ParametrizationsBuilder {
 		return result;
 	}
 
-	static Configurations remove_redundant(Kinetics::Params & params, Configurations subcolors) {
-		auto new_end = unique(begin(subcolors), end(subcolors), [&params](const Levels & A, const Levels & B){
+	static void add_irrelevant(Kinetics::Params & params, Configurations & subcolors) {
+		for_each(WHOLE(subcolors), [&params](Levels & subcolor){
 			for (const size_t param_no : cscope(params))
-				if (params[param_no].functional && (A[param_no] != B[param_no]))
-					return false;
-			return true;
+				if (!params[param_no].functional)
+					subcolor[param_no] = -1;
 		});
-		subcolors.resize(distance(begin(subcolors), new_end));
+	}
 
-		return subcolors;
+	static void remove_redundant(Kinetics::Params & params, Configurations & subcolors) {
+		auto new_end = unique(begin(subcolors), end(subcolors));
+		subcolors.resize(distance(begin(subcolors), new_end));
 	}
 
 public:
@@ -160,8 +161,9 @@ public:
 				// Solve the parametrizations
 				string formula = createFormula(model.species[ID].regulations, kinetics.species[ID].params) + " & " + ConstraintReader::consToFormula(model, ID);
 				Configurations subcolors = createPartCol(kinetics.species[ID].params, formula, model.species[ID].max_value);
+				add_irrelevant(kinetics.species[ID].params, subcolors);
 				sort(WHOLE(subcolors));
-				subcolors = remove_redundant(kinetics.species[ID].params, move(subcolors));
+				remove_redundant(kinetics.species[ID].params, subcolors);
 
 				// Copy the data
 				auto & params = kinetics.species[ID].params;

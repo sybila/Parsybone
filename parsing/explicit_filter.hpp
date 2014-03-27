@@ -81,7 +81,10 @@ public:
 		Levels parametrization = KineticsTranslators::createParamVector(kinetics, param_no);
 		for (auto & filter : filters) {
 			while (!filter.last_parametrization.empty() && filter.last_parametrization < parametrization) {
-				filter.last_parametrization = filter.database.getRow<ActLevel>(filter.columns);
+				Levels new_row = filter.database.getRow<ActLevel>(filter.columns);
+				if (new_row < filter.last_parametrization && !new_row.empty())
+					throw runtime_error("Filter \"" + filter.database.getName() + "\" is unordered");
+				filter.last_parametrization = new_row;
 			}
 			if (filter.last_parametrization != parametrization)
 				return false;
