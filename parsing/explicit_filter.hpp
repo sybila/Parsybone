@@ -70,6 +70,24 @@ public:
 		filters.emplace_back(move(filter));
 	}
 
+	bool isSmaller(const Levels & A, const Levels & B) {
+		for (const size_t i : cscope(A))
+			if (A[i] < B[i])
+				return true;
+			else if (A[i] > B[i])
+				return false;
+		return false;
+	}
+
+	bool isEqual(const Levels & A, const Levels & B) {
+		if (A.size() != B.size())
+			throw ("bad lenght");
+		for (const size_t i : cscope(A))
+			if ( A[i] != B[i])
+				return false;
+		return true;
+	}
+
 	/**
 	 * @return true iff the parametrization is not filtered out.
 	 */
@@ -80,13 +98,13 @@ public:
 		// Update each parametrization to the position that's equal or greater that the current parametrization and return false if it is not equal.
 		Levels parametrization = KineticsTranslators::createParamVector(kinetics, param_no);
 		for (auto & filter : filters) {
-			while (!filter.last_parametrization.empty() && filter.last_parametrization < parametrization) {
+			while (!filter.last_parametrization.empty() && isSmaller(filter.last_parametrization, parametrization)) {
 				Levels new_row = filter.database.getRow<ActLevel>(filter.columns);
 				if (new_row < filter.last_parametrization && !new_row.empty())
 					throw runtime_error("Filter \"" + filter.database.getName() + "\" is unordered");
 				filter.last_parametrization = new_row;
 			}
-			if (filter.last_parametrization != parametrization)
+			if (filter.last_parametrization.empty() || !isEqual(filter.last_parametrization, parametrization))
 				return false;
 		}
 		return true;
