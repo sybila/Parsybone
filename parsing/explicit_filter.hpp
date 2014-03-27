@@ -65,26 +65,30 @@ public:
 		// Obtain the database.
 		filter.database = move(sql_adapter);
 		// Bottom vector is empty
-		filter.last_parametrization = Levels{numeric_limits<ActLevel>::min()};
+		filter.last_parametrization = Levels{ numeric_limits<ActLevel>::min() };
 
 		filters.emplace_back(move(filter));
 	}
 
 	bool isSmaller(const Levels & A, const Levels & B) {
-		for (const size_t i : cscope(A))
+		for (const size_t i : cscope(A)) {
+			if (A[i] == -1 || B[i] == -1)
+				continue;
 			if (A[i] < B[i])
 				return true;
 			else if (A[i] > B[i])
 				return false;
+		}
 		return false;
 	}
 
 	bool isEqual(const Levels & A, const Levels & B) {
-		if (A.size() != B.size())
-			throw ("bad lenght");
-		for (const size_t i : cscope(A))
-			if ( A[i] != B[i])
+		for (const size_t i : cscope(A)) {
+			if (A[i] == -1 || B[i] == -1)
+				continue;
+			if (A[i] != B[i])
 				return false;
+		}
 		return true;
 	}
 
@@ -94,7 +98,7 @@ public:
 	inline bool isAllowed(const Kinetics & kinetics, const ParamNo param_no) {
 		if (filters.empty())
 			return true;
-		
+
 		// Update each parametrization to the position that's equal or greater that the current parametrization and return false if it is not equal.
 		Levels parametrization = KineticsTranslators::createParamVector(kinetics, param_no);
 		for (auto & filter : filters) {
