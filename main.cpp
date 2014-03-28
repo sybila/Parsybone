@@ -89,7 +89,7 @@ int main(int argc, const char* argv[]) {
 		for (const string & filter_name : user_options.filter_databases) {
 			SQLAdapter adapter;
 			adapter.setDatabase(filter_name);
-			filter.prepare(kinetics, move(adapter));
+			filter.prepare(kinetics, adapter);
 		}
 		product = ConstructionManager::construct(model, property, kinetics);
 	}
