@@ -83,6 +83,11 @@ public:
 
 	// @brief prepare add parametrizations that are allowed by given database
 	void prepare(const Kinetics & kinetics, SQLAdapter & sql_adapter) {
+		// Test for emptyness 
+		sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
+		if (sql_adapter.getRow<ActLevel>({ 0 }).empty())
+			return;
+
 		// Find relevant columns
 		vector<size_t> columns = getColumns(kinetics, sql_adapter);
 		columns = removeDontCares(sql_adapter, move(columns));
