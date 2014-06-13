@@ -65,7 +65,7 @@ class DatabaseFiller {
 
 	void fillParametrizations(const string & prop_name) {
 		string columns = "(ID INTEGER, " + getContexts();
-		columns += "Cost_" + prop_name + "INTEGER, ";
+		columns += "Cost_" + prop_name + " INTEGER, ";
 		columns += "Robust_" + prop_name + " REAL, ";
 		columns += "Witness_" + prop_name + " TEXT)";
 
