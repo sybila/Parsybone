@@ -241,7 +241,7 @@ public:
 	* @brief accessTable Connect current statement to the given table.
 	*/
 	inline void accessTable(const string & table_name, const string & select = "") const {
-		string query = "SELECT ROWID, * FROM " + table_name;
+		string query = "SELECT * FROM " + table_name;
 		if (!select.empty())
 			query += " WHERE " + select;
 		safePrepare(query + ";");
@@ -289,7 +289,7 @@ public:
 
 		for (const auto i : crange(column.size())) {
 			query += "UPDATE " + table_name + " SET " + column_name + "=" + boost::lexical_cast<string>(column[i])
-				+ " WHERE ROWID=" + boost::lexical_cast<string>(i + 1) + "; ";
+				+ " WHERE ID=" + boost::lexical_cast<string>(i + 1) + "; ";
 		}
 
 		safeExec(query.c_str());
@@ -309,7 +309,7 @@ public:
 
 		for (const auto i : cscope(row_ids)) {
 			query += "UPDATE " + table_name + " SET " + column_name + "=" + boost::lexical_cast<string>(column[i])
-				+ " WHERE ROWID=" + boost::lexical_cast<string>(row_ids[i]) + "; ";
+				+ " WHERE ID=" + boost::lexical_cast<string>(row_ids[i]) + "; ";
 		}
 
 		safeExec(query.c_str());

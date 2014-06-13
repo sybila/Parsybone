@@ -20,9 +20,10 @@
 #include "../auxiliary/SQLAdapter.hpp"
 
 class ExplicitFilter {
-	struct SingleFilter{
+	struct SingleFilter {
+		SQLAdapter database;
 		vector<size_t> columns;
-		Configurations parametrizations;
+		Levels current;
 	};
 
 	vector<SingleFilter> filters;
@@ -31,49 +32,34 @@ public:
 	ExplicitFilter() {}
 
 	// @brief prepare add parametrizations that are allowed by given database
-	void prepare(const Kinetics & kinetics, SQLAdapter & sql_adapter) {
-		// Test for emptyness 
-		sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
-		if (sql_adapter.getRow<ActLevel>({ 0 }).empty())
-			return;
+	void prepare(const Kinetics & kinetics, const string & filter_file) {
+		SingleFilter new_filter;
 
-		// Find relevant columns
-		SingleFilter this_filter;
-		this_filter.columns = sql_adapter.getColumnsByExpression(PARAMETRIZATIONS_TABLE, regex("K_.*")).second;
-		auto names = sql_adapter.getColumnsByExpression(PARAMETRIZATIONS_TABLE, regex("K_.*")).first;
+		// Test for emptyness
+		new_filter.database = {};
+		new_filter.database.setDatabase(filter_file);
+		new_filter.database.accessTable(PARAMETRIZATIONS_TABLE);
+
+		new_filter.columns = new_filter.database.getColumnsByExpression(PARAMETRIZATIONS_TABLE, regex("K_.*")).second;
 
 		// Obtain the parametrizations from the database
-		sql_adapter.accessTable(PARAMETRIZATIONS_TABLE);
-		Levels parametrization = sql_adapter.getRow<ActLevel>(this_filter.columns);
-		while (!parametrization.empty()) {
-			this_filter.parametrizations.emplace_back(move(parametrization));
-			parametrization = sql_adapter.getRow<ActLevel>(this_filter.columns);
-		}
+		new_filter.current = new_filter.database.getRow<ActLevel>(new_filter.columns);
 
-		filters.emplace_back(move(this_filter));
+		filters.emplace_back(move(new_filter));
 	}
 
 	/**
 	 * @return true iff the parametrization is not filtered out.
 	 */
 	inline bool isAllowed(const Kinetics & kinetics, const ParamNo param_no) {
-		if (filters.empty())
-			return true;
-
-		// Test the current parametrization against all the filters
 		const Levels parametrization = KineticsTranslators::createParamVector(kinetics, param_no);
+
 		for (auto & filter : filters) {
-			// A decision saying whether the parametrization is equal to the some in the filter
-			auto is_equal = [&parametrization](const Levels & values) {
-				for (size_t i : cscope(parametrization))
-					if (values[i] != parametrization[i])
-						return false;
-				return true;
-			};
-			// True if a match with something in the database is found
-			if (find_if(WHOLE(filter.parametrizations), is_equal) == filter.parametrizations.end()) {
+			while (filter.current < parametrization && !filter.current.empty()) 
+				filter.current = filter.database.getRow<ActLevel>(filter.columns);
+			
+			if (filter.current.empty() || filter.current != parametrization)
 				return false;
-			}
 		}
 		return true;
 	}

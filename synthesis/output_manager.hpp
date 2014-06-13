@@ -93,7 +93,7 @@ public:
 	/**
 	 * Output parametrizations from this round together with additional data, if requested.
 	 */
-	void outputRound(const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) {
+	void outputRound(const size_t param_ID, const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) {
 		string param_vals = KineticsTranslators::createParamString(kinetics, param_no);
 		string line = to_string(param_no) + separator + param_vals + separator;
 		string update = param_vals.insert(1, to_string(param_no) + ",");

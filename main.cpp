@@ -86,11 +86,8 @@ int main(int argc, const char* argv[]) {
 
 	// Construction of data structures
 	try {
-		for (const string & filter_name : user_options.filter_databases) {
-			SQLAdapter adapter;
-			adapter.setDatabase(filter_name);
-			filter.prepare(kinetics, adapter);
-		}
+		for (const string & filter_name : user_options.filter_databases) 
+			filter.prepare(kinetics, filter_name);
 		product = ConstructionManager::construct(model, property, kinetics);
 	}
 	catch (std::exception & e) {
@@ -107,7 +104,7 @@ int main(int argc, const char* argv[]) {
 		ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
 		size_t BFS_bound = user_options.bound_size; ///< Maximal cost on the verified property.
 		output.outputForm();
-		size_t ID = 1;
+		size_t param_ID = 1;
 
 		// Do the computation for all the rounds
 		do {
@@ -137,7 +134,7 @@ int main(int argc, const char* argv[]) {
 			if ((cost != INF) ^ (user_options.produce_negative)) {
 				checkDepthBound(user_options.minimalize_cost, cost, split_manager, output, BFS_bound, param_count);
 				string witness_path = WitnessSearcher::getOutput(user_options.use_long_witnesses, product, witness_trans);
-				output.outputRound(ID++, cost, robustness_val, witness_path);
+				output.outputRound(param_ID++, split_manager.getRoundNo(), cost, robustness_val, witness_path);
 				param_count++;
 			}
 		} while (split_manager.increaseRound());
