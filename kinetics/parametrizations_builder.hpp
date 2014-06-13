@@ -161,16 +161,16 @@ public:
 				// Solve the parametrizations
 				string formula = createFormula(model.species[ID].regulations, kinetics.species[ID].params) + " & " + ConstraintReader::consToFormula(model, ID);
 				Configurations subcolors = createPartCol(kinetics.species[ID].params, formula, model.species[ID].max_value);
-				add_irrelevant(kinetics.species[ID].params, subcolors);
-				sort(WHOLE(subcolors));
-				remove_redundant(kinetics.species[ID].params, subcolors);
+				// add_irrelevant(kinetics.species[ID].params, subcolors);
+				// sort(WHOLE(subcolors));
+				// remove_redundant(kinetics.species[ID].params, subcolors);
 
 				// Copy the data
 				auto & params = kinetics.species[ID].params;
 				for (const Levels & subcolor : subcolors)
 					for (const size_t param_no : cscope(subcolor))
-						if (params[param_no].functional)
-							params[param_no].target_in_subcolor.emplace_back(subcolor[param_no]);
+						// if (params[param_no].functional)
+						params[param_no].target_in_subcolor.emplace_back(subcolor[param_no]);
 
 
 				kinetics.species[ID].col_count = subcolors.size();

@@ -96,7 +96,7 @@ public:
 	void outputRound(const ParamNo param_no, const size_t & cost, const double robustness_val, const string & witness) {
 		string param_vals = KineticsTranslators::createParamString(kinetics, param_no);
 		string line = to_string(param_no) + separator + param_vals + separator;
-		string update = param_vals;
+		string update = param_vals.insert(1, to_string(param_no) + ",");
 		update.back() = ','; // must remove closing bracket, it will be added by database manager
 
 		if (cost != INF)
@@ -109,7 +109,7 @@ public:
 		update += robustness + ",";
 
 		line += witness + separator;
-		update += "\"" + witness + "\",";
+		update += "\"" + witness + "\")";
 
 		size_t traits = 0;
 		if (user_options.output_console && user_options.be_verbose)

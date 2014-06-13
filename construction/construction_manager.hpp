@@ -29,7 +29,7 @@ namespace ConstructionManager {
 		// Compute parameter values.
 		result.species = ParameterBuilder::buildParams(model);
 		// Disable non-functioncal contexts (optimization)
-		ParameterHelper::find_functional(model, property, result);
+		// ParameterHelper::find_functional(model, property, result);
 		// Compute exact parametrization for the model.
 		ParametrizationsBuilder::buildParametrizations(model, result);
 

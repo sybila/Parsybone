@@ -107,6 +107,7 @@ int main(int argc, const char* argv[]) {
 		ParamNo param_count = 0ul; ///< Number of parametrizations that were considered satisfiable.
 		size_t BFS_bound = user_options.bound_size; ///< Maximal cost on the verified property.
 		output.outputForm();
+		size_t ID = 1;
 
 		// Do the computation for all the rounds
 		do {
@@ -136,7 +137,7 @@ int main(int argc, const char* argv[]) {
 			if ((cost != INF) ^ (user_options.produce_negative)) {
 				checkDepthBound(user_options.minimalize_cost, cost, split_manager, output, BFS_bound, param_count);
 				string witness_path = WitnessSearcher::getOutput(user_options.use_long_witnesses, product, witness_trans);
-				output.outputRound(split_manager.getParamNo(), cost, robustness_val, witness_path);
+				output.outputRound(ID++, cost, robustness_val, witness_path);
 				param_count++;
 			}
 		} while (split_manager.increaseRound());

@@ -22,7 +22,7 @@ class DatabaseFiller {
 	}
 
 	inline string makeInsert(const string & table) {
-		return "INSERT INTO " + table + " VALUES ";
+		return "INSERT INTO " + table + " VALUES " ;
 	}
 
 	void fillComponents() {
@@ -64,11 +64,10 @@ class DatabaseFiller {
 	}
 
 	void fillParametrizations(const string & prop_name) {
-		string columns = "(" + getContexts();
-		columns += "Cost_" + prop_name + " NTEGER, ";
+		string columns = "(ID INTEGER, " + getContexts();
+		columns += "Cost_" + prop_name + "INTEGER, ";
 		columns += "Robust_" + prop_name + " REAL, ";
-		columns += "Witness_" + prop_name + " TEXT, ";
-		columns += "Selection TEXT )";
+		columns += "Witness_" + prop_name + " TEXT)";
 
 		prepareTable(PARAMETRIZATIONS_TABLE, columns);
 	}
@@ -97,7 +96,7 @@ public:
 
 	void addParametrization(string parametrization) {
 		auto insert = makeInsert(PARAMETRIZATIONS_TABLE);
-		sql_adapter.safeExec(insert + parametrization + " 1);");
+		sql_adapter.safeExec(insert + parametrization);
 	}
 
 	void startOutput() {
