@@ -47,7 +47,7 @@ class WitnessSearcher {
       // Go from the end till the lastly reached node
       for (size_t step = last_branch; step < depth; step++) {
          transitions.push_back(StateTransition(path[step], path[step+1]));
-         markings[path[step]].succeeded = step; // Mark found for given parametrizations
+         markings[path[step+1]].succeeded = step+1; // Mark found for given parametrizations
       }
       last_branch = depth;
    }
